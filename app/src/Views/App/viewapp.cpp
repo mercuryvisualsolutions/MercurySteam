@@ -466,7 +466,6 @@ void Views::ViewApp::_mnuSideMainUsersAndGroupsItemTriggered()
     else
         _viwProperties->setSubViewHidden("GroupsPrivileges", true);
 
-    _viwProperties->setSubViewHidden("Data", false);
     _viwProperties->setSubViewHidden("Tags", false);
     _viwProperties->setSubViewHidden("Notes", false);
 }
