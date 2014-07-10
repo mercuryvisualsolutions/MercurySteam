@@ -1,0 +1,15 @@
+#ifndef MDELEGATES_H
+#define MDELEGATES_H
+
+#include "MCheckBoxDelegate.h"
+#include "MDateDelegate.h"
+#include "MDateFieldDelegate.h"
+#include "MFloatFieldDelegate.h"
+#include "MIntFieldDelegate.h"
+#include "MItemDelegate.h"
+#include "MPasswordFieldDelegate.h"
+#include "MQueryComboBoxDelegate.h"
+#include "MThumbnailDelegate.h"
+#include "MValidatorFieldDelegate.h"
+
+#endif // MDELEGATES_H
