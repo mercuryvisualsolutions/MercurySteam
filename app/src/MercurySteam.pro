@@ -14,9 +14,9 @@ else:unix: LIBS += -L$$PWD/../../mscore/build/linux/x86_64/debug/ -lmscore
 INCLUDEPATH += $$PWD/../../mscore/src
 DEPENDPATH += $$PWD/../../mscore/src
 
-LIBS += -lwthttp -lwt -lwtdbo -lwtdbomysql -lboost_signals -lboost_filesystem -lboost_system -lboost_regex -lboost_date_time
-
 DEFINES += QT_NO_KEYWORDS
+
+LIBS += -lwthttp -lwt -lwtdbo -lwtdbomysql -lboost_signals -lboost_filesystem -lboost_system -lboost_regex -lboost_date_time
 
 SOURCES += main.cpp \
     Views/Projects/viewprojects.cpp \

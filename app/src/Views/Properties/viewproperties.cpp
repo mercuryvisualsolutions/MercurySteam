@@ -397,67 +397,67 @@ void Views::ViewProperties::_createGroupsAssignedPrivilegesTableView()
 void Views::ViewProperties::_mnuPropertiesNavBarDataItemTriggered()
 {
     _stkProperties->setCurrentWidget(_qtvData);
-    _onTabDataSelected.emit();
+    _onTabDataSelected();
 }
 
 void Views::ViewProperties::_mnuPropertiesNavBarTagsItemTriggered()
 {
     _stkProperties->setCurrentWidget(_cntTags);
 
-    _onTabTagsSelected.emit();
+    _onTabTagsSelected();
 }
 
 void Views::ViewProperties::_mnuPropertiesNavBarNotesItemTriggered()
 {
     _stkProperties->setCurrentWidget(_qtvNotes);
-    _onTabNotesSelected.emit();
+    _onTabNotesSelected();
 }
 
 void Views::ViewProperties::_mnuPropertiesNavBarGroupsPrivilegesItemTriggered()
 {
     _stkProperties->setCurrentWidget(_cntGroupsPrivileges);
 
-    _onTabGroupsPrivilegesSelected.emit();
+    _onTabGroupsPrivilegesSelected();
 }
 
 void Views::ViewProperties::_btnAddDataClicked()
 {
-    _onAddData.emit();
+    _onAddData();
 }
 
 void Views::ViewProperties::_btnRemoveDataClicked()
 {
-    _onRemoveData.emit();
+    _onRemoveData();
 }
 
 void Views::ViewProperties::_btnAddTagClicked()
 {
-    _onAddTag.emit();
+    _onAddTag();
 }
 
 void Views::ViewProperties::_btnRemoveTagClicked()
 {
-    _onRemoveTag.emit();
+    _onRemoveTag();
 }
 
 void Views::ViewProperties::_btnAddNoteClicked()
 {
-    _onAddNote.emit();
+    _onAddNote();
 }
 
 void Views::ViewProperties::_btnRemoveNoteClicked()
 {
-    _onRemoveNote.emit();
+    _onRemoveNote();
 }
 
 void Views::ViewProperties::_btnAddGroupPrivilegeClicked()
 {
-    _onAddPrivilegeToGroup.emit();
+    _onAddPrivilegeToGroup();
 }
 
 void Views::ViewProperties::_btnRemoveGroupPrivilegeClicked()
 {
-    _onRemovePrivilegeFromGroup.emit();
+    _onRemovePrivilegeFromGroup();
 }
 
 void Views::ViewProperties::_prepareView()

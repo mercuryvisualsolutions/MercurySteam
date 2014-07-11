@@ -159,7 +159,7 @@ void Views::ViewMyDashboard::_mnuNavBarMainMyTasksItemTriggered()
     _stkMain->setCurrentWidget(_qtvTasks);
     updateTasksView();
 
-    _onTabMyTasksSelected.emit();
+    _onTabMyTasksSelected();
 }
 
 void Views::ViewMyDashboard::_prepareView()

@@ -619,7 +619,7 @@ void Views::ViewProjects::_mnuMainProjectsItemTriggered()
     _stkMain->setCurrentWidget(_cntProjects);
     updateProjectsView();
 
-    _onTabProjectsSelected.emit();
+    _onTabProjectsSelected();
 }
 
 void Views::ViewProjects::_mnuMainSequencesItemTriggered()
@@ -627,7 +627,7 @@ void Views::ViewProjects::_mnuMainSequencesItemTriggered()
     _stkMain->setCurrentWidget(_cntSequences);
     updateSequencesView();
 
-    _onTabSequencesSelected.emit();
+    _onTabSequencesSelected();
 }
 
 void Views::ViewProjects::_mnuMainShotsItemTriggered()
@@ -635,7 +635,7 @@ void Views::ViewProjects::_mnuMainShotsItemTriggered()
     _stkMain->setCurrentWidget(_cntShots);
     updateShotsView();
 
-    _onTabShotsSelected.emit();
+    _onTabShotsSelected();
 }
 
 void Views::ViewProjects::_mnuMainAssetsItemTriggered()
@@ -643,7 +643,7 @@ void Views::ViewProjects::_mnuMainAssetsItemTriggered()
     _stkMain->setCurrentWidget(_cntAssets);
     updateAssetsView();
 
-    _onTabAssetsSelected.emit();
+    _onTabAssetsSelected();
 }
 
 void Views::ViewProjects::_mnuMainTasksItemTriggered()
@@ -651,7 +651,7 @@ void Views::ViewProjects::_mnuMainTasksItemTriggered()
     _stkMain->setCurrentWidget(_cntTasks);
     updateTasksView();
 
-    _onTabTasksSelected.emit();
+    _onTabTasksSelected();
 }
 
 //Projects

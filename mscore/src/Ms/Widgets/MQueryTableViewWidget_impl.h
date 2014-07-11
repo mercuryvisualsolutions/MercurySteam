@@ -607,7 +607,7 @@ namespace Ms
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::_mainTableSelectionChanged()
         {
-            _tableSelectionChanged.emit();
+            _tableSelectionChanged();
         }
 
         template<typename T>

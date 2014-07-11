@@ -436,7 +436,7 @@ void Views::ViewUsers::_mnuMainUsersItemTriggered()
     _stkMain->setCurrentWidget(_qtvUsers);
     updateUsersView();
 
-    _onTabUsersSelected.emit();
+    _onTabUsersSelected();
 }
 
 void Views::ViewUsers::_mnuMainGroupsItemTriggered()
@@ -444,7 +444,7 @@ void Views::ViewUsers::_mnuMainGroupsItemTriggered()
     _stkMain->setCurrentWidget(_qtvGroups);
     updateGroupsView();
 
-    _onTabGroupsSelected.emit();
+    _onTabGroupsSelected();
 }
 
 void Views::ViewUsers::_prepareView()
