@@ -69,7 +69,8 @@ SOURCES += main.cpp \
     Views/Settings/dlgcreatetag.cpp \
     Views/Properties/viewproperties.cpp \
     Views/Properties/dlgcreatedbodata.cpp \
-    Views/Properties/dlgcreatenote.cpp
+    Views/Properties/dlgcreatenote.cpp \
+    Log/logmanager.cpp
 
 HEADERS += \
     Views/Projects/viewprojects.h \
@@ -118,4 +119,5 @@ HEADERS += \
     Views/Properties/viewproperties_impl.h \
     Views/Properties/propertiesdialogs.h \
     Views/Properties/dlgcreatedbodata.h \
-    Views/Properties/dlgcreatenote.h
+    Views/Properties/dlgcreatenote.h \
+    Log/logmanager.h

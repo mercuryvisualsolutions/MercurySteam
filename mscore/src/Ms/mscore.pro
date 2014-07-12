@@ -38,7 +38,8 @@ SOURCES += \
     IO/MStreamedMemoryResource.cpp \
     Widgets/Dialogs/MFilesUploadDialog.cpp \
     IO/MResource.cpp \
-    Core/Dbo/MDboManagerBase.cpp
+    Core/Dbo/MDboManagerBase.cpp \
+    Widgets/MLogWidget.cpp
 
 HEADERS +=\
     Mscore_global.h \
@@ -78,7 +79,8 @@ HEADERS +=\
     Widgets/Dialogs/MFilesUploadDialog.h \
     Core/Dbo/MDboManagerBase_impl.h \
     Core/Dbo/MDboManagerBase.h \
-    Widgets/MWidgetFactory_impl.h
+    Widgets/MWidgetFactory_impl.h \
+    Widgets/MLogWidget.h
 
 unix {
     target.path = /usr/lib
