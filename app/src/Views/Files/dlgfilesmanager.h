@@ -54,6 +54,7 @@ namespace Views
         Wt::WPushButton *_btnClose;
 
         //variables
+        Ms::Log::MLogger *_logger;
         std::string _rootPath;
         bool _createEnabled;
         bool _checkInEnabled;

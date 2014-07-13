@@ -83,6 +83,10 @@ namespace Projects
         void addDefaults();
 
     private:
+        //variables
+        Ms::Log::MLogger *_logger;
+
+        //functions
         void _addDefaultProjectWorkStatusTypes();
         void _addDefaultProjectWorkStatus();
         void _addDefaultProjectAssetTypes();

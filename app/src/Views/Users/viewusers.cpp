@@ -5,6 +5,7 @@
 #include "../../Users/usersmanager.h"
 #include "../../Users/usersio.h"
 #include "../../Auth/authmanager.h"
+#include "../../Log/logmanager.h"
 
 #include <Ms/Widgets/Delegates/MDelegates>
 #include <Ms/Widgets/Dialogs/MFilesUploadDialog.h>
@@ -23,6 +24,8 @@
 Views::ViewUsers::ViewUsers() :
     WContainerWidget()
 {
+    _logger = Log::LogManager::instance().getLogger();
+
     _prepareView();
     _mnuMain->select(_mnuMainUsersItem);
 }
@@ -299,7 +302,8 @@ void Views::ViewUsers::_btnUsersImportThumbnailsClicked()
             }
             catch(Wt::WException e)
             {
-                std::cout << "Error occured while trying to import thumbnails to table users" << e.what() << std::endl;
+                _logger->log(std::string("Error occured while trying to import thumbnails to table users") + e.what(),
+                             Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
             }
 
             delFiles.push_back(pair.first);//cache it for later deletion
@@ -308,7 +312,7 @@ void Views::ViewUsers::_btnUsersImportThumbnailsClicked()
         for(std::vector<std::string>::size_type i = 0; i <delFiles.size(); ++i)
         {
             Ms::IO::removeFile(delFiles.at(i));//after finish processing, delete the uploaded thumbnails
-            std::cout << "deleting thumbnail file" << delFiles.at(i) << std::endl;
+            _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info);
         }
 
         _qtvUsers->reload();

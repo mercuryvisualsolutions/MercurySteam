@@ -55,6 +55,8 @@ namespace Views
         void _addExtraColumns(Ms::Widgets::MQueryTableViewWidget<T> *widget, Wt::WFlags<Wt::ItemFlag> flags, int editRank);
 
         //variables
+        Ms::Log::MLogger *_logger;
+
         //Singals
         Wt::Signal<> _onTabUsersSelected;
         Wt::Signal<> _onTabGroupsSelected;

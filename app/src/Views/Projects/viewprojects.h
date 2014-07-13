@@ -58,6 +58,7 @@ namespace Views
         template<typename T>
         void _addExtraColumns(Ms::Widgets::MQueryTableViewWidget<T> *widget, Wt::WFlags<Wt::ItemFlag> flags, int editRank);
 
+        //functions
         //Signals
         Wt::Signal<> _onTabProjectsSelected;
         Wt::Signal<> _onTabSequencesSelected;
@@ -65,6 +66,8 @@ namespace Views
         Wt::Signal<> _onTabAssetsSelected;
         Wt::Signal<> _onTabTasksSelected;
 
+        //variables
+        Ms::Log::MLogger *_logger;
         /*******************--Main--********************/
         Wt::WVBoxLayout *_layMain;
         Wt::WContainerWidget *_cntProjectsAndData;

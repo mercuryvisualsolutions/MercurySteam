@@ -1,6 +1,7 @@
 #include "dlgfilesmanager.h"
 #include "dlgcreaterepo.h"
 #include "../../Users/usersmanager.h"
+#include "../../Log/logmanager.h"
 
 #include <Wt/WIconPair>
 #include <Wt/WStandardItem>
@@ -12,6 +13,8 @@
 
 Views::DlgFilesManager::DlgFilesManager()
 {
+    _logger = Log::LogManager::instance().getLogger();
+
     _prepareView();
 }
 
@@ -75,7 +78,8 @@ void Views::DlgFilesManager::_btnCheckInClicked()
             for(std::vector<std::string>::size_type i = 0; i <delFiles.size(); ++i)
             {
                 Ms::IO::removeFile(delFiles.at(i));//delete tmp files
-                std::cout << "deleting tmp file" << delFiles.at(i) << std::endl;
+
+                _logger->log(std::string("deleting tmp file ") + delFiles.at(i), Ms::Log::LogMessageType::Info);
             }
 
             _refresh();

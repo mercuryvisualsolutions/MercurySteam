@@ -69,6 +69,9 @@ namespace Users
         void addDefaults();
 
     private:
+        //variables
+        Ms::Log::MLogger *_logger;
+
         //functions
         void _addDefaultPrivileges();
         void _addDefaultGroups();

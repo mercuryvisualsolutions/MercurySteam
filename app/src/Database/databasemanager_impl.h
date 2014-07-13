@@ -27,7 +27,7 @@ bool Database::DatabaseManager::dboHasData(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Dat
     }
     catch(...)
     {
-        std::cout << "Error occured while enumerating through dbo data"<< std::endl;
+        _logger->log("Error occured while enumerating through dbo data", Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -58,7 +58,7 @@ bool Database::DatabaseManager::addDataToDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<D
     }
     catch(...)
     {
-        std::cout << "Error occured while trying to add data to dbo" << std::endl;
+        _logger->log("Error occured while trying to add data to dbo", Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -89,7 +89,7 @@ bool Database::DatabaseManager::removeDataFromDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::
     }
     catch(...)
     {
-        std::cout << "Error occured while trying to remove data from dbo" << std::endl;
+        _logger->log("Error occured while trying to remove data from dbo", Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -120,7 +120,7 @@ bool Database::DatabaseManager::dboHasNote(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Dat
     }
     catch(...)
     {
-        std::cout << "Error occured while enumerating through dbo notes" << std::endl;
+        _logger->log("Error occured while enumerating through dbo notes", Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -151,7 +151,7 @@ bool Database::DatabaseManager::addNoteToDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<D
     }
     catch(...)
     {
-        std::cout << "Error occured while trying to add note to dbo" << std::endl;
+        _logger->log("Error occured while trying to add note to dbo", Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -182,7 +182,7 @@ bool Database::DatabaseManager::removeNoteFromDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::
     }
     catch(...)
     {
-        std::cout << "Error occured while trying to remove note from dbo" << std::endl;
+        _logger->log("Error occured while trying to remove note from dbo", Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -213,7 +213,7 @@ bool Database::DatabaseManager::dboHasTag(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Data
     }
     catch(...)
     {
-        std::cout << "Error occured while enumerating through dbo tags" << std::endl;
+        _logger->log("Error occured while enumerating through dbo tags", Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -244,7 +244,7 @@ bool Database::DatabaseManager::addTagToDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Da
     }
     catch(...)
     {
-        std::cout << "Error occured while trying to add tag to dbo" << std::endl;
+        _logger->log("Error occured while trying to add tag to dbo", Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -275,7 +275,7 @@ bool Database::DatabaseManager::removeTagFromDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::p
     }
     catch(...)
     {
-        std::cout << "Error occured while trying to remove tag from dbo" << std::endl;
+        _logger->log("Error occured while trying to remove tag from dbo", Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
     }
 
     return false;

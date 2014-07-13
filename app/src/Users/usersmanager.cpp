@@ -2,6 +2,7 @@
 #include "usersio.h"
 #include "../Auth/authmanager.h"
 #include "Database/databasemanager.h"
+#include "../Log/logmanager.h"
 
 #include <Ms/Exceptions/MDboSessionIsNullException.h>
 #include <Ms/IO/IO.h>
@@ -9,6 +10,7 @@
 Users::UsersManager::UsersManager() :
     MManagerBase()
 {
+    _logger = Log::LogManager::instance().getLogger();
 }
 
 //GROUP
@@ -56,7 +58,7 @@ bool Users::UsersManager::groupHasPrivilege(Wt::Dbo::ptr<Group> group, Wt::Dbo::
     }
     catch(...)
     {
-        std::cout << "Error occured while enumerating through group privileges!" << std::endl;
+        _logger->log("Error occured while enumerating through group privileges!", Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -130,7 +132,7 @@ bool Users::UsersManager::groupHasPrivilege(Wt::Dbo::ptr<Users::Group> group, co
     }
     catch(...)
     {
-        std::cout << "Error occured while enumerating through group privileges!" << std::endl;
+        _logger->log("Error occured while enumerating through group privileges!", Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -166,7 +168,7 @@ bool Users::UsersManager::groupHasUser(Wt::Dbo::ptr<Users::Group> group, Wt::Dbo
     }
     catch(...)
     {
-        std::cout << "Error occured while enumerating through group users!" << std::endl;
+        _logger->log("Error occured while enumerating through group users!", Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -196,7 +198,8 @@ bool Users::UsersManager::addPrivilegeToGroup(Wt::Dbo::ptr<Users::Group> group, 
     }
     catch(...)
     {
-        std::cout << "Error occured while trying to add privilege: " + privilege->name() + "to group: " + group->name() << std::endl;
+        _logger->log(std::string("Error occured while trying to add privilege: ") + privilege->name() + "to group: " + group->name(),
+                     Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -227,7 +230,8 @@ bool Users::UsersManager::removePrivilegeFromGroup(Wt::Dbo::ptr<Users::Group> gr
     }
     catch(...)
     {
-        std::cout << "Error occured while trying to remove privilege: " + privilege->name() + " from group: " + group->name() << std::endl;
+        _logger->log(std::string("Error occured while trying to remove privilege: ") + privilege->name() + " from group: " + group->name(),
+                     Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -257,7 +261,8 @@ bool Users::UsersManager::addUserToGroup(Wt::Dbo::ptr<Users::Group> group, Wt::D
     }
     catch(...)
     {
-        std::cout << "Error occured while trying to add user: " + user->name() + "to group: " + group->name() << std::endl;
+        _logger->log(std::string("Error occured while trying to add user: ") + user->name() + "to group: " + group->name(),
+                     Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -287,7 +292,8 @@ bool Users::UsersManager::removeUserFromGroup(Wt::Dbo::ptr<Users::Group> group, 
     }
     catch(...)
     {
-        std::cout << "Error occured while trying to remove user: " + user->name() + " from group: " + group->name() << std::endl;
+        _logger->log(std::string("Error occured while trying to remove user: ") + user->name() + " from group: " + group->name(),
+                     Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -377,7 +383,8 @@ bool Users::UsersManager::userHasTask(Wt::Dbo::ptr<Users::User> user, Wt::Dbo::p
     }
     catch(...)
     {
-        std::cout << "Error occured while enumerating through user: " + user->name() + "tasks!" << std::endl;
+        _logger->log(std::string("Error occured while enumerating through user: ") + user->name() + "tasks!",
+                     Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -407,7 +414,8 @@ bool Users::UsersManager::assignTaskToUser(Wt::Dbo::ptr<Users::User> user, Wt::D
     }
     catch(...)
     {
-        std::cout << "Error occured while enumerating through user: " + user->name() + "tasks!" << std::endl;
+        _logger->log(std::string("Error occured while enumerating through user: ") + user->name() + "tasks!",
+                     Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -437,7 +445,8 @@ bool Users::UsersManager::removeTaskFromUser(Wt::Dbo::ptr<Users::User> user, Wt:
     }
     catch(...)
     {
-        std::cout << "Error occured while enumerating through user: " + user->name() + "tasks!" << std::endl;
+        _logger->log(std::string("Error occured while enumerating through user: ") + user->name() + "tasks!",
+                     Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
     }
 
     return false;

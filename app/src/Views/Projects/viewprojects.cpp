@@ -6,6 +6,7 @@
 #include "../../Projects/projectsio.h"
 #include "Users/usersmanager.h"
 #include "../Files/dlgfilesmanager.h"
+#include "../../Log/logmanager.h"
 
 #include <Ms/Widgets/MTableViewColumn.h>
 #include <Ms/Widgets/Delegates/MDelegates>
@@ -21,6 +22,8 @@
 Views::ViewProjects::ViewProjects()
 : WContainerWidget()
 {
+    _logger = Log::LogManager::instance().getLogger();
+
     _prepareView();
 
     _mnuMain->select(_mnuMainProjectsItem);
@@ -761,7 +764,8 @@ void Views::ViewProjects::_btnProjectsImportThumbnailsClicked()
             }
             catch(Wt::WException e)
             {
-                std::cout << "Error occured while trying to import thumbnails to table projects" << e.what() << std::endl;
+                _logger->log(std::string("Error occured while trying to import thumbnails to table projects") + e.what(),
+                             Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
             }
 
             delFiles.push_back(pair.first);//cache it for later deletion
@@ -770,7 +774,7 @@ void Views::ViewProjects::_btnProjectsImportThumbnailsClicked()
         for(std::vector<std::string>::size_type i = 0; i <delFiles.size(); ++i)
         {
             Ms::IO::removeFile(delFiles.at(i));//after finish processing, delete the uploaded thumbnails
-            std::cout << "deleting thumbnail file" << delFiles.at(i) << std::endl;
+            _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info);
         }
 
         _qtvProjects->reload();
@@ -947,7 +951,8 @@ void Views::ViewProjects::_btnSequencesImportThumbnailsClicked()
             }
             catch(Wt::WException e)
             {
-                std::cout << "Error occured while trying to import thumbnails to table sequences" << e.what() << std::endl;
+                _logger->log(std::string("Error occured while trying to import thumbnails to table sequences") + e.what(),
+                             Ms::Log::LogMessageType::Error);
             }
 
             delFiles.push_back(pair.first);//cache it for later deletion
@@ -956,7 +961,7 @@ void Views::ViewProjects::_btnSequencesImportThumbnailsClicked()
         for(std::vector<std::string>::size_type i = 0; i < delFiles.size(); ++i)
         {
             Ms::IO::removeFile(delFiles.at(i));//after finish processing, delete the uploaded thumbnails
-            std::cout << "deleting thumbnail file" << delFiles.at(i) << std::endl;
+            _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info);
         }
 
         _qtvSequences->reload();
@@ -1134,7 +1139,8 @@ void Views::ViewProjects::_btnShotsImportThumbnailsClicked()
             }
             catch(Wt::WException e)
             {
-                std::cout << "Error occured while trying to import thumbnails to table shots" << e.what() << std::endl;
+                _logger->log(std::string("Error occured while trying to import thumbnails to table shots") + e.what(),
+                                         Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
             }
 
             delFiles.push_back(pair.first);//cache it for later deletion
@@ -1143,7 +1149,8 @@ void Views::ViewProjects::_btnShotsImportThumbnailsClicked()
         for(std::vector<std::string>::size_type i = 0; i <delFiles.size(); ++i)
         {
             Ms::IO::removeFile(delFiles.at(i));//after finish processing, delete the uploaded thumbnails
-            std::cout << "deleting thumbnail file" << delFiles.at(i) << std::endl;
+
+            _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info);
         }
 
         _qtvShots->reload();
@@ -1321,7 +1328,8 @@ void Views::ViewProjects::_btnAssetsImportThumbnailsClicked()
             }
             catch(Wt::WException e)
             {
-                std::cout << "Error occured while trying to import thumbnails to table assets" << e.what() << std::endl;
+                _logger->log(std::string("Error occured while trying to import thumbnails to table assets") + e.what(),
+                                         Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
             }
 
             delFiles.push_back(pair.first);//cache it for later deletion
@@ -1330,7 +1338,7 @@ void Views::ViewProjects::_btnAssetsImportThumbnailsClicked()
         for(std::vector<std::string>::size_type i = 0; i < delFiles.size(); ++i)
         {
             Ms::IO::removeFile(delFiles.at(i));//after finish processing, delete the uploaded thumbnails
-            std::cout << "deleting thumbnail file" << delFiles.at(i) << std::endl;
+            _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info);
         }
 
         _qtvAssets->reload();

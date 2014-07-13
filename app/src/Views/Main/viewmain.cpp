@@ -3,9 +3,12 @@
 #include "../../Users/usersmanager.h"
 #include "../../Projects/projectsmanager.h"
 #include "../../Auth/authmanager.h"
+#include "../../Log/logmanager.h"
 
 Views::ViewMain::ViewMain()
 {
+    _logger = Log::LogManager::instance().getLogger();
+
     _prepareView();
 
     Auth::AuthManager::instance().login().changed().connect(this, &Views::ViewMain::authEvent);
@@ -17,7 +20,7 @@ void Views::ViewMain::authEvent()
     {
         std::string userName = Auth::AuthManager::instance().login().user().identity(Wt::Auth::Identity::LoginName).toUTF8();
 
-        std::cout << "User: " << userName << " Logged In" << std::endl;
+        _logger->log(std::string("User: ") + userName + " Logged In", Ms::Log::LogMessageType::Info);
 
         //assign userName for managers
         Database::DatabaseManager::instance().setUserName(userName);
@@ -29,7 +32,8 @@ void Views::ViewMain::authEvent()
     }
     else
     {
-        std::cout << "User Logged Out" << std::endl;
+        _logger->log("User Logged Out", Ms::Log::LogMessageType::Info);
+
         Wt::WApplication::instance()->refresh();
         showAuthView();
     }
