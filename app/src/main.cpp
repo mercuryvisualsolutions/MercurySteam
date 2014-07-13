@@ -31,11 +31,11 @@ Wt::WApplication *createApplication(const Wt::WEnvironment &env)
     //data checking
     if (app->appRoot().empty())
     {
-        std::cerr << "Warning: approot not set!" << std::endl;
+        Log::LogManager::instance().getLogger()->log("approot not set!", Ms::Log::LogMessageType::Warning);
     }
     if(app->docRoot().empty())
     {
-        std::cerr << "Warning: docroot not set!" << std::endl;
+        Log::LogManager::instance().getLogger()->log("docroot not set!", Ms::Log::LogMessageType::Warning);
     }
 
     //theme
@@ -73,13 +73,13 @@ Wt::WApplication *createApplication(const Wt::WEnvironment &env)
 int main(int argc, char *argv[])
 {
     //settings
-    std::cout << "Loading settings.." << std::endl;
+    Log::LogManager::instance().getLogger()->log("Loading settings..", Ms::Log::LogMessageType::Info);
 
     AppSettings::instance().setSettingsFileName("Settings.xml");
     if(!boost::filesystem::exists(AppSettings::instance().settingsFileName()))
-    {
         AppSettings::instance().initDefaultSettings();
-    }
+    else
+        AppSettings::instance().loadAppSettings();
 
     if(argc < 0)//check args count
     {
@@ -100,28 +100,25 @@ int main(int argc, char *argv[])
 
     if(AppSettings::instance().docRoot() == "")
     {
-        std::cerr << "docroot can't be empty, please run the program with argument --docroot <path>" << std::endl;
-        exit(0);
+        Log::LogManager::instance().getLogger()->log("docroot can't be empty, please run the program with argument --docroot <path>", Ms::Log::LogMessageType::Fatal);
+        exit(-1);
     }
     if(AppSettings::instance().appRoot() == "")
     {
-        std::cerr << "approot can't be empty, please run the program with argument --approot <path>" << std::endl;
-        exit(0);
+        Log::LogManager::instance().getLogger()->log("approot can't be empty, please run the program with argument --approot <path>", Ms::Log::LogMessageType::Fatal);
+        exit(-1);
     }
 
-    std::cout << "Settings loaded.." << std::endl;
-
-    //database
-    std::cout << "Establishing database connection.." << std::endl;
-    AppSettings::instance().loadAppSettings();
-
-    std::cout << "Connected to \"" << AppSettings::instance().databaseBackEnd() << "\" database using schema \"" << AppSettings::instance().databaseSchema() + "\"" << std::endl;
+    Log::LogManager::instance().getLogger()->log("Settings loaded..", Ms::Log::LogMessageType::Info);
 
     //configure auth service
     Auth::AuthManager::instance().configureAuth();
 
     //initialize database
+    Log::LogManager::instance().getLogger()->log("Initializing Database..", Ms::Log::LogMessageType::Info);
     Database::DatabaseManager::instance().initDatabase();
+
+
 
     //run the application
     return Wt::WRun(argc, argv, &createApplication);

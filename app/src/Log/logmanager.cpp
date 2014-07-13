@@ -7,15 +7,15 @@ Log::LogManager::LogManager()
 
 Log::LogManager::~LogManager()
 {
-    delete _logWidget;
+    delete _logger;
 }
 
-Ms::Widgets::MLogWidget *Log::LogManager::getLogWidget()
+Ms::Log::MLogger *Log::LogManager::getLogger()
 {
-    return _logWidget;
+    return _logger;
 }
 
 void Log::LogManager::_init()
 {
-    _logWidget = new Ms::Widgets::MLogWidget();
+    _logger = new Ms::Log::MLogger();
 }

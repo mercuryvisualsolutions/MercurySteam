@@ -7,6 +7,7 @@
 Views::ViewMain::ViewMain()
 {
     _prepareView();
+
     Auth::AuthManager::instance().login().changed().connect(this, &Views::ViewMain::authEvent);
 }
 

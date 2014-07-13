@@ -3,6 +3,7 @@
 
 #include "../Mscore_global.h"
 #include "../Dbo/MDbo.h"
+#include "../Log/MLogger.h"
 
 #include <Wt/Dbo/Session>
 #include <Wt/Dbo/ptr>
@@ -24,9 +25,10 @@ namespace Ms
         protected:
             //variables
             std::string userName_;
+            Ms::Log::MLogger _logger;
 
             //functions
-
+            void _init();
         };
     }
 }

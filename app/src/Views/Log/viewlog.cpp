@@ -1,14 +1,13 @@
 #include "viewlog.h"
-#include "../../Log/logmanager.h"
 
 Views::ViewLog::ViewLog()
 {
     _prepareView();
 }
 
-const Ms::Widgets::MLogWidget *Views::ViewLog::logWidget() const
+const Ms::Log::Widgets::MLogWidget *Views::ViewLog::logWidget() const
 {
-    return _logWidget;
+    return Log::LogManager::instance().getLogger()->logWidget();
 }
 
 void Views::ViewLog::_prepareView()
@@ -31,9 +30,5 @@ void Views::ViewLog::_prepareView()
     _panLog->setLineHeight(15);
     _layMain->addWidget(_panLog, 1);
 
-    _logWidget = Log::LogManager::instance().getLogWidget();
-
-    _layMain->addWidget(_logWidget);
-
-    _panLog->setCentralWidget(_logWidget);
+    _panLog->setCentralWidget(Log::LogManager::instance().getLogger()->logWidget());
 }

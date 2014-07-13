@@ -12,6 +12,9 @@
 Views::ViewApp::ViewApp()
 : WContainerWidget()
 {
+    //create the client logger widget
+    Log::LogManager::instance().getLogger()->creteClientLoggerWidget();
+
     _prepareView();
 
     _mnuSideMain->select(_mnuSideMainProjectsItem);//default start to the main projects page

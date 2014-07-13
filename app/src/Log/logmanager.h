@@ -1,7 +1,7 @@
 #ifndef LOGMANAGER_H
 #define LOGMANAGER_H
 
-#include <Ms/Widgets/MLogWidget.h>
+#include <Ms/Log/MLogger.h>
 
 namespace Log
 {
@@ -22,11 +22,11 @@ namespace Log
         ~LogManager();
 
         //functions
-        Ms::Widgets::MLogWidget *getLogWidget();
+        Ms::Log::MLogger *getLogger();
 
     private:
         //variables
-        Ms::Widgets::MLogWidget *_logWidget;
+        Ms::Log::MLogger *_logger;
 
         void _init();
 

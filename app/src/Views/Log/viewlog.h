@@ -1,6 +1,8 @@
 #ifndef VIEWLOG_H
 #define VIEWLOG_H
 
+#include "../../Log/logmanager.h"
+
 #include <Wt/WVBoxLayout>
 #include <Wt/WToolBar>
 #include <Wt/WPushButton>
@@ -11,8 +13,6 @@
 
 #include <vector>
 
-#include <Ms/Widgets/MLogWidget.h>
-
 namespace Views
 {
     class ViewLog : public Wt::WContainerWidget
@@ -20,20 +20,14 @@ namespace Views
     public:
         ViewLog();
 
-        const Ms::Widgets::MLogWidget *logWidget() const;
-
-        void info(const std::string &message);
-        void warning(const std::string &message);
-        void error(const std::string &message);
-        void fatal(const std::string &message);
+        //functions
+        const Ms::Log::Widgets::MLogWidget *logWidget() const;
 
     private:
         //variables
         //Wt's
         Wt::WVBoxLayout *_layMain;
         Wt::WPanel *_panLog;
-
-        Ms::Widgets::MLogWidget *_logWidget;
 
         //functions
         void _prepareView();

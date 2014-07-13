@@ -4,6 +4,7 @@
 #include "Users/usersmanager.h"
 #include "Projects/projectsmanager.h"
 #include "Auth/authmanager.h"
+#include "Log/logmanager.h"
 
 #include <Wt/Auth/Dbo/AuthInfo>
 
@@ -11,6 +12,8 @@ Database::DatabaseManager::DatabaseManager()
 {
     _dbInitialized = false;
     _firstRun = false;
+
+    _logger = Log::LogManager::instance().getLogger();
 }
 
 Database::DatabaseManager::~DatabaseManager()
@@ -21,6 +24,8 @@ Database::DatabaseManager::~DatabaseManager()
 
 void Database::DatabaseManager::initDatabase()
 {
+    _logger->log("Establishing database connection..", Ms::Log::LogMessageType::Info);
+
     if(AppSettings::instance().databaseBackEnd() == "MySQL")
     {
         connection.reset(new Wt::Dbo::backend::MySQL(AppSettings::instance().databaseSchema(),
@@ -29,6 +34,8 @@ void Database::DatabaseManager::initDatabase()
                                                       AppSettings::instance().databaseHost(),
                                                      std::stoi(AppSettings::instance().databasePort())));
     }
+
+    _logger->log(std::string("Connected to \"") + AppSettings::instance().databaseBackEnd() + "\" database using schema \"" + AppSettings::instance().databaseSchema() + "\"", Ms::Log::LogMessageType::Info);
 
     session_ = new Wt::Dbo::Session();
     session_->setConnection(*connection);
@@ -90,7 +97,7 @@ bool Database::DatabaseManager::_createSchema()
     //try to create schema if it doesn't already exist
     try
     {
-        std::cout << "Creating database tables.." << std::endl;
+        _logger->log("Creating database tables..", Ms::Log::LogMessageType::Info, Ms::Log::LogMessageContext::Server);
 
         if(!openTransaction())
             return false;
@@ -112,11 +119,12 @@ bool Database::DatabaseManager::_createSchema()
 
         commitTransaction();
 
-        std::cout << "Database tables creation done" << std::endl;
+        _logger->log("Database tables creation done", Ms::Log::LogMessageType::Info);
     }
     catch(Wt::Dbo::Exception e)
     {
-        std::cerr << "Can't Create DB Schema" << std::endl << e.what() << std::endl;
+        _logger->log(std::string("Can't Create DB Schema") + e.what(), Ms::Log::LogMessageType::Fatal);
+
         return false;
     }
 
@@ -139,7 +147,7 @@ void Database::DatabaseManager::_setSchemaAttributes()
         }
         catch(Wt::Dbo::Exception e)
         {
-            std::cerr << "Error setting DB Schema Attributes" << std::endl << e.what() << std::endl;
+            _logger->log(std::string("Error setting DB Schema Attributes") + e.what(), Ms::Log::LogMessageType::Error);
         }
     }
 }

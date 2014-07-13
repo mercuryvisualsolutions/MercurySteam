@@ -39,7 +39,8 @@ SOURCES += \
     Widgets/Dialogs/MFilesUploadDialog.cpp \
     IO/MResource.cpp \
     Core/Dbo/MDboManagerBase.cpp \
-    Widgets/MLogWidget.cpp
+    Log/MLogger.cpp \
+    Log/Widgets/MLogWidget.cpp
 
 HEADERS +=\
     Mscore_global.h \
@@ -80,7 +81,9 @@ HEADERS +=\
     Core/Dbo/MDboManagerBase_impl.h \
     Core/Dbo/MDboManagerBase.h \
     Widgets/MWidgetFactory_impl.h \
-    Widgets/MLogWidget.h
+    Log/MLogger.h \
+    Log/Widgets/MLogWidget.h \
+    Log/MLogGlobals.h
 
 unix {
     target.path = /usr/lib

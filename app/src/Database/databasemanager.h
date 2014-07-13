@@ -7,6 +7,7 @@
 
 #include <Ms/Core/Dbo/MDboManagerBase.h>
 #include <Ms/Exceptions/MDboSessionIsNullException.h>
+#include <Ms/Log/MLogger.h>
 
 #include <iostream>
 #include <memory>
@@ -84,6 +85,7 @@ namespace Database
         UserDatabase *_users;
         bool _firstRun;//whether this is the first time running the application and creating the database
         bool _dbInitialized;
+        Ms::Log::MLogger *_logger;
     };
 }
 
