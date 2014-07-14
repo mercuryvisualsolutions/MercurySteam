@@ -1,13 +1,15 @@
 #include "viewlog.h"
 
+#include <Wt/WApplication>
+
 Views::ViewLog::ViewLog()
 {
     _prepareView();
 }
 
-const Ms::Log::Widgets::MLogWidget *Views::ViewLog::logWidget() const
+const Ms::Widgets::MLogWidget *Views::ViewLog::logWidget() const
 {
-    return Log::LogManager::instance().getLogger()->logWidget();
+    return Log::LogManager::instance().getAppSessionLogger(Wt::WApplication::instance()->sessionId())->logWidget();
 }
 
 void Views::ViewLog::_prepareView()
@@ -30,5 +32,5 @@ void Views::ViewLog::_prepareView()
     _panLog->setLineHeight(15);
     _layMain->addWidget(_panLog, 1);
 
-    _panLog->setCentralWidget(Log::LogManager::instance().getLogger()->logWidget());
+    _panLog->setCentralWidget(Log::LogManager::instance().getAppSessionLogger(Wt::WApplication::instance()->sessionId())->logWidget());
 }

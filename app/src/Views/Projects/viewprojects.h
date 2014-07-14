@@ -17,6 +17,7 @@
 #include <Wt/WStandardItemModel>
 
 #include "projectsdialogs.h"
+#include "../../Log/logger.h"
 
 #include <Ms/Widgets/MWidgetFactory.h>
 #include <Ms/Widgets/MQueryTableViewWidget.h>
@@ -67,7 +68,7 @@ namespace Views
         Wt::Signal<> _onTabTasksSelected;
 
         //variables
-        Ms::Log::MLogger *_logger;
+        Log::Logger *_logger;
         /*******************--Main--********************/
         Wt::WVBoxLayout *_layMain;
         Wt::WContainerWidget *_cntProjectsAndData;

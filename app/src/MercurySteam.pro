@@ -70,7 +70,8 @@ SOURCES += main.cpp \
     Views/Properties/viewproperties.cpp \
     Views/Properties/dlgcreatedbodata.cpp \
     Views/Properties/dlgcreatenote.cpp \
-    Log/logmanager.cpp
+    Log/logmanager.cpp \
+    Log/logger.cpp
 
 HEADERS += \
     Views/Projects/viewprojects.h \
@@ -120,4 +121,6 @@ HEADERS += \
     Views/Properties/propertiesdialogs.h \
     Views/Properties/dlgcreatedbodata.h \
     Views/Properties/dlgcreatenote.h \
-    Log/logmanager.h
+    Log/logmanager.h \
+    Log/logger.h \
+    Log/logglobals.h

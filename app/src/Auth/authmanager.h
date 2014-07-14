@@ -1,6 +1,8 @@
 #ifndef AUTHMANAGER_H
 #define AUTHMANAGER_H
 
+#include <Log/logger.h>
+
 #include <Wt/Auth/Login>
 #include <Wt/Auth/AuthService>
 #include <Wt/Auth/HashFunction>
@@ -39,6 +41,7 @@ namespace Auth
         ~AuthManager();
 
         //functions
+        void initSessionLogger();
         //auth stuff
         void configureAuth();
         const Wt::Auth::AuthService &authService();
@@ -59,6 +62,9 @@ namespace Auth
         Wt::Auth::Login _login;
 
     private:
+        //variables
+        Log::Logger *_logger;
+
         //auth stuff
         Wt::Auth::AuthService _authService;
         Wt::Auth::PasswordService* _passwordService;

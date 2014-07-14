@@ -40,7 +40,7 @@ SOURCES += \
     IO/MResource.cpp \
     Core/Dbo/MDboManagerBase.cpp \
     Log/MLogger.cpp \
-    Log/Widgets/MLogWidget.cpp
+    Widgets/MLogWidget.cpp
 
 HEADERS +=\
     Mscore_global.h \
@@ -82,8 +82,8 @@ HEADERS +=\
     Core/Dbo/MDboManagerBase.h \
     Widgets/MWidgetFactory_impl.h \
     Log/MLogger.h \
-    Log/Widgets/MLogWidget.h \
-    Log/MLogGlobals.h
+    Log/MLogGlobals.h \
+    Widgets/MLogWidget.h
 
 unix {
     target.path = /usr/lib

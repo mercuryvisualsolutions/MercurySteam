@@ -1,5 +1,8 @@
 #include "authmanager.h"
 #include "Database/databasemanager.h"
+#include "Log/logmanager.h"
+
+#include <Wt/WApplication>
 
 Auth::AuthManager::AuthManager()
 {
@@ -14,6 +17,11 @@ Auth::AuthManager::~AuthManager()
     {
         delete _OAuthService[i];
     }
+}
+
+void Auth::AuthManager::initSessionLogger()
+{
+    _logger = Log::LogManager::instance().getAppSessionLogger(Wt::WApplication::instance()->sessionId());
 }
 
 void Auth::AuthManager::configureAuth()

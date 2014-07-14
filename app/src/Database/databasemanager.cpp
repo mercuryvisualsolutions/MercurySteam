@@ -6,14 +6,13 @@
 #include "Auth/authmanager.h"
 #include "Log/logmanager.h"
 
+#include <Wt/WApplication>
 #include <Wt/Auth/Dbo/AuthInfo>
 
 Database::DatabaseManager::DatabaseManager()
 {
     _dbInitialized = false;
     _firstRun = false;
-
-    _logger = Log::LogManager::instance().getLogger();
 }
 
 Database::DatabaseManager::~DatabaseManager()
@@ -24,7 +23,7 @@ Database::DatabaseManager::~DatabaseManager()
 
 void Database::DatabaseManager::initDatabase()
 {
-    _logger->log("Establishing database connection..", Ms::Log::LogMessageType::Info);
+    Log::LogManager::instance().getGlobalLogger()->log("Establishing database connection..", Ms::Log::LogMessageType::Info);
 
     if(AppSettings::instance().databaseBackEnd() == "MySQL")
     {
@@ -35,7 +34,9 @@ void Database::DatabaseManager::initDatabase()
                                                      std::stoi(AppSettings::instance().databasePort())));
     }
 
-    _logger->log(std::string("Connected to \"") + AppSettings::instance().databaseBackEnd() + "\" database using schema \"" + AppSettings::instance().databaseSchema() + "\"", Ms::Log::LogMessageType::Info);
+    Log::LogManager::instance().getGlobalLogger()->log(
+                std::string("Connected to \"") + AppSettings::instance().databaseBackEnd() + "\" database using schema \"" +
+                AppSettings::instance().databaseSchema() + "\"", Ms::Log::LogMessageType::Info);
 
     session_ = new Wt::Dbo::Session();
     session_->setConnection(*connection);
@@ -44,6 +45,11 @@ void Database::DatabaseManager::initDatabase()
     _users = new UserDatabase(*session_);
 
     _dbInitialized = _createSchema();
+}
+
+void Database::DatabaseManager::initSessionLogger()
+{
+    _logger = Log::LogManager::instance().getAppSessionLogger(Wt::WApplication::instance()->sessionId());
 }
 
 void Database::DatabaseManager::discardChanges()
@@ -97,7 +103,7 @@ bool Database::DatabaseManager::_createSchema()
     //try to create schema if it doesn't already exist
     try
     {
-        _logger->log("Creating database tables..", Ms::Log::LogMessageType::Info, Ms::Log::LogMessageContext::Server);
+        Log::LogManager::instance().getGlobalLogger()->log("Creating database tables..", Ms::Log::LogMessageType::Info);
 
         if(!openTransaction())
             return false;
@@ -119,11 +125,11 @@ bool Database::DatabaseManager::_createSchema()
 
         commitTransaction();
 
-        _logger->log("Database tables creation done", Ms::Log::LogMessageType::Info);
+        Log::LogManager::instance().getGlobalLogger()->log("Database tables creation done", Ms::Log::LogMessageType::Info);
     }
     catch(Wt::Dbo::Exception e)
     {
-        _logger->log(std::string("Can't Create DB Schema") + e.what(), Ms::Log::LogMessageType::Fatal);
+        Log::LogManager::instance().getGlobalLogger()->log(std::string("Can't Create DB Schema") + e.what(), Ms::Log::LogMessageType::Fatal);
 
         return false;
     }
@@ -147,7 +153,7 @@ void Database::DatabaseManager::_setSchemaAttributes()
         }
         catch(Wt::Dbo::Exception e)
         {
-            _logger->log(std::string("Error setting DB Schema Attributes") + e.what(), Ms::Log::LogMessageType::Error);
+            Log::LogManager::instance().getGlobalLogger()->log(std::string("Error setting DB Schema Attributes") + e.what(), Ms::Log::LogMessageType::Error);
         }
     }
 }

@@ -22,7 +22,7 @@
 Views::ViewProjects::ViewProjects()
 : WContainerWidget()
 {
-    _logger = Log::LogManager::instance().getLogger();
+    _logger = Log::LogManager::instance().getAppSessionLogger(Wt::WApplication::instance()->sessionId());
 
     _prepareView();
 
@@ -765,7 +765,7 @@ void Views::ViewProjects::_btnProjectsImportThumbnailsClicked()
             catch(Wt::WException e)
             {
                 _logger->log(std::string("Error occured while trying to import thumbnails to table projects") + e.what(),
-                             Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
+                             Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
             }
 
             delFiles.push_back(pair.first);//cache it for later deletion
@@ -844,7 +844,6 @@ void Views::ViewProjects::_btnSequencesCreateClicked()
                     Wt::Dbo::ptr<Projects::Project> prjPtr = _qtvProjects->model()->resultRow(_qtvProjects->proxyModel()->mapToSource(index).row());
                     Projects::ProjectSequence * sequence = new Projects::ProjectSequence(dlg->sequenceName());
                     sequence->setStatus(dlg->status());
-                    sequence->setProject(prjPtr);
                     sequence->setStartDate(dlg->startDate());
                     sequence->setEndDate(dlg->endDate());
                     sequence->setDurationInFrames(dlg->duration());
@@ -1032,7 +1031,6 @@ void Views::ViewProjects::_btnShotsCreateClicked()
 
                     Projects::ProjectShot *shot = new Projects::ProjectShot(dlg->shotName());
                     shot->setStatus(dlg->status());
-                    shot->setSequence(seqPtr);
                     shot->setStartDate(dlg->startDate());
                     shot->setEndDate(dlg->endDate());
                     shot->setDurationInFrames(dlg->duration());
@@ -1140,7 +1138,7 @@ void Views::ViewProjects::_btnShotsImportThumbnailsClicked()
             catch(Wt::WException e)
             {
                 _logger->log(std::string("Error occured while trying to import thumbnails to table shots") + e.what(),
-                                         Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
+                                         Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
             }
 
             delFiles.push_back(pair.first);//cache it for later deletion
@@ -1225,7 +1223,6 @@ void Views::ViewProjects::_btnAssetsCreateClicked()
                     Projects::ProjectAsset *asset = new Projects::ProjectAsset(dlg->assetName());
                     asset->setStatus(dlg->status());
                     asset->setType(dlg->assetType());
-                    asset->setProject(prjPtr);
                     asset->setStartDate(dlg->startDate());
                     asset->setEndDate(dlg->endDate());
                     asset->setDescription(dlg->description());
@@ -1329,7 +1326,7 @@ void Views::ViewProjects::_btnAssetsImportThumbnailsClicked()
             catch(Wt::WException e)
             {
                 _logger->log(std::string("Error occured while trying to import thumbnails to table assets") + e.what(),
-                                         Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
+                                         Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
             }
 
             delFiles.push_back(pair.first);//cache it for later deletion
@@ -1407,14 +1404,11 @@ void Views::ViewProjects::_btnTasksCreateClicked()
             if(dlg->result() == Wt::WDialog::Accepted)
             {
                 //add tasks for selected shots
-                for(const Wt::WModelIndex &index : _qtvShots->table()->selectedIndexes())
+                for(auto &shotPtr : _qtvShots->selectedItems())
                 {
-                    Wt::Dbo::ptr<Projects::ProjectShot> shotPtr = _qtvShots->model()->resultRow(_qtvShots->proxyModel()->mapToSource(index).row());
-
                     Projects::ProjectTask *task = new Projects::ProjectTask();
                     task->setStatus(dlg->status());
                     task->setType(dlg->type());
-                    task->setShot(shotPtr);
                     task->setStartDate(dlg->startDate());
                     task->setEndDate(dlg->endDate());
                     task->setDescription(dlg->description());
@@ -1426,19 +1420,18 @@ void Views::ViewProjects::_btnTasksCreateClicked()
                         if(Projects::ProjectsManager::instance().addTaskToShot(shotPtr, taskPtr))
                         {
                             Projects::ProjectsIO::createShotTaskDirectoryStructure(shotPtr->projectName(), shotPtr->sequenceName(), shotPtr->name(), taskPtr.id());
+
+                            _logger->log(std::string("Created task for shot ") + shotPtr->name(), Ms::Log::LogMessageType::Info, Log::LogMessageContext::ServerAndClient);
                         }
                     }
                 }
 
                 //add tasks for selected assets
-                for(const Wt::WModelIndex &index : _qtvAssets->table()->selectedIndexes())
+                for(auto &assetPtr : _qtvAssets->selectedItems())
                 {
-                    Wt::Dbo::ptr<Projects::ProjectAsset> assetPtr = _qtvAssets->model()->resultRow(_qtvAssets->proxyModel()->mapToSource(index).row());
-
                     Projects::ProjectTask *task = new Projects::ProjectTask();
                     task->setStatus(dlg->status());
                     task->setType(dlg->type());
-                    task->setAsset(assetPtr);
                     task->setStartDate(dlg->startDate());
                     task->setEndDate(dlg->endDate());
                     task->setDescription(dlg->description());
@@ -1450,6 +1443,8 @@ void Views::ViewProjects::_btnTasksCreateClicked()
                         if(Projects::ProjectsManager::instance().addTaskToAsset(assetPtr, taskPtr))
                         {
                             Projects::ProjectsIO::createAssetTaskDirectoryStructure(assetPtr->projectName(), assetPtr->projectName(), taskPtr.id());
+
+                            _logger->log(std::string("Created task for asset ") + assetPtr->name(), Ms::Log::LogMessageType::Info, Log::LogMessageContext::ServerAndClient);
                         }
                     }
                 }

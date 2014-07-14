@@ -24,7 +24,7 @@
 Views::ViewUsers::ViewUsers() :
     WContainerWidget()
 {
-    _logger = Log::LogManager::instance().getLogger();
+    _logger = Log::LogManager::instance().getAppSessionLogger(Wt::WApplication::instance()->sessionId());
 
     _prepareView();
     _mnuMain->select(_mnuMainUsersItem);
@@ -303,7 +303,7 @@ void Views::ViewUsers::_btnUsersImportThumbnailsClicked()
             catch(Wt::WException e)
             {
                 _logger->log(std::string("Error occured while trying to import thumbnails to table users") + e.what(),
-                             Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
+                             Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
             }
 
             delFiles.push_back(pair.first);//cache it for later deletion

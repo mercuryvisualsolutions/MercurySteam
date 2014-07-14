@@ -5,6 +5,7 @@
 
 #include <Wt/WIconPair>
 #include <Wt/WStandardItem>
+#include <Wt/WApplication>
 
 #include <stack>
 
@@ -13,7 +14,7 @@
 
 Views::DlgFilesManager::DlgFilesManager()
 {
-    _logger = Log::LogManager::instance().getLogger();
+    _logger = Log::LogManager::instance().getAppSessionLogger(Wt::WApplication::instance()->sessionId());
 
     _prepareView();
 }

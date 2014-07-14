@@ -22,7 +22,7 @@ namespace Views
 
     private:
         //variables
-        Ms::Log::MLogger *_logger;
+        Log::Logger *_logger;
         Wt::WStackedWidget *_stkMain;
         Wt::WVBoxLayout *_layMain;
         //auth view

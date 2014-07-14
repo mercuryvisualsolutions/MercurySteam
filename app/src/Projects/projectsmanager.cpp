@@ -2,10 +2,15 @@
 #include "projectsio.h"
 #include "../Log/logmanager.h"
 
+#include <Wt/WApplication>
 
 Projects::ProjectsManager::ProjectsManager()
 {
-    _logger = Log::LogManager::instance().getLogger();
+}
+
+void Projects::ProjectsManager::initSessionLogger()
+{
+    _logger = Log::LogManager::instance().getAppSessionLogger(Wt::WApplication::instance()->sessionId());
 }
 
 //PROJECT
@@ -54,7 +59,7 @@ bool Projects::ProjectsManager::addSequenceToProject(Wt::Dbo::ptr<Projects::Proj
     catch(...)
     {
         _logger->log(std::string("Error occured while trying to add sequence: ") + sequence->name() + " to project: " + project->name(),
-                     Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
+                     Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -86,7 +91,7 @@ bool Projects::ProjectsManager::removeSequenceFromProject(Wt::Dbo::ptr<Projects:
     catch(...)
     {
         _logger->log(std::string("Error occured while trying to remove sequence: ") + sequence->name() + " from project: " + project->name(),
-                     Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
+                     Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -117,7 +122,7 @@ bool Projects::ProjectsManager::projectHasSequence(Wt::Dbo::ptr<Projects::Projec
     catch(...)
     {
         _logger->log(std::string("Error occured while enumerating through project: " ) + project->name() + " sequences",
-                     Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
+                     Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -148,7 +153,7 @@ bool Projects::ProjectsManager::addAssetToProject(Wt::Dbo::ptr<Projects::Project
     catch(...)
     {
         _logger->log(std::string("Error occured while trying to add asset: ") + asset->name() + " to project: " + project->name(),
-                     Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
+                     Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -180,7 +185,7 @@ bool Projects::ProjectsManager::removeAssetFromProject(Wt::Dbo::ptr<Projects::Pr
     catch(...)
     {
         _logger->log(std::string("Error occured while trying to remove asset: ") + asset->name() + " from project: " + project->name(),
-                     Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
+                     Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -211,7 +216,7 @@ bool Projects::ProjectsManager::projectHasAsset(Wt::Dbo::ptr<Projects::Project> 
     catch(...)
     {
         _logger->log(std::string("Error occured while enumerating through project: ") + project->name() + " assets",
-                     Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
+                     Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -263,7 +268,7 @@ bool Projects::ProjectsManager::addTaskToAsset(Wt::Dbo::ptr<Projects::ProjectAss
     catch(...)
     {
         _logger->log(std::string("Error occured while trying to add task to asset: ") + asset->name(),
-                     Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
+                     Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -294,7 +299,7 @@ bool Projects::ProjectsManager::removeTaskFromAsset(Wt::Dbo::ptr<Projects::Proje
     catch(...)
     {
         _logger->log(std::string("Error occured while trying to remove task from asset: ") + asset->name(),
-                     Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
+                     Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -325,7 +330,7 @@ bool Projects::ProjectsManager::assetHasTask(Wt::Dbo::ptr<Projects::ProjectAsset
     catch(...)
     {
         _logger->log(std::string("Error occured while enumerating through asset: ") + asset->name() + " tasks",
-                     Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
+                     Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -377,7 +382,7 @@ bool Projects::ProjectsManager::addShotToSequence(Wt::Dbo::ptr<Projects::Project
     catch(...)
     {
         _logger->log(std::string("Error occured while trying to add shot: ") + shot->name() + " to sequence: " + sequence->name(),
-                     Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
+                     Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -408,7 +413,7 @@ bool Projects::ProjectsManager::removeShotFromSequence(Wt::Dbo::ptr<Projects::Pr
     catch(...)
     {
         _logger->log(std::string("Error occured while trying to remove shot: ") + shot->name() + " from sequence: " + sequence->name(),
-                     Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
+                     Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -439,7 +444,7 @@ bool Projects::ProjectsManager::sequenceHasShot(Wt::Dbo::ptr<Projects::ProjectSe
     catch(...)
     {
         _logger->log(std::string("Error occured while enumerating through sequence: ") + sequence->name() + " shots",
-                     Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
+                     Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -492,7 +497,7 @@ bool Projects::ProjectsManager::addTaskToShot(Wt::Dbo::ptr<Projects::ProjectShot
     catch(...)
     {
         _logger->log(std::string("Error occured while trying to add task to shot: ") + shot->name(),
-                     Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
+                     Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -523,7 +528,7 @@ bool Projects::ProjectsManager::removeTaskFromShot(Wt::Dbo::ptr<Projects::Projec
     catch(...)
     {
         _logger->log(std::string("Error occured while trying to remove task from shot: ") + shot->name(),
-                     Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
+                     Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
     }
 
     return false;
@@ -554,7 +559,7 @@ bool Projects::ProjectsManager::shotHasTask(Wt::Dbo::ptr<Projects::ProjectShot> 
     catch(...)
     {
         _logger->log(std::string("Error occured while enumerating through shot: ") + shot->name() + " tasks",
-                     Ms::Log::LogMessageType::Error, Ms::Log::LogMessageContext::ServerAndClient);
+                     Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
     }
 
     return false;

@@ -22,6 +22,7 @@
 #include <utility>
 
 #include "../../Database/dbtables.h"
+#include "../../Log/logger.h"
 
 #include <Ms/Widgets/MWidgetFactory.h>
 #include <Ms/Widgets/MQueryTableViewWidget.h>
@@ -55,7 +56,7 @@ namespace Views
         void _addExtraColumns(Ms::Widgets::MQueryTableViewWidget<T> *widget, Wt::WFlags<Wt::ItemFlag> flags, int editRank);
 
         //variables
-        Ms::Log::MLogger *_logger;
+        Log::Logger *_logger;
 
         //Singals
         Wt::Signal<> _onTabUsersSelected;

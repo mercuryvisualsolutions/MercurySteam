@@ -42,6 +42,8 @@ class ViewApp : public Wt::WContainerWidget
 
     private:
         //variables
+        Log::Logger *_logger;
+
         /*******************--Main--********************/
         Wt::WVBoxLayout *_layMain;//main layout
         Wt::WHBoxLayout *_layMainH;//horizontal layout child of layMain

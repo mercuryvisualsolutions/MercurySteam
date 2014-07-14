@@ -1,6 +1,8 @@
 #ifndef DLGFILESMANAGER_H
 #define DLGFILESMANAGER_H
 
+#include "../../Log/logger.h"
+
 #include <Wt/WDialog>
 #include <Wt/WLabel>
 #include <Wt/WPushButton>
@@ -54,7 +56,7 @@ namespace Views
         Wt::WPushButton *_btnClose;
 
         //variables
-        Ms::Log::MLogger *_logger;
+        Log::Logger *_logger;
         std::string _rootPath;
         bool _createEnabled;
         bool _checkInEnabled;

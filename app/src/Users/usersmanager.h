@@ -4,6 +4,7 @@
 //#include <Wt/Dbo/ptr>
 
 #include "../Database/dbtables.h"
+#include "../Log/logger.h"
 
 #include <Ms/Core/MManagerBase.h>
 
@@ -24,6 +25,8 @@ namespace Users
         }
 
         //functions
+        void initSessionLogger();
+
         //GROUP
         Wt::Dbo::ptr<Users::Group> getGroup(const std::string &name);
         bool groupExist(const std::string &name);
@@ -70,7 +73,7 @@ namespace Users
 
     private:
         //variables
-        Ms::Log::MLogger *_logger;
+        Log::Logger *_logger;
 
         //functions
         void _addDefaultPrivileges();

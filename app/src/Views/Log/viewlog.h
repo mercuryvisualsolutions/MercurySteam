@@ -21,7 +21,7 @@ namespace Views
         ViewLog();
 
         //functions
-        const Ms::Log::Widgets::MLogWidget *logWidget() const;
+        const Ms::Widgets::MLogWidget *logWidget() const;
 
     private:
         //variables

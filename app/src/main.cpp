@@ -31,11 +31,11 @@ Wt::WApplication *createApplication(const Wt::WEnvironment &env)
     //data checking
     if (app->appRoot().empty())
     {
-        Log::LogManager::instance().getLogger()->log("approot not set!", Ms::Log::LogMessageType::Warning);
+        Log::LogManager::instance().getGlobalLogger()->log("approot not set!", Ms::Log::LogMessageType::Warning);
     }
     if(app->docRoot().empty())
     {
-        Log::LogManager::instance().getLogger()->log("docroot not set!", Ms::Log::LogMessageType::Warning);
+        Log::LogManager::instance().getGlobalLogger()->log("docroot not set!", Ms::Log::LogMessageType::Warning);
     }
 
     //theme
@@ -59,6 +59,12 @@ Wt::WApplication *createApplication(const Wt::WEnvironment &env)
     //add our main view
     layMain->addWidget(viwMain);
 
+    //init session loggers
+    Auth::AuthManager::instance().initSessionLogger();
+    Database::DatabaseManager::instance().initSessionLogger();
+    Projects::ProjectsManager::instance().initSessionLogger();
+    Users::UsersManager::instance().initSessionLogger();
+
     //stylesheet
     app->useStyleSheet("style/focusStyle.css");
 
@@ -73,7 +79,7 @@ Wt::WApplication *createApplication(const Wt::WEnvironment &env)
 int main(int argc, char *argv[])
 {
     //settings
-    Log::LogManager::instance().getLogger()->log("Loading settings..", Ms::Log::LogMessageType::Info);
+    Log::LogManager::instance().getGlobalLogger()->log("Loading settings..", Ms::Log::LogMessageType::Info);
 
     AppSettings::instance().setSettingsFileName("Settings.xml");
     if(!boost::filesystem::exists(AppSettings::instance().settingsFileName()))
@@ -100,25 +106,23 @@ int main(int argc, char *argv[])
 
     if(AppSettings::instance().docRoot() == "")
     {
-        Log::LogManager::instance().getLogger()->log("docroot can't be empty, please run the program with argument --docroot <path>", Ms::Log::LogMessageType::Fatal);
+        Log::LogManager::instance().getGlobalLogger()->log("docroot can't be empty, please run the program with argument --docroot <path>", Ms::Log::LogMessageType::Fatal);
         exit(-1);
     }
     if(AppSettings::instance().appRoot() == "")
     {
-        Log::LogManager::instance().getLogger()->log("approot can't be empty, please run the program with argument --approot <path>", Ms::Log::LogMessageType::Fatal);
+        Log::LogManager::instance().getGlobalLogger()->log("approot can't be empty, please run the program with argument --approot <path>", Ms::Log::LogMessageType::Fatal);
         exit(-1);
     }
 
-    Log::LogManager::instance().getLogger()->log("Settings loaded..", Ms::Log::LogMessageType::Info);
+    Log::LogManager::instance().getGlobalLogger()->log("Settings loaded..", Ms::Log::LogMessageType::Info);
 
     //configure auth service
     Auth::AuthManager::instance().configureAuth();
 
     //initialize database
-    Log::LogManager::instance().getLogger()->log("Initializing Database..", Ms::Log::LogMessageType::Info);
+    Log::LogManager::instance().getGlobalLogger()->log("Initializing Database..", Ms::Log::LogMessageType::Info);
     Database::DatabaseManager::instance().initDatabase();
-
-
 
     //run the application
     return Wt::WRun(argc, argv, &createApplication);

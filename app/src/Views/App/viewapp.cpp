@@ -12,8 +12,7 @@
 Views::ViewApp::ViewApp()
 : WContainerWidget()
 {
-    //create the client logger widget
-    Log::LogManager::instance().getLogger()->creteClientLoggerWidget();
+    _logger = Log::LogManager::instance().getAppSessionLogger(Wt::WApplication::instance()->sessionId());
 
     _prepareView();
 

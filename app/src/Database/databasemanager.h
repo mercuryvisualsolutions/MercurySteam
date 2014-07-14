@@ -7,12 +7,12 @@
 
 #include <Ms/Core/Dbo/MDboManagerBase.h>
 #include <Ms/Exceptions/MDboSessionIsNullException.h>
-#include <Ms/Log/MLogger.h>
 
 #include <iostream>
 #include <memory>
 
 #include "dbtables.h"
+#include "Log/logger.h"
 
 namespace Database
 {
@@ -36,6 +36,7 @@ namespace Database
 
     //functions
     void initDatabase();
+    void initSessionLogger();
     void discardChanges();
 
     //GLOBAL types
@@ -85,7 +86,7 @@ namespace Database
         UserDatabase *_users;
         bool _firstRun;//whether this is the first time running the application and creating the database
         bool _dbInitialized;
-        Ms::Log::MLogger *_logger;
+        Log::Logger *_logger;
     };
 }
 

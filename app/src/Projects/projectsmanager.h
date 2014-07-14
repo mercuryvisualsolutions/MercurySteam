@@ -24,6 +24,8 @@ namespace Projects
         }
 
         //functions
+        void initSessionLogger();
+
         //PROJECT
         Wt::Dbo::ptr<Projects::Project> getProject(const std::string &name);
         bool projectExist(const std::string &name);
@@ -84,7 +86,7 @@ namespace Projects
 
     private:
         //variables
-        Ms::Log::MLogger *_logger;
+        Log::Logger *_logger;
 
         //functions
         void _addDefaultProjectWorkStatusTypes();

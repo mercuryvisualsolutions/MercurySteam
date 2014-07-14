@@ -1,7 +1,9 @@
 #ifndef MLOGGER_H
 #define MLOGGER_H
 
-#include "Widgets/MLogWidget.h"
+#include "MLogGlobals.h"
+
+#include <iostream>
 
 namespace Ms
 {
@@ -11,23 +13,15 @@ namespace Ms
         {
         public:
             MLogger();
-            ~MLogger();
 
             //functions
-            unsigned int maxClientLogMessages();
-            void setMaxClientLogMessages(unsigned int value);
-            Ms::Log::Widgets::MLogWidget *creteClientLoggerWidget();
-            void log(const std::string &message, Ms::Log::LogMessageType type, Ms::Log::LogMessageContext context = Ms::Log::LogMessageContext::Server);
 
-            Ms::Log::Widgets::MLogWidget *logWidget();
+            void log(const std::string &message, Ms::Log::LogMessageType type);
 
         private:
             //variables
-            unsigned int _maxClientLogMessages;
-            Ms::Log::Widgets::MLogWidget *_logWidget;
 
             //functions
-            void _init();
         };
     }
 }

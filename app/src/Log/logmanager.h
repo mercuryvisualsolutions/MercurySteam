@@ -1,6 +1,8 @@
 #ifndef LOGMANAGER_H
 #define LOGMANAGER_H
 
+#include "logger.h"
+
 #include <Ms/Log/MLogger.h>
 
 namespace Log
@@ -22,12 +24,15 @@ namespace Log
         ~LogManager();
 
         //functions
-        Ms::Log::MLogger *getLogger();
+        Ms::Log::MLogger *getGlobalLogger();
+        Logger *getAppSessionLogger(const std::string &sessionId);
 
     private:
         //variables
-        Ms::Log::MLogger *_logger;
+        Ms::Log::MLogger *_globalLogger;
+        std::map<std::string,Log::Logger*> _sessionsLoggers;
 
+        //functions
         void _init();
 
     };

@@ -5,9 +5,11 @@
 #include "../../Auth/authmanager.h"
 #include "../../Log/logmanager.h"
 
+#include <Wt/WApplication>
+
 Views::ViewMain::ViewMain()
 {
-    _logger = Log::LogManager::instance().getLogger();
+    _logger = Log::LogManager::instance().getAppSessionLogger(Wt::WApplication::instance()->sessionId());
 
     _prepareView();
 
