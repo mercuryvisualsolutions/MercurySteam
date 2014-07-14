@@ -681,6 +681,12 @@ void Views::ViewProjects::_btnProjectsCreateClicked()
             {
                 Projects::ProjectsIO::createProjectDirectoryStructure(dlg->projectName());
                 updateProjectsView();
+
+                _logger->log(std::string("Created project ") + dlg->projectName(), Ms::Log::LogMessageType::Info);
+            }
+            else
+            {
+                _logger->log(std::string("Error creating project ") + project->name(), Ms::Log::LogMessageType::Error);
             }
         }
 
@@ -843,6 +849,7 @@ void Views::ViewProjects::_btnSequencesCreateClicked()
                 {
                     Wt::Dbo::ptr<Projects::Project> prjPtr = _qtvProjects->model()->resultRow(_qtvProjects->proxyModel()->mapToSource(index).row());
                     Projects::ProjectSequence * sequence = new Projects::ProjectSequence(dlg->sequenceName());
+                    sequence->setProject(prjPtr);
                     sequence->setStatus(dlg->status());
                     sequence->setStartDate(dlg->startDate());
                     sequence->setEndDate(dlg->endDate());
@@ -856,11 +863,14 @@ void Views::ViewProjects::_btnSequencesCreateClicked()
                     Wt::Dbo::ptr<Projects::ProjectSequence> seqPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectSequence>(sequence);
                     if(seqPtr)
                     {
-                        if(Projects::ProjectsManager::instance().addSequenceToProject(prjPtr, seqPtr))
-                        {
-                            Projects::ProjectsIO::createSequenceDirectoryStructure(prjPtr->name(), seqPtr->name());
-                            updateSequencesView();
-                        }
+                        Projects::ProjectsIO::createSequenceDirectoryStructure(prjPtr->name(), seqPtr->name());
+                        updateSequencesView();
+
+                        _logger->log(std::string("Created sequence for project ") + prjPtr->name(), Ms::Log::LogMessageType::Info);
+                    }
+                    else
+                    {
+                        _logger->log(std::string("Error creating sequence for project ") + prjPtr->name(), Ms::Log::LogMessageType::Error);
                     }
                 }
             }
@@ -1030,6 +1040,7 @@ void Views::ViewProjects::_btnShotsCreateClicked()
                     Wt::Dbo::ptr<Projects::ProjectSequence> seqPtr = _qtvSequences->model()->resultRow(_qtvSequences->proxyModel()->mapToSource(index).row());
 
                     Projects::ProjectShot *shot = new Projects::ProjectShot(dlg->shotName());
+                    shot->setSequence(seqPtr);
                     shot->setStatus(dlg->status());
                     shot->setStartDate(dlg->startDate());
                     shot->setEndDate(dlg->endDate());
@@ -1043,11 +1054,14 @@ void Views::ViewProjects::_btnShotsCreateClicked()
                     Wt::Dbo::ptr<Projects::ProjectShot> shotPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectShot>(shot);
                     if(shotPtr)
                     {
-                        if(Projects::ProjectsManager::instance().addShotToSequence(seqPtr, shotPtr))
-                        {
-                            Projects::ProjectsIO::createShotDirectoryStructure(seqPtr->projectName(), seqPtr->name(), shotPtr->name());
-                            updateShotsView();
-                        }
+                        Projects::ProjectsIO::createShotDirectoryStructure(seqPtr->projectName(), seqPtr->name(), shotPtr->name());
+                        updateShotsView();
+
+                        _logger->log(std::string("Created shot for sequence ") + seqPtr->name(), Ms::Log::LogMessageType::Info);
+                    }
+                    else
+                    {
+                        _logger->log(std::string("error creating shot for sequence ") + seqPtr->name(), Ms::Log::LogMessageType::Error);
                     }
                 }
             }
@@ -1221,6 +1235,7 @@ void Views::ViewProjects::_btnAssetsCreateClicked()
                     Wt::Dbo::ptr<Projects::Project> prjPtr = _qtvProjects->model()->resultRow(_qtvProjects->proxyModel()->mapToSource(index).row());
 
                     Projects::ProjectAsset *asset = new Projects::ProjectAsset(dlg->assetName());
+                    asset->setProject(prjPtr);
                     asset->setStatus(dlg->status());
                     asset->setType(dlg->assetType());
                     asset->setStartDate(dlg->startDate());
@@ -1231,11 +1246,14 @@ void Views::ViewProjects::_btnAssetsCreateClicked()
                     Wt::Dbo::ptr<Projects::ProjectAsset> assetPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectAsset>(asset);
                     if(assetPtr)
                     {
-                        if(Projects::ProjectsManager::instance().addAssetToProject(prjPtr, assetPtr))
-                        {
-                            Projects::ProjectsIO::createAssetDirectoryStructure(prjPtr->name(), assetPtr->name());
-                            updateAssetsView();
-                        }
+                        Projects::ProjectsIO::createAssetDirectoryStructure(prjPtr->name(), assetPtr->name());
+                        updateAssetsView();
+
+                        _logger->log(std::string("Created asset ") + assetPtr->name(), Ms::Log::LogMessageType::Info);
+                    }
+                    else
+                    {
+                        _logger->log(std::string("error creating asset ") + asset->name(), Ms::Log::LogMessageType::Error);
                     }
                 }
             }
@@ -1407,6 +1425,7 @@ void Views::ViewProjects::_btnTasksCreateClicked()
                 for(auto &shotPtr : _qtvShots->selectedItems())
                 {
                     Projects::ProjectTask *task = new Projects::ProjectTask();
+                    task->setShot(shotPtr);
                     task->setStatus(dlg->status());
                     task->setType(dlg->type());
                     task->setStartDate(dlg->startDate());
@@ -1417,12 +1436,13 @@ void Views::ViewProjects::_btnTasksCreateClicked()
                     Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectTask>(task);
                     if(taskPtr)
                     {
-                        if(Projects::ProjectsManager::instance().addTaskToShot(shotPtr, taskPtr))
-                        {
-                            Projects::ProjectsIO::createShotTaskDirectoryStructure(shotPtr->projectName(), shotPtr->sequenceName(), shotPtr->name(), taskPtr.id());
+                        Projects::ProjectsIO::createShotTaskDirectoryStructure(shotPtr->projectName(), shotPtr->sequenceName(), shotPtr->name(), taskPtr.id());
 
-                            _logger->log(std::string("Created task for shot ") + shotPtr->name(), Ms::Log::LogMessageType::Info, Log::LogMessageContext::ServerAndClient);
-                        }
+                        _logger->log(std::string("Created task for shot ") + shotPtr->name(), Ms::Log::LogMessageType::Info);
+                    }
+                    else
+                    {
+                        _logger->log(std::string("Error creating task for shot") + shotPtr->name(), Ms::Log::LogMessageType::Error);
                     }
                 }
 
@@ -1430,6 +1450,7 @@ void Views::ViewProjects::_btnTasksCreateClicked()
                 for(auto &assetPtr : _qtvAssets->selectedItems())
                 {
                     Projects::ProjectTask *task = new Projects::ProjectTask();
+                    task->setAsset(assetPtr);
                     task->setStatus(dlg->status());
                     task->setType(dlg->type());
                     task->setStartDate(dlg->startDate());
@@ -1440,12 +1461,13 @@ void Views::ViewProjects::_btnTasksCreateClicked()
                     Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectTask>(task);
                     if(taskPtr)
                     {
-                        if(Projects::ProjectsManager::instance().addTaskToAsset(assetPtr, taskPtr))
-                        {
-                            Projects::ProjectsIO::createAssetTaskDirectoryStructure(assetPtr->projectName(), assetPtr->projectName(), taskPtr.id());
+                        Projects::ProjectsIO::createAssetTaskDirectoryStructure(assetPtr->projectName(), assetPtr->projectName(), taskPtr.id());
 
-                            _logger->log(std::string("Created task for asset ") + assetPtr->name(), Ms::Log::LogMessageType::Info, Log::LogMessageContext::ServerAndClient);
-                        }
+                        _logger->log(std::string("Created task for asset ") + assetPtr->name(), Ms::Log::LogMessageType::Info, Log::LogMessageContext::ServerAndClient);
+                    }
+                    else
+                    {
+                        _logger->log(std::string("error creating task for asset ") + assetPtr->name(), Ms::Log::LogMessageType::Error);
                     }
                 }
 
