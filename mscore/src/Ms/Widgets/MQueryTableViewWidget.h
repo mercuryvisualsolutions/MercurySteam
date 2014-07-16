@@ -114,24 +114,33 @@ namespace Ms
             void _popMnuInverseSelectionItemTriggered();
             void _popMnuIOImportCSVItemTriggered();
             void _popMnuIOExportCSVItemTriggered();
+            void _popMnuViewAdvancedFilterItemTriggered();
+            void _btnAdvancedFilterAddClicked();
+            void _btnAdvancedFilterRemoveClicked();
+            void _btnAdvancedFilterApplyClicked();
+            void _btnAdvancedFilterClearClicked();
             void _popMnuReloadItemTriggered();
 
             //functions
             void _setModelUserName(const std::string &name);
             void _refilter();
             void _createMainTable();
+            void _createAdvancedFilterView();
             void _updateModel();
             void _updateTable();
+            void _updateAdvancedFilterTable();
             void _prepareView();
 
             //variables
             std::vector<Ms::Widgets::MTableViewColumn> _columns;
             int _defaultFilterColumnIndex;
             Wt::Dbo::Query<Wt::Dbo::ptr<T>> _query;
+            Wt::Dbo::Query<Wt::Dbo::ptr<T>> _queryAdvancedFilter;
             Ms::Core::Dbo::MDboManagerBase *_dboManager;
             std::vector<typename Wt::Dbo::dbo_traits<T>::IdType> _selection;//for saving/loading selection in view
             Wt::WString _filterRegExpression;
-            int _ignoreNumFilterColumns = 0;//numbers of columns to ignore when filtering
+            int _ignoreNumFilterColumns;//numbers of columns to ignore when filtering
+            bool _advancedFilterActive;
 
             //ui variables
             Wt::WPushButton *_btnMnuTools;
@@ -143,6 +152,8 @@ namespace Ms
             Wt::WPopupMenu *_popMnuIO;
             Wt::WMenuItem *_popMnuIOImportCSVItem;
             Wt::WMenuItem *_popMnuIOExportCSVItem;
+            Wt::WPopupMenu *_popMnuView;
+            Wt::WMenuItem *_popMnuViewAdvancedFilterItem;
             Wt::WMenuItem *_popMnuReloadItem;
             Ms::Dbo::MDboQueryModel<Wt::Dbo::ptr<T>> *_model;
             Wt::WSortFilterProxyModel *_proxyModel;
@@ -151,6 +162,15 @@ namespace Ms
             Wt::WStandardItemModel *_mdlCmbColumnFilter;
             Wt::WLineEdit *_lnFilter;
             Wt::WTableView *_tblMain;
+
+            //Advanced filter
+            Wt::WContainerWidget *_cntAdvancedFilter;
+            Wt::WVBoxLayout *_layCntAdvancedFilter;
+            Wt::WText *_txtAdvancedFilterTitle;
+            Wt::WContainerWidget *_cntTxtAdvancedFilterTitle;
+            Wt::WToolBar *_tbAdvancedFilter;
+            Wt::WTableView *_tblAdvancedFilter;
+            Wt::WStandardItemModel *_mdlAdvancedFilter;
         };
     }
 }

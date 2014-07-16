@@ -11,5 +11,6 @@
 #include "MQueryComboBoxDelegate.h"
 #include "MThumbnailDelegate.h"
 #include "MValidatorFieldDelegate.h"
+#include "MComboBoxDelegate.h"
 
 #endif // MDELEGATES_H

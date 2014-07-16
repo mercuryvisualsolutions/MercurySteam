@@ -8,6 +8,8 @@
 #include <Wt/WComboBox>
 #include <Wt/Dbo/Session>
 
+#include "MItemDelegate.h"
+
 namespace Ms
 {
     namespace Widgets

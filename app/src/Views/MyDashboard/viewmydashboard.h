@@ -64,7 +64,6 @@ namespace Views
 
         //slots
         void _btnTasksFilesClicked();
-        void _btnTasksReloadClicked();
         void _mnuNavBarMainMyTasksItemTriggered();
 
         void _prepareView();

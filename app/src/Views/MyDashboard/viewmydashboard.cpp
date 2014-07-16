@@ -106,9 +106,6 @@ void Views::ViewMyDashboard::_createTasksTableView()
         btn->clicked().connect(this, &Views::ViewMyDashboard::_btnTasksFilesClicked);
     }
 
-    Wt::WPushButton *btnReload = _qtvTasks->createToolButton("", "icons/Reload.png", "Reload Tasks");
-    btnReload->clicked().connect(this, &Views::ViewMyDashboard::_btnTasksReloadClicked);
-
     updateTasksView();
 }
 
@@ -147,11 +144,6 @@ void Views::ViewMyDashboard::_btnTasksFilesClicked()
         dlg->setCheckOutDisabled(true);
 
     dlg->show();
-}
-
-void Views::ViewMyDashboard::_btnTasksReloadClicked()
-{
-    updateTasksView();
 }
 
 void Views::ViewMyDashboard::_mnuNavBarMainMyTasksItemTriggered()
