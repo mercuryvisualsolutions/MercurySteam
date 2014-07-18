@@ -150,7 +150,6 @@ void Views::DlgCreateProject::_prepareView()
     _layRight->addWidget(_chkActive);
 
     _btnOk = new Wt::WPushButton("Ok", this->footer());
-    _btnOk->setDefault(true);
     _btnOk->clicked().connect(this, &Views::DlgCreateProject::_btnOkClicked);
 
     _btnCancel = new Wt::WPushButton("Cancel", this->footer());
@@ -190,6 +189,9 @@ void Views::DlgCreateProject::_createCmbManager()
     _mdlCmbManager->addColumn("Name", Wt::ItemIsSelectable);
 
     _cmbManager->setModel(_mdlCmbManager);
+
+    if(_mdlCmbManager->rowCount() > 0)
+        _cmbManager->setCurrentIndex(0);
 }
 
 void Views::DlgCreateProject::_createCmbStatus()
@@ -219,6 +221,9 @@ void Views::DlgCreateProject::_createCmbStatus()
     _mdlCmbStatus->addColumn("Status", Wt::ItemIsSelectable);
 
     _cmbStatus->setModel(_mdlCmbStatus);
+
+    if(_mdlCmbStatus->rowCount() > 0)
+        _cmbStatus->setCurrentIndex(0);
 }
 
 bool Views::DlgCreateProject::_validate()

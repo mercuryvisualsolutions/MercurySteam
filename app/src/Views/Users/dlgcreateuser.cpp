@@ -164,6 +164,9 @@ void Views::DlgCreateUser::_createCmbGroups()
     _mdlCmbGroups->addColumn("Name", Wt::ItemIsSelectable);
 
     _cmbGroups->setModel(_mdlCmbGroups);
+
+    if(_mdlCmbGroups->rowCount() > 0)
+        _cmbGroups->setCurrentIndex(0);
 }
 
 void Views::DlgCreateUser::_createCmbTitles()
@@ -193,6 +196,9 @@ void Views::DlgCreateUser::_createCmbTitles()
     _mdlCmbTitles->addColumn("Name", Wt::ItemIsSelectable);
 
     _cmbTitles->setModel(_mdlCmbTitles);
+
+    if(_mdlCmbTitles->rowCount() > 0)
+        _cmbTitles->setCurrentIndex(0);
 }
 
 bool Views::DlgCreateUser::_validate()
@@ -200,7 +206,8 @@ bool Views::DlgCreateUser::_validate()
     if((_txtUserName->validate() != Wt::WValidator::Valid) ||
             (_txtPassword->validate() != Wt::WValidator::Valid) ||
             (_txtIdNumber->validate() != Wt::WValidator::Valid) ||
-            (_txtAddress->validate() != Wt::WValidator::Valid))
+            (_txtAddress->validate() != Wt::WValidator::Valid) ||
+            (_cmbGroups->currentIndex() == -1))
         return false;
 
     return true;

@@ -140,7 +140,6 @@ void Views::DlgCreateSequence::_prepareView()
     _layRight->addWidget(_chkActive);
 
     _btnOk = new Wt::WPushButton("Ok", this->footer());
-    _btnOk->setDefault(true);
     _btnOk->clicked().connect(this, &Views::DlgCreateSequence::_btnOkClicked);
 
     _btnCancel = new Wt::WPushButton("Cancel", this->footer());
@@ -180,6 +179,9 @@ void Views::DlgCreateSequence::_createCmbStatus()
     _mdlCmbStatus->addColumn("Status", Wt::ItemIsSelectable);
 
     _cmbStatus->setModel(_mdlCmbStatus);
+
+    if(_mdlCmbStatus->rowCount() > 0)
+        _cmbStatus->setCurrentIndex(0);
 }
 
 bool Views::DlgCreateSequence::_validate()

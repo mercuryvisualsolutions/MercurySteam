@@ -108,7 +108,6 @@ void Views::DlgCreateAsset::_prepareView()
     _layRight->addWidget(_chkActive);
 
     _btnOk = new Wt::WPushButton("Ok", this->footer());
-    _btnOk->setDefault(true);
     _btnOk->clicked().connect(this, &Views::DlgCreateAsset::_btnOkClicked);
 
     _btnCancel = new Wt::WPushButton("Cancel", this->footer());
@@ -148,6 +147,9 @@ void Views::DlgCreateAsset::_createCmbType()
     _mdlCmbType->addColumn("Type", Wt::ItemIsSelectable);
 
     _cmbType->setModel(_mdlCmbType);
+
+    if(_mdlCmbType->rowCount() > 0)
+        _cmbType->setCurrentIndex(0);
 }
 
 void Views::DlgCreateAsset::_createCmbStatus()
@@ -177,6 +179,9 @@ void Views::DlgCreateAsset::_createCmbStatus()
     _mdlCmbStatus->addColumn("Status", Wt::ItemIsSelectable);
 
     _cmbStatus->setModel(_mdlCmbStatus);
+
+    if(_mdlCmbStatus->rowCount() > 0)
+        _cmbStatus->setCurrentIndex(0);
 }
 
 bool Views::DlgCreateAsset::_validate()

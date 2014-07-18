@@ -181,19 +181,14 @@ void Views::ViewUsers::_btnUsersCreateClicked()
         if(dlg->result() == Wt::WDialog::Accepted)
         {   
             Users::User *user = new Users::User(dlg->userName(), dlg->emailAddress());
+            user->setGroup(dlg->group());
+            user->setTitle(dlg->title());
+            user->setPhoneNumber(dlg->phoneNumber());
+            user->setIdNumber(dlg->idNumber());
+            user->setAddress(dlg->address());
+            user->setActive(dlg->isActive());
 
-            Wt::Dbo::ptr<Users::User> userPtr = Users::UsersManager::instance().createUser(user, dlg->password());
-
-            Wt::Dbo::ptr<Users::Group> groupPtr = Users::UsersManager::instance().getGroup(dlg->group()->name());
-            Wt::Dbo::ptr<Users::UserTitle> titlePtr = Users::UsersManager::instance().getUserTitle(dlg->title()->name());
-
-            Database::DatabaseManager::instance().modifyDbo<Users::User>(userPtr)->setGroup(groupPtr);
-            Database::DatabaseManager::instance().modifyDbo<Users::User>(userPtr)->setTitle(titlePtr);
-            Database::DatabaseManager::instance().modifyDbo<Users::User>(userPtr)->setEmailAddress(dlg->emailAddress());
-            Database::DatabaseManager::instance().modifyDbo<Users::User>(userPtr)->setPhoneNumber(dlg->phoneNumber());
-            Database::DatabaseManager::instance().modifyDbo<Users::User>(userPtr)->setIdNumber(dlg->idNumber());
-            Database::DatabaseManager::instance().modifyDbo<Users::User>(userPtr)->setAddress(dlg->address());
-            Database::DatabaseManager::instance().modifyDbo<Users::User>(userPtr)->setActive(dlg->isActive());
+           Users::UsersManager::instance().createUser(user, dlg->password());
 
             updateUsersView();
         }

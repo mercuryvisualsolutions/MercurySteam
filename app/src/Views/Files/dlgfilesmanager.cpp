@@ -80,7 +80,7 @@ void Views::DlgFilesManager::_btnCheckInClicked()
             {
                 Ms::IO::removeFile(delFiles.at(i));//delete tmp files
 
-                _logger->log(std::string("deleting tmp file ") + delFiles.at(i), Ms::Log::LogMessageType::Info);
+                //_logger->log(std::string("deleting tmp file ") + delFiles.at(i), Ms::Log::LogMessageType::Info);
             }
 
             _refresh();
