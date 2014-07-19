@@ -18,8 +18,6 @@ Views::DlgFilesManager::DlgFilesManager(const std::string &rootPath) :
     _logger = Log::LogManager::instance().getAppSessionLogger(Wt::WApplication::instance()->sessionId());
 
     _prepareView();
-
-    //test line
 }
 
 void Views::DlgFilesManager::_btnCreateClicked()
