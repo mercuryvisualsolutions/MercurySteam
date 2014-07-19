@@ -24,9 +24,7 @@ namespace Views
     class DlgFilesManager : public Wt::WDialog
     {
     public:
-        DlgFilesManager();
         DlgFilesManager(const std::string &rootPath);
-        ~DlgFilesManager();
 
         //functions
         void setRootpath(const std::string &rootPath);

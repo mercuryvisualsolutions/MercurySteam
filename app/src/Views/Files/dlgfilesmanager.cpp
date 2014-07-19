@@ -12,16 +12,11 @@
 #include <Ms/IO/IO.h>
 #include <Ms/Widgets/Dialogs/MFilesUploadDialog.h>
 
-Views::DlgFilesManager::DlgFilesManager()
+Views::DlgFilesManager::DlgFilesManager(const std::string &rootPath) :
+    _rootPath(rootPath)
 {
     _logger = Log::LogManager::instance().getAppSessionLogger(Wt::WApplication::instance()->sessionId());
 
-    _prepareView();
-}
-
-Views::DlgFilesManager::DlgFilesManager(const std::string &rootPath)
-{
-    setRootpath(rootPath);
     _prepareView();
 }
 
@@ -80,7 +75,7 @@ void Views::DlgFilesManager::_btnCheckInClicked()
             {
                 Ms::IO::removeFile(delFiles.at(i));//delete tmp files
 
-                //_logger->log(std::string("deleting tmp file ") + delFiles.at(i), Ms::Log::LogMessageType::Info);
+                _logger->log(std::string("deleting tmp file ") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
             }
 
             _refresh();
@@ -92,7 +87,6 @@ void Views::DlgFilesManager::_btnCheckInClicked()
     dlg->show();
 }
 
-//FIXME::fix the memory leak by deleting the "file" pointer
 void Views::DlgFilesManager::_btnCheckOutClicked()
 {
     std::string url = _generateDownloadUrl();
