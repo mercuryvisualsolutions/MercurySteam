@@ -39,3 +39,8 @@ std::string Users::UsersIO::getRelativeUserDir(const std::string &userName)
     getAbsoluteUserDir(userName);
     return AppSettings::instance().dataDir() + Ms::IO::dirSeparator() + "users" + Ms::IO::dirSeparator() + userName;
 }
+
+std::string Users::UsersIO::getUserTempDir(const std::string &userName)
+{
+    return getAbsoluteUserDir(userName) + Ms::IO::dirSeparator() + "tmp";
+}

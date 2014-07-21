@@ -1,7 +1,9 @@
 #include "dlgfilesmanager.h"
 #include "dlgcreaterepo.h"
 #include "../../Users/usersmanager.h"
+#include "../../Users/usersio.h"
 #include "../../Log/logmanager.h"
+#include "../../Auth/authmanager.h"
 
 #include <Wt/WIconPair>
 #include <Wt/WStandardItem>
@@ -361,7 +363,7 @@ std::string Views::DlgFilesManager::_generateDownloadUrl()
 
 std::string Views::DlgFilesManager::_getUniqueTmpFileName()
 {
-    std::string currentUserTmpDir = Users::UsersManager::instance().getCurrentUserTmpDir();
+    std::string currentUserTmpDir = Users::UsersIO::getUserTempDir(Auth::AuthManager::instance().currentUser()->name());
 
     int numFiles = Ms::IO::dirFilesCount(currentUserTmpDir);
 

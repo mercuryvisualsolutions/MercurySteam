@@ -1,4 +1,5 @@
 #include "../Database/dbtables.h"
+#include "../Database/databasemanager.h"
 
 Projects::ProjectWorkStatus::ProjectWorkStatus() :
     Ms::Dbo::MDbo()
@@ -76,5 +77,7 @@ bool Projects::ProjectWorkStatus::operator !=(const Projects::ProjectWorkStatus 
 
 void Projects::ProjectWorkStatus::_init()
 {
+    dboManager_ = &Database::DatabaseManager::instance();
+
     _status = "New Work Status";
 }

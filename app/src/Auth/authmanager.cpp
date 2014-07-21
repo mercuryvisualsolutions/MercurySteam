@@ -126,6 +126,11 @@ Wt::Auth::User Auth::AuthManager::getAuthUser(const std::string &provider, const
     return authUser;
 }
 
+Wt::Dbo::ptr<Users::User> Auth::AuthManager::currentUser()
+{
+    return getUserAuthInfo(_login.user())->user();
+}
+
 bool Auth::AuthManager::setUserEmail(const std::string &provider, const std::string &identity, const std::string &email)
 {
     Wt::Auth::User user = getAuthUser(provider, identity);

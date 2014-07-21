@@ -50,6 +50,7 @@ namespace Auth
         Wt::Auth::User registerUser(const std::string &name, const std::string &password, const std::string &email = "");
         Wt::Dbo::ptr<Auth::AuthInfo> getUserAuthInfo(Wt::Auth::User authUser);
         Wt::Auth::User getAuthUser(const std::string &provider, const std::string &identity);
+        Wt::Dbo::ptr<Users::User> currentUser();
 
         bool setUserEmail(const std::string &provider, const std::string &identity, const std::string &email);
         bool setUserPassword(const std::string &provider, const std::string &identity, const std::string &password);

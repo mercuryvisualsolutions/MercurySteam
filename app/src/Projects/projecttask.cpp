@@ -1,8 +1,10 @@
 #include "../Database/dbtables.h"
+#include "../Database/databasemanager.h"
 
 Projects::ProjectTask::ProjectTask() :
     Ms::Dbo::MDbo()
 {
+    _init();
 }
 
 Projects::ProjectTask *Projects::ProjectTask::modify()
@@ -92,17 +94,12 @@ void Projects::ProjectTask::setAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset)
     _asset = asset;
 }
 
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>>::size_type Projects::ProjectTask::numData() const
+void Projects::ProjectTask::_init()
 {
-    return _data.size();
-}
+    dboManager_ = &Database::DatabaseManager::instance();
 
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>>::size_type Projects::ProjectTask::numNotes() const
-{
-    return _notes.size();
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>>::size_type Projects::ProjectTask::numTags() const
-{
-    return _tags.size();
+    thumbnail_ = "pics/NoPreviewBig.png";
+    _startDate = Wt::WDate::currentDate();
+    _endDate = Wt::WDate::currentDate();
+    _description = "";
 }

@@ -20,8 +20,8 @@ namespace Wt
     namespace Dbo
     {
         //override the default primary id column for the Group class to use std::string
-         template<>
-         struct dbo_traits<Users::Group> : public dbo_default_traits
+        template<>
+        struct dbo_traits<Users::Group> : public dbo_default_traits
         {
             typedef std::string IdType;
             static IdType invalidId() { return std::string(); }

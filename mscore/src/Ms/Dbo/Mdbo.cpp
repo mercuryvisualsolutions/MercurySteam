@@ -93,6 +93,16 @@ Ms::Dbo::MDbo *Ms::Dbo::MDbo::modify()
     return this;
 }
 
+Ms::Core::Dbo::MDboManagerBase *Ms::Dbo::MDbo::dboManager() const
+{
+    return dboManager_;
+}
+
+void Ms::Dbo::MDbo::setDboManager(Core::Dbo::MDboManagerBase *dboManager)
+{
+    dboManager_ = dboManager;
+}
+
 void Ms::Dbo::MDbo::_init()
 {
     thumbnail_ = "pics/NoPreview.png";

@@ -54,6 +54,44 @@ void Projects::ProjectSequence::setProject(Wt::Dbo::ptr<Projects::Project> proje
     _id.project = project;
 }
 
+bool Projects::ProjectSequence::hasShot(Wt::Dbo::ptr<Projects::ProjectShot> shot) const
+{
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _shots.begin(); iter != _shots.end(); ++iter)
+        {
+            if((*iter).id() == shot.id())
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool Projects::ProjectSequence::addShot(Wt::Dbo::ptr<Projects::ProjectShot> shot)
+{
+    if(!hasShot(shot))
+    {
+        _shots.insert(shot);
+        return true;
+    }
+
+    return false;
+}
+
+bool Projects::ProjectSequence::removeShot(Wt::Dbo::ptr<Projects::ProjectShot> shot)
+{
+    if(hasShot(shot))
+    {
+        _shots.erase(shot);
+        return true;
+    }
+
+    return false;
+}
+
 Wt::WDate Projects::ProjectSequence::startDate() const
 {
     return _startDate;
@@ -133,26 +171,6 @@ void Projects::ProjectSequence::setStatus(const Wt::Dbo::ptr<Projects::ProjectWo
     _status = status;
 }
 
-Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectShot>>::size_type Projects::ProjectSequence::numShots() const
-{
-    return _shots.size();
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>>::size_type Projects::ProjectSequence::numData() const
-{
-    return _data.size();
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>>::size_type Projects::ProjectSequence::numNotes() const
-{
-    return _notes.size();
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>>::size_type Projects::ProjectSequence::numTags() const
-{
-    return _tags.size();
-}
-
 bool Projects::ProjectSequence::operator ==(const Projects::ProjectSequence &other) const
 {
     return _id.name == other.name() &&
@@ -166,6 +184,15 @@ bool Projects::ProjectSequence::operator !=(const Projects::ProjectSequence &oth
 
 void Projects::ProjectSequence::_init()
 {
+    dboManager_ = &Database::DatabaseManager::instance();
+
     thumbnail_ = "pics/NoPreviewBig.png";
     _id.name = "New Project Sequence";
+    _startDate = Wt::WDate::currentDate();
+    _endDate = Wt::WDate::currentDate();
+    _durationInFrames = 1000;
+    _fps = 24.0f;
+    _frameWidth = 1920;
+    _frameHeight = 1080;
+    _description = "";
 }

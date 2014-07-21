@@ -30,6 +30,82 @@ void Projects::Project::setName(const std::string &name)
     _name = name;
 }
 
+bool Projects::Project::hasSequence(Wt::Dbo::ptr<Projects::ProjectSequence> sequence) const
+{
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)
+        {
+            if((*iter).id() == sequence.id())
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool Projects::Project::addSequence(Wt::Dbo::ptr<Projects::ProjectSequence> sequence)
+{
+    if(!hasSequence(sequence))
+    {
+        _sequences.insert(sequence);
+        return true;
+    }
+
+    return false;
+}
+
+bool Projects::Project::removeSequence(Wt::Dbo::ptr<Projects::ProjectSequence> sequence)
+{
+    if(hasSequence(sequence))
+    {
+        _sequences.erase(sequence);
+        return true;
+    }
+
+    return false;
+}
+
+bool Projects::Project::hasAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset) const
+{
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _assets.begin(); iter != _assets.end(); ++iter)
+        {
+            if((*iter).id() == asset.id())
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool Projects::Project::addAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset)
+{
+    if(!hasAsset(asset))
+    {
+        _assets.insert(asset);
+        return true;
+    }
+
+    return false;
+}
+
+bool Projects::Project::removeAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset)
+{
+    if(hasAsset(asset))
+    {
+        _assets.erase(asset);
+        return true;
+    }
+
+    return false;
+}
+
 Wt::WDate Projects::Project::startDate() const
 {
     return _startDate;
@@ -120,31 +196,6 @@ void Projects::Project::setManager(const Wt::Dbo::ptr<Users::User> user)
     _projectManager = user;
 }
 
-Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectSequence>>::size_type Projects::Project::numSequences() const
-{
-    return _sequences.size();
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectAsset>>::size_type Projects::Project::numAssets() const
-{
-    return _assets.size();
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>>::size_type Projects::Project::numData() const
-{
-    return _data.size();
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>>::size_type Projects::Project::numNotes() const
-{
-    return _notes.size();
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>>::size_type Projects::Project::numTags() const
-{
-    return _tags.size();
-}
-
 bool Projects::Project::operator ==(const Projects::Project &other) const
 {
     return _name == other.name();
@@ -157,6 +208,16 @@ bool Projects::Project::operator !=(const Projects::Project &other) const
 
 void Projects::Project::_init()
 {
+    dboManager_ = &Database::DatabaseManager::instance();
+
     thumbnail_ = "pics/NoPreviewBig.png";
+    _name = "New Project";
+    _startDate = Wt::WDate::currentDate();
+    _endDate = Wt::WDate::currentDate();
+    _durationInFrames = 1000;
+    _fps = 24.0f;
+    _frameWidth = 1920;
+    _frameHeight = 1080;
     _progress = 0;
+    _description = "";
 }

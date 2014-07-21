@@ -1,4 +1,6 @@
 #include "../Database/dbtables.h"
+#include "../Database/databasemanager.h"
+#include "../Log/logmanager.h"
 
 Users::UserTitle::UserTitle() :
     Ms::Dbo::MDbo()
@@ -34,11 +36,6 @@ const Wt::Dbo::collection<Wt::Dbo::ptr<Users::User> > Users::UserTitle::users() 
     return _users;
 }
 
-Wt::Dbo::collection<Wt::Dbo::ptr<Users::User>>::size_type Users::UserTitle::numUsers() const
-{
-    return _users.size();
-}
-
 bool Users::UserTitle::operator ==(const Users::UserTitle &other) const
 {
     return _name == other.name();
@@ -51,5 +48,7 @@ bool Users::UserTitle::operator !=(const Users::UserTitle &other) const
 
 void Users::UserTitle::_init()
 {
+    dboManager_ = &Database::DatabaseManager::instance();
+
     _name = "New User Title";
 }

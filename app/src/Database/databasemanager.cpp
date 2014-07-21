@@ -6,6 +6,8 @@
 #include "Auth/authmanager.h"
 #include "Log/logmanager.h"
 
+#include <Ms/Exceptions/MNullPointerException.h>
+
 #include <Wt/WApplication>
 #include <Wt/Auth/Dbo/AuthInfo>
 
@@ -129,7 +131,7 @@ bool Database::DatabaseManager::_createSchema()
     }
     catch(Wt::Dbo::Exception e)
     {
-        Log::LogManager::instance().getGlobalLogger()->log(std::string("Can't Create DB Schema") + e.what(), Ms::Log::LogMessageType::Fatal);
+        Log::LogManager::instance().getGlobalLogger()->log(std::string("Can't Create DB Schema ") + e.what(), Ms::Log::LogMessageType::Fatal);
 
         return false;
     }

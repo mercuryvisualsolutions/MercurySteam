@@ -3,6 +3,8 @@
 
 #include "propertiesdialogs.h"
 
+#include "../../Auth/authmanager.h"
+
 namespace Views
 {
     template<typename T>
@@ -34,14 +36,14 @@ namespace Views
             if(!Database::DatabaseManager::instance().openTransaction())
                 return;
 
-            bool canEdit = Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Edit);
+            bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
             Wt::WFlags<Wt::ItemFlag> flags;
             if(canEdit)
                 flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
             else
                 flags = Wt::ItemIsSelectable;
 
-            int editRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::EditRank);
+            int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
             _qtvData->clearColumns();
 
@@ -133,7 +135,7 @@ namespace Views
             if(!AppSettings::instance().isLoadInactiveData())
                 query.where("Active = ?").bind(true);
 
-            int viewRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::ViewRank);
+            int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
             query.where("View_Rank <= ?").bind(viewRank);
 
             if(dboVec.size() > 0)
@@ -141,7 +143,6 @@ namespace Views
                 if(!AppSettings::instance().isLoadInactiveData())
                     query.where("Active = ?").bind(true);
 
-                int viewRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::ViewRank);
                 query.where("View_Rank <= ?").bind(viewRank);
             }
             else
@@ -171,7 +172,7 @@ namespace Views
             if(!Database::DatabaseManager::instance().openTransaction())
                 return;
 
-            int editRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::EditRank);
+            int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
             _qtvAssignedTags->clearColumns();
 
@@ -260,7 +261,7 @@ namespace Views
                 if(!AppSettings::instance().isLoadInactiveData())
                     query.where("Active = ?").bind(true);
 
-                int viewRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::ViewRank);
+                int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
                 query.where("View_Rank <= ?").bind(viewRank);
             }
             else
@@ -292,14 +293,14 @@ namespace Views
             if(!Database::DatabaseManager::instance().openTransaction())
                 return;
 
-            bool canEdit = Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Edit);
+            bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
             Wt::WFlags<Wt::ItemFlag> flags;
             if(canEdit)
                 flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
             else
                 flags = Wt::ItemIsSelectable;
 
-            int editRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::EditRank);
+            int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
             _qtvNotes->clearColumns();
 
@@ -391,7 +392,7 @@ namespace Views
             if(!AppSettings::instance().isLoadInactiveData())
                 query.where("Active = ?").bind(true);
 
-            int viewRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::ViewRank);
+            int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
             query.where("View_Rank <= ?").bind(viewRank);
 
             if(dboVec.size() > 0)
@@ -399,7 +400,6 @@ namespace Views
                 if(!AppSettings::instance().isLoadInactiveData())
                     query.where("Active = ?").bind(true);
 
-                int viewRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::ViewRank);
                 query.where("View_Rank <= ?").bind(viewRank);
             }
             else

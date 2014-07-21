@@ -285,7 +285,7 @@ namespace Ms
             //load selection by id
             Wt::WModelIndexSet indexSet;
 
-            for(typename Wt::Dbo::dbo_traits<T>::IdType id : _selection)
+            for(const typename Wt::Dbo::dbo_traits<T>::IdType &id : _selection)
             {
                 for(int row = 0; row < _proxyModel->rowCount(); ++row)
                 {

@@ -1,5 +1,5 @@
 #include "MDboManagerBase.h"
-#include "../../Exceptions/MDboSessionIsNullException.h"
+#include "../../Exceptions/MNullPointerException.h"
 
 Ms::Core::Dbo::MDboManagerBase::MDboManagerBase() :
     Ms::Core::MManagerBase()
@@ -26,7 +26,7 @@ void Ms::Core::Dbo::MDboManagerBase::setSession(Wt::Dbo::Session *session)
 bool Ms::Core::Dbo::MDboManagerBase::openTransaction()
 {
     if(!session_)
-        throw Ms::Exceptions::MDboSessionIsNullException("Can't create transaction object, DbSession object is null");
+        throw Ms::Exceptions::MNullPointerException("Can't create transaction object, DbSession object is null");
 
     if(!transaction_)
         transaction_ = new Wt::Dbo::Transaction(*session_);

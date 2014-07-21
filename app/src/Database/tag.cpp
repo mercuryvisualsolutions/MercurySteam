@@ -92,6 +92,7 @@ bool Database::Tag::operator !=(const Database::Tag &other) const
 
 void Database::Tag::_init()
 {
+    thumbnail_ = "pics/NoPreview.png";
     _tagId.name = "New Tag";
     _tagId.content = "";
 }

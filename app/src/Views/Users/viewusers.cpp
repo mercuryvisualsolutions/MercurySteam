@@ -45,7 +45,7 @@ void Views::ViewUsers::updateUsersView()
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Users::User>> query;
 
-    int viewRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::ViewRank);
+    int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
 
     if(AppSettings::instance().isLoadInactiveData())
         query = Database::DatabaseManager::instance().session()->find<Users::User>().where("View_Rank <= ?").bind(viewRank);
@@ -54,14 +54,14 @@ void Views::ViewUsers::updateUsersView()
 
     _qtvUsers->setQuery(query);
 
-    bool canEdit = Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Edit);
+    bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
     Wt::WFlags<Wt::ItemFlag> flags;
     if(canEdit)
         flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
     else
         flags = Wt::ItemIsSelectable;
 
-    int editRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::EditRank);
+    int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
     _qtvUsers->clearColumns();
 
@@ -100,7 +100,7 @@ void Views::ViewUsers::updateGroupsView()
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Users::Group>> query;
 
-    int viewRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::ViewRank);
+    int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
 
     if(AppSettings::instance().isLoadInactiveData())
         query = Database::DatabaseManager::instance().session()->find<Users::Group>().where("View_Rank <= ?").bind(viewRank);
@@ -109,14 +109,14 @@ void Views::ViewUsers::updateGroupsView()
 
     _qtvGroups->setQuery(query);
 
-    bool canEdit = Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Edit);
+    bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
     Wt::WFlags<Wt::ItemFlag> flags;
     if(canEdit)
         flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
     else
         flags = Wt::ItemIsSelectable;
 
-    int editRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::EditRank);
+    int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
     _qtvGroups->clearColumns();
 
@@ -179,18 +179,47 @@ void Views::ViewUsers::_btnUsersCreateClicked()
     dlg->finished().connect(std::bind([=]()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
-        {   
-            Users::User *user = new Users::User(dlg->userName(), dlg->emailAddress());
-            user->setGroup(dlg->group());
-            user->setTitle(dlg->title());
-            user->setPhoneNumber(dlg->phoneNumber());
-            user->setIdNumber(dlg->idNumber());
-            user->setAddress(dlg->address());
-            user->setActive(dlg->isActive());
+        {
+            if(!Database::DatabaseManager::instance().dboExists<Users::User>(dlg->userName()))
+            {
+                Wt::Auth::User authUser = Auth::AuthManager::instance().registerUser(dlg->userName(), dlg->password(), dlg->emailAddress());
+                if(authUser.isValid())//added the auth user successfully ?
+                {
+                    Users::User *user = new Users::User(dlg->userName(), dlg->emailAddress());
+                    user->setGroup(dlg->group());
+                    user->setTitle(dlg->title());
+                    user->setPhoneNumber(dlg->phoneNumber());
+                    user->setIdNumber(dlg->idNumber());
+                    user->setAddress(dlg->address());
+                    user->setActive(dlg->isActive());
 
-           Users::UsersManager::instance().createUser(user, dlg->password());
+                    Wt::Dbo::ptr<Users::User> userPtr = Database::DatabaseManager::instance().createDbo<Users::User>(user);
 
-            updateUsersView();
+                    if(userPtr)
+                    {
+                        Wt::Dbo::ptr<Auth::AuthInfo> authInfo = Auth::AuthManager::instance().getUserAuthInfo(authUser);
+                        if(authInfo)
+                            authInfo.modify()->setUser(userPtr);
+
+                        //create user directory structure
+                        Users::UsersIO::createUserDirectoryStructure(user->name());
+
+                        updateUsersView();
+
+                        _logger->log(std::string("Created user ") + dlg->userName(), Ms::Log::LogMessageType::Info);
+                    }
+                    else
+                    {
+                        delete user;
+
+                        _logger->log(std::string("error creating user ") + dlg->userName(), Ms::Log::LogMessageType::Error);
+                    }
+                }
+            }
+            else
+            {
+                _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
+            }
         }
 
         delete dlg;
@@ -204,7 +233,7 @@ void Views::ViewUsers::_btnUsersChangePasswordClicked()
     if(_qtvUsers->table()->selectedIndexes().size() < 1)
         return;
 
-    int editRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::EditRank);
+    int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
     Views::DlgChangeUserPassword *dlg = new Views::DlgChangeUserPassword();
     dlg->finished().connect(std::bind([=]()
@@ -327,28 +356,28 @@ void Views::ViewUsers::_createUsersTableView()
     _qtvUsers->setImportOptionVisible(false);
 
     //requires "create" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Create))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         Wt::WPushButton *btn = _qtvUsers->createToolButton("", "icons/Add.png", "Create A New User");
         btn->clicked().connect(this, &Views::ViewUsers::_btnUsersCreateClicked);
     }
 
     //requires "edit" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Edit))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
     {
         Wt::WPushButton *btn = _qtvUsers->createToolButton("", "icons/Password.png", "Change User Password");
         btn->clicked().connect(this, &Views::ViewUsers::_btnUsersChangePasswordClicked);
     }
 
     //requires "remove" privilege
-//    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Remove))
+//    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
 //    {
 //        Wt::WPushButton *btn = _qtvUsers->createToolButton("", "icons/Remove.png", "Remove Selected User");
 //        btn->clicked().connect(this, &Views::ViewUsers::_btnUsersRemoveClicked);
 //    }
 
     //requires "view" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Edit))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
     {
         Wt::WPushButton *btn = _qtvUsers->createToolButton("", "icons/Thumbnail.png", "Import Thumbnails");
         btn->clicked().connect(this, &Views::ViewUsers::_btnUsersImportThumbnailsClicked);
@@ -366,11 +395,28 @@ void Views::ViewUsers::_btnGroupsCreateClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
-            Users::Group *group = new Users::Group(dlg->groupName(), dlg->rank());
-            Wt::Dbo::ptr<Users::Group> groupPtr = Database::DatabaseManager::instance().createDbo<Users::Group>(group);
+            if(!Database::DatabaseManager::instance().dboExists<Users::Group>(dlg->groupName()))
+            {
+                Users::Group *group = new Users::Group(dlg->groupName(), dlg->rank());
+                Wt::Dbo::ptr<Users::Group> groupPtr = Database::DatabaseManager::instance().createDbo<Users::Group>(group);
 
-            if(groupPtr)
-                _qtvGroups->reload();
+                if(groupPtr)
+                {
+                    _logger->log(std::string("Created group ") + dlg->groupName(), Ms::Log::LogMessageType::Info);
+
+                    updateGroupsView();
+                }
+                else
+                {
+                    delete group;
+
+                    _logger->log(std::string("error creating group ") + dlg->groupName(), Ms::Log::LogMessageType::Error);
+                }
+            }
+            else
+            {
+                _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
+            }
         }
 
         delete dlg;
@@ -410,7 +456,7 @@ void Views::ViewUsers::_createGroupsTableView()
     _qtvGroups->setMinimumSize(1000, 600);
 
     //requires "create" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Create))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         Wt::WPushButton *btn = _qtvGroups->createToolButton("", "icons/Add.png", "Create A New Group");
         btn->clicked().connect(this, &Views::ViewUsers::_btnGroupsCreateClicked);
@@ -421,7 +467,7 @@ void Views::ViewUsers::_createGroupsTableView()
         _qtvGroups->setImportOptionVisible(false);
 
     //requires "remove" privilege
-//    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Remove))
+//    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
 //    {
 //        Wt::WPushButton *btn = _qtvGroups->createToolButton("", "icons/Remove.png", "Remove Selected Group");
 //        btn->clicked().connect(this, &Views::ViewUsers::_btnGroupsRemoveClicked);

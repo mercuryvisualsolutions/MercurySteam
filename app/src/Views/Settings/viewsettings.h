@@ -19,6 +19,7 @@
 #include <Wt/WSortFilterProxyModel>
 
 #include "../../Database/dbtables.h"
+#include "../../Log/logger.h"
 #include "settingsdialogs.h"
 
 #include <Ms/Widgets/MQueryTableViewWidget.h>
@@ -60,6 +61,8 @@ namespace Views
         Wt::Signal<> _onTabGlobalSelected;
 
         //variables
+        Log::Logger *_logger;
+
         /*******************--Main--********************/
         Wt::WVBoxLayout *_layMain;//main layout
         Wt::WStackedWidget *_stkSettings; //for switching settings

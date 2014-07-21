@@ -47,6 +47,72 @@ namespace Ms
 
                 return dboPtr.modify()->modify();
             }
+
+            template<typename T>
+            std::vector<std::string> Ms::Core::Dbo::MDboManagerBase::getDboIdFieldsNames()
+            {
+                std::vector<std::string> fields;
+
+                std::stringstream ssFields;
+                ssFields << Wt::Dbo::dbo_traits<T>::surrogateIdField();
+
+                std::string strTmp = "";
+
+                //extract fields name
+                while(std::getline(ssFields, strTmp, ','))
+                    fields.push_back(strTmp);
+
+                return fields;
+            }
+
+            template<typename T>
+            std::vector<std::string> Ms::Core::Dbo::MDboManagerBase::getDboIdFieldsValues(const typename Wt::Dbo::dbo_traits<T>::IdType &id)
+            {
+                std::vector<std::string> values;
+
+                std::stringstream ssValues;
+                ssValues << id;
+
+                std::string strTmp = "";
+
+                //extract fields name
+                while(std::getline(ssValues, strTmp, ','))
+                    values.push_back(strTmp);
+
+                return values;
+            }
+
+            template<typename T>
+            Wt::Dbo::ptr<T> Ms::Core::Dbo::MDboManagerBase::getDbo(const typename Wt::Dbo::dbo_traits<T>::IdType &id, bool forceReread)
+            {
+                Wt::Dbo::ptr<T> dboPtr;
+
+                if(openTransaction())
+                {
+                    try
+                    {
+                        dboPtr = session_->load<T>(id, forceReread);
+
+                        commitTransaction();
+                    }
+                    catch(Wt::Dbo::ObjectNotFoundException)
+                    {
+                        //do nothing
+                    }
+                    catch(Wt::Dbo::Exception ex)
+                    {
+                        std::cout << "Error occured while trying to get Dbo from database" << std::endl << ex.what() << std::endl;
+                    }
+                }
+
+                return dboPtr;
+            }
+
+            template<typename T>
+            bool Ms::Core::Dbo::MDboManagerBase::dboExists(const typename Wt::Dbo::dbo_traits<T>::IdType &id)
+            {
+                return getDbo<T>(id).get() != nullptr;
+            }
         }
     }
 }

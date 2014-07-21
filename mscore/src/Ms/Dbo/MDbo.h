@@ -46,6 +46,8 @@ namespace Ms
             virtual bool active() const;
             virtual void setActive(bool active);
             virtual MDbo *modify();
+            Ms::Core::Dbo::MDboManagerBase *dboManager() const;
+            void setDboManager(Ms::Core::Dbo::MDboManagerBase *dboManager);
 
         protected:
             std::string thumbnail_;
@@ -57,6 +59,7 @@ namespace Ms
             int viewRank_;
             int editRank_;
             int removeRank_;
+            Ms::Core::Dbo::MDboManagerBase *dboManager_;
 
             //functions
             template<class Action>

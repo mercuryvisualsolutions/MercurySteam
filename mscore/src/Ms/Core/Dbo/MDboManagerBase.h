@@ -31,6 +31,18 @@ namespace Ms
                 template<typename T>
                 T* modifyDbo(Wt::Dbo::ptr<T> dboPtr);
 
+                template<typename T>
+                std::vector<std::string> getDboIdFieldsNames();
+
+                template<typename T>
+                std::vector<std::string> getDboIdFieldsValues(const typename Wt::Dbo::dbo_traits<T>::IdType &id);
+
+                template<typename T>
+                Wt::Dbo::ptr<T> getDbo(const typename Wt::Dbo::dbo_traits<T>::IdType &id, bool forceReread = false);
+
+                template<typename T>
+                bool dboExists(const typename Wt::Dbo::dbo_traits<T>::IdType &id);
+
             protected:
                 //variables
                 Wt::Dbo::Session *session_;

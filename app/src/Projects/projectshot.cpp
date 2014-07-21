@@ -66,6 +66,44 @@ Wt::Dbo::ptr<Projects::Project> Projects::ProjectShot::project() const
     return _id.sequence->project();
 }
 
+bool Projects::ProjectShot::hasTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const
+{
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if((*iter).id() == task.id())
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool Projects::ProjectShot::addTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
+{
+    if(!hasTask(task))
+    {
+        _tasks.insert(task);
+        return true;
+    }
+
+    return false;
+}
+
+bool Projects::ProjectShot::removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
+{
+    if(hasTask(task))
+    {
+        _tasks.erase(task);
+        return true;
+    }
+
+    return false;
+}
+
 Wt::WDate Projects::ProjectShot::startDate() const
 {
     return _startDate;
@@ -146,26 +184,6 @@ void Projects::ProjectShot::setStatus(const Wt::Dbo::ptr<Projects::ProjectWorkSt
     _status = status;
 }
 
-Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>>::size_type Projects::ProjectShot::numTasks() const
-{
-    return _tasks.size();
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>>::size_type Projects::ProjectShot::numData() const
-{
-    return _data.size();
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>>::size_type Projects::ProjectShot::numNotes() const
-{
-    return _notes.size();
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>>::size_type Projects::ProjectShot::numTags() const
-{
-    return _tags.size();
-}
-
 bool Projects::ProjectShot::operator ==(const Projects::ProjectShot &other) const
 {
     return _id == other.id();
@@ -178,6 +196,15 @@ bool Projects::ProjectShot::operator !=(const Projects::ProjectShot &other) cons
 
 void Projects::ProjectShot::_init()
 {
+    dboManager_ = &Database::DatabaseManager::instance();
+
     thumbnail_ = "pics/NoPreviewBig.png";
     _id.name = "New Project Shot";
+    _startDate = Wt::WDate::currentDate();
+    _endDate = Wt::WDate::currentDate();
+    _durationInFrames = 1000;
+    _fps = 24.0f;
+    _frameWidth = 1920;
+    _frameHeight = 1080;
+    _description = "";
 }

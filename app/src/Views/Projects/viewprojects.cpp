@@ -7,6 +7,7 @@
 #include "Users/usersmanager.h"
 #include "../Files/dlgfilesmanager.h"
 #include "../../Log/logmanager.h"
+#include "../../Auth/authmanager.h"
 
 #include <Ms/Widgets/MTableViewColumn.h>
 #include <Ms/Widgets/Delegates/MDelegates>
@@ -55,7 +56,7 @@ void Views::ViewProjects::updateProjectsView()
 
         Wt::Dbo::Query<Wt::Dbo::ptr<Projects::Project>> query;
 
-        int viewRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::ViewRank);
+        int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
 
         if(AppSettings::instance().isLoadInactiveData())
             query = Database::DatabaseManager::instance().session()->find<Projects::Project>().where("View_Rank <= ?").bind(viewRank);
@@ -64,14 +65,14 @@ void Views::ViewProjects::updateProjectsView()
 
         _qtvProjects->setQuery(query);
 
-        bool canEdit = Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Edit);
+        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::EditRank);
+        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
         _qtvProjects->clearColumns();
 
@@ -141,7 +142,7 @@ void Views::ViewProjects::updateSequencesView()
             if(!AppSettings::instance().isLoadInactiveData())
                 query.where("Active = ?").bind(true);
 
-            int viewRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::ViewRank);
+            int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
             query.where("View_Rank <= ?").bind(viewRank);
         }
         else
@@ -149,14 +150,14 @@ void Views::ViewProjects::updateSequencesView()
 
         _qtvSequences->setQuery(query);
 
-        bool canEdit = Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Edit);
+        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::EditRank);
+        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
         _qtvSequences->clearColumns();
 
@@ -245,7 +246,7 @@ void Views::ViewProjects::updateShotsView()
             if(!AppSettings::instance().isLoadInactiveData())
                 query.where("Active = ?").bind(true);
 
-            int viewRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::ViewRank);
+            int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
             query.where("View_Rank <= ?").bind(viewRank);
         }
         else
@@ -253,14 +254,14 @@ void Views::ViewProjects::updateShotsView()
 
         _qtvShots->setQuery(query);
 
-        bool canEdit = Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Edit);
+        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::EditRank);
+        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
         _qtvShots->clearColumns();
 
@@ -327,7 +328,7 @@ void Views::ViewProjects::updateAssetsView()
             if(!AppSettings::instance().isLoadInactiveData())
                 query.where("Active = ?").bind(true);
 
-            int viewRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::ViewRank);
+            int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
             query.where("View_Rank <= ?").bind(viewRank);
         }
         else
@@ -335,14 +336,14 @@ void Views::ViewProjects::updateAssetsView()
 
         _qtvAssets->setQuery(query);
 
-        bool canEdit = Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Edit);
+        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::EditRank);
+        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
         _qtvAssets->clearColumns();
 
@@ -471,7 +472,7 @@ void Views::ViewProjects::updateTasksView()
             if(!AppSettings::instance().isLoadInactiveData())
                 query.where("Active = ?").bind(true);
 
-            int viewRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::ViewRank);
+            int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
             query.where("View_Rank <= ?").bind(viewRank);
 
         }
@@ -480,14 +481,14 @@ void Views::ViewProjects::updateTasksView()
 
         _qtvTasks->setQuery(query);
 
-        bool canEdit = Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Edit);
+        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::EditRank);
+        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
         _qtvTasks->clearColumns();
 
@@ -665,28 +666,38 @@ void Views::ViewProjects::_btnProjectsCreateClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
-            Projects::Project *project = new Projects::Project(dlg->projectName());
-            project->setStatus(dlg->status());
-            project->setManager(dlg->manager());
-            project->setStartDate(dlg->startDate());
-            project->setEndDate(dlg->endDate());
-            project->setDurationInFrames(dlg->duration());
-            project->setFps(dlg->fps());
-            project->setFrameWidth(dlg->frameWidth());
-            project->setFrameHeight(dlg->frameHeight());
-            project->setDescription(dlg->description());
-            project->setActive(dlg->isActive());
-
-            if(Database::DatabaseManager::instance().createDbo<Projects::Project>(project))
+            if(!Database::DatabaseManager::instance().dboExists<Projects::Project>(dlg->projectName()))
             {
-                Projects::ProjectsIO::createProjectDirectoryStructure(dlg->projectName());
-                updateProjectsView();
 
-                _logger->log(std::string("Created project ") + dlg->projectName(), Ms::Log::LogMessageType::Info);
+                Projects::Project *project = new Projects::Project(dlg->projectName());
+                project->setStatus(dlg->status());
+                project->setManager(dlg->manager());
+                project->setStartDate(dlg->startDate());
+                project->setEndDate(dlg->endDate());
+                project->setDurationInFrames(dlg->duration());
+                project->setFps(dlg->fps());
+                project->setFrameWidth(dlg->frameWidth());
+                project->setFrameHeight(dlg->frameHeight());
+                project->setDescription(dlg->description());
+                project->setActive(dlg->isActive());
+
+                if(Database::DatabaseManager::instance().createDbo<Projects::Project>(project))
+                {
+                    Projects::ProjectsIO::createProjectDirectoryStructure(dlg->projectName());
+                    updateProjectsView();
+
+                    _logger->log(std::string("Created project ") + dlg->projectName(), Ms::Log::LogMessageType::Info);
+                }
+                else
+                {
+                    delete project;
+
+                    _logger->log(std::string("Error creating project ") + dlg->projectName(), Ms::Log::LogMessageType::Error);
+                }
             }
             else
             {
-                _logger->log(std::string("Error creating project ") + project->name(), Ms::Log::LogMessageType::Error);
+                _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
             }
         }
 
@@ -715,11 +726,11 @@ void Views::ViewProjects::_btnProjectsFilesClicked()
         delete dlg;
     }));
 
-    if(!Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CreateRepos))
+    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
         dlg->setCreateDisabled(true);
-    if(!Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckIn))
+    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In"))
         dlg->setCheckInDisabled(true);
-    if(!Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckOut))
+    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
         dlg->setCheckOutDisabled(true);
 
     dlg->show();
@@ -799,7 +810,7 @@ void Views::ViewProjects::_createProjectsTableView()
     _qtvProjects->setIgnoreNumFilterColumns(1);
 
     //requires "create" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Create))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         Wt::WPushButton *btn = _qtvProjects->createToolButton("", "icons/Add.png", "Create A New Project");
         btn->clicked().connect(this, &Views::ViewProjects::_btnProjectsCreateClicked);
@@ -810,23 +821,23 @@ void Views::ViewProjects::_createProjectsTableView()
         _qtvProjects->setImportOptionVisible(false);
 
     //requires "remove" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Remove))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
     {
         //Wt::WPushButton *btn = _qtvProjects->createToolButton("", "icons/Remove.png", "Remove Selected Project");
         //btn->clicked().connect(this, &Views::ViewProjects::_btnProjectsRemoveClicked);
     }
 
     //requires "edit" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Edit))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
     {
         Wt::WPushButton *btn = _qtvProjects->createToolButton("", "icons/Thumbnail.png", "Import Thumbnails");
         btn->clicked().connect(this, &Views::ViewProjects::_btnProjectsImportThumbnailsClicked);
     }
 
     //requires "CheckIn or CheckOut" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckIn) ||
-            Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckOut) ||
-            Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CreateRepos))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In") ||
+            Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out") ||
+            Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
     {
         Wt::WPushButton *btn = _qtvProjects->createToolButton("", "icons/Files.png", "Files Manager");
         btn->clicked().connect(this, &Views::ViewProjects::_btnProjectsFilesClicked);
@@ -845,32 +856,44 @@ void Views::ViewProjects::_btnSequencesCreateClicked()
         {
             if(dlg->result() == Wt::WDialog::Accepted)
             {
-                for(const Wt::WModelIndex &index : _qtvProjects->table()->selectedIndexes())
+                for(auto prjPtr : _qtvProjects->selectedItems())
                 {
-                    Wt::Dbo::ptr<Projects::Project> prjPtr = _qtvProjects->model()->resultRow(_qtvProjects->proxyModel()->mapToSource(index).row());
-                    Projects::ProjectSequence * sequence = new Projects::ProjectSequence(dlg->sequenceName());
-                    sequence->setProject(prjPtr);
-                    sequence->setStatus(dlg->status());
-                    sequence->setStartDate(dlg->startDate());
-                    sequence->setEndDate(dlg->endDate());
-                    sequence->setDurationInFrames(dlg->duration());
-                    sequence->setFps(dlg->fps());
-                    sequence->setFrameWidth(dlg->frameWidth());
-                    sequence->setFrameHeight(dlg->frameHeight());
-                    sequence->setDescription(dlg->description());
-                    sequence->setActive(dlg->isActive());
+                    Projects::ProjectSequenceId id;
+                    id.name = (dlg->sequenceName());
+                    id.project = prjPtr;
 
-                    Wt::Dbo::ptr<Projects::ProjectSequence> seqPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectSequence>(sequence);
-                    if(seqPtr)
+                    if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectSequence>(id))
                     {
-                        Projects::ProjectsIO::createSequenceDirectoryStructure(prjPtr->name(), seqPtr->name());
-                        updateSequencesView();
+                        Projects::ProjectSequence *sequence = new Projects::ProjectSequence(dlg->sequenceName());
+                        sequence->setProject(prjPtr);
+                        sequence->setStatus(dlg->status());
+                        sequence->setStartDate(dlg->startDate());
+                        sequence->setEndDate(dlg->endDate());
+                        sequence->setDurationInFrames(dlg->duration());
+                        sequence->setFps(dlg->fps());
+                        sequence->setFrameWidth(dlg->frameWidth());
+                        sequence->setFrameHeight(dlg->frameHeight());
+                        sequence->setDescription(dlg->description());
+                        sequence->setActive(dlg->isActive());
 
-                        _logger->log(std::string("Created sequence for project ") + prjPtr->name(), Ms::Log::LogMessageType::Info);
+                        Wt::Dbo::ptr<Projects::ProjectSequence> seqPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectSequence>(sequence);
+                        if(seqPtr)
+                        {
+                            Projects::ProjectsIO::createSequenceDirectoryStructure(prjPtr->name(), seqPtr->name());
+                            updateSequencesView();
+
+                            _logger->log(std::string("Created sequence for project ") + prjPtr->name(), Ms::Log::LogMessageType::Info);
+                        }
+                        else
+                        {
+                            delete sequence;
+
+                            _logger->log(std::string("Error creating sequence for project ") + prjPtr->name(), Ms::Log::LogMessageType::Error);
+                        }
                     }
                     else
                     {
-                        _logger->log(std::string("Error creating sequence for project ") + prjPtr->name(), Ms::Log::LogMessageType::Error);
+                        _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
                     }
                 }
             }
@@ -901,11 +924,11 @@ void Views::ViewProjects::_btnSequencesFilesClicked()
         delete dlg;
     }));
 
-    if(!Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CreateRepos))
+    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
         dlg->setCreateDisabled(true);
-    if(!Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckIn))
+    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In"))
         dlg->setCheckInDisabled(true);
-    if(!Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckOut))
+    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
         dlg->setCheckOutDisabled(true);
 
     dlg->show();
@@ -989,7 +1012,7 @@ void Views::ViewProjects::_createSequencesTableView()
     _qtvSequences->setIgnoreNumFilterColumns(1);
 
     //requires "create" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Create))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         Wt::WPushButton *btn = _qtvSequences->createToolButton("", "icons/Add.png", "Create A New Sequence");
         btn->clicked().connect(this, &Views::ViewProjects::_btnSequencesCreateClicked);
@@ -1000,23 +1023,23 @@ void Views::ViewProjects::_createSequencesTableView()
         _qtvSequences->setImportOptionVisible(false);
 
     //requires "remove" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Remove))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
     {
         //Wt::WPushButton *btn = _qtvSequences->createToolButton("", "icons/Remove.png", "Remove Selected Sequences");
         //btn->clicked().connect(this, &Views::ViewProjects::_btnSequencesRemoveClicked);
     }
 
     //requires "view" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Edit))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
     {
         Wt::WPushButton *btn = _qtvSequences->createToolButton("", "icons/Thumbnail.png", "Import Thumbnails");
         btn->clicked().connect(this, &Views::ViewProjects::_btnSequencesImportThumbnailsClicked);
     }
 
     //requires "CheckIn or CheckOut" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckIn) ||
-            Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckOut) ||
-            Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CreateRepos))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In") ||
+            Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out") ||
+            Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
     {
         Wt::WPushButton *btn = _qtvSequences->createToolButton("", "icons/Files.png", "Files Manager");
         btn->clicked().connect(this, &Views::ViewProjects::_btnSequencesFilesClicked);
@@ -1035,33 +1058,44 @@ void Views::ViewProjects::_btnShotsCreateClicked()
         {
             if(dlg->result() == Wt::WDialog::Accepted)
             {
-                for(const Wt::WModelIndex &index : _qtvSequences->table()->selectedIndexes())
+                for(auto seqPtr : _qtvSequences->selectedItems())
                 {
-                    Wt::Dbo::ptr<Projects::ProjectSequence> seqPtr = _qtvSequences->model()->resultRow(_qtvSequences->proxyModel()->mapToSource(index).row());
+                    Projects::ProjectShotId id;
+                    id.name = (dlg->shotName());
+                    id.sequence = seqPtr;
 
-                    Projects::ProjectShot *shot = new Projects::ProjectShot(dlg->shotName());
-                    shot->setSequence(seqPtr);
-                    shot->setStatus(dlg->status());
-                    shot->setStartDate(dlg->startDate());
-                    shot->setEndDate(dlg->endDate());
-                    shot->setDurationInFrames(dlg->duration());
-                    shot->setFps(dlg->fps());
-                    shot->setFrameWidth(dlg->frameWidth());
-                    shot->setFrameHeight(dlg->frameHeight());
-                    shot->setDescription(dlg->description());
-                    shot->setActive(dlg->isActive());
-
-                    Wt::Dbo::ptr<Projects::ProjectShot> shotPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectShot>(shot);
-                    if(shotPtr)
+                    if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectShot>(id))
                     {
-                        Projects::ProjectsIO::createShotDirectoryStructure(seqPtr->projectName(), seqPtr->name(), shotPtr->name());
-                        updateShotsView();
+                        Projects::ProjectShot *shot = new Projects::ProjectShot(dlg->shotName());
+                        shot->setSequence(seqPtr);
+                        shot->setStatus(dlg->status());
+                        shot->setStartDate(dlg->startDate());
+                        shot->setEndDate(dlg->endDate());
+                        shot->setDurationInFrames(dlg->duration());
+                        shot->setFps(dlg->fps());
+                        shot->setFrameWidth(dlg->frameWidth());
+                        shot->setFrameHeight(dlg->frameHeight());
+                        shot->setDescription(dlg->description());
+                        shot->setActive(dlg->isActive());
 
-                        _logger->log(std::string("Created shot for sequence ") + seqPtr->name(), Ms::Log::LogMessageType::Info);
+                        Wt::Dbo::ptr<Projects::ProjectShot> shotPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectShot>(shot);
+                        if(shotPtr)
+                        {
+                            Projects::ProjectsIO::createShotDirectoryStructure(seqPtr->projectName(), seqPtr->name(), shotPtr->name());
+                            updateShotsView();
+
+                            _logger->log(std::string("Created shot for sequence ") + seqPtr->name(), Ms::Log::LogMessageType::Info);
+                        }
+                        else
+                        {
+                            delete shot;
+
+                            _logger->log(std::string("error creating shot for sequence ") + seqPtr->name(), Ms::Log::LogMessageType::Error);
+                        }
                     }
                     else
                     {
-                        _logger->log(std::string("error creating shot for sequence ") + seqPtr->name(), Ms::Log::LogMessageType::Error);
+                        _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
                     }
                 }
             }
@@ -1092,11 +1126,11 @@ void Views::ViewProjects::_btnShotsFilesClicked()
         delete dlg;
     }));
 
-    if(!Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CreateRepos))
+    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
         dlg->setCreateDisabled(true);
-    if(!Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckIn))
+    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In"))
         dlg->setCheckInDisabled(true);
-    if(!Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckOut))
+    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
         dlg->setCheckOutDisabled(true);
 
     dlg->show();
@@ -1181,7 +1215,7 @@ void Views::ViewProjects::_createShotsTableView()
     _qtvShots->setIgnoreNumFilterColumns(1);
 
     //requires "create" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Create))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         Wt::WPushButton *btn = _qtvShots->createToolButton("", "icons/Add.png", "Create A New Shot");
         btn->clicked().connect(this, &Views::ViewProjects::_btnShotsCreateClicked);
@@ -1192,7 +1226,7 @@ void Views::ViewProjects::_createShotsTableView()
         _qtvShots->setImportOptionVisible(false);
 
     //requires "remove" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Remove))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
     {
         //Wt::WPushButton *btn = _qtvShots->createToolButton("", "icons/Remove.png", "Remove Selected Shots");
         //btn->clicked().connect(this, &Views::ViewProjects::_btnShotsRemoveClicked);
@@ -1202,16 +1236,16 @@ void Views::ViewProjects::_createShotsTableView()
     //btnExport->clicked().connect(this, &Views::ViewSequences::_btnShotsExportClicked);
 
     //requires "view" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Edit))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
     {
         Wt::WPushButton *btn = _qtvShots->createToolButton("", "icons/Thumbnail.png", "Import Thumbnails");
         btn->clicked().connect(this, &Views::ViewProjects::_btnShotsImportThumbnailsClicked);
     }
 
     //requires "CheckIn or CheckOut" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckIn) ||
-            Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckOut) ||
-       Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CreateRepos))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In") ||
+            Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out") ||
+       Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
     {
         Wt::WPushButton *btn = _qtvShots->createToolButton("", "icons/Files.png", "Files Manager");
         btn->clicked().connect(this, &Views::ViewProjects::_btnShotsFilesClicked);
@@ -1230,30 +1264,41 @@ void Views::ViewProjects::_btnAssetsCreateClicked()
         {
             if(dlg->result() == Wt::WDialog::Accepted)
             {
-                for(const Wt::WModelIndex &index : _qtvProjects->table()->selectedIndexes())
+                for(auto prjPtr : _qtvProjects->selectedItems())
                 {
-                    Wt::Dbo::ptr<Projects::Project> prjPtr = _qtvProjects->model()->resultRow(_qtvProjects->proxyModel()->mapToSource(index).row());
+                    Projects::ProjectAssetId id;
+                    id.name = (dlg->assetName());
+                    id.project = prjPtr;
 
-                    Projects::ProjectAsset *asset = new Projects::ProjectAsset(dlg->assetName());
-                    asset->setProject(prjPtr);
-                    asset->setStatus(dlg->status());
-                    asset->setType(dlg->assetType());
-                    asset->setStartDate(dlg->startDate());
-                    asset->setEndDate(dlg->endDate());
-                    asset->setDescription(dlg->description());
-                    asset->setActive(dlg->isActive());
-
-                    Wt::Dbo::ptr<Projects::ProjectAsset> assetPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectAsset>(asset);
-                    if(assetPtr)
+                    if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectAsset>(id))
                     {
-                        Projects::ProjectsIO::createAssetDirectoryStructure(prjPtr->name(), assetPtr->name());
-                        updateAssetsView();
+                        Projects::ProjectAsset *asset = new Projects::ProjectAsset(dlg->assetName());
+                        asset->setProject(prjPtr);
+                        asset->setStatus(dlg->status());
+                        asset->setType(dlg->assetType());
+                        asset->setStartDate(dlg->startDate());
+                        asset->setEndDate(dlg->endDate());
+                        asset->setDescription(dlg->description());
+                        asset->setActive(dlg->isActive());
 
-                        _logger->log(std::string("Created asset ") + assetPtr->name(), Ms::Log::LogMessageType::Info);
+                        Wt::Dbo::ptr<Projects::ProjectAsset> assetPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectAsset>(asset);
+                        if(assetPtr)
+                        {
+                            Projects::ProjectsIO::createAssetDirectoryStructure(prjPtr->name(), assetPtr->name());
+                            updateAssetsView();
+
+                            _logger->log(std::string("Created asset ") + dlg->assetName(), Ms::Log::LogMessageType::Info);
+                        }
+                        else
+                        {
+                            delete asset;
+
+                            _logger->log(std::string("error creating asset ") + dlg->assetName(), Ms::Log::LogMessageType::Error);
+                        }
                     }
                     else
                     {
-                        _logger->log(std::string("error creating asset ") + asset->name(), Ms::Log::LogMessageType::Error);
+                        _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
                     }
                 }
             }
@@ -1284,11 +1329,11 @@ void Views::ViewProjects::_btnAssetsFilesClicked()
         delete dlg;
     }));
 
-    if(!Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CreateRepos))
+    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
         dlg->setCreateDisabled(true);
-    if(!Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckIn))
+    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In"))
         dlg->setCheckInDisabled(true);
-    if(!Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckOut))
+    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
         dlg->setCheckOutDisabled(true);
 
     dlg->show();
@@ -1372,7 +1417,7 @@ void Views::ViewProjects::_createAssetsTableView()
     _qtvAssets->setIgnoreNumFilterColumns(1);
 
     //requires "create" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Create))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         Wt::WPushButton *btn = _qtvAssets->createToolButton("", "icons/Add.png", "Create A New Asset");
         btn->clicked().connect(this, &Views::ViewProjects::_btnAssetsCreateClicked);
@@ -1383,7 +1428,7 @@ void Views::ViewProjects::_createAssetsTableView()
         _qtvAssets->setImportOptionVisible(false);
 
     //requires "remove" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Remove))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
     {
         //Wt::WPushButton *btn = _qtvAssets->createToolButton("", "icons/Remove.png", "Remove Selected Assets");
         //btn->clicked().connect(this, &Views::ViewProjects::_btnAssetsRemoveClicked);
@@ -1393,16 +1438,16 @@ void Views::ViewProjects::_createAssetsTableView()
     //btnExport->clicked().connect(this, &Views::ViewSequences::_btnAssetsExportClicked);
 
     //requires "view" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Edit))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
     {
         Wt::WPushButton *btn = _qtvAssets->createToolButton("", "icons/Thumbnail.png", "Import Thumbnails");
         btn->clicked().connect(this, &Views::ViewProjects::_btnAssetsImportThumbnailsClicked);
     }
 
     //requires "CheckIn or CheckOut" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckIn) ||
-            Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckOut) ||
-            Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CreateRepos))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In") ||
+            Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out") ||
+            Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
     {
         Wt::WPushButton *btn = _qtvAssets->createToolButton("", "icons/Files.png", "Files Manager");
         btn->clicked().connect(this, &Views::ViewProjects::_btnAssetsFilesClicked);
@@ -1442,6 +1487,8 @@ void Views::ViewProjects::_btnTasksCreateClicked()
                     }
                     else
                     {
+                        delete task;
+
                         _logger->log(std::string("Error creating task for shot") + shotPtr->name(), Ms::Log::LogMessageType::Error);
                     }
                 }
@@ -1467,6 +1514,8 @@ void Views::ViewProjects::_btnTasksCreateClicked()
                     }
                     else
                     {
+                        delete task;
+
                         _logger->log(std::string("error creating task for asset ") + assetPtr->name(), Ms::Log::LogMessageType::Error);
                     }
                 }
@@ -1514,11 +1563,11 @@ void Views::ViewProjects::_btnTasksFilesClicked()
         delete dlg;
     }));
 
-    if(!Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CreateRepos))
+    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
         dlg->setCreateDisabled(true);
-    if(!Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckIn))
+    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In"))
         dlg->setCheckInDisabled(true);
-    if(!Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckOut))
+    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
         dlg->setCheckOutDisabled(true);
 
     dlg->show();
@@ -1529,7 +1578,7 @@ void Views::ViewProjects::_createTasksTableView()
     _qtvTasks = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectTask>(&Database::DatabaseManager::instance());
 
     //requires "create" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Create))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         Wt::WPushButton *btn = _qtvTasks->createToolButton("", "icons/Add.png", "Create A New Shot");
         btn->clicked().connect(this, &Views::ViewProjects::_btnTasksCreateClicked);
@@ -1540,7 +1589,7 @@ void Views::ViewProjects::_createTasksTableView()
         _qtvTasks->setImportOptionVisible(false);
 
     //requires "remove" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Remove))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
     {
         //Wt::WPushButton *btn = _qtvTasks->createToolButton("", "icons/Remove.png", "Remove Selected Tasks");
         //btn->clicked().connect(this, &Views::ViewProjects::_btnTasksRemoveClicked);
@@ -1550,9 +1599,9 @@ void Views::ViewProjects::_createTasksTableView()
     //btnExport->clicked().connect(this, &Views::ViewProjects::_btnTasksExportClicked);
 
     //requires "CheckIn or CheckOut" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckIn) ||
-            Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckOut) ||
-            Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CreateRepos))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In") ||
+            Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out") ||
+            Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
     {
         Wt::WPushButton *btn = _qtvTasks->createToolButton("", "icons/Files.png", "Files Manager");
         btn->clicked().connect(this, &Views::ViewProjects::_btnTasksFilesClicked);

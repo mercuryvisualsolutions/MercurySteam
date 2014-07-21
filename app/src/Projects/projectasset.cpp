@@ -53,6 +53,44 @@ void Projects::ProjectAsset::setProject(Wt::Dbo::ptr<Projects::Project> project)
     _id.project = project;
 }
 
+bool Projects::ProjectAsset::hasTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const
+{
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if((*iter).id() == task.id())
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool Projects::ProjectAsset::addTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
+{
+    if(!hasTask(task))
+    {
+        _tasks.insert(task);
+        return true;
+    }
+
+    return false;
+}
+
+bool Projects::ProjectAsset::removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
+{
+    if(hasTask(task))
+    {
+        _tasks.erase(task);
+        return true;
+    }
+
+    return false;
+}
+
 Wt::WDate Projects::ProjectAsset::startDate() const
 {
     return _startDate;
@@ -102,26 +140,6 @@ void Projects::ProjectAsset::setStatus(const Wt::Dbo::ptr<Projects::ProjectWorkS
     _status = status;
 }
 
-Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>>::size_type Projects::ProjectAsset::numTasks() const
-{
-    return _tasks.size();
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>>::size_type Projects::ProjectAsset::numData() const
-{
-    return _data.size();
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>>::size_type Projects::ProjectAsset::numNotes() const
-{
-    return _notes.size();
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>>::size_type Projects::ProjectAsset::numTags() const
-{
-    return _tags.size();
-}
-
 bool Projects::ProjectAsset::operator ==(const Projects::ProjectAsset &other) const
 {
     return _id == other.id();
@@ -134,6 +152,11 @@ bool Projects::ProjectAsset::operator !=(const Projects::ProjectAsset &other) co
 
 void Projects::ProjectAsset::_init()
 {
+    dboManager_ = &Database::DatabaseManager::instance();
+
     thumbnail_ = "pics/NoPreviewBig.png";
     _id.name = "New Project Asset";
+    _startDate = Wt::WDate::currentDate();
+    _endDate = Wt::WDate::currentDate();
+    _description = "";
 }

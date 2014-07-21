@@ -1,4 +1,5 @@
 #include "../Database/dbtables.h"
+#include "../Database/databasemanager.h"
 
 Projects::ProjectTaskType::ProjectTaskType() :
     Ms::Dbo::MDbo()
@@ -46,5 +47,7 @@ bool Projects::ProjectTaskType::operator !=(const Projects::ProjectTaskType &oth
 
 void Projects::ProjectTaskType::_init()
 {
+    dboManager_ = &Database::DatabaseManager::instance();
+
     _type = "New Task Type";
 }

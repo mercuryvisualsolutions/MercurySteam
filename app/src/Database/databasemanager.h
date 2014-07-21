@@ -6,7 +6,6 @@
 #include <Wt/Auth/Dbo/UserDatabase>
 
 #include <Ms/Core/Dbo/MDboManagerBase.h>
-#include <Ms/Exceptions/MDboSessionIsNullException.h>
 
 #include <iostream>
 #include <memory>

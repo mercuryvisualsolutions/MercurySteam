@@ -98,9 +98,9 @@ void Views::ViewMyDashboard::_createTasksTableView()
     _qtvTasks->setImportOptionVisible(false);
 
     //requires "CheckIn or CheckOut" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckIn) ||
-            Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckOut) ||
-            Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CreateRepos))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In") ||
+            Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out") ||
+            Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
     {
         Wt::WPushButton *btn = _qtvTasks->createToolButton("", "icons/Files.png", "Files Manager");
         btn->clicked().connect(this, &Views::ViewMyDashboard::_btnTasksFilesClicked);
@@ -136,11 +136,11 @@ void Views::ViewMyDashboard::_btnTasksFilesClicked()
         delete dlg;
     }));
 
-    if(!Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CreateRepos))
+    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
         dlg->setCreateDisabled(true);
-    if(!Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckIn))
+    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In"))
         dlg->setCheckInDisabled(true);
-    if(!Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::CheckOut))
+    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
         dlg->setCheckOutDisabled(true);
 
     dlg->show();

@@ -425,7 +425,7 @@ void Views::ViewApp::_onAddPrivilegeToGroup()
         {
             for(auto &prvPtr : _viwProperties->groupsPrivilegesQueryTableView()->selectedItems())
             {
-                Users::UsersManager::instance().addPrivilegeToGroup(grpPtr, prvPtr);
+                Database::DatabaseManager::instance().modifyDbo<Users::Group>(grpPtr)->addPrivilege(prvPtr);
             }
         }
 
@@ -441,7 +441,7 @@ void Views::ViewApp::_onRemovePrivilegeFromGroup()
         {
             for(auto &prvPtr : _viwProperties->groupsAssignedPrivilegesQueryTableView()->selectedItems())
             {
-                Users::UsersManager::instance().removePrivilegeFromGroup(grpPtr, prvPtr);
+                Database::DatabaseManager::instance().modifyDbo<Users::Group>(grpPtr)->removePrivilege(prvPtr);
             }
         }
 
@@ -624,7 +624,7 @@ void Views::ViewApp::_prepareView()
     _cntMnuSideMain->addWidget(_mnuSideMain);
 
     //requires "view" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::View))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("View"))
     {
         _mnuSideMain->addSectionHeader("Management");
 
@@ -723,7 +723,7 @@ void Views::ViewApp::_prepareView()
 void Views::ViewApp::_prepareChildViews(Wt::WStackedWidget *widget)
 {
     //requires "view" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::View))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("View"))
     {
         _viwUsers = new ViewUsers();
         _viwUsers->onTabUsersSelected().connect(this, &Views::ViewApp::_onUsresViewUsersTabSelected);

@@ -13,6 +13,7 @@ Views::ViewProperties::ViewProperties()
     _mnuPropertiesNavBar->select(_mnuPropertiesNavBarDataItem);
 }
 
+/*******************--Main--********************/
 const Ms::Widgets::MQueryTableViewWidget<Database::DboData> *Views::ViewProperties::dataQueryTableView() const
 {
     return _qtvData;
@@ -55,7 +56,7 @@ void Views::ViewProperties::updateTagsView() const
 
         Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query;
 
-        int viewRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::ViewRank);
+        int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
 
         if(AppSettings::instance().isLoadInactiveData())
             query = Database::DatabaseManager::instance().session()->find<Database::Tag>().where("View_Rank <= ?").bind(viewRank);
@@ -93,7 +94,7 @@ void Views::ViewProperties::updateGroupsPrivilegesView() const
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Users::Privilege>> query;
 
-    int viewRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::ViewRank);
+    int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
 
     if(AppSettings::instance().isLoadInactiveData())
         query = Database::DatabaseManager::instance().session()->find<Users::Privilege>().where("View_Rank <= ?").bind(viewRank);
@@ -149,6 +150,7 @@ void Views::ViewProperties::updateGroupsAssignedPrivilegesView(std::vector<Wt::D
     _qtvGroupsAssignedPrivileges->updateView();
 }
 
+/*******************--Data--********************/
 Wt::Signal<> &Views::ViewProperties::onAddData()
 {
     return _onAddData;
@@ -159,6 +161,7 @@ Wt::Signal<> &Views::ViewProperties::onRemoveData()
     return _onRemoveData;
 }
 
+/*******************--Tags--********************/
 Wt::Signal<> &Views::ViewProperties::onAddTag()
 {
     return _onAddTag;
@@ -169,6 +172,7 @@ Wt::Signal<> &Views::ViewProperties::onRemoveTag()
     return _onRemoveTag;
 }
 
+/*******************--Notes--********************/
 Wt::Signal<> &Views::ViewProperties::onAddNote()
 {
     return _onAddNote;
@@ -179,6 +183,7 @@ Wt::Signal<> &Views::ViewProperties::onRemoveNote()
     return _onRemoveNote;
 }
 
+/*******************--Privileges--********************/
 Wt::Signal<> &Views::ViewProperties::onAddPrivilegeToGroup()
 {
     return _onAddPrivilegeToGroup;
@@ -285,11 +290,12 @@ void Views::ViewProperties::setSubViewHidden(const std::string &viewName, bool h
     }
 }
 
+/*******************--Data--********************/
 void Views::ViewProperties::_createDataTableView()
 {
     _qtvData = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::DboData>(&Database::DatabaseManager::instance());
     //requires "create" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Create))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         Wt::WPushButton *btn = _qtvData->createToolButton("", "icons/Add.png", "Add A New Field");
         btn->clicked().connect(this, &Views::ViewProperties::_btnAddDataClicked);
@@ -300,7 +306,7 @@ void Views::ViewProperties::_createDataTableView()
         _qtvData->setImportOptionVisible(false);
 
     //requires "remove" privilege
-//    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Remove))
+//    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
 //    {
 //        Wt::WPushButton *btn = _qtvData->createToolButton("", "icons/Remove.png", "Remove Selected Fields");
 //        btn->clicked().connect(this, &Views::ViewProperties::_btnRemoveDataClicked);
@@ -315,7 +321,7 @@ void Views::ViewProperties::_createTagsTableView()
     _qtvTags->setImportOptionVisible(false);
 
     //requires "create" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Create))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         Wt::WPushButton *btn = _qtvTags->createToolButton("", "icons/AddTo.png", "Add selected tags to selected items");
         btn->clicked().connect(this, &Views::ViewProperties::_btnAddTagClicked);
@@ -330,7 +336,7 @@ void Views::ViewProperties::_createAssignedTagsTableView()
     _qtvAssignedTags->setImportOptionVisible(false);
 
     //requires "create" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Edit))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
     {
         Wt::WPushButton *btn = _qtvAssignedTags->createToolButton("", "icons/RemoveFrom.png", "Remove selected tags from selected items");
         btn->clicked().connect(this, &Views::ViewProperties::_btnRemoveTagClicked);
@@ -339,12 +345,13 @@ void Views::ViewProperties::_createAssignedTagsTableView()
     updateDboTagsView(std::vector<Wt::Dbo::ptr<Database::Tag>>());
 }
 
+/*******************--Notes--********************/
 void Views::ViewProperties::_createNotesTableView()
 {
     _qtvNotes = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::Note>(&Database::DatabaseManager::instance());
 
     //requires "create" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Create))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         Wt::WPushButton *btn = _qtvNotes->createToolButton("", "icons/Add.png", "Create A New Note");
         btn->clicked().connect(this, &Views::ViewProperties::_btnAddNoteClicked);
@@ -355,7 +362,7 @@ void Views::ViewProperties::_createNotesTableView()
         _qtvNotes->setImportOptionVisible(false);
 
     //requires "remove" privilege
-//    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Remove))
+//    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
 //    {
 //        Wt::WPushButton *btn = _qtvNotes->createToolButton("", "icons/Remove.png", "Remove Selected Note");
 //        btn->clicked().connect(this, &Views::ViewProperties::_btnRemoveNoteClicked);
@@ -370,7 +377,7 @@ void Views::ViewProperties::_createGroupsPrivilegesTableView()
     _qtvGroupsPrivileges->setImportOptionVisible(false);
 
     //requires "create" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Create))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         Wt::WPushButton *btn = _qtvGroupsPrivileges->createToolButton("", "icons/AddTo.png", "Add selected privileges to selected groups");
         btn->clicked().connect(this, &Views::ViewProperties::_btnAddGroupPrivilegeClicked);
@@ -385,7 +392,7 @@ void Views::ViewProperties::_createGroupsAssignedPrivilegesTableView()
     _qtvGroupsAssignedPrivileges->setImportOptionVisible(false);
 
     //requires "edit" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Create))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         Wt::WPushButton *btn = _qtvGroupsAssignedPrivileges->createToolButton("", "icons/RemoveFrom.png", "Remove selected privileges from selected groups");
         btn->clicked().connect(this, &Views::ViewProperties::_btnRemoveGroupPrivilegeClicked);
@@ -420,6 +427,7 @@ void Views::ViewProperties::_mnuPropertiesNavBarGroupsPrivilegesItemTriggered()
     _onTabGroupsPrivilegesSelected();
 }
 
+/*******************--Data--********************/
 void Views::ViewProperties::_btnAddDataClicked()
 {
     _onAddData();
@@ -430,6 +438,7 @@ void Views::ViewProperties::_btnRemoveDataClicked()
     _onRemoveData();
 }
 
+/*******************--Tags--********************/
 void Views::ViewProperties::_btnAddTagClicked()
 {
     _onAddTag();
@@ -440,6 +449,7 @@ void Views::ViewProperties::_btnRemoveTagClicked()
     _onRemoveTag();
 }
 
+/*******************--Notes--********************/
 void Views::ViewProperties::_btnAddNoteClicked()
 {
     _onAddNote();
@@ -450,6 +460,7 @@ void Views::ViewProperties::_btnRemoveNoteClicked()
     _onRemoveNote();
 }
 
+/*******************--Privileges--********************/
 void Views::ViewProperties::_btnAddGroupPrivilegeClicked()
 {
     _onAddPrivilegeToGroup();

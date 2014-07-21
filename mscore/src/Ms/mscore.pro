@@ -17,7 +17,6 @@ LIBS += -lwthttp -lwt -lwtdbo -lwtdbomysql -lboost_signals -lboost_filesystem -l
 SOURCES += \
     Dbo/Mdbo.cpp \
     Core/MManagerBase.cpp \
-    Exceptions/MDboSessionIsNullException.cpp \
     Core/MSettingsBase.cpp \
     Widgets/MWidgetFactory.cpp \
     Widgets/MTableViewColumn.cpp \
@@ -41,7 +40,8 @@ SOURCES += \
     Core/Dbo/MDboManagerBase.cpp \
     Log/MLogger.cpp \
     Widgets/MLogWidget.cpp \
-    Widgets/Delegates/MComboBoxDelegate.cpp
+    Widgets/Delegates/MComboBoxDelegate.cpp \
+    Exceptions/MNullPointerException.cpp
 
 HEADERS +=\
     Mscore_global.h \
@@ -49,7 +49,6 @@ HEADERS +=\
     Dbo/MDbo_impl.h \
     Core/MManagerBase_impl.h \
     Dbo/MDboQueryModel.h \
-    Exceptions/MDboSessionIsNullException.h \
     Dbo/MDboQueryModel.h \
     Dbo/MDboQueryModel_impl.h \
     Core/MManagerBase.h \
@@ -85,7 +84,8 @@ HEADERS +=\
     Log/MLogger.h \
     Log/MLogGlobals.h \
     Widgets/MLogWidget.h \
-    Widgets/Delegates/MComboBoxDelegate.h
+    Widgets/Delegates/MComboBoxDelegate.h \
+    Exceptions/MNullPointerException.h
 
 unix {
     target.path = /usr/lib

@@ -117,5 +117,6 @@ bool Database::Note::operator !=(const Database::Note &other) const
 
 void Database::Note::_init()
 {
+    thumbnail_ = "pics/NoPreview.png";
     _content = "";
 }

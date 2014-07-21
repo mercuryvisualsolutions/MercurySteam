@@ -130,6 +130,7 @@ bool Database::DboData::operator !=(const Database::DboData &other) const
 
 void Database::DboData::_init()
 {
+    thumbnail_ = "pics/NoPreview.png";
     _dboKey = "";
     _dboValue = "";
 }

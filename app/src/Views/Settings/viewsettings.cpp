@@ -3,14 +3,18 @@
 #include "viewsettings.h"
 #include "../../Database/databasemanager.h"
 #include "../../Projects/projectsmanager.h"
+#include "../../Log/logmanager.h"
 #include "../../Settings/appsettings.h"
 #include "Users/usersmanager.h"
+#include "../../Auth/authmanager.h"
 
 #include <Ms/Widgets/Delegates/MDelegates>
 #include <Ms/Widgets/MWidgetFactory.h>
 
 Views::ViewSettings::ViewSettings()
 {
+    _logger = Log::LogManager::instance().getAppSessionLogger(Wt::WApplication::instance()->sessionId());
+
     _prepareView();
 
     updateGeneralSettingsView();
@@ -96,7 +100,7 @@ void Views::ViewSettings::updateTaskTypeView()
 
         Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTaskType>> query;
 
-        int viewRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::ViewRank);
+        int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
 
         if(AppSettings::instance().isLoadInactiveData())
             query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskType>().where("View_Rank <= ?").bind(viewRank);
@@ -105,14 +109,14 @@ void Views::ViewSettings::updateTaskTypeView()
 
         _qtvProjectTaskType->setQuery(query);
 
-        bool canEdit = Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Edit);
+        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::EditRank);
+        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
         _qtvProjectTaskType->clearColumns();
 
@@ -139,7 +143,7 @@ void Views::ViewSettings::updateAssetTypeView()
 
         Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectAssetType>> query;
 
-        int viewRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::ViewRank);
+        int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
 
         if(AppSettings::instance().isLoadInactiveData())
             query = Database::DatabaseManager::instance().session()->find<Projects::ProjectAssetType>().where("View_Rank <= ?").bind(viewRank);
@@ -148,14 +152,14 @@ void Views::ViewSettings::updateAssetTypeView()
 
         _qtvProjectAssetType->setQuery(query);
 
-        bool canEdit = Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Edit);
+        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::EditRank);
+        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
         _qtvProjectAssetType->clearColumns();
 
@@ -182,7 +186,7 @@ void Views::ViewSettings::updateWorkStatusView()
 
         Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectWorkStatus>> query;
 
-        int viewRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::ViewRank);
+        int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
 
         if(AppSettings::instance().isLoadInactiveData())
             query = Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>().where("View_Rank <= ?").bind(viewRank);
@@ -191,14 +195,14 @@ void Views::ViewSettings::updateWorkStatusView()
 
         _qtvProjectWorkStatus->setQuery(query);
 
-        bool canEdit = Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Edit);
+        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::EditRank);
+        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
         _qtvProjectWorkStatus->clearColumns();
 
@@ -230,7 +234,7 @@ void Views::ViewSettings::updateUserTitlesView()
 
         Wt::Dbo::Query<Wt::Dbo::ptr<Users::UserTitle>> query;
 
-        int viewRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::ViewRank);
+        int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
 
         if(AppSettings::instance().isLoadInactiveData())
             query = Database::DatabaseManager::instance().session()->find<Users::UserTitle>().where("View_Rank <= ?").bind(viewRank);
@@ -239,14 +243,14 @@ void Views::ViewSettings::updateUserTitlesView()
 
         _qtvUserTitle->setQuery(query);
 
-        bool canEdit = Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Edit);
+        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::EditRank);
+        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
         _qtvUserTitle->clearColumns();
 
@@ -273,7 +277,7 @@ void Views::ViewSettings::updateTagsView()
 
         Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query;
 
-        int viewRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::ViewRank);
+        int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
 
         if(AppSettings::instance().isLoadInactiveData())
             query = Database::DatabaseManager::instance().session()->find<Database::Tag>().where("View_Rank <= ?").bind(viewRank);
@@ -282,14 +286,14 @@ void Views::ViewSettings::updateTagsView()
 
         _qtvTags->setQuery(query);
 
-        bool canEdit = Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Edit);
+        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Users::UsersManager::instance().getCurrentUserRank(Database::RankFlag::EditRank);
+        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
         _qtvTags->clearColumns();
 
@@ -390,7 +394,7 @@ void Views::ViewSettings::_createTaskTypeTableView()
     _qtvProjectTaskType = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectTaskType>(&Database::DatabaseManager::instance());
 
     //requires "create" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Create))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         Wt::WPushButton *btn = _qtvProjectTaskType->createToolButton("", "icons/Add.png", "Create A New Task Type");
         btn->clicked().connect(this, &Views::ViewSettings::_btnCreateTaskTypeClicked);
@@ -401,7 +405,7 @@ void Views::ViewSettings::_createTaskTypeTableView()
         _qtvProjectTaskType->setImportOptionVisible(false);
 
     //requires "remove" privilege
-//    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Remove))
+//    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
 //    {
 //        Wt::WPushButton *btn = _qtvProjectTaskType->createToolButton("", "icons/Remove.png", "Remove Selected Task Type");
 //        btn->clicked().connect(this, &Views::ViewSettings::_btnRemoveTaskTypeClicked);
@@ -417,11 +421,28 @@ void Views::ViewSettings::_btnCreateTaskTypeClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
-            Projects::ProjectTaskType *type = new Projects::ProjectTaskType(dlg->type());
-            type->setActive(dlg->isActive());
+            if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectTaskType>(dlg->type()))
+            {
+                Projects::ProjectTaskType *type = new Projects::ProjectTaskType(dlg->type());
+                type->setActive(dlg->isActive());
 
-            if(Database::DatabaseManager::instance().createDbo<Projects::ProjectTaskType>(type))
-                updateTaskTypeView();
+                if(Database::DatabaseManager::instance().createDbo<Projects::ProjectTaskType>(type))
+                {
+                    updateTaskTypeView();
+
+                    _logger->log(std::string("Created task type ") + dlg->type(), Ms::Log::LogMessageType::Info);
+                }
+                else
+                {
+                    delete type;
+
+                    _logger->log(std::string("Error creating task type ") + dlg->type(), Ms::Log::LogMessageType::Error);
+                }
+            }
+            else
+            {
+                _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
+            }
         }
 
         delete dlg;
@@ -441,7 +462,7 @@ void Views::ViewSettings::_createAssetTypeTableView()
     _qtvProjectAssetType = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectAssetType>(&Database::DatabaseManager::instance());
 
     //requires "create" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Create))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         Wt::WPushButton *btn = _qtvProjectAssetType->createToolButton("", "icons/Add.png", "Create A New Asset Type");
         btn->clicked().connect(this, &Views::ViewSettings::_btnCreateAssetTypeClicked);
@@ -452,7 +473,7 @@ void Views::ViewSettings::_createAssetTypeTableView()
         _qtvProjectAssetType->setImportOptionVisible(false);
 
     //requires "remove" privilege
-//    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Remove))
+//    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
 //    {
 //        Wt::WPushButton *btn = _qtvProjectAssetType->createToolButton("", "icons/Remove.png", "Remove Selected Asset Type");
 //        btn->clicked().connect(this, &Views::ViewSettings::_btnRemoveAssetTypeClicked);
@@ -468,11 +489,28 @@ void Views::ViewSettings::_btnCreateAssetTypeClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
-            Projects::ProjectAssetType *type = new Projects::ProjectAssetType(dlg->type());
-            type->setActive(dlg->isActive());
+            if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectAssetType>(dlg->type()))
+            {
+                Projects::ProjectAssetType *type = new Projects::ProjectAssetType(dlg->type());
+                type->setActive(dlg->isActive());
 
-            if(Database::DatabaseManager::instance().createDbo<Projects::ProjectAssetType>(type))
-                updateAssetTypeView();
+                if(Database::DatabaseManager::instance().createDbo<Projects::ProjectAssetType>(type))
+                {
+                    updateAssetTypeView();
+
+                    _logger->log(std::string("Created asset type ") + dlg->type(), Ms::Log::LogMessageType::Info);
+                }
+                else
+                {
+                    delete type;
+
+                    _logger->log(std::string("Error creating asset type ") + dlg->type(), Ms::Log::LogMessageType::Error);
+                }
+            }
+            else
+            {
+                _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
+            }
         }
 
         delete dlg;
@@ -492,7 +530,7 @@ void Views::ViewSettings::_createWorkStatusTableView()
     _qtvProjectWorkStatus = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectWorkStatus>(&Database::DatabaseManager::instance());
 
     //requires "create" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Create))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         Wt::WPushButton *btn = _qtvProjectWorkStatus->createToolButton("", "icons/Add.png", "Create A New Work Status");
         btn->clicked().connect(this, &Views::ViewSettings::_btnCreateWorkStatusClicked);
@@ -503,7 +541,7 @@ void Views::ViewSettings::_createWorkStatusTableView()
         _qtvProjectWorkStatus->setImportOptionVisible(false);
 
     //requires "remove" privilege
-//    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Remove))
+//    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
 //    {
 //        Wt::WPushButton *btn = _qtvProjectWorkStatus->createToolButton("", "icons/Remove.png", "Remove Selected Work Status");
 //        btn->clicked().connect(this, &Views::ViewSettings::_btnRemoveWorkStatusClicked);
@@ -519,12 +557,29 @@ void Views::ViewSettings::_btnCreateWorkStatusClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
-            Projects::ProjectWorkStatus *status = new Projects::ProjectWorkStatus(dlg->type());
-            status->setWorkStatusType(dlg->belongsToType());
-            status->setActive(dlg->isActive());
+            if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectWorkStatus>(dlg->type()))
+            {
+                Projects::ProjectWorkStatus *status = new Projects::ProjectWorkStatus(dlg->type());
+                status->setWorkStatusType(dlg->belongsToType());
+                status->setActive(dlg->isActive());
 
-            if(Database::DatabaseManager::instance().createDbo<Projects::ProjectWorkStatus>(status))
-                updateWorkStatusView();
+                if(Database::DatabaseManager::instance().createDbo<Projects::ProjectWorkStatus>(status))
+                {
+                    updateWorkStatusView();
+
+                    _logger->log(std::string("Created project work status ") + dlg->type(), Ms::Log::LogMessageType::Info);
+                }
+                else
+                {
+                    delete status;
+
+                    _logger->log(std::string("Error creating project work status ") + dlg->type(), Ms::Log::LogMessageType::Error);
+                }
+            }
+            else
+            {
+                _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
+            }
         }
 
         delete dlg;
@@ -544,7 +599,7 @@ void Views::ViewSettings::_createUsersTitlesTableView()
     _qtvUserTitle = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Users::UserTitle>(&Database::DatabaseManager::instance());
 
     //requires "create" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Create))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         Wt::WPushButton *btn = _qtvUserTitle->createToolButton("", "icons/Add.png", "Create A New User Title");
         btn->clicked().connect(this, &Views::ViewSettings::_btnCreateUserTitleClicked);
@@ -555,7 +610,7 @@ void Views::ViewSettings::_createUsersTitlesTableView()
         _qtvUserTitle->setImportOptionVisible(false);
 
     //requires "remove" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Remove))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
     {
         //Wt::WPushButton *btn = _qtvUserTitle->createToolButton("", "icons/Remove.png", "Remove Selected User Title");
         //btn->clicked().connect(this, &Views::ViewSettings::_btnRemoveUserTitlesClicked);
@@ -571,11 +626,28 @@ void Views::ViewSettings::_btnCreateUserTitleClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
-            Users::UserTitle *title = new Users::UserTitle(dlg->title());
-            title->setActive(dlg->isActive());
+            if(!Database::DatabaseManager::instance().dboExists<Users::UserTitle>(dlg->title()))
+            {
+                Users::UserTitle *title = new Users::UserTitle(dlg->title());
+                title->setActive(dlg->isActive());
 
-            if(Database::DatabaseManager::instance().createDbo<Users::UserTitle>(title))
-                updateUserTitlesView();
+                if(Database::DatabaseManager::instance().createDbo<Users::UserTitle>(title))
+                {
+                    updateUserTitlesView();
+
+                    _logger->log(std::string("Created user title ") + dlg->title(), Ms::Log::LogMessageType::Info);
+                }
+                else
+                {
+                    delete title;
+
+                    _logger->log(std::string("Error creating user title ") + dlg->title(), Ms::Log::LogMessageType::Error);
+                }
+            }
+            else
+            {
+                _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
+            }
         }
 
         delete dlg;
@@ -595,7 +667,7 @@ void Views::ViewSettings::_createTagsTableView()
     _qtvTags = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::Tag>(&Database::DatabaseManager::instance());
 
     //requires "create" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Create))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         Wt::WPushButton *btn = _qtvTags->createToolButton("", "icons/Add.png", "Create A New Tag");
         btn->clicked().connect(this, &Views::ViewSettings::_btnCreateTagClicked);
@@ -606,7 +678,7 @@ void Views::ViewSettings::_createTagsTableView()
         _qtvTags->setImportOptionVisible(false);
 
     //requires "remove" privilege
-    if(Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Remove))
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
     {
         //Wt::WPushButton *btn = _qtvTags->createToolButton("", "icons/Remove.png", "Remove Selected Tags");
         //btn->clicked().connect(this, &Views::ViewSettings::_btnRemoveTagClicked);
@@ -622,11 +694,32 @@ void Views::ViewSettings::_btnCreateTagClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
-            Database::Tag *tag = new Database::Tag(dlg->tagName(), dlg->tagContent());
-            tag->setActive(dlg->isActive());
+            Database::TagId id;
+            id.name = dlg->tagName();
+            id.content = dlg->tagContent();
 
-            if(Database::DatabaseManager::instance().createDbo<Database::Tag>(tag))
-                updateTagsView();
+            if(!Database::DatabaseManager::instance().dboExists<Database::Tag>(id))
+            {
+                Database::Tag *tag = new Database::Tag(dlg->tagName(), dlg->tagContent());
+                tag->setActive(dlg->isActive());
+
+                if(Database::DatabaseManager::instance().createDbo<Database::Tag>(tag))
+                {
+                    updateTagsView();
+
+                    _logger->log(std::string("Created tag ") + dlg->tagName(), Ms::Log::LogMessageType::Info);
+                }
+                else
+                {
+                    delete tag;
+
+                    _logger->log(std::string("Error creating tag ") + dlg->tagName(), Ms::Log::LogMessageType::Error);
+                }
+            }
+            else
+            {
+                _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
+            }
         }
 
         delete dlg;
@@ -731,7 +824,7 @@ void Views::ViewSettings::_prepareView()
 
     //check privileges
     //requires "edit" privilege
-    if(!Users::UsersManager::instance().checkCurrentUserPrivileges(Users::PrivilegeFlags::Edit))
+    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
     {
         _chkLoadInactiveData->setDisabled(true);
         _chkShowExtraColumns->setDisabled(true);

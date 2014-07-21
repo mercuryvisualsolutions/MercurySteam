@@ -1,6 +1,8 @@
 #ifndef DATABASEMANAGER_IMPL_H
 #define DATABASEMANAGER_IMPL_H
 
+#include <Ms/Exceptions/MNullPointerException.h>
+
 //GLOBAL
 template<typename T>
 bool Database::DatabaseManager::dboHasData(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Database::DboData> dboData)
@@ -12,7 +14,7 @@ bool Database::DatabaseManager::dboHasData(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Dat
         throw std::invalid_argument("Can't check data existence in dbo, data object is null");
 
     if(!Database::DatabaseManager::instance().session())
-        throw Ms::Exceptions::MDboSessionIsNullException("Can't check data, existence in dbo, DbSession object is null");
+        throw Ms::Exceptions::MNullPointerException("Can't check data, existence in dbo, DbSession object is null");
 
     try
     {
@@ -43,7 +45,7 @@ bool Database::DatabaseManager::addDataToDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<D
         throw std::invalid_argument("Can't add data to dbo, data object is null");
 
     if(!Database::DatabaseManager::instance().session())
-        throw Ms::Exceptions::MDboSessionIsNullException("Can't add data to dbo, DbSession object is null");
+        throw Ms::Exceptions::MNullPointerException("Can't add data to dbo, DbSession object is null");
 
     try
     {
@@ -74,7 +76,7 @@ bool Database::DatabaseManager::removeDataFromDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::
         throw std::invalid_argument("Can't remove data from dbo, data object is null");
 
     if(!Database::DatabaseManager::instance().session())
-        throw Ms::Exceptions::MDboSessionIsNullException("Can't remove data from dbo, DbSession object is null");
+        throw Ms::Exceptions::MNullPointerException("Can't remove data from dbo, DbSession object is null");
 
     try
     {
@@ -105,7 +107,7 @@ bool Database::DatabaseManager::dboHasNote(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Dat
         throw std::invalid_argument("Can't check note existence in dbo, data object is null");
 
     if(!Database::DatabaseManager::instance().session())
-        throw Ms::Exceptions::MDboSessionIsNullException("Can't check note, existence in dbo, DbSession object is null");
+        throw Ms::Exceptions::MNullPointerException("Can't check note, existence in dbo, DbSession object is null");
 
     try
     {
@@ -136,7 +138,7 @@ bool Database::DatabaseManager::addNoteToDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<D
         throw std::invalid_argument("Can't add note to dbo, data object is null");
 
     if(!Database::DatabaseManager::instance().session())
-        throw Ms::Exceptions::MDboSessionIsNullException("Can't add note to dbo, DbSession object is null");
+        throw Ms::Exceptions::MNullPointerException("Can't add note to dbo, DbSession object is null");
 
     try
     {
@@ -167,7 +169,7 @@ bool Database::DatabaseManager::removeNoteFromDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::
         throw std::invalid_argument("Can't remove note from dbo, data object is null");
 
     if(!Database::DatabaseManager::instance().session())
-        throw Ms::Exceptions::MDboSessionIsNullException("Can't remove note from dbo, DbSession object is null");
+        throw Ms::Exceptions::MNullPointerException("Can't remove note from dbo, DbSession object is null");
 
     try
     {
@@ -198,7 +200,7 @@ bool Database::DatabaseManager::dboHasTag(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Data
         throw std::invalid_argument("Can't check tag existence in dbo, tag object is null");
 
     if(!Database::DatabaseManager::instance().session())
-        throw Ms::Exceptions::MDboSessionIsNullException("Can't check tag, existence in dbo, DbSession object is null");
+        throw Ms::Exceptions::MNullPointerException("Can't check tag, existence in dbo, DbSession object is null");
 
     try
     {
@@ -229,7 +231,7 @@ bool Database::DatabaseManager::addTagToDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Da
         throw std::invalid_argument("Can't add tag to dbo, tag object is null");
 
     if(!Database::DatabaseManager::instance().session())
-        throw Ms::Exceptions::MDboSessionIsNullException("Can't add tag to dbo, DbSession object is null");
+        throw Ms::Exceptions::MNullPointerException("Can't add tag to dbo, DbSession object is null");
 
     try
     {
@@ -260,7 +262,7 @@ bool Database::DatabaseManager::removeTagFromDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::p
         throw std::invalid_argument("Can't remove tag from dbo, tag object is null");
 
     if(!Database::DatabaseManager::instance().session())
-        throw Ms::Exceptions::MDboSessionIsNullException("Can't remove tag from dbo, DbSession object is null");
+        throw Ms::Exceptions::MNullPointerException("Can't remove tag from dbo, DbSession object is null");
 
     try
     {

@@ -1,4 +1,6 @@
 #include "../Database/dbtables.h"
+#include "../Database/databasemanager.h"
+#include "../Log/logmanager.h"
 
 Users::Privilege::Privilege() :
     Ms::Dbo::MDbo()
@@ -34,11 +36,6 @@ const Wt::Dbo::collection<Wt::Dbo::ptr<Users::Group>> Users::Privilege::groups()
     return _groups;
 }
 
-Wt::Dbo::collection<Wt::Dbo::ptr<Users::Group>>::size_type Users::Privilege::numGroups() const
-{
-    return _groups.size();
-}
-
 bool Users::Privilege::operator ==(const Users::Privilege &other) const
 {
     return _name == other.name();
@@ -51,5 +48,7 @@ bool Users::Privilege::operator !=(const Users::Privilege &other) const
 
 void Users::Privilege::_init()
 {
+    dboManager_ = &Database::DatabaseManager::instance();
+
     _name = "New Privilege";
 }

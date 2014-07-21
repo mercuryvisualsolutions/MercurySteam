@@ -23,16 +23,6 @@ namespace Database
 {
     class DatabaseManager;
 
-    enum RankFlag
-    {
-        ViewRank = 0x01,
-        EditRank = 0x02,
-        CreateRank = 0x04,
-        RemoveRank = 0x08,
-
-        COUNT = 4
-    };
-
     class DboData : public Ms::Dbo::MDbo
     {
     public:
@@ -226,22 +216,6 @@ namespace Users
 {
     class UsersManager;
 
-    enum PrivilegeFlags
-    {
-        View = 0x01,
-        Edit = 0x02,
-        Create = 0x04,
-        Remove = 0x08,
-        CheckIn = 0x10,
-        CheckOut = 0x20,
-        CreateRepos = 0x40,
-
-        COUNT = 7
-    };
-
-    inline PrivilegeFlags operator|(PrivilegeFlags a, PrivilegeFlags b)
-    {return static_cast<PrivilegeFlags>(static_cast<int>(a) | static_cast<int>(b));}
-
     //auth typedefs
     using AuthInfo = Wt::Auth::Dbo::AuthInfo<User>;
 
@@ -264,7 +238,6 @@ namespace Users
         std::string name() const;
         void setName(const std::string &name);
         const Wt::Dbo::collection<Wt::Dbo::ptr<Users::Group>> groups() const;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Users::Group>>::size_type numGroups() const;
 
         //operators
         bool operator ==(const Privilege &other) const;
@@ -281,9 +254,53 @@ namespace Users
         }
 
     private:
-        void _init();
+        //variables
         std::string _name;
         Wt::Dbo::collection<Wt::Dbo::ptr<Users::Group>> _groups;//groups this privilege in used into
+
+        //functions
+        void _init();
+    };
+
+    class UserTitle : public Ms::Dbo::MDbo
+    {
+        friend class Users::UsersManager;
+        friend class Database::DatabaseManager;
+
+    public:
+        UserTitle();
+        UserTitle(const std::string &titleName);
+
+        //variables
+
+        //functions
+        UserTitle *modify() override;
+        std::string name() const;
+        void setName(const std::string &name);
+        const Wt::Dbo::collection<Wt::Dbo::ptr<Users::User>> users() const;
+
+        //operators
+        bool operator ==(const UserTitle &other) const;
+        bool operator !=(const UserTitle &other) const;
+
+        //DBO Functions
+        template<class Action>
+        void persist(Action &a)
+        {
+            Wt::Dbo::id(a, _name, "Name", 255);
+            Wt::Dbo::hasMany(a, _users, Wt::Dbo::ManyToOne, "Title");//create a ManyToMany relationship to the table "user"
+
+            persistExtras_<Action>(a);
+        }
+
+    private:
+        //variables
+        std::string _name;
+        Wt::Dbo::collection<Wt::Dbo::ptr<Users::User>> _users;//users using this title
+
+        //functions
+        void _init();
+
     };
 
     class Group : public Ms::Dbo::MDbo
@@ -300,16 +317,18 @@ namespace Users
         void setName(const std::string &name);
         int rank() const;
         void setRank(int rank);
+        bool hasUser (Wt::Dbo::ptr<Users::User> user) const;
+        bool addUser (Wt::Dbo::ptr<Users::User> user);
+        bool removeUser (Wt::Dbo::ptr<Users::User> user);
+        bool hasPrivilege(Wt::Dbo::ptr<Privilege> privilege) const;
+        bool hasPrivilege(const char *privilegeName) const;
+        bool addPrivilege(Wt::Dbo::ptr<Privilege> privilege);
+        bool removePrivilege(Wt::Dbo::ptr<Privilege> privilege);
         const Wt::Dbo::collection<Wt::Dbo::ptr<Users::Privilege>> privileges() const;
         const Wt::Dbo::collection<Wt::Dbo::ptr<Users::User>> users() const;
         Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>> data();
         Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>> tags();
         Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>> notes();
-        Wt::Dbo::collection<Wt::Dbo::ptr<Users::Privilege>>::size_type numPrivileges() const;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Users::User>>::size_type numUsers() const;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>>::size_type numData() const;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>>::size_type numNotes() const;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>>::size_type numTags() const;
 
         //functions
         Group *modify() override;
@@ -345,49 +364,6 @@ namespace Users
 
         //functions
         void _init();
-
-    };
-
-    class UserTitle : public Ms::Dbo::MDbo
-    {
-        friend class Users::UsersManager;
-        friend class Database::DatabaseManager;
-
-    public:
-        UserTitle();
-        UserTitle(const std::string &titleName);
-
-        //variables
-
-        //functions
-        UserTitle *modify() override;
-        std::string name() const;
-        void setName(const std::string &name);
-        const Wt::Dbo::collection<Wt::Dbo::ptr<Users::User>> users() const;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Users::User>>::size_type numUsers() const;
-
-        //operators
-        bool operator ==(const UserTitle &other) const;
-        bool operator !=(const UserTitle &other) const;
-
-        //DBO Functions
-        template<class Action>
-        void persist(Action &a)
-        {
-            Wt::Dbo::id(a, _name, "Name", 255);
-            Wt::Dbo::hasMany(a, _users, Wt::Dbo::ManyToOne, "Title");//create a ManyToMany relationship to the table "user"
-
-            persistExtras_<Action>(a);
-        }
-
-    private:
-        //variables
-        std::string _name;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Users::User>> _users;//users using this title
-
-        //functions
-        void _init();
-
     };
 
     class User : public Ms::Dbo::MDbo
@@ -404,6 +380,13 @@ namespace Users
         User *modify() override;
         std::string name() const;
         void setName(const std::string &name);
+        bool hasPrivilege(Wt::Dbo::ptr<Users::Privilege> privilege) const;
+        bool hasPrivilege(const char *privilegeName) const;
+        bool hasTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const;
+        bool addTask(Wt::Dbo::ptr<Projects::ProjectTask> task);
+        bool removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task);
+        int createRank() const;
+        void setCreateRank(int rank);
         std::string idNumber() const;
         void setIdNumber(const std::string &idNumber);
         std::string phoneNumber() const;
@@ -419,15 +402,10 @@ namespace Users
         void setTitle(Wt::Dbo::ptr<Users::UserTitle> title);
         Wt::Dbo::weak_ptr<Projects::Project> project() const;
         void setProject(Wt::Dbo::weak_ptr<Projects::Project> project);//project this user manage
-        int createRank() const;
-        void setCreateRank(int rank);
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>> tasks();
         Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>> data();
+        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>> tags();
         Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>> notes();
-        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>>::size_type numTasks() const;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>>::size_type numData() const;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>>::size_type numNotes() const;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>>::size_type numTags() const;
 
         //operators
         bool operator ==(const User &other) const;
@@ -636,6 +614,9 @@ namespace Projects
         std::string projectName() const;
         Wt::Dbo::ptr<Projects::Project> project() const;
         void setProject(Wt::Dbo::ptr<Projects::Project> project);
+        bool hasShot(Wt::Dbo::ptr<Projects::ProjectShot> shot) const;
+        bool addShot(Wt::Dbo::ptr<Projects::ProjectShot> shot);
+        bool removeShot(Wt::Dbo::ptr<Projects::ProjectShot> shot);
         Wt::WDate startDate() const;
         void setStartDate(const Wt::WDate &startDate);
         Wt::WDate endDate() const;
@@ -652,10 +633,6 @@ namespace Projects
         void setDescription(const std::string &description);
         Wt::Dbo::ptr<Projects::ProjectWorkStatus> status() const;
         void setStatus(const Wt::Dbo::ptr<Projects::ProjectWorkStatus> status);
-        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectShot>>::size_type numShots() const;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>>::size_type numData() const;//custom data this sequence has
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>>::size_type numNotes() const;//notes this sequence has
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>>::size_type numTags() const;//tags this sequence has
 
         //operators
         bool operator ==(const ProjectSequence &other) const;
@@ -727,9 +704,6 @@ namespace Projects
         void setShot(Wt::Dbo::ptr<Projects::ProjectShot> shot);
         Wt::Dbo::ptr<Projects::ProjectAsset> asset() const;
         void setAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset);
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>>::size_type numData() const;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>>::size_type numNotes() const;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>>::size_type numTags() const;
 
         //functions
         ProjectTask *modify() override;
@@ -766,6 +740,9 @@ namespace Projects
         Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>> _data;//custom data this task has
         Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>> _notes;//notes this task has
         Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>> _tags;//tags this task has
+
+        //functions
+        void _init();
     };
 
     class ProjectTaskType : public Ms::Dbo::MDbo
@@ -829,6 +806,9 @@ namespace Projects
         void setSequence(Wt::Dbo::ptr<Projects::ProjectSequence> sequence);
         std::string projectName() const;
         Wt::Dbo::ptr<Projects::Project> project() const;
+        bool hasTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const;
+        bool addTask(Wt::Dbo::ptr<Projects::ProjectTask> task);
+        bool removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task);
         Wt::WDate startDate() const;
         void setStartDate(const Wt::WDate &startDate);
         Wt::WDate endDate() const;
@@ -845,10 +825,6 @@ namespace Projects
         void setDescription(const std::string &description);
         Wt::Dbo::ptr<Projects::ProjectWorkStatus> status() const;
         void setStatus(const Wt::Dbo::ptr<Projects::ProjectWorkStatus> status);
-        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>>::size_type numTasks() const;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>>::size_type numData() const;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>>::size_type numNotes() const;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>>::size_type numTags() const;
 
         //operators
         bool operator ==(const ProjectShot &other) const;
@@ -916,6 +892,9 @@ namespace Projects
         std::string projectName() const;
         Wt::Dbo::ptr<Projects::Project> project() const;
         void setProject(Wt::Dbo::ptr<Projects::Project> project);
+        bool hasTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const;
+        bool addTask(Wt::Dbo::ptr<Projects::ProjectTask> task);
+        bool removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task);
         Wt::WDate startDate() const;
         void setStartDate(const Wt::WDate &startDate);
         Wt::WDate endDate() const;
@@ -926,10 +905,6 @@ namespace Projects
         void setType(const Wt::Dbo::ptr<Projects::ProjectAssetType> type);
         Wt::Dbo::ptr<Projects::ProjectWorkStatus> status() const;
         void setStatus(const Wt::Dbo::ptr<Projects::ProjectWorkStatus> status);
-        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>>::size_type numTasks() const;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>>::size_type numData() const;//ustom data this sequence has
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>>::size_type numNotes() const;//notes this sequence has
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>>::size_type numTags() const;//tags this sequence has
 
         //operators
         bool operator ==(const ProjectAsset &other) const;
@@ -986,6 +961,12 @@ namespace Projects
         Project *modify() override;
         std::string name() const;
         void setName(const std::string &name);
+        bool hasSequence(Wt::Dbo::ptr<Projects::ProjectSequence> sequence) const;
+        bool addSequence(Wt::Dbo::ptr<Projects::ProjectSequence> sequence);
+        bool removeSequence(Wt::Dbo::ptr<Projects::ProjectSequence> sequence);
+        bool hasAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset) const;
+        bool addAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset);
+        bool removeAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset);
         Wt::WDate startDate() const;
         void setStartDate(const Wt::WDate &startDate);
         Wt::WDate endDate() const;
@@ -1004,11 +985,6 @@ namespace Projects
         void setStatus(const Wt::Dbo::ptr<Projects::ProjectWorkStatus> status);
         Wt::Dbo::ptr<Users::User> manager() const;
         void setManager(const Wt::Dbo::ptr<Users::User> user);
-        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectSequence>>::size_type numSequences() const;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectAsset>>::size_type numAssets() const;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>>::size_type numData() const;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>>::size_type numNotes() const;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>>::size_type numTags() const;
 
         //operators
         bool operator ==(const Project &other) const;

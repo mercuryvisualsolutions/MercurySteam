@@ -1,5 +1,7 @@
 #include "../Database/dbtables.h"
-#include "usersmanager.h"
+#include "../Database/databasemanager.h"
+#include "../Log/logmanager.h"
+#include "Users/usersio.h"
 
 Users::User::User() :
     Ms::Dbo::MDbo()
@@ -34,6 +36,64 @@ std::string Users::User::name() const
 void Users::User::setName(const std::string &name)
 {
     _name = name;
+}
+
+bool Users::User::hasPrivilege(Wt::Dbo::ptr<Users::Privilege> privilege) const
+{
+    return _group->hasPrivilege(privilege);
+}
+
+bool Users::User::hasPrivilege(const char *privilegeName) const
+{
+    return _group->hasPrivilege(privilegeName);
+}
+
+bool Users::User::hasTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const
+{
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if((*iter).id() == task.id())
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool Users::User::addTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
+{
+    if(!hasTask(task))
+    {
+        _tasks.insert(task);
+        return true;
+    }
+
+    return false;
+}
+
+bool Users::User::removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
+{
+    if(hasTask(task))
+    {
+        _tasks.erase(task);
+        return true;
+    }
+
+    return false;
+}
+
+int Users::User::createRank() const
+{
+    return _createRank;
+}
+
+void Users::User::setCreateRank(int rank)
+{
+    _createRank = rank;
 }
 
 std::string Users::User::idNumber() const
@@ -111,16 +171,6 @@ void Users::User::setProject(Wt::Dbo::weak_ptr<Projects::Project> project)
     _project = project;
 }
 
-int Users::User::createRank() const
-{
-    return _createRank;
-}
-
-void Users::User::setCreateRank(int rank)
-{
-    _createRank = rank;
-}
-
 Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask> > Users::User::tasks()
 {
     return _tasks;
@@ -131,29 +181,14 @@ Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData> > Users::User::data()
     return _data;
 }
 
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note> > Users::User::notes()
+Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag> > Users::User::tags()
+{
+    return _tags;
+}
+
+Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>> Users::User::notes()
 {
     return _notes;
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>>::size_type Users::User::numTasks() const
-{
-    return _tasks.size();
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>>::size_type Users::User::numData() const
-{
-    return _data.size();
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>>::size_type Users::User::numNotes() const
-{
-    return _notes.size();
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>>::size_type Users::User::numTags() const
-{
-    return _tags.size();
 }
 
 bool Users::User::operator ==(const Users::User &other) const
@@ -168,6 +203,8 @@ bool Users::User::operator !=(const Users::User &other) const
 
 void Users::User::_init()
 {
+    dboManager_ = &Database::DatabaseManager::instance();
+
     thumbnail_ = "pics/NoPreview.png";
     _name = "New User";
     _idNumber = "";
