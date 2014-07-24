@@ -2,7 +2,7 @@
 #include "Database/databasemanager.h"
 
 Projects::ProjectAsset::ProjectAsset() :
-    Ms::Dbo::MDbo()
+    Database::Dbo()
 {
     _init();
 }
@@ -15,7 +15,7 @@ Projects::ProjectAsset::ProjectAsset(const std::string &assetName) :
 
 Projects::ProjectAsset *Projects::ProjectAsset::modify()
 {
-    Ms::Dbo::MDbo::modify();
+    Database::Dbo::modify();
 
     return this;
 }

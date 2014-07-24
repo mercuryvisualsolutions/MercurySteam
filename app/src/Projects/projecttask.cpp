@@ -2,14 +2,14 @@
 #include "../Database/databasemanager.h"
 
 Projects::ProjectTask::ProjectTask() :
-    Ms::Dbo::MDbo()
+    Database::Dbo()
 {
     _init();
 }
 
 Projects::ProjectTask *Projects::ProjectTask::modify()
 {
-    Ms::Dbo::MDbo::modify();
+    Database::Dbo::modify();
 
     return this;
 }

@@ -1,5 +1,4 @@
 #include "logger.h"
-#include "logmanager.h"
 
 Log::Logger::Logger()
 {
@@ -17,7 +16,7 @@ Log::Logger::~Logger()
     delete _logWidget;
 }
 
-void Log::Logger::log(const std::string &message, Ms::Log::LogMessageType type, Log::LogMessageContext context)
+void Log::Logger::log(const std::string &message, Ms::Log::LogMessageType type, Log::LogMessageContext context) const
 {
     if(context & LogMessageContext::Client)
     {
@@ -29,7 +28,7 @@ void Log::Logger::log(const std::string &message, Ms::Log::LogMessageType type, 
     }
 }
 
-unsigned int Log::Logger::maxOnScreenLogMessages()
+unsigned int Log::Logger::maxOnScreenLogMessages() const
 {
     return _logWidget->maxLogMessages();
 }
@@ -39,12 +38,12 @@ void Log::Logger::setMaxOnScreenLogMessages(unsigned int value)
     _logWidget->setMaxLogMessages(value);
 }
 
-Ms::Widgets::MLogWidget *Log::Logger::logWidget()
+Ms::Widgets::MLogWidget *Log::Logger::logWidget() const
 {
     return _logWidget;
 }
 
-Ms::Log::MLogger *Log::Logger::globalLogger()
+Ms::Log::MLogger *Log::Logger::globalLogger() const
 {
     return _globalLogger;
 }

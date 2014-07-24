@@ -20,6 +20,7 @@
 
 #include "../../Database/dbtables.h"
 #include "../../Log/logger.h"
+#include "../../Session/sessionmanager.h"
 #include "settingsdialogs.h"
 
 #include <Ms/Widgets/MQueryTableViewWidget.h>
@@ -43,6 +44,7 @@ namespace Views
         void updateWorkStatusView();
         void updateUserTitlesView();
         void updateTagsView();
+        void showPropertiesView();
 
         //Signal
         Wt::Signal<> &onTabGeneralSelected();
@@ -62,6 +64,7 @@ namespace Views
 
         //variables
         Log::Logger *_logger;
+        Ms::Widgets::MPropertiesPanel *_propertiesPanel;
 
         /*******************--Main--********************/
         Wt::WVBoxLayout *_layMain;//main layout
@@ -151,6 +154,9 @@ namespace Views
         Wt::WVBoxLayout *_layCntTags;
         Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvTags;
 
+        /*******************--Properties--********************/
+        Wt::WContainerWidget *_cntPropertiesMain;
+
         //functions
         void _createTagsTableView();
 
@@ -184,6 +190,9 @@ namespace Views
         //Titles
         void _btnCreateTagClicked();
         void _btnRemoveTagClicked();
+
+        /*******************--Properties--********************/
+        void _createPropertiesView();
 
         void _prepareView();
     };

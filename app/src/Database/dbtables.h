@@ -12,7 +12,7 @@
 #include <Wt/WDateTime>
 #include <Wt/Dbo/WtSqlTraits>
 
-#include <Ms/Dbo/MDbo.h>
+#include <Ms/Dbo/MDboBase.h>
 
 #include "dbospecialization.h"
 #include "projectdbospecialization.h"
@@ -23,7 +23,7 @@ namespace Database
 {
     class DatabaseManager;
 
-    class DboData : public Ms::Dbo::MDbo
+    class DboData : public Ms::Dbo::MDboBase
     {
     public:
         DboData();
@@ -71,7 +71,7 @@ namespace Database
             Wt::Dbo::belongsTo(a, _asset, "Project_Asset");
             Wt::Dbo::belongsTo(a, _task, "Project_Task");
 
-            persistExtras_<Action>(a);
+            persistDefaults_<Action>(a);
         }
 
     private:
@@ -90,7 +90,7 @@ namespace Database
         void _init();
     };
 
-    class Note : public Ms::Dbo::MDbo
+    class Note : public Ms::Dbo::MDboBase
     {
     public:
         Note();
@@ -135,7 +135,7 @@ namespace Database
             Wt::Dbo::belongsTo(a, _asset, "Project_Asset");
             Wt::Dbo::belongsTo(a, _task, "Project_Task");
 
-            persistExtras_<Action>(a);
+            persistDefaults_<Action>(a);
         }
 
     private:
@@ -153,7 +153,7 @@ namespace Database
         void _init();
     };
 
-    class Tag : public Ms::Dbo::MDbo
+    class Tag : public Ms::Dbo::MDboBase
     {
     public:
         Tag();
@@ -193,7 +193,7 @@ namespace Database
             Wt::Dbo::hasMany(a, _assets, Wt::Dbo::ManyToMany, "rel_project_asset_tags");
             Wt::Dbo::hasMany(a, _tasks, Wt::Dbo::ManyToMany, "rel_project_task_tags");
 
-            persistExtras_<Action>(a);
+            persistDefaults_<Action>(a);
         }
 
     private:
@@ -210,6 +210,34 @@ namespace Database
         //functions
         void _init();
     };
+
+    class Dbo : public Ms::Dbo::MDboBase
+    {
+    public:
+        Dbo();
+
+        bool hasData(Wt::Dbo::ptr<Database::DboData> data) const;
+        bool addData(Wt::Dbo::ptr<Database::DboData> data);
+        bool removeData(Wt::Dbo::ptr<Database::DboData> data);
+        bool hasTag(Wt::Dbo::ptr<Database::Tag> tag) const;
+        bool addTag(Wt::Dbo::ptr<Database::Tag> tag);
+        bool removeTag(Wt::Dbo::ptr<Database::Tag> tag);
+        bool hasNote(Wt::Dbo::ptr<Database::Note> note) const;
+        bool addNote(Wt::Dbo::ptr<Database::Note> note);
+        bool removeNote(Wt::Dbo::ptr<Database::Note> note);
+
+        Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>> data();
+        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>> tags();
+        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>> notes();
+
+        //functions
+        Dbo *modify() override;
+
+    protected:
+        Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>> data_;//custom data this group has
+        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>> notes_;//notes this group has
+        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>> tags_;//tags this group has
+    };
 }
 
 namespace Users
@@ -221,7 +249,7 @@ namespace Users
 
     //user data typedefs
 
-    class Privilege : public Ms::Dbo::MDbo
+    class Privilege : public Ms::Dbo::MDboBase
     {
         friend class Users::UsersManager;
         friend class Database::DatabaseManager;
@@ -250,7 +278,7 @@ namespace Users
             Wt::Dbo::id(a, _name, "Name", 255);
             Wt::Dbo::hasMany(a, _groups, Wt::Dbo::ManyToMany, "rel_group_privileges");//create a ManyToMany relationship to the table "group"
 
-            persistExtras_<Action>(a);
+            persistDefaults_<Action>(a);
         }
 
     private:
@@ -262,7 +290,7 @@ namespace Users
         void _init();
     };
 
-    class UserTitle : public Ms::Dbo::MDbo
+    class UserTitle : public Ms::Dbo::MDboBase
     {
         friend class Users::UsersManager;
         friend class Database::DatabaseManager;
@@ -290,7 +318,7 @@ namespace Users
             Wt::Dbo::id(a, _name, "Name", 255);
             Wt::Dbo::hasMany(a, _users, Wt::Dbo::ManyToOne, "Title");//create a ManyToMany relationship to the table "user"
 
-            persistExtras_<Action>(a);
+            persistDefaults_<Action>(a);
         }
 
     private:
@@ -303,7 +331,7 @@ namespace Users
 
     };
 
-    class Group : public Ms::Dbo::MDbo
+    class Group : public Database::Dbo
     {
         friend class Users::UsersManager;
         friend class Database::DatabaseManager;
@@ -326,9 +354,6 @@ namespace Users
         bool removePrivilege(Wt::Dbo::ptr<Privilege> privilege);
         const Wt::Dbo::collection<Wt::Dbo::ptr<Users::Privilege>> privileges() const;
         const Wt::Dbo::collection<Wt::Dbo::ptr<Users::User>> users() const;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>> data();
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>> tags();
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>> notes();
 
         //functions
         Group *modify() override;
@@ -345,11 +370,11 @@ namespace Users
             Wt::Dbo::field(a, _rank, "Rank");
             Wt::Dbo::hasMany(a, _privileges, Wt::Dbo::ManyToMany, "rel_group_privileges");//create a ManyToMany relationship to the table "privilege"
             Wt::Dbo::hasMany(a, _users, Wt::Dbo::ManyToOne, "Group");//create a ManyToMany relationship to the table "user"
-            Wt::Dbo::hasMany(a, _data, Wt::Dbo::ManyToOne, "Group");//create a ManyToOne relationship to the table "data
-            Wt::Dbo::hasMany(a, _notes, Wt::Dbo::ManyToOne, "Group");//create a ManyToOne relationship to the table "note
-            Wt::Dbo::hasMany(a, _tags, Wt::Dbo::ManyToMany, "rel_group_tags");//create a ManyToMany relationship to the table "tag
+            Wt::Dbo::hasMany(a, data_, Wt::Dbo::ManyToOne, "Group");//create a ManyToOne relationship to the table "data
+            Wt::Dbo::hasMany(a, notes_, Wt::Dbo::ManyToOne, "Group");//create a ManyToOne relationship to the table "note
+            Wt::Dbo::hasMany(a, tags_, Wt::Dbo::ManyToMany, "rel_group_tags");//create a ManyToMany relationship to the table "tag
 
-            persistExtras_<Action>(a);
+            persistDefaults_<Action>(a);
         }
 
     private:
@@ -358,15 +383,12 @@ namespace Users
         int _rank;
         Wt::Dbo::collection<Wt::Dbo::ptr<Users::Privilege>> _privileges;//privileges this group has
         Wt::Dbo::collection<Wt::Dbo::ptr<Users::User>> _users;//users in this group
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>> _data;//custom data this group has
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>> _notes;//notes this group has
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>> _tags;//tags this group has
 
         //functions
         void _init();
     };
 
-    class User : public Ms::Dbo::MDbo
+    class User : public Database::Dbo
     {
         friend class Users::UsersManager;
         friend class Database::DatabaseManager;
@@ -385,6 +407,7 @@ namespace Users
         bool hasTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const;
         bool addTask(Wt::Dbo::ptr<Projects::ProjectTask> task);
         bool removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task);
+
         int createRank() const;
         void setCreateRank(int rank);
         std::string idNumber() const;
@@ -403,9 +426,6 @@ namespace Users
         Wt::Dbo::weak_ptr<Projects::Project> project() const;
         void setProject(Wt::Dbo::weak_ptr<Projects::Project> project);//project this user manage
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>> tasks();
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>> data();
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>> tags();
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>> notes();
 
         //operators
         bool operator ==(const User &other) const;
@@ -426,11 +446,11 @@ namespace Users
             Wt::Dbo::belongsTo(a, _title, "Title");//create a OneToMany relationship to the table "title"
             Wt::Dbo::hasMany(a, _tasks, Wt::Dbo::ManyToOne, "Task_User");//create a ManyToOne relationship to the table "project_task"
             Wt::Dbo::hasOne(a, _project, "Project_Manager");//create a ManyToOne relationship to the table "project"
-            Wt::Dbo::hasMany(a, _data, Wt::Dbo::ManyToOne, "User");//create a ManyToOne relationship to the table "data
-            Wt::Dbo::hasMany(a, _notes, Wt::Dbo::ManyToOne, "User");//create a ManyToOne relationship to the table "note
-            Wt::Dbo::hasMany(a, _tags, Wt::Dbo::ManyToMany, "rel_user_tags");//create a ManyToMany relationship to the table "tag
+            Wt::Dbo::hasMany(a, data_, Wt::Dbo::ManyToOne, "User");//create a ManyToOne relationship to the table "data
+            Wt::Dbo::hasMany(a, notes_, Wt::Dbo::ManyToOne, "User");//create a ManyToOne relationship to the table "note
+            Wt::Dbo::hasMany(a, tags_, Wt::Dbo::ManyToMany, "rel_user_tags");//create a ManyToMany relationship to the table "tag
 
-            persistExtras_<Action>(a);
+            persistDefaults_<Action>(a);
         }
 
     private:
@@ -445,9 +465,6 @@ namespace Users
         Wt::Dbo::ptr<Users::UserTitle> _title;//title this user has
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>> _tasks;//tasks this user has
         Wt::Dbo::weak_ptr<Projects::Project> _project;//project this user manage
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>> _data;//custom data this user has
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>> _notes;//notes this user has
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>> _tags;//tags this user has
         int _createRank;
 
         //functions
@@ -459,7 +476,7 @@ namespace Projects
 {
     class ProjectsManager;
 
-    class ProjectWorkStatusType : public Ms::Dbo::MDbo
+    class ProjectWorkStatusType : public Ms::Dbo::MDboBase
     {
         friend class Projects::ProjectsManager;
         friend class Database::DatabaseManager;
@@ -487,7 +504,7 @@ namespace Projects
             Wt::Dbo::id(a, _workStatusType, "Work_Status_Type", 255);
             Wt::Dbo::hasMany(a, _projectWorkStatus, Wt::Dbo::ManyToOne, "Belongs_To");//create a ManyToOne relationship to the table "project_work_status"
 
-            persistExtras_<Action>(a);
+            persistDefaults_<Action>(a);
         }
 
     private:
@@ -499,7 +516,7 @@ namespace Projects
         void _init();
     };
 
-    class ProjectAssetType : public Ms::Dbo::MDbo
+    class ProjectAssetType : public Ms::Dbo::MDboBase
     {
         friend class Projects::ProjectsManager;
         friend class Database::DatabaseManager;
@@ -527,7 +544,7 @@ namespace Projects
             Wt::Dbo::id(a, _type, "Type", 255);
             Wt::Dbo::hasMany(a, _assets, Wt::Dbo::ManyToOne, "Asset");//create a ManyToOne relationship to the table "project_asset_type"
 
-            persistExtras_<Action>(a);
+            persistDefaults_<Action>(a);
         }
 
     private:
@@ -539,7 +556,7 @@ namespace Projects
         void  _init();
     };
 
-    class ProjectWorkStatus : public Ms::Dbo::MDbo
+    class ProjectWorkStatus : public Ms::Dbo::MDboBase
     {
         friend class Projects::ProjectsManager;
         friend class Database::DatabaseManager;
@@ -578,7 +595,7 @@ namespace Projects
             Wt::Dbo::hasMany(a, _shots, Wt::Dbo::ManyToOne, "Current");//create a ManyToOne relationship to the table "project_shot"
             Wt::Dbo::hasMany(a, _projects, Wt::Dbo::ManyToOne, "Current");//create a ManyToOne relationship to the table "project"
 
-            persistExtras_<Action>(a);
+            persistDefaults_<Action>(a);
         }
 
     private:
@@ -595,7 +612,7 @@ namespace Projects
         void _init();
     };
 
-    class ProjectSequence : public Ms::Dbo::MDbo
+    class ProjectSequence : public Database::Dbo
     {
         friend class Projects::ProjectsManager;
         friend class Database::DatabaseManager;
@@ -652,11 +669,11 @@ namespace Projects
             Wt::Dbo::field(a, _description, "Description");
             Wt::Dbo::belongsTo(a, _status, "Current");//create a ManyToOne relationship to the table "project_work_status"
             Wt::Dbo::hasMany(a, _shots, Wt::Dbo::ManyToOne, "Shot_Sequence");//create a ManyToOne relationship to the table "project_shot"
-            Wt::Dbo::hasMany(a, _data, Wt::Dbo::ManyToOne, "Project_Sequence");
-            Wt::Dbo::hasMany(a, _notes, Wt::Dbo::ManyToOne, "Project_Sequence");
-            Wt::Dbo::hasMany(a, _tags, Wt::Dbo::ManyToMany, "rel_project_sequence_tags");
+            Wt::Dbo::hasMany(a, data_, Wt::Dbo::ManyToOne, "Project_Sequence");
+            Wt::Dbo::hasMany(a, notes_, Wt::Dbo::ManyToOne, "Project_Sequence");
+            Wt::Dbo::hasMany(a, tags_, Wt::Dbo::ManyToMany, "rel_project_sequence_tags");
 
-            persistExtras_<Action>(a);
+            persistDefaults_<Action>(a);
         }
 
     private:
@@ -671,15 +688,12 @@ namespace Projects
         std::string _description;
         Wt::Dbo::ptr<Projects::ProjectWorkStatus> _status;
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectShot>> _shots;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>> _data;//ustom data this sequence has
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>> _notes;//notes this sequence has
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>> _tags;//tags this sequence has
 
         //variables
         void _init();
     };
 
-    class ProjectTask : public Ms::Dbo::MDbo
+    class ProjectTask : public Database::Dbo
     {
         friend class Projects::ProjectsManager;
         friend class Database::DatabaseManager;
@@ -720,11 +734,11 @@ namespace Projects
             Wt::Dbo::belongsTo(a, _user, "Task_User");//create a ManyToOne relationship to the table "user"
             Wt::Dbo::belongsTo(a, _shot, "Task_Shot");//create a ManyToOne relationship to the table "project_shot_task_type"
             Wt::Dbo::belongsTo(a, _asset, "Task_Asset");//create a ManyToOne relationship to the table "project_asset"
-            Wt::Dbo::hasMany(a, _data, Wt::Dbo::ManyToOne, "Project_Task");
-            Wt::Dbo::hasMany(a, _notes, Wt::Dbo::ManyToOne, "Project_Task");
-            Wt::Dbo::hasMany(a, _tags, Wt::Dbo::ManyToMany, "rel_project_task_tags");
+            Wt::Dbo::hasMany(a, data_, Wt::Dbo::ManyToOne, "Project_Task");
+            Wt::Dbo::hasMany(a, notes_, Wt::Dbo::ManyToOne, "Project_Task");
+            Wt::Dbo::hasMany(a, tags_, Wt::Dbo::ManyToMany, "rel_project_task_tags");
 
-            persistExtras_<Action>(a);
+            persistDefaults_<Action>(a);
         }
 
     private:
@@ -737,15 +751,12 @@ namespace Projects
         Wt::Dbo::ptr<Users::User> _user;
         Wt::Dbo::ptr<Projects::ProjectShot> _shot;
         Wt::Dbo::ptr<Projects::ProjectAsset> _asset;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>> _data;//custom data this task has
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>> _notes;//notes this task has
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>> _tags;//tags this task has
 
         //functions
         void _init();
     };
 
-    class ProjectTaskType : public Ms::Dbo::MDbo
+    class ProjectTaskType : public Ms::Dbo::MDboBase
     {
         friend class Projects::ProjectsManager;
         friend class Database::DatabaseManager;
@@ -773,7 +784,7 @@ namespace Projects
             Wt::Dbo::id(a, _type, "Type", 255);
             Wt::Dbo::hasMany(a, _tasks, Wt::Dbo::ManyToOne, "Task");//create a ManyToOne relationship to the table "project_shot_task"
 
-            persistExtras_<Action>(a);
+            persistDefaults_<Action>(a);
         }
 
     private:
@@ -785,7 +796,7 @@ namespace Projects
         void _init();
     };
 
-    class ProjectShot : public Ms::Dbo::MDbo
+    class ProjectShot : public Database::Dbo
     {
         friend class Projects::ProjectsManager;
         friend class Database::DatabaseManager;
@@ -808,7 +819,7 @@ namespace Projects
         Wt::Dbo::ptr<Projects::Project> project() const;
         bool hasTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const;
         bool addTask(Wt::Dbo::ptr<Projects::ProjectTask> task);
-        bool removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task);
+        bool removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task); 
         Wt::WDate startDate() const;
         void setStartDate(const Wt::WDate &startDate);
         Wt::WDate endDate() const;
@@ -845,11 +856,11 @@ namespace Projects
             Wt::Dbo::field(a, _description, "Description");
             Wt::Dbo::belongsTo(a, _status, "Current");//create a ManyToOne relationship to the table "project_work_status"
             Wt::Dbo::hasMany(a, _tasks, Wt::Dbo::ManyToOne, "Task_Shot");//create a ManyToOne relationship to the table "project_task"
-            Wt::Dbo::hasMany(a, _data, Wt::Dbo::ManyToOne, "Project_Shot");//create a ManyToOne relationship to the table "data"
-            Wt::Dbo::hasMany(a, _notes, Wt::Dbo::ManyToOne, "Project_Shot");//create a ManyToOne relationship to the table "note"
-            Wt::Dbo::hasMany(a, _tags, Wt::Dbo::ManyToMany, "rel_project_shot_tags");//create a ManyToMany relationship to the table "tag"
+            Wt::Dbo::hasMany(a, data_, Wt::Dbo::ManyToOne, "Project_Shot");//create a ManyToOne relationship to the table "data"
+            Wt::Dbo::hasMany(a, notes_, Wt::Dbo::ManyToOne, "Project_Shot");//create a ManyToOne relationship to the table "note"
+            Wt::Dbo::hasMany(a, tags_, Wt::Dbo::ManyToMany, "rel_project_shot_tags");//create a ManyToMany relationship to the table "tag"
 
-            persistExtras_<Action>(a);
+            persistDefaults_<Action>(a);
         }
 
     private:
@@ -864,15 +875,12 @@ namespace Projects
         std::string _description;
         Wt::Dbo::ptr<Projects::ProjectWorkStatus> _status;
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>> _tasks;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>> _data;//custom data this task has
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>> _notes;//notes this task has
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>> _tags;//tags this task has
 
         //functions
         void _init();
     };
 
-    class ProjectAsset : public Ms::Dbo::MDbo
+    class ProjectAsset : public Database::Dbo
     {
         friend class Projects::ProjectsManager;
         friend class Database::DatabaseManager;
@@ -921,11 +929,11 @@ namespace Projects
             Wt::Dbo::belongsTo(a, _status, "Current");//create a ManyToOne relationship to the table "project_work_status"
             Wt::Dbo::belongsTo(a, _type, "Asset");//create a ManyToOne relationship to the table "project_asset_type"
             Wt::Dbo::hasMany(a, _tasks, Wt::Dbo::ManyToOne, "Task_Asset");//create a ManyToOne relationship to the table "project_task"
-            Wt::Dbo::hasMany(a, _data, Wt::Dbo::ManyToOne, "Project_Asset");//create a ManyToOne relationship to the table "data"
-            Wt::Dbo::hasMany(a, _notes, Wt::Dbo::ManyToOne, "Project_Asset");//create a ManyToOne relationship to the table "note"
-            Wt::Dbo::hasMany(a, _tags, Wt::Dbo::ManyToMany, "rel_project_asset_tags");//create a ManyToMany relationship to the table "tag"
+            Wt::Dbo::hasMany(a, data_, Wt::Dbo::ManyToOne, "Project_Asset");//create a ManyToOne relationship to the table "data"
+            Wt::Dbo::hasMany(a, notes_, Wt::Dbo::ManyToOne, "Project_Asset");//create a ManyToOne relationship to the table "note"
+            Wt::Dbo::hasMany(a, tags_, Wt::Dbo::ManyToMany, "rel_project_asset_tags");//create a ManyToMany relationship to the table "tag"
 
-            persistExtras_<Action>(a);
+            persistDefaults_<Action>(a);
         }
 
     private:
@@ -937,15 +945,12 @@ namespace Projects
         Wt::Dbo::ptr<Projects::ProjectAssetType> _type;
         Wt::Dbo::ptr<Projects::ProjectWorkStatus> _status;
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>> _tasks;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>> _data;//custom data this asset has
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>> _notes;//notes this asset has
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>> _tags;//tags this asset has
 
         //functions
         void _init();
     };
 
-    class Project : public Ms::Dbo::MDbo
+    class Project : public Database::Dbo
     {
         friend class Projects::ProjectsManager;
         friend class Database::DatabaseManager;
@@ -1007,11 +1012,11 @@ namespace Projects
             Wt::Dbo::belongsTo(a, _projectManager, "Project_Manager");//create a ManyToOne relationship to the table "users"
             Wt::Dbo::hasMany(a, _sequences, Wt::Dbo::ManyToOne, "Sequence_Project");//create a ManyToOne relationship to the table "project_sequence"
             Wt::Dbo::hasMany(a, _assets, Wt::Dbo::ManyToOne, "Asset_Project");//create a ManyToOne relationship to the table "project_asset"
-            Wt::Dbo::hasMany(a, _data, Wt::Dbo::ManyToOne, "Project");//create a ManyToOne relationship to the table "data"
-            Wt::Dbo::hasMany(a, _notes, Wt::Dbo::ManyToOne, "Project");//create a ManyToOne relationship to the table "note"
-            Wt::Dbo::hasMany(a, _tags, Wt::Dbo::ManyToMany, "rel_project_tags");//create a ManyToMany relationship to the table "tag"
+            Wt::Dbo::hasMany(a, data_, Wt::Dbo::ManyToOne, "Project");//create a ManyToOne relationship to the table "data"
+            Wt::Dbo::hasMany(a, notes_, Wt::Dbo::ManyToOne, "Project");//create a ManyToOne relationship to the table "note"
+            Wt::Dbo::hasMany(a, tags_, Wt::Dbo::ManyToMany, "rel_project_tags");//create a ManyToMany relationship to the table "tag"
 
-            persistExtras_<Action>(a);
+            persistDefaults_<Action>(a);
         }
 
     private:
@@ -1029,9 +1034,6 @@ namespace Projects
         Wt::Dbo::ptr<Users::User> _projectManager;
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectSequence>> _sequences;
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectAsset>> _assets;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>> _data;//custom data this project has
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>> _notes;//notes this project has
-        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>> _tags;//tags this project has
 
         //functions
         void _init();

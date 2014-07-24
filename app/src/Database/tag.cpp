@@ -1,7 +1,7 @@
 #include "Database/dbtables.h"
 
 Database::Tag::Tag() :
-    Ms::Dbo::MDbo()
+    Ms::Dbo::MDboBase()
 {
     _init();
 }
@@ -15,7 +15,7 @@ Database::Tag::Tag(const std::string &name, const std::string &content) :
 
 Database::Tag *Database::Tag::modify()
 {
-    Ms::Dbo::MDbo::modify();
+    Ms::Dbo::MDboBase::modify();
 
     return this;
 }

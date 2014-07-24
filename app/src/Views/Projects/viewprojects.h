@@ -18,6 +18,8 @@
 
 #include "projectsdialogs.h"
 #include "../../Log/logger.h"
+#include "../../Session/sessionmanager.h"
+
 
 #include <Ms/Widgets/MWidgetFactory.h>
 #include <Ms/Widgets/MQueryTableViewWidget.h>
@@ -35,6 +37,9 @@ namespace Views
         void updateShotsView();
         void updateAssetsView();
         void updateTasksView();
+        void updatePropertiesView();
+
+        void showPropertiesView();
 
         bool isProjectsViewShown();
         bool isSequencesViewShown();
@@ -56,10 +61,19 @@ namespace Views
         Wt::Signal<> &onTabTasksSelected();
 
     private:
+        //functions
         template<typename T>
         void _addExtraColumns(Ms::Widgets::MQueryTableViewWidget<T> *widget, Wt::WFlags<Wt::ItemFlag> flags, int editRank);
 
-        //functions
+        template<typename T>
+        void _addDataToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec);
+        template<typename T>
+        void _addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec);
+        template<typename T>
+        void _addTagsToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
+        template<typename T>
+        void _removeTagsFromDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
+
         //Signals
         Wt::Signal<> _onTabProjectsSelected;
         Wt::Signal<> _onTabSequencesSelected;
@@ -69,6 +83,7 @@ namespace Views
 
         //variables
         Log::Logger *_logger;
+        Ms::Widgets::MPropertiesPanel *_propertiesPanel;
         /*******************--Main--********************/
         Wt::WVBoxLayout *_layMain;
         Wt::WContainerWidget *_cntProjectsAndData;
@@ -105,10 +120,36 @@ namespace Views
         Wt::WContainerWidget *_cntAssets;//container for assets view
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectAsset> *_qtvAssets;
 
-        //tasks
+        //Tasks
         Wt::WVBoxLayout *_layTasks;
         Wt::WContainerWidget *_cntTasks;//container for task view
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *_qtvTasks;
+
+        //Properties
+        Wt::WContainerWidget *_cntPropertiesMain;
+        Wt::WVBoxLayout *_layCntPropertiesMain;
+        Wt::WNavigationBar *_navBarPropertiesMain;
+        Wt::WMenu *_mnuPropertiesNavBar;
+        Wt::WMenuItem *_mnuPropertiesNavBarDataItem;
+        Wt::WMenuItem *_mnuPropertiesNavBarTagsItem;
+        Wt::WMenuItem *_mnuPropertiesNavBarNotesItem;
+        Wt::WStackedWidget *_stkProperties;
+
+        Wt::WContainerWidget *_cntPropertiesTags;
+        Wt::WVBoxLayout *_layCntPropertiesTags;
+        Wt::WContainerWidget *_cntPropertiesAssignedTags;
+        Wt::WVBoxLayout *_layCntPropertiesAssignedTags;
+        Wt::WText *_txtPropertiesAssignedTagsLabel;
+        Wt::WContainerWidget *_cntTxtPropertiesAssignedTagsLabel;
+        Wt::WContainerWidget *_cntPropertiesAvailableTags;
+        Wt::WVBoxLayout *_layCntPropertiesAvailableTags;
+        Wt::WText *_txtPropertiesAvailableTagsLabel;
+        Wt::WContainerWidget *_cntTxtPropertiesAvailableTagsLabel;
+
+        Ms::Widgets::MQueryTableViewWidget<Database::DboData> *_qtvPropertiesData;
+        Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesTags;
+        Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesAssignedTags;
+        Ms::Widgets::MQueryTableViewWidget<Database::Note> *_qtvPropertiesNotes;
 
         //slots
         /*******************--Main--********************/
@@ -170,6 +211,31 @@ namespace Views
 
         //functions
         void _createTasksTableView();
+
+        /*******************--Properties--********************/
+        //slots
+        void _mnuPropertiesNavBarDataItemTriggered();
+        void _mnuPropertiesNavBarTagsItemTriggered();
+        void _mnuPropertiesNavBarNotesItemTriggered();
+        void _btnAddPropertiesDataClicked();
+        void _btnRemovePropertiesDataClicked();
+        void _btnAddPropertiesTagClicked();
+        void _btnRemovePropertiesTagClicked();
+        void _btnAddPropertiesNoteClicked();
+        void _btnRemovePropertiesNoteClicked();
+
+        //functions
+        void _createPropertiesView();
+
+        void _createPropertiesDataTableView();
+        void _createPropertiesTagsTableView();
+        void _createPropertiesAssignedTagsTableView();
+        void _createPropertiesNotesTableView();
+
+        void _updatePropertiesDataView();
+        void _updatePropertiesTagsView();
+        void _updatePropertiesAssignedTagsView();
+        void _updatePropertiesNotesView();
     };
 }
 

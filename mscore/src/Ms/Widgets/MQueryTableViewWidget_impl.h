@@ -26,6 +26,8 @@
 #include <Wt/WVBoxLayout>
 #include <Wt/WHBoxLayout>
 #include <Wt/WToolBar>
+#include <Wt/WStackedWidget>
+#include <Wt/WNavigationBar>
 #include <Wt/Dbo/Dbo>
 #include <Wt/WMemoryResource>
 
@@ -40,6 +42,11 @@ namespace Ms
             _defaultFilterColumnIndex = 0;
             _ignoreNumFilterColumns = 0;
             _advancedFilterActive = false;
+
+            //features
+            _importCSVFeatureEnabled = true;
+            _exportCSVFeatureEnabled = true;
+            _advancedFilterFeatureEnabled = true;
 
             _prepareView();
         }
@@ -251,22 +258,29 @@ namespace Ms
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::updateView()
         {
-            if(_tblMain->selectionMode() != Wt::ExtendedSelection)
+            try
             {
-                _popMnuSelectAllItem->setDisabled(true);
-                _popMnuSelectNoneItem->setDisabled(true);
-                _popMnuInverseSelectionItem->setDisabled(true);
+                if(_tblMain->selectionMode() != Wt::ExtendedSelection)
+                {
+                    _popMnuSelectAllItem->setDisabled(true);
+                    _popMnuSelectNoneItem->setDisabled(true);
+                    _popMnuInverseSelectionItem->setDisabled(true);
+                }
+
+                saveSelection();
+
+                _updateModel();
+                _updateTable();
+
+                if(!_cntAdvancedFilter->isHidden())
+                    _updateAdvancedFilterTable();
+
+                loadSelection();
             }
-
-            saveSelection();
-
-            _updateModel();
-            _updateTable();
-
-            if(!_cntAdvancedFilter->isHidden())
-                _updateAdvancedFilterTable();
-
-            loadSelection();
+            catch(Wt::Dbo::Exception ex)
+            {
+                std::cout << ex.what() << std::endl;
+            }
         }
 
         template<typename T>
@@ -407,103 +421,6 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::importCSV(const std::string &fileName)
-        {
-            if(!_dboManager->session())
-            {
-                std::cerr << "Error updating table, DB session is NULL" << std::endl;
-                return;
-            }
-
-            Ms::IO::Data::MDataCSV csvData;
-            if(!Ms::IO::readCsv(fileName, csvData))
-                return;
-
-            //scan for mandatory columns before import
-            for(auto iter = _columns.begin(); iter != _columns.end(); ++iter)
-            {
-                if((*iter).isMandatory())
-                {
-                    bool found = false;
-                    for(auto &col : csvData[0])//only the first data row csvData[0] is sufficient
-                    {
-                        if(col == (*iter).displayName())
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if(!found)
-                    {
-                        std::cerr << "Error while importing CSV, mandatory column " << "\"" << (*iter).displayName() << "\"" << " was not found" << std::endl;
-                        return;
-                    }
-                }
-            }
-
-            //all mandatory columns found, import data
-            for(std::size_t row = 1; row < csvData.numRows(); ++row)
-            {
-                std::string columnsSql = "";
-                std::string valuesSql = "";
-
-                for(std::size_t col = 0; col < csvData[0].size(); ++col)
-                {
-                    if(columnExist(csvData[0][col]) && (!columnIsIgnored(csvData[0][col])))//only import columns that exist in table and not ignored
-                    {
-                        //generate columns and values sql
-                        if(csvData[row][col] != "")//if the column has data
-                        {
-                            if(columnsSql != "")
-                                columnsSql += ",";
-
-                            if(valuesSql != "")
-                                valuesSql += ",";
-
-                            columnsSql += columnName(csvData[0][col]);
-                            valuesSql = valuesSql + "'" + csvData[row][col] + "'";
-                        }
-                    }
-                }
-
-                //add extra columns
-                columnsSql += ",Date_Created,Created_By";
-                valuesSql += ",'" + std::to_string(Wt::WDateTime::currentDateTime().date().year()) + "-" +
-                        std::to_string(Wt::WDateTime::currentDateTime().date().month()) + "-" +
-                        std::to_string(Wt::WDateTime::currentDateTime().date().day()) + " " +
-                        std::to_string(Wt::WDateTime::currentDateTime().time().hour()) + ":" +
-                        std::to_string(Wt::WDateTime::currentDateTime().time().minute()) + ":" +
-                        std::to_string(Wt::WDateTime::currentDateTime().time().second()) +
-                                                   "','" + _dboManager->userName() + "'";
-
-                if(columnsSql != "" && valuesSql != "")//found some columns and values ?
-                {
-                    //try to import
-                    try
-                    {
-                        if(!_dboManager->openTransaction())
-                            return;
-
-                        std::string sqlCommand = "INSERT INTO " + tableName() + " (" + columnsSql + ") VALUES (" + valuesSql + ")";
-                        _dboManager->session()->execute(sqlCommand);
-
-                        _dboManager->commitTransaction();
-                    }
-                    catch(Wt::Dbo::Exception e)
-                    {
-                        std::cerr << "error while importing CSV" << std::endl << e.what() << std::endl;
-                    }
-                    catch(...)
-                    {
-                        std::cerr << "Unknown error while importing CSV" << std::endl;
-                    }
-                }
-            }
-
-            updateView();
-        }
-
-        template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::setIgnoreNumFilterColumns(int numColumns)
         {
             _ignoreNumFilterColumns = numColumns;
@@ -513,80 +430,6 @@ namespace Ms
         void Ms::Widgets::MQueryTableViewWidget<T>::ignoredNumFilterColumns()
         {
             return _ignoreNumFilterColumns;
-        }
-
-        template<typename T>
-        std::string Ms::Widgets::MQueryTableViewWidget<T>::generateCSVData()
-        {
-            std::string data = "";
-            int i = 0;
-
-            //headers
-            for(auto iter = _columns.begin(); iter != _columns.end(); ++iter)
-            {
-                data += (*iter).displayName();
-
-                if(i++ < _columns.size() -1)
-                    data +=",";
-            }
-
-            data += "\n";
-
-            //data
-            if(_tblMain->selectedIndexes().size() > 0)//export selected
-            {
-                for(const Wt::WModelIndex &index : _tblMain->selectedIndexes())
-                {
-                    //auto dataMap = _model->itemData(index);
-
-                    for(int col = 0; col < _proxyModel->columnCount(); ++col)
-                    {
-                        data += _model->text(_proxyModel->mapToSource(_proxyModel->index(index.row(), col)));
-
-                        if(col < _proxyModel->columnCount() -1)
-                            data +=",";
-                    }
-                    if(index.row() < _tblMain->selectedIndexes().size() - 1)
-                        data +="\n";
-                }
-            }
-            else//export all, taking in account filtering
-            {
-                for(int row = 0; row < _proxyModel->rowCount(); ++row)
-                {
-                    for(int col = 0; col < _proxyModel->columnCount(); ++col)
-                    {
-                        //auto obj =_model->index(row, col).data();//<-test code line, remove it
-
-                        data += _model->text(_proxyModel->mapToSource(_proxyModel->index(row, col)));
-
-                        if(col < _proxyModel->columnCount() -1)
-                            data +=",";
-                    }
-                    if(row < _proxyModel->rowCount() -1)
-                        data +="\n";
-                }
-            }
-
-            return data;
-        }
-
-        template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::setImportOptionVisible(bool visible)
-        {
-            if(visible)
-                _popMnuIOImportCSVItem->show();
-            else
-                _popMnuIOImportCSVItem->hide();
-        }
-
-        template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::setExportOptionVisible(bool visible)
-        {
-            if(visible)
-                _popMnuIOExportCSVItem->show();
-            else
-                _popMnuIOExportCSVItem->hide();
         }
 
         template<typename T>
@@ -604,6 +447,59 @@ namespace Ms
         }
 
         template<typename T>
+        bool Ms::Widgets::MQueryTableViewWidget<T>::isImportCSVFetureEnabled() const
+        {
+            return _importCSVFeatureEnabled;
+        }
+
+        template<typename T>
+        void Ms::Widgets::MQueryTableViewWidget<T>::setImportCSVFetureEnabled(bool enabled)
+        {
+            _importCSVFeatureEnabled = enabled;
+
+            _popMnuIOImportCSVItem->setHidden(!enabled);
+        }
+
+        template<typename T>
+        bool Ms::Widgets::MQueryTableViewWidget<T>::isExportCSVFetureEnabled() const
+        {
+            return _exportCSVFeatureEnabled;
+        }
+
+        template<typename T>
+        void Ms::Widgets::MQueryTableViewWidget<T>::setExportCSVFetureEnabled(bool enabled)
+        {
+            _exportCSVFeatureEnabled = enabled;
+
+            _popMnuIOExportCSVItem->setHidden(!enabled);
+        }
+
+        template<typename T>
+        bool Ms::Widgets::MQueryTableViewWidget<T>::isAdvancedFilterFeatureEnabled() const
+        {
+            return _advancedFilterFeatureEnabled;
+        }
+
+        template<typename T>
+        void Ms::Widgets::MQueryTableViewWidget<T>::setAdvancedFilterFeatureEnabled(bool enabled)
+        {
+            _advancedFilterFeatureEnabled = enabled;
+
+            _popMnuViewAdvancedFilterItem->setHidden(!enabled);
+
+            if(enabled)
+            {
+                if(_popMnuViewAdvancedFilterItem->isChecked())
+                    _cntAdvancedFilter->show();
+                else
+                    _cntAdvancedFilter->hide();
+            }
+            else
+                _cntAdvancedFilter->hide();
+        }
+
+        //Signals
+        template<typename T>
         Wt::Signal<> &Ms::Widgets::MQueryTableViewWidget<T>::tableSelectionChanged()
         {
             return _tableSelectionChanged;
@@ -614,6 +510,9 @@ namespace Ms
         void Ms::Widgets::MQueryTableViewWidget<T>::_mainTableSelectionChanged()
         {
             _tableSelectionChanged();
+
+            if(_propertiesFeatureEnabled)
+                _updatePropertiesRequested();
         }
 
         template<typename T>
@@ -654,7 +553,7 @@ namespace Ms
             dlg->finished().connect(std::bind([=]()
             {
                 if(dlg->result() == Wt::WDialog::Accepted)
-                    importCSV(dlg->spoolFileName());
+                    _importCSV(dlg->spoolFileName());
 
                 remove(dlg->spoolFileName().c_str());//delete the temp csv file
                 delete dlg;
@@ -671,7 +570,7 @@ namespace Ms
 
             bool linkClicked = false;
 
-            std::string csvData = generateCSVData();
+            std::string csvData = _generateCSVData();
 
             Ms::IO::MStreamedMemoryResource *csvResource = new Ms::IO::MStreamedMemoryResource(std::vector<unsigned char>(csvData.begin(), csvData.end()), this);
             csvResource->setMimeType("text/plain");
@@ -804,6 +703,159 @@ namespace Ms
             reload();
 
             loadSelection();
+        }
+
+        template<typename T>
+        void Ms::Widgets::MQueryTableViewWidget<T>::_importCSV(const std::string &fileName)
+        {
+            if(!_dboManager->session())
+            {
+                std::cerr << "Error updating table, DB session is NULL" << std::endl;
+                return;
+            }
+
+            Ms::IO::Data::MDataCSV csvData;
+            if(!Ms::IO::readCsv(fileName, csvData))
+                return;
+
+            //scan for mandatory columns before import
+            for(auto iter = _columns.begin(); iter != _columns.end(); ++iter)
+            {
+                if((*iter).isMandatory())
+                {
+                    bool found = false;
+                    for(auto &col : csvData[0])//only the first data row csvData[0] is sufficient
+                    {
+                        if(col == (*iter).displayName())
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if(!found)
+                    {
+                        std::cerr << "Error while importing CSV, mandatory column " << "\"" << (*iter).displayName() << "\"" << " was not found" << std::endl;
+                        return;
+                    }
+                }
+            }
+
+            //all mandatory columns found, import data
+            for(std::size_t row = 1; row < csvData.numRows(); ++row)
+            {
+                std::string columnsSql = "";
+                std::string valuesSql = "";
+
+                for(std::size_t col = 0; col < csvData[0].size(); ++col)
+                {
+                    if(columnExist(csvData[0][col]) && (!columnIsIgnored(csvData[0][col])))//only import columns that exist in table and not ignored
+                    {
+                        //generate columns and values sql
+                        if(csvData[row][col] != "")//if the column has data
+                        {
+                            if(columnsSql != "")
+                                columnsSql += ",";
+
+                            if(valuesSql != "")
+                                valuesSql += ",";
+
+                            columnsSql += columnName(csvData[0][col]);
+                            valuesSql = valuesSql + "'" + csvData[row][col] + "'";
+                        }
+                    }
+                }
+
+                //add extra columns
+                columnsSql += ",Date_Created,Created_By";
+                valuesSql += ",'" + std::to_string(Wt::WDateTime::currentDateTime().date().year()) + "-" +
+                        std::to_string(Wt::WDateTime::currentDateTime().date().month()) + "-" +
+                        std::to_string(Wt::WDateTime::currentDateTime().date().day()) + " " +
+                        std::to_string(Wt::WDateTime::currentDateTime().time().hour()) + ":" +
+                        std::to_string(Wt::WDateTime::currentDateTime().time().minute()) + ":" +
+                        std::to_string(Wt::WDateTime::currentDateTime().time().second()) +
+                                                   "','" + _dboManager->userName() + "'";
+
+                if(columnsSql != "" && valuesSql != "")//found some columns and values ?
+                {
+                    //try to import
+                    try
+                    {
+                        if(!_dboManager->openTransaction())
+                            return;
+
+                        std::string sqlCommand = "INSERT INTO " + tableName() + " (" + columnsSql + ") VALUES (" + valuesSql + ")";
+                        _dboManager->session()->execute(sqlCommand);
+
+                        _dboManager->commitTransaction();
+                    }
+                    catch(Wt::Dbo::Exception e)
+                    {
+                        std::cerr << "error while importing CSV" << std::endl << e.what() << std::endl;
+                    }
+                    catch(...)
+                    {
+                        std::cerr << "Unknown error while importing CSV" << std::endl;
+                    }
+                }
+            }
+
+            updateView();
+        }
+
+        template<typename T>
+        std::string Ms::Widgets::MQueryTableViewWidget<T>::_generateCSVData()
+        {
+            std::string data = "";
+            int i = 0;
+
+            //headers
+            for(auto iter = _columns.begin(); iter != _columns.end(); ++iter)
+            {
+                data += (*iter).displayName();
+
+                if(i++ < _columns.size() -1)
+                    data +=",";
+            }
+
+            data += "\n";
+
+            //data
+            if(_tblMain->selectedIndexes().size() > 0)//export selected
+            {
+                for(const Wt::WModelIndex &index : _tblMain->selectedIndexes())
+                {
+                    //auto dataMap = _model->itemData(index);
+
+                    for(int col = 0; col < _proxyModel->columnCount(); ++col)
+                    {
+                        data += _model->text(_proxyModel->mapToSource(_proxyModel->index(index.row(), col)));
+
+                        if(col < _proxyModel->columnCount() -1)
+                            data +=",";
+                    }
+                    if(index.row() < _tblMain->selectedIndexes().size() - 1)
+                        data +="\n";
+                }
+            }
+            else//export all, taking in account filtering
+            {
+                for(int row = 0; row < _proxyModel->rowCount(); ++row)
+                {
+                    for(int col = 0; col < _proxyModel->columnCount(); ++col)
+                    {
+                        //auto obj =_model->index(row, col).data();//<-test code line, remove it
+
+                        data += _model->text(_proxyModel->mapToSource(_proxyModel->index(row, col)));
+
+                        if(col < _proxyModel->columnCount() -1)
+                            data +=",";
+                    }
+                    if(row < _proxyModel->rowCount() -1)
+                        data +="\n";
+                }
+            }
+
+            return data;
         }
 
         template<typename T>
@@ -1029,11 +1081,21 @@ namespace Ms
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::_prepareView()
         {
-            Wt::WVBoxLayout *layMain = new Wt::WVBoxLayout();
+            Wt::WHBoxLayout *layMain = new Wt::WHBoxLayout();
             layMain->setContentsMargins(0,0,0,0);
             layMain->setSpacing(0);
 
             setLayout(layMain);
+
+            Wt::WContainerWidget *cntMainView = new Wt::WContainerWidget();
+
+            layMain->addWidget(cntMainView);
+
+            Wt::WVBoxLayout *layCntMainView = new Wt::WVBoxLayout();
+            layCntMainView->setContentsMargins(0,0,0,0);
+            layCntMainView->setSpacing(0);
+
+            cntMainView->setLayout(layCntMainView);
 
             //Main Toolbar
             Wt::WHBoxLayout *layTbMain = new Wt::WHBoxLayout();
@@ -1047,7 +1109,7 @@ namespace Ms
             _tbMain = new Wt::WToolBar();
             layTbMain->addWidget(_tbMain, 1);
 
-            layMain->addWidget(cntTbMain);
+            layCntMainView->addWidget(cntTbMain);
 
             _btnMnuTools = new Wt::WPushButton("");
             _btnMnuTools->setToolTip("Tools");
@@ -1117,13 +1179,12 @@ namespace Ms
 
             layTblMain->addWidget(_tblMain, 1);
 
-            layMain->addWidget(cntTblMain, 1);
+            layCntMainView->addWidget(cntTblMain, 1);
 
             //advancedFilter
             _createAdvancedFilterView();
             _cntAdvancedFilter->hide();//set advanced filter panel initially hidden
-            layMain->addWidget(_cntAdvancedFilter);
-
+            layCntMainView->addWidget(_cntAdvancedFilter);
         }
     }
 }

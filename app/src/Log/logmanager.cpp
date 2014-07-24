@@ -23,7 +23,7 @@ Ms::Log::MLogger *Log::LogManager::getGlobalLogger()
     return _globalLogger;
 }
 
-Log::Logger *Log::LogManager::getAppSessionLogger(const std::string &sessionId)
+Log::Logger *Log::LogManager::getSessionLogger(const std::string &sessionId)
 {
     if(_sessionsLoggers.find(sessionId) == _sessionsLoggers.end())
     {

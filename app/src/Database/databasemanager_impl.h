@@ -20,7 +20,7 @@ bool Database::DatabaseManager::dboHasData(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Dat
     {
         if(Database::DatabaseManager::instance().openTransaction())
         {
-            for(auto iter = dbo->_data.begin(); iter != dbo->_data.end(); ++iter)
+            for(auto iter = dbo->data_.begin(); iter != dbo->data_.end(); ++iter)
             {
                 if((*iter).id() == dboData.id())
                     return true;
@@ -53,7 +53,7 @@ bool Database::DatabaseManager::addDataToDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<D
         {
             if(Database::DatabaseManager::instance().openTransaction())
             {
-                Database::DatabaseManager::instance().modifyDbo<T>(dbo)->_data.insert(dboData);
+                Database::DatabaseManager::instance().modifyDbo<T>(dbo)->data_.insert(dboData);
                 return true;
             }
         }
@@ -84,7 +84,7 @@ bool Database::DatabaseManager::removeDataFromDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::
         {
             if(Database::DatabaseManager::instance().openTransaction())
             {
-                Database::DatabaseManager::instance().modifyDbo<T>(dbo)->_data.erase(dboData);
+                Database::DatabaseManager::instance().modifyDbo<T>(dbo)->data_.erase(dboData);
                 return true;
             }
         }
@@ -113,7 +113,7 @@ bool Database::DatabaseManager::dboHasNote(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Dat
     {
         if(Database::DatabaseManager::instance().openTransaction())
         {
-            for(auto iter = dbo->_notes.begin(); iter != dbo->_notes.end(); ++iter)
+            for(auto iter = dbo->notes_.begin(); iter != dbo->notes_.end(); ++iter)
             {
                 if((*iter).id() == note.id())
                     return true;
@@ -146,7 +146,7 @@ bool Database::DatabaseManager::addNoteToDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<D
         {
             if(Database::DatabaseManager::instance().openTransaction())
             {
-                Database::DatabaseManager::instance().modifyDbo<T>(dbo)->_notes.insert(note);
+                Database::DatabaseManager::instance().modifyDbo<T>(dbo)->notes_.insert(note);
                 return true;
             }
         }
@@ -177,7 +177,7 @@ bool Database::DatabaseManager::removeNoteFromDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::
         {
             if(Database::DatabaseManager::instance().openTransaction())
             {
-                Database::DatabaseManager::instance().modifyDbo<T>(dbo)->_notes.erase(note);
+                Database::DatabaseManager::instance().modifyDbo<T>(dbo)->notes_.erase(note);
                 return true;
             }
         }
@@ -206,7 +206,7 @@ bool Database::DatabaseManager::dboHasTag(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Data
     {
         if(Database::DatabaseManager::instance().openTransaction())
         {
-            for(auto iter = dbo->_tags.begin(); iter != dbo->_tags.end(); ++iter)
+            for(auto iter = dbo->tags_.begin(); iter != dbo->tags_.end(); ++iter)
             {
                 if((*iter).id() == tag.id())
                     return true;
@@ -239,7 +239,7 @@ bool Database::DatabaseManager::addTagToDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Da
         {
             if(Database::DatabaseManager::instance().openTransaction())
             {
-                Database::DatabaseManager::instance().modifyDbo<T>(dbo)->_tags.insert(tag);
+                Database::DatabaseManager::instance().modifyDbo<T>(dbo)->tags_.insert(tag);
                 return true;
             }
         }
@@ -270,7 +270,7 @@ bool Database::DatabaseManager::removeTagFromDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::p
         {
             if(Database::DatabaseManager::instance().openTransaction())
             {
-                Database::DatabaseManager::instance().modifyDbo<T>(dbo)->_tags.erase(tag);
+                Database::DatabaseManager::instance().modifyDbo<T>(dbo)->tags_.erase(tag);
                 return true;
             }
         }

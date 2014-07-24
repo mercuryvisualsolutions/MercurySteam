@@ -18,6 +18,7 @@
 #include "Users/usersmanager.h"
 #include "Projects/projectsmanager.h"
 #include "Auth/authmanager.h"
+#include "Log/logmanager.h"
 
 Wt::WApplication *createApplication(const Wt::WEnvironment &env)
 {

@@ -4,17 +4,17 @@
 
 #include <Ms/Widgets/MWidgetFactory.h>
 
-Views::DlgInput::DlgInput()
+Views::Dialogs::DlgInput::DlgInput()
 {
     _prepareView();
 }
 
-const std::string Views::DlgInput::text() const
+const std::string Views::Dialogs::DlgInput::text() const
 {
     return _text->text().toUTF8();
 }
 
-void Views::DlgInput::_prepareView()
+void Views::Dialogs::DlgInput::_prepareView()
 {
     this->setCaption("Input");
     this->rejectWhenEscapePressed();
@@ -32,13 +32,13 @@ void Views::DlgInput::_prepareView()
 
     _btnOk = new Wt::WPushButton("Ok", this->footer());
     _btnOk->setDefault(true);
-    _btnOk->clicked().connect(this, &Views::DlgInput::_btnOkClicked);
+    _btnOk->clicked().connect(this, &Views::Dialogs::DlgInput::_btnOkClicked);
 
     _btnCancel = new Wt::WPushButton("Cancel", this->footer());
     _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
 }
 
-bool Views::DlgInput::_validate()
+bool Views::Dialogs::DlgInput::_validate()
 {
     if(_text->validate() != Wt::WValidator::Valid)
         return false;
@@ -46,7 +46,7 @@ bool Views::DlgInput::_validate()
     return true;
 }
 
-void Views::DlgInput::_btnOkClicked()
+void Views::Dialogs::DlgInput::_btnOkClicked()
 {
     if(_validate())
         this->accept();

@@ -2,7 +2,7 @@
 #include "../Database/databasemanager.h"
 
 Projects::ProjectWorkStatus::ProjectWorkStatus() :
-    Ms::Dbo::MDbo()
+    Ms::Dbo::MDboBase()
 {
     _init();
 }
@@ -15,7 +15,7 @@ Projects::ProjectWorkStatus::ProjectWorkStatus(const std::string &status) :
 
 Projects::ProjectWorkStatus *Projects::ProjectWorkStatus::modify()
 {
-    Ms::Dbo::MDbo::modify();
+    Ms::Dbo::MDboBase::modify();
 
     return this;
 }

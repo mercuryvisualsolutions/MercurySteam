@@ -3,7 +3,7 @@
 #include "../Log/logmanager.h"
 
 Users::UserTitle::UserTitle() :
-    Ms::Dbo::MDbo()
+    Ms::Dbo::MDboBase()
 {
     _init();
 }
@@ -16,7 +16,7 @@ Users::UserTitle::UserTitle(const std::string &titleName) :
 
 Users::UserTitle *Users::UserTitle::modify()
 {
-    Ms::Dbo::MDbo::modify();
+    Ms::Dbo::MDboBase::modify();
 
     return this;
 }

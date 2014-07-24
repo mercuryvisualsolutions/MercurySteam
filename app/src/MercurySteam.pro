@@ -67,11 +67,12 @@ SOURCES += main.cpp \
     Database/tag.cpp \
     Views/MyDashboard/viewmydashboard.cpp \
     Views/Settings/dlgcreatetag.cpp \
-    Views/Properties/viewproperties.cpp \
-    Views/Properties/dlgcreatedbodata.cpp \
-    Views/Properties/dlgcreatenote.cpp \
+    Session/sessionmanager.cpp \
+    Log/logger.cpp \
     Log/logmanager.cpp \
-    Log/logger.cpp
+    Database/dbo.cpp \
+    Views/Dialogs/dlgcreatedbodata.cpp \
+    Views/Dialogs/dlgcreatenote.cpp
 
 HEADERS += \
     Views/Projects/viewprojects.h \
@@ -116,11 +117,9 @@ HEADERS += \
     Views/Settings/dlgcreatetag.h \
     Database/globaldbospecialization.h \
     Database/databasemanager_impl.h \
-    Views/Properties/viewproperties.h \
-    Views/Properties/viewproperties_impl.h \
-    Views/Properties/propertiesdialogs.h \
-    Views/Properties/dlgcreatedbodata.h \
-    Views/Properties/dlgcreatenote.h \
-    Log/logmanager.h \
+    Log/logglobals.h \
+    Session/sessionmanager.h \
     Log/logger.h \
-    Log/logglobals.h
+    Log/logmanager.h \
+    Views/Dialogs/dlgcreatedbodata.h \
+    Views/Dialogs/dlgcreatenote.h

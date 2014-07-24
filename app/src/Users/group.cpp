@@ -5,7 +5,7 @@
 #include <Ms/Exceptions/MNullPointerException.h>
 
 Users::Group::Group() :
-    Ms::Dbo::MDbo()
+    Database::Dbo()
 {
     _init();
 }
@@ -19,7 +19,7 @@ Users::Group::Group(const std::string &groupName, int rank) :
 
 Users::Group *Users::Group::modify()
 {
-    Ms::Dbo::MDbo::modify();
+    Database::Dbo::modify();
 
     return this;
 }
@@ -135,21 +135,6 @@ const Wt::Dbo::collection<Wt::Dbo::ptr<Users::Privilege> > Users::Group::privile
 const Wt::Dbo::collection<Wt::Dbo::ptr<Users::User> > Users::Group::users() const
 {
     return _users;
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData> > Users::Group::data()
-{
-    return _data;
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag> > Users::Group::tags()
-{
-    return _tags;
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note> > Users::Group::notes()
-{
-    return _notes;
 }
 
 void Users::Group::setRank(int rank)

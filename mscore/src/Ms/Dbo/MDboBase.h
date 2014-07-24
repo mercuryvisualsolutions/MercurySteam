@@ -1,5 +1,5 @@
-#ifndef MDBO_H
-#define MDBO_H
+#ifndef MDBOBASE_H
+#define MDBOBASE_H
 
 #include <Wt/WDateTime>
 #include <Wt/Dbo/Session>
@@ -19,7 +19,7 @@ namespace Ms
         template<class Result>
         class MDboQueryModel;
 
-        class MDbo
+        class MDboBase
         {
             friend class Ms::Core::Dbo::MDboManagerBase;
 
@@ -27,9 +27,9 @@ namespace Ms
             friend class Ms::Dbo::MDboQueryModel;
 
         public:
-            MDbo();
-            MDbo(bool active, int viewRank, int editRank, int removeRank);
-            virtual ~MDbo();
+            MDboBase();
+            MDboBase(bool active, int viewRank, int editRank, int removeRank);
+            virtual ~MDboBase();
 
             virtual const std::string thumbnail() const;
             virtual void setThumbnail(const std::string &path);
@@ -45,7 +45,7 @@ namespace Ms
             virtual void setRemoveRank(int rank);
             virtual bool active() const;
             virtual void setActive(bool active);
-            virtual MDbo *modify();
+            virtual MDboBase *modify();
             Ms::Core::Dbo::MDboManagerBase *dboManager() const;
             void setDboManager(Ms::Core::Dbo::MDboManagerBase *dboManager);
 
@@ -63,7 +63,7 @@ namespace Ms
 
             //functions
             template<class Action>
-            void persistExtras_(Action &a);
+            void persistDefaults_(Action &a);
 
         private:
             //functions
@@ -73,6 +73,6 @@ namespace Ms
     }
 }
 
-#include "MDbo_impl.h"
+#include "MDboBase_impl.h"
 
-#endif // MDBO_H
+#endif // MDBOBASE_H

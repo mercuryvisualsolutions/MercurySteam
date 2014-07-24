@@ -2,7 +2,7 @@
 #include "projectsmanager.h"
 
 Projects::Project::Project() :
-    Ms::Dbo::MDbo()
+    Database::Dbo()
 {
     _init();
 }
@@ -15,7 +15,7 @@ Projects::Project::Project(const std::string &projectName) :
 
 Projects::Project *Projects::Project::modify()
 {
-    Ms::Dbo::MDbo::modify();
+    Database::Dbo::modify();
 
     return this;
 }

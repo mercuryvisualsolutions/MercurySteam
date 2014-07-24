@@ -9,7 +9,7 @@
 
 Views::ViewMain::ViewMain()
 {
-    _logger = Log::LogManager::instance().getAppSessionLogger(Wt::WApplication::instance()->sessionId());
+    _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
 
     _prepareView();
 

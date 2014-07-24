@@ -18,8 +18,9 @@
 #include "../Settings/viewsettings.h"
 #include "../Search/viewsearch.h"
 #include "../MyDashboard/viewmydashboard.h"
-#include "../Properties/viewproperties.h"
 #include "../Log/viewlog.h"
+
+#include <Ms/Widgets/MPropertiesPanel.h>
 
 namespace Views
 {
@@ -29,7 +30,6 @@ class ViewApp : public Wt::WContainerWidget
         ViewApp();
         //functions
         void setLoginObject(Wt::Auth::Login *login);
-        void updatePropertiesView();
 
         //views
         void showAuthView();
@@ -43,6 +43,8 @@ class ViewApp : public Wt::WContainerWidget
     private:
         //variables
         Log::Logger *_logger;
+        //Ms
+        Ms::Widgets::MPropertiesPanel *_propertiesPanel;
 
         /*******************--Main--********************/
         Wt::WVBoxLayout *_layMain;//main layout
@@ -94,7 +96,6 @@ class ViewApp : public Wt::WContainerWidget
         ViewLog *_viwLog;//Log View
 
         /*******************--Properties View--********************/
-        ViewProperties *_viwProperties;//Properties View
 
         /*******************--Footer--********************/
         Wt::WText *_txtFooter;//footer text
@@ -117,20 +118,6 @@ class ViewApp : public Wt::WContainerWidget
         void _mnuMainLeftViewShowPropertiesPanelTriggered();
         void _mnuMainLeftViewShowLogPanelTriggered();
         void _mnuMainRightCurrentUserSignOutTriggered();
-
-        //users view slots
-        void _onUsresViewUsersTabSelected();
-        void _onUsresViewGroupsTabSelected();
-
-        //properties view slots
-        void _onAddData();
-        void _onRemoveData();
-        void _onAddTag();
-        void _onRemoveTag();
-        void _onAddNote();
-        void _onRemoveNote();
-        void _onAddPrivilegeToGroup();
-        void _onRemovePrivilegeFromGroup();
 
         //functions
         void _prepareView();

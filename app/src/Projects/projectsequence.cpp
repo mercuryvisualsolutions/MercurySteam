@@ -3,7 +3,7 @@
 #include "Database/databasemanager.h"
 
 Projects::ProjectSequence::ProjectSequence() :
-    Ms::Dbo::MDbo()
+    Database::Dbo()
 {
     _init();
 }
@@ -16,7 +16,7 @@ Projects::ProjectSequence::ProjectSequence(const std::string &sequenceName) :
 
 Projects::ProjectSequence *Projects::ProjectSequence::modify()
 {
-    Ms::Dbo::MDbo::modify();
+    Database::Dbo::modify();
 
     return this;
 }

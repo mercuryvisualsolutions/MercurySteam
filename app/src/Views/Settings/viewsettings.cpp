@@ -13,7 +13,8 @@
 
 Views::ViewSettings::ViewSettings()
 {
-    _logger = Log::LogManager::instance().getAppSessionLogger(Wt::WApplication::instance()->sessionId());
+    _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
+    _propertiesPanel = Session::SessionManager::instance().getSessionPropertiesPanel(Wt::WApplication::instance()->sessionId());
 
     _prepareView();
 
@@ -312,6 +313,11 @@ void Views::ViewSettings::updateTagsView()
     }
 }
 
+void Views::ViewSettings::showPropertiesView()
+{
+    _propertiesPanel->showView("Settings");
+}
+
 Wt::Signal<> &Views::ViewSettings::onTabGeneralSelected()
 {
     return _onTabGeneralSelected;
@@ -399,10 +405,10 @@ void Views::ViewSettings::_createTaskTypeTableView()
         Wt::WPushButton *btn = _qtvProjectTaskType->createToolButton("", "icons/Add.png", "Create A New Task Type");
         btn->clicked().connect(this, &Views::ViewSettings::_btnCreateTaskTypeClicked);
 
-        _qtvProjectTaskType->setImportOptionVisible(true);
+        _qtvProjectTaskType->setImportCSVFetureEnabled(true);
     }
     else
-        _qtvProjectTaskType->setImportOptionVisible(false);
+        _qtvProjectTaskType->setImportCSVFetureEnabled(false);
 
     //requires "remove" privilege
 //    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
@@ -467,10 +473,10 @@ void Views::ViewSettings::_createAssetTypeTableView()
         Wt::WPushButton *btn = _qtvProjectAssetType->createToolButton("", "icons/Add.png", "Create A New Asset Type");
         btn->clicked().connect(this, &Views::ViewSettings::_btnCreateAssetTypeClicked);
 
-        _qtvProjectAssetType->setImportOptionVisible(true);
+        _qtvProjectAssetType->setImportCSVFetureEnabled(true);
     }
     else
-        _qtvProjectAssetType->setImportOptionVisible(false);
+        _qtvProjectAssetType->setImportCSVFetureEnabled(false);
 
     //requires "remove" privilege
 //    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
@@ -535,10 +541,10 @@ void Views::ViewSettings::_createWorkStatusTableView()
         Wt::WPushButton *btn = _qtvProjectWorkStatus->createToolButton("", "icons/Add.png", "Create A New Work Status");
         btn->clicked().connect(this, &Views::ViewSettings::_btnCreateWorkStatusClicked);
 
-        _qtvProjectWorkStatus->setImportOptionVisible(true);
+        _qtvProjectWorkStatus->setImportCSVFetureEnabled(true);
     }
     else
-        _qtvProjectWorkStatus->setImportOptionVisible(false);
+        _qtvProjectWorkStatus->setImportCSVFetureEnabled(false);
 
     //requires "remove" privilege
 //    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
@@ -604,10 +610,10 @@ void Views::ViewSettings::_createUsersTitlesTableView()
         Wt::WPushButton *btn = _qtvUserTitle->createToolButton("", "icons/Add.png", "Create A New User Title");
         btn->clicked().connect(this, &Views::ViewSettings::_btnCreateUserTitleClicked);
 
-        _qtvUserTitle->setImportOptionVisible(true);
+        _qtvUserTitle->setImportCSVFetureEnabled(true);
     }
     else
-        _qtvUserTitle->setImportOptionVisible(false);
+        _qtvUserTitle->setImportCSVFetureEnabled(false);
 
     //requires "remove" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
@@ -672,10 +678,10 @@ void Views::ViewSettings::_createTagsTableView()
         Wt::WPushButton *btn = _qtvTags->createToolButton("", "icons/Add.png", "Create A New Tag");
         btn->clicked().connect(this, &Views::ViewSettings::_btnCreateTagClicked);
 
-        _qtvTags->setImportOptionVisible(true);
+        _qtvTags->setImportCSVFetureEnabled(true);
     }
     else
-        _qtvTags->setImportOptionVisible(false);
+        _qtvTags->setImportCSVFetureEnabled(false);
 
     //requires "remove" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
@@ -731,6 +737,12 @@ void Views::ViewSettings::_btnCreateTagClicked()
 void Views::ViewSettings::_btnRemoveTagClicked()
 {
 
+}
+
+void Views::ViewSettings::_createPropertiesView()
+{
+    _cntPropertiesMain = new Wt::WContainerWidget();
+    _propertiesPanel->addPropertiesView("Settings", _cntPropertiesMain);
 }
 
 void Views::ViewSettings::_prepareView()
@@ -1027,4 +1039,7 @@ void Views::ViewSettings::_prepareView()
     _createTagsTableView();
 
     _layCntTags->addWidget(_qtvTags, 1);
+
+    /*******************--Properties--********************/
+    _createPropertiesView();
 }

@@ -1,7 +1,7 @@
 #ifndef MDBOMANAGERBASE_H
 #define MDBOMANAGERBASE_H
 
-#include "../../Dbo/MDbo.h"
+#include "../../Dbo/MDboBase.h"
 #include "../MManagerBase.h"
 
 #include <Wt/Dbo/Session>

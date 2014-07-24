@@ -1,7 +1,7 @@
 #include "Database/dbtables.h"
 
 Database::Note::Note() :
-    Ms::Dbo::MDbo()
+    Ms::Dbo::MDboBase()
 {
     _init();
 }
@@ -14,7 +14,7 @@ Database::Note::Note(const std::string &content) :
 
 Database::Note *Database::Note::modify()
 {
-    Ms::Dbo::MDbo::modify();
+    Ms::Dbo::MDboBase::modify();
 
     return this;
 }

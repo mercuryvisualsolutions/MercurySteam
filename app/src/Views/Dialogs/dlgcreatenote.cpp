@@ -2,22 +2,22 @@
 #include <Wt/WBreak>
 
 
-Views::DlgCreateNote::DlgCreateNote()
+Views::Dialogs::DlgCreateNote::DlgCreateNote()
 {
     _prepareView();
 }
 
-std::string Views::DlgCreateNote::content() const
+std::string Views::Dialogs::DlgCreateNote::content() const
 {
     return _txtContent->text().toUTF8();
 }
 
-bool Views::DlgCreateNote::isActive() const
+bool Views::Dialogs::DlgCreateNote::isActive() const
 {
     return _chkActive->isChecked();
 }
 
-void Views::DlgCreateNote::_prepareView()
+void Views::Dialogs::DlgCreateNote::_prepareView()
 {
     this->setCaption("Create Note");
     this->rejectWhenEscapePressed();
@@ -40,13 +40,13 @@ void Views::DlgCreateNote::_prepareView()
 
     _btnOk = new Wt::WPushButton("Ok", this->footer());
     _btnOk->setDefault(true);
-    _btnOk->clicked().connect(this, &Views::DlgCreateNote::_btnOkClicked);
+    _btnOk->clicked().connect(this, &Views::Dialogs::DlgCreateNote::_btnOkClicked);
 
     _btnCancel = new Wt::WPushButton("Cancel", this->footer());
     _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
 }
 
-bool Views::DlgCreateNote::_validate()
+bool Views::Dialogs::DlgCreateNote::_validate()
 {
     if(_txtContent->validate() != Wt::WValidator::Valid)
         return false;
@@ -54,7 +54,7 @@ bool Views::DlgCreateNote::_validate()
     return true;
 }
 
-void Views::DlgCreateNote::_btnOkClicked()
+void Views::Dialogs::DlgCreateNote::_btnOkClicked()
 {
     if(_validate())
         this->accept();

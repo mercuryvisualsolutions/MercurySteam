@@ -3,7 +3,7 @@
 #include "../Log/logmanager.h"
 
 Users::Privilege::Privilege() :
-    Ms::Dbo::MDbo()
+    Ms::Dbo::MDboBase()
 {
     _init();
 }
@@ -16,7 +16,7 @@ Users::Privilege::Privilege(const std::string &privilegeName) :
 
 Users::Privilege *Users::Privilege::modify()
 {
-    Ms::Dbo::MDbo::modify();
+    Ms::Dbo::MDboBase::modify();
 
     return this;
 }

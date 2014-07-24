@@ -11,7 +11,7 @@ Projects::ProjectsManager::ProjectsManager()
 
 void Projects::ProjectsManager::initSessionLogger()
 {
-    _logger = Log::LogManager::instance().getAppSessionLogger(Wt::WApplication::instance()->sessionId());
+    _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
 }
 
 void Projects::ProjectsManager::addDefaults()

@@ -18,6 +18,8 @@
 #include <Wt/Auth/User>
 
 #include "Database/dbtables.h"
+#include "../../Log/logger.h"
+#include "../../Session/sessionmanager.h"
 
 #include <Ms/Widgets/MQueryTableViewWidget.h>
 
@@ -31,6 +33,8 @@ namespace Views
         //functions
         void updateView();
         void updateTasksView();
+        void showPropertiesView();
+
         bool isTasksViewShown() const;
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *tasksQueryTableView() const;
 
@@ -39,6 +43,9 @@ namespace Views
 
     private:
         //variables
+        Log::Logger *_logger;
+        Ms::Widgets::MPropertiesPanel *_propertiesPanel;
+
         //Signals
         Wt::Signal<> _onTabMyTasksSelected;
 
@@ -58,6 +65,9 @@ namespace Views
         Wt::WContainerWidget *_cntTasks;//container for task view
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *_qtvTasks;
 
+        /*******************--Properties--********************/
+        Wt::WContainerWidget *_cntPropertiesMain;
+
         /*******************--Tasks--********************/
         //functions
         void _createTasksTableView();
@@ -65,6 +75,9 @@ namespace Views
         //slots
         void _btnTasksFilesClicked();
         void _mnuNavBarMainMyTasksItemTriggered();
+
+        /*******************--Properties--********************/
+        void _createPropertiesView();
 
         void _prepareView();
     };

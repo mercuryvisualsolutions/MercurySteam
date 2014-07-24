@@ -2,7 +2,7 @@
 #define MMANAGERBASE_H
 
 #include "../Mscore_global.h"
-#include "../Dbo/MDbo.h"
+#include "../Dbo/MDboBase.h"
 #include "../Log/MLogger.h"
 
 #include <Wt/Dbo/Session>

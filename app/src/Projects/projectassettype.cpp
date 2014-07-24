@@ -2,7 +2,7 @@
 #include "../Database/databasemanager.h"
 
 Projects::ProjectAssetType::ProjectAssetType() :
-    Ms::Dbo::MDbo()
+    Ms::Dbo::MDboBase()
 {
     _init();
 }
@@ -15,7 +15,7 @@ Projects::ProjectAssetType::ProjectAssetType(const std::string &type) :
 
 Projects::ProjectAssetType *Projects::ProjectAssetType::modify()
 {
-    Ms::Dbo::MDbo::modify();
+    Ms::Dbo::MDboBase::modify();
 
     return this;
 }

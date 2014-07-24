@@ -2,7 +2,7 @@
 #include "../Database/databasemanager.h"
 
 Projects::ProjectWorkStatusType::ProjectWorkStatusType() :
-    Ms::Dbo::MDbo()
+    Ms::Dbo::MDboBase()
 {
     _init();
 }
@@ -15,7 +15,7 @@ Projects::ProjectWorkStatusType::ProjectWorkStatusType(const std::string &workSt
 
 Projects::ProjectWorkStatusType *Projects::ProjectWorkStatusType::modify()
 {
-    Ms::Dbo::MDbo::modify();
+    Ms::Dbo::MDboBase::modify();
 
     return this;
 }

@@ -51,7 +51,7 @@ void Database::DatabaseManager::initDatabase()
 
 void Database::DatabaseManager::initSessionLogger()
 {
-    _logger = Log::LogManager::instance().getAppSessionLogger(Wt::WApplication::instance()->sessionId());
+    _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
 }
 
 void Database::DatabaseManager::discardChanges()

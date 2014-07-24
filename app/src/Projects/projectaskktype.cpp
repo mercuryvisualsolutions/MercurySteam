@@ -2,7 +2,7 @@
 #include "../Database/databasemanager.h"
 
 Projects::ProjectTaskType::ProjectTaskType() :
-    Ms::Dbo::MDbo()
+    Ms::Dbo::MDboBase()
 {
     _init();
 }
@@ -15,7 +15,7 @@ Projects::ProjectTaskType::ProjectTaskType(const std::string &type) :
 
 Projects::ProjectTaskType *Projects::ProjectTaskType::modify()
 {
-    Ms::Dbo::MDbo::modify();
+    Ms::Dbo::MDboBase::modify();
 
     return this;
 }

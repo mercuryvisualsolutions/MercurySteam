@@ -16,7 +16,7 @@ Users::UsersManager::UsersManager() :
 
 void Users::UsersManager::initSessionLogger()
 {
-    _logger = Log::LogManager::instance().getAppSessionLogger(Wt::WApplication::instance()->sessionId());
+    _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
 }
 
 void Users::UsersManager::addDefaults()

@@ -25,7 +25,7 @@ namespace Log
 
         //functions
         Ms::Log::MLogger *getGlobalLogger();
-        Logger *getAppSessionLogger(const std::string &sessionId);
+        Logger *getSessionLogger(const std::string &sessionId);
 
     private:
         //variables

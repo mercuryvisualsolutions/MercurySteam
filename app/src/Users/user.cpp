@@ -4,7 +4,7 @@
 #include "Users/usersio.h"
 
 Users::User::User() :
-    Ms::Dbo::MDbo()
+    Database::Dbo()
 {
     _init();
 }
@@ -23,7 +23,7 @@ Users::User::User(const std::string &name, const std::string &emailAddress) :
 
 Users::User *Users::User::modify()
 {
-    Ms::Dbo::MDbo::modify();
+    Database::Dbo::modify();
 
     return this;
 }
@@ -174,21 +174,6 @@ void Users::User::setProject(Wt::Dbo::weak_ptr<Projects::Project> project)
 Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask> > Users::User::tasks()
 {
     return _tasks;
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData> > Users::User::data()
-{
-    return _data;
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag> > Users::User::tags()
-{
-    return _tags;
-}
-
-Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>> Users::User::notes()
-{
-    return _notes;
 }
 
 bool Users::User::operator ==(const Users::User &other) const

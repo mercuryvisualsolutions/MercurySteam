@@ -17,11 +17,11 @@ namespace Log
         ~Logger();
 
         //functions
-        void log(const std::string &message, Ms::Log::LogMessageType type, Log::LogMessageContext context = Log::LogMessageContext::ServerAndClient);
-        unsigned int maxOnScreenLogMessages();
+        void log(const std::string &message, Ms::Log::LogMessageType type, Log::LogMessageContext context = Log::LogMessageContext::ServerAndClient) const;
+        unsigned int maxOnScreenLogMessages() const;
         void setMaxOnScreenLogMessages(unsigned int value);
-        Ms::Widgets::MLogWidget *logWidget();
-        Ms::Log::MLogger *globalLogger();
+        Ms::Widgets::MLogWidget *logWidget() const;
+        Ms::Log::MLogger *globalLogger() const;
         void setGlobalLogger(Ms::Log::MLogger *logger);
         const std::string sessionId() const;
         void setSessionId(const std::string &sessionId);

@@ -24,6 +24,8 @@
 #include <Wt/WVBoxLayout>
 #include <Wt/WHBoxLayout>
 #include <Wt/WToolBar>
+#include <Wt/WStackedWidget>
+#include <Wt/WNavigationBar>
 #include <Wt/Dbo/Dbo>
 #include <Wt/WMemoryResource>
 
@@ -90,20 +92,26 @@ namespace Ms
             bool columnIsIgnored(const std::string &columnDisplayName);
             std::string columnName(const std::string &columnDisplayName);
             std::string columnDisplayName(const std::string &dboName);
-            void importCSV(const std::string &fileName);
             void setIgnoreNumFilterColumns(int numColumns);
             void ignoredNumFilterColumns();
-            std::string generateCSVData();
-            void setImportOptionVisible(bool visible);
-            void setExportOptionVisible(bool visible);
             std::vector<Wt::Dbo::ptr<T>> selectedItems() const;
+            void addPropertiesPanel(const std::string &title, Wt::WContainerWidget *widget);
+            Wt::WContainerWidget *currentPropertiesWidget() const;
+            bool isImportCSVFetureEnabled() const;
+            void setImportCSVFetureEnabled(bool enabled);
+            bool isExportCSVFetureEnabled() const;
+            void setExportCSVFetureEnabled(bool enabled);
+            bool isAdvancedFilterFeatureEnabled() const;
+            void setAdvancedFilterFeatureEnabled(bool enabled);
 
             //signals
             Wt::Signal<> &tableSelectionChanged();
+            Wt::Signal<> &updatePropertiesRequested();
 
         private:
             //signals
             Wt::Signal<> _tableSelectionChanged;
+            Wt::Signal<> _updatePropertiesRequested;
 
             //slots
             void _mainTableSelectionChanged();
@@ -122,10 +130,13 @@ namespace Ms
             void _popMnuReloadItemTriggered();
 
             //functions
+            void _importCSV(const std::string &fileName);
+            std::string _generateCSVData();
             void _setModelUserName(const std::string &name);
             void _refilter();
             void _createMainTable();
             void _createAdvancedFilterView();
+            void _createPropertiesView();
             void _updateModel();
             void _updateTable();
             void _updateAdvancedFilterTable();
@@ -141,6 +152,10 @@ namespace Ms
             Wt::WString _filterRegExpression;
             int _ignoreNumFilterColumns;//numbers of columns to ignore when filtering
             bool _advancedFilterActive;
+            bool _importCSVFeatureEnabled;
+            bool _exportCSVFeatureEnabled;
+            bool _advancedFilterFeatureEnabled;
+            bool _propertiesFeatureEnabled;
 
             //ui variables
             Wt::WPushButton *_btnMnuTools;

@@ -5,6 +5,8 @@
 #include "Projects/projectsmanager.h"
 #include "Database/databasemanager.h"
 #include "Settings/appsettings.h"
+#include "../../Log/logmanager.h"
+#include "../../Session/sessionmanager.h"
 
 #include <Wt/WMessageBox>
 #include <Wt/WApplication>
@@ -12,47 +14,12 @@
 Views::ViewApp::ViewApp()
 : WContainerWidget()
 {
-    _logger = Log::LogManager::instance().getAppSessionLogger(Wt::WApplication::instance()->sessionId());
+    _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
+    _propertiesPanel = Session::SessionManager::instance().getSessionPropertiesPanel(Wt::WApplication::instance()->sessionId());
 
     _prepareView();
 
     _mnuSideMain->select(_mnuSideMainProjectsItem);//default start to the main projects page
-}
-
-void Views::ViewApp::updatePropertiesView()
-{
-    if(_viwProperties->isHidden())
-        return;
-
-    if(_stkMainView->currentWidget() == _viwProjects)
-    {
-        if(_viwProjects->isProjectsViewShown())
-            _viwProperties->updateDboPropertiesView<Projects::Project>(_viwProjects->projectsQueryTableView()->selectedItems());
-        else if(_viwProjects->isSequencesViewShown())
-            _viwProperties->updateDboPropertiesView<Projects::ProjectSequence>(_viwProjects->sequencesQueryTableView()->selectedItems());
-        else if(_viwProjects->isShotsViewShown())
-            _viwProperties->updateDboPropertiesView<Projects::ProjectShot>(_viwProjects->shotsQueryTableView()->selectedItems());
-        else if(_viwProjects->isAssetsViewShown())
-            _viwProperties->updateDboPropertiesView<Projects::ProjectAsset>(_viwProjects->assetsQueryTableView()->selectedItems());
-        else if(_viwProjects->isTasksViewShown())
-            _viwProperties->updateDboPropertiesView<Projects::ProjectTask>(_viwProjects->tasksQueryTableView()->selectedItems());
-    }
-    else if(_stkMainView->currentWidget() == _viwUsers)
-    {
-        if(_viwUsers->isUsersViewShown())
-            _viwProperties->updateDboPropertiesView<Users::User>(_viwUsers->usersQueryTableView()->selectedItems());
-        else if(_viwUsers->isGroupsViewShown())
-        {
-            _viwProperties->updateDboPropertiesView<Users::Group>(_viwUsers->groupsQueryTableView()->selectedItems());
-            _viwProperties->updateGroupsPrivilegesView();
-            _viwProperties->updateGroupsAssignedPrivilegesView(_viwUsers->groupsQueryTableView()->selectedItems());
-        }
-    }
-    else if(_stkMainView->currentWidget() == _viwMyDashboard)
-    {
-        if(_viwMyDashboard->isTasksViewShown())
-            _viwProperties->updateDboPropertiesView<Projects::ProjectTask>(_viwMyDashboard->tasksQueryTableView()->selectedItems());
-    }
 }
 
 void Views::ViewApp::showAuthView()
@@ -67,6 +34,7 @@ void Views::ViewApp::showProjectsView()
     if(_stkMainView->currentWidget() != _viwProjects)
     {
         _stkMainView->setCurrentWidget(_viwProjects);
+        _viwProjects->showPropertiesView();
         _viwProjects->updateView();
     }
 }
@@ -77,6 +45,7 @@ void Views::ViewApp::showUsersView()
     if(_stkMainView->currentWidget() != _viwUsers)
     {
         _stkMainView->setCurrentWidget(_viwUsers);
+        _viwUsers->showPropertiesView();
         _viwUsers->updateView();
     }
 }
@@ -105,6 +74,7 @@ void Views::ViewApp::showMyDashboardView()
     {
         //_mnuSideMain->select(_mnuSideMainMyDashboardItem);
         _stkMainView->setCurrentWidget(_viwMyDashboard);
+        _viwMyDashboard->showPropertiesView();
         _viwMyDashboard->updateView();
     }
 }
@@ -115,6 +85,7 @@ void Views::ViewApp::showSettingsView()
     {
         //_mnuSideMain->select(_mnuSideMainSettingsItem);
         _stkMainView->setCurrentWidget(_viwSettings);
+        _viwSettings->showPropertiesView();
         _viwSettings->updateView();
     }
 }
@@ -141,11 +112,12 @@ void Views::ViewApp::_mnuMainLeftViewShowPropertiesPanelTriggered()
 {
     if(_mnuMainLeftViewShowPropertiesPanel->isChecked())
     {
-        updatePropertiesView();
-        _viwProperties->show();
+        _propertiesPanel->show();
     }
     else
-        _viwProperties->hide();
+    {
+        _propertiesPanel->hide();
+    }
 }
 
 void Views::ViewApp::_mnuMainLeftViewShowLogPanelTriggered()
@@ -161,356 +133,34 @@ void Views::ViewApp::_mnuMainRightCurrentUserSignOutTriggered()
     showAuthView();
 }
 
-void Views::ViewApp::_onUsresViewUsersTabSelected()
-{
-    _viwProperties->setSubViewHidden("GroupsPrivileges", true);
-}
-
-void Views::ViewApp::_onUsresViewGroupsTabSelected()
-{
-    _viwProperties->setSubViewHidden("GroupsPrivileges", false);
-}
-
-void Views::ViewApp::_onAddData()
-{
-    if(_stkMainView->currentWidget() == _viwProjects)
-    {
-        if(_viwProjects->isProjectsViewShown())
-        {
-            if(_viwProjects->projectsQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->addDataToDbo<Projects::Project>(_viwProjects->projectsQueryTableView()->selectedItems());
-            }
-        }
-        else if(_viwProjects->isSequencesViewShown())
-        {
-            if(_viwProjects->sequencesQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->addDataToDbo<Projects::ProjectSequence>(_viwProjects->sequencesQueryTableView()->selectedItems());
-            }
-        }
-        else if(_viwProjects->isShotsViewShown())
-        {
-            if(_viwProjects->shotsQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->addDataToDbo<Projects::ProjectShot>(_viwProjects->shotsQueryTableView()->selectedItems());
-            }
-        }
-        else if(_viwProjects->isAssetsViewShown())
-        {
-            if(_viwProjects->assetsQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->addDataToDbo<Projects::ProjectAsset>(_viwProjects->assetsQueryTableView()->selectedItems());
-            }
-        }
-        else if(_viwProjects->isTasksViewShown())
-        {
-            if(_viwProjects->tasksQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->addDataToDbo<Projects::ProjectTask>(_viwProjects->tasksQueryTableView()->selectedItems());
-            }
-        }
-    }
-    if(_stkMainView->currentWidget() == _viwUsers)
-    {
-        if(_viwUsers->isUsersViewShown())
-        {
-            if(_viwUsers->usersQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->addDataToDbo<Users::User>(_viwUsers->usersQueryTableView()->selectedItems());
-            }
-        }
-        else if(_viwUsers->isGroupsViewShown())
-        {
-            if(_viwUsers->groupsQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->addDataToDbo<Users::Group>(_viwUsers->groupsQueryTableView()->selectedItems());
-            }
-        }
-    }
-}
-
-void Views::ViewApp::_onRemoveData()
-{
-
-}
-
-void Views::ViewApp::_onAddTag()
-{
-    if(_stkMainView->currentWidget() == _viwProjects)
-    {
-        if(_viwProjects->isProjectsViewShown())
-        {
-            if(_viwProjects->projectsQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->addTagsToDbo<Projects::Project>(_viwProjects->projectsQueryTableView()->selectedItems(), _viwProperties->tagsQueryTableView()->selectedItems());
-            }
-        }
-        else if(_viwProjects->isSequencesViewShown())
-        {
-            if(_viwProjects->sequencesQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->addTagsToDbo<Projects::ProjectSequence>(_viwProjects->sequencesQueryTableView()->selectedItems(), _viwProperties->tagsQueryTableView()->selectedItems());
-            }
-        }
-        else if(_viwProjects->isShotsViewShown())
-        {
-            if(_viwProjects->shotsQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->addTagsToDbo<Projects::ProjectShot>(_viwProjects->shotsQueryTableView()->selectedItems(), _viwProperties->tagsQueryTableView()->selectedItems());
-            }
-        }
-        else if(_viwProjects->isAssetsViewShown())
-        {
-            if(_viwProjects->assetsQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->addTagsToDbo<Projects::ProjectAsset>(_viwProjects->assetsQueryTableView()->selectedItems(), _viwProperties->tagsQueryTableView()->selectedItems());
-            }
-        }
-        else if(_viwProjects->isTasksViewShown())
-        {
-            if(_viwProjects->tasksQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->addTagsToDbo<Projects::ProjectTask>(_viwProjects->tasksQueryTableView()->selectedItems(), _viwProperties->tagsQueryTableView()->selectedItems());
-            }
-        }
-    }
-    if(_stkMainView->currentWidget() == _viwUsers)
-    {
-        if(_viwUsers->isUsersViewShown())
-        {
-            if(_viwUsers->usersQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->addTagsToDbo<Users::User>(_viwUsers->usersQueryTableView()->selectedItems(), _viwProperties->tagsQueryTableView()->selectedItems());
-            }
-        }
-        else if(_viwUsers->isGroupsViewShown())
-        {
-            if(_viwUsers->groupsQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->addTagsToDbo<Users::Group>(_viwUsers->groupsQueryTableView()->selectedItems(), _viwProperties->tagsQueryTableView()->selectedItems());
-            }
-        }
-    }
-}
-
-void Views::ViewApp::_onRemoveTag()
-{
-    if(_stkMainView->currentWidget() == _viwProjects)
-    {
-        if(_viwProjects->isProjectsViewShown())
-        {
-            if(_viwProjects->projectsQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->removeTagsFromDbo<Projects::Project>(_viwProjects->projectsQueryTableView()->selectedItems(), _viwProperties->assignedTagsQueryTableView()->selectedItems());
-            }
-        }
-        else if(_viwProjects->isSequencesViewShown())
-        {
-            if(_viwProjects->sequencesQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->removeTagsFromDbo<Projects::ProjectSequence>(_viwProjects->sequencesQueryTableView()->selectedItems(), _viwProperties->assignedTagsQueryTableView()->selectedItems());
-            }
-        }
-        else if(_viwProjects->isShotsViewShown())
-        {
-            if(_viwProjects->shotsQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->removeTagsFromDbo<Projects::ProjectShot>(_viwProjects->shotsQueryTableView()->selectedItems(), _viwProperties->assignedTagsQueryTableView()->selectedItems());
-            }
-        }
-        else if(_viwProjects->isAssetsViewShown())
-        {
-            if(_viwProjects->assetsQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->removeTagsFromDbo<Projects::ProjectAsset>(_viwProjects->assetsQueryTableView()->selectedItems(), _viwProperties->assignedTagsQueryTableView()->selectedItems());
-            }
-        }
-        else if(_viwProjects->isTasksViewShown())
-        {
-            if(_viwProjects->tasksQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->removeTagsFromDbo<Projects::ProjectTask>(_viwProjects->tasksQueryTableView()->selectedItems(), _viwProperties->assignedTagsQueryTableView()->selectedItems());
-            }
-        }
-    }
-    if(_stkMainView->currentWidget() == _viwUsers)
-    {
-        if(_viwUsers->isUsersViewShown())
-        {
-            if(_viwUsers->usersQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->removeTagsFromDbo<Users::User>(_viwUsers->usersQueryTableView()->selectedItems(), _viwProperties->assignedTagsQueryTableView()->selectedItems());
-            }
-        }
-        else if(_viwUsers->isGroupsViewShown())
-        {
-            if(_viwUsers->groupsQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->removeTagsFromDbo<Users::Group>(_viwUsers->groupsQueryTableView()->selectedItems(), _viwProperties->assignedTagsQueryTableView()->selectedItems());
-            }
-        }
-    }
-}
-
-void Views::ViewApp::_onAddNote()
-{
-    if(_stkMainView->currentWidget() == _viwProjects)
-    {
-        if(_viwProjects->isProjectsViewShown())
-        {
-            if(_viwProjects->projectsQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->addNoteToDbo<Projects::Project>(_viwProjects->projectsQueryTableView()->selectedItems());
-            }
-        }
-        else if(_viwProjects->isSequencesViewShown())
-        {
-            if(_viwProjects->sequencesQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->addNoteToDbo<Projects::ProjectSequence>(_viwProjects->sequencesQueryTableView()->selectedItems());
-            }
-        }
-        else if(_viwProjects->isShotsViewShown())
-        {
-            if(_viwProjects->shotsQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->addNoteToDbo<Projects::ProjectShot>(_viwProjects->shotsQueryTableView()->selectedItems());
-            }
-        }
-        else if(_viwProjects->isAssetsViewShown())
-        {
-            if(_viwProjects->assetsQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->addNoteToDbo<Projects::ProjectAsset>(_viwProjects->assetsQueryTableView()->selectedItems());
-            }
-        }
-        else if(_viwProjects->isTasksViewShown())
-        {
-            if(_viwProjects->tasksQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->addNoteToDbo<Projects::ProjectTask>(_viwProjects->tasksQueryTableView()->selectedItems());
-            }
-        }
-    }
-    if(_stkMainView->currentWidget() == _viwUsers)
-    {
-        if(_viwUsers->isUsersViewShown())
-        {
-            if(_viwUsers->usersQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->addNoteToDbo<Users::User>(_viwUsers->usersQueryTableView()->selectedItems());
-            }
-        }
-        else if(_viwUsers->isGroupsViewShown())
-        {
-            if(_viwUsers->groupsQueryTableView()->selectedItems().size() > 0)
-            {
-                _viwProperties->addNoteToDbo<Users::Group>(_viwUsers->groupsQueryTableView()->selectedItems());
-            }
-        }
-    }
-}
-
-void Views::ViewApp::_onRemoveNote()
-{
-
-}
-
-void Views::ViewApp::_onAddPrivilegeToGroup()
-{
-    if(_viwUsers->groupsQueryTableView()->selectedItems().size() > 0)
-    {
-        for(auto &grpPtr : _viwUsers->groupsQueryTableView()->selectedItems())
-        {
-            for(auto &prvPtr : _viwProperties->groupsPrivilegesQueryTableView()->selectedItems())
-            {
-                Database::DatabaseManager::instance().modifyDbo<Users::Group>(grpPtr)->addPrivilege(prvPtr);
-            }
-        }
-
-        _viwProperties->updateGroupsAssignedPrivilegesView(_viwUsers->groupsQueryTableView()->selectedItems());
-    }
-}
-
-void Views::ViewApp::_onRemovePrivilegeFromGroup()
-{
-    if(_viwUsers->groupsQueryTableView()->selectedItems().size() > 0)
-    {
-        for(auto &grpPtr : _viwUsers->groupsQueryTableView()->selectedItems())
-        {
-            for(auto &prvPtr : _viwProperties->groupsAssignedPrivilegesQueryTableView()->selectedItems())
-            {
-                Database::DatabaseManager::instance().modifyDbo<Users::Group>(grpPtr)->removePrivilege(prvPtr);
-            }
-        }
-
-        _viwProperties->updateGroupsAssignedPrivilegesView(_viwUsers->groupsQueryTableView()->selectedItems());
-    }
-}
-
 void Views::ViewApp::_mnuSideMainProjectsItemTriggered()
 {
-    showProjectsView();
-
-    _viwProperties->setSubViewHidden("GroupsPrivileges", true);
-    _viwProperties->setSubViewHidden("Data", false);
-    _viwProperties->setSubViewHidden("Tags", false);
-    _viwProperties->setSubViewHidden("Notes", false);
+    showProjectsView();    
 }
 
 void Views::ViewApp::_mnuSideMainUsersAndGroupsItemTriggered()
 {
     showUsersView();
-
-    if(_viwUsers->isGroupsViewShown())
-        _viwProperties->setSubViewHidden("GroupsPrivileges", false);
-    else
-        _viwProperties->setSubViewHidden("GroupsPrivileges", true);
-
-    _viwProperties->setSubViewHidden("Data", false);
-    _viwProperties->setSubViewHidden("Tags", false);
-    _viwProperties->setSubViewHidden("Notes", false);
 }
 
 void Views::ViewApp::_mnuSideMainReportsItemTriggered()
 {
     showReportsView("projects");
-
-    _viwProperties->setSubViewHidden("GroupsPrivileges", true);
-    _viwProperties->setSubViewHidden("Data", true);
-    _viwProperties->setSubViewHidden("Tags", true);
-    _viwProperties->setSubViewHidden("Notes", true);
 }
 
 void Views::ViewApp::_mnuSideMainSearchItemTriggered()
 {
     showSearchView("projects");
-
-    _viwProperties->setSubViewHidden("GroupsPrivileges", true);
-    _viwProperties->setSubViewHidden("Data", true);
-    _viwProperties->setSubViewHidden("Tags", true);
-    _viwProperties->setSubViewHidden("Notes", true);
 }
 
 void Views::ViewApp::_mnuSideMainMyDashboardItemTriggered()
 {
     showMyDashboardView();
-
-    _viwProperties->setSubViewHidden("GroupsPrivileges", true);
-    _viwProperties->setSubViewHidden("Data", false);
-    _viwProperties->setSubViewHidden("Tags", false);
-    _viwProperties->setSubViewHidden("Notes", false);
 }
 
 void Views::ViewApp::_mnuSideMainSettingsItemTriggered()
 {
     showSettingsView();
-
-    _viwProperties->setSubViewHidden("GroupsPrivileges", true);
-    _viwProperties->setSubViewHidden("Data", true);
-    _viwProperties->setSubViewHidden("Tags", true);
-    _viwProperties->setSubViewHidden("Notes", true);
 }
 
 void Views::ViewApp::_prepareView()
@@ -563,21 +213,21 @@ void Views::ViewApp::_prepareView()
     _mnuMainLeftViewPanelsSub = new Wt::WPopupMenu();
     _mnuMainLeftViewPanelsItem->setSubMenu(_mnuMainLeftViewPanelsSub);
 
-    _mnuMainLeftViewShowMenuPanel= new Wt::WMenuItem("Show menu panel");
+    _mnuMainLeftViewShowMenuPanel= new Wt::WMenuItem("Main Menu");
     _mnuMainLeftViewShowMenuPanel->setCheckable(true);
     _mnuMainLeftViewShowMenuPanel->setChecked(true);
     _mnuMainLeftViewShowMenuPanel->triggered().connect(this, &Views::ViewApp::_mnuMainLeftViewShowMenuPanelTriggered);
 
     _mnuMainLeftViewPanelsSub->addItem(_mnuMainLeftViewShowMenuPanel);//add "Show menu panel" item to mnuMainViewSub
 
-    _mnuMainLeftViewShowPropertiesPanel= new Wt::WMenuItem("Show properties panel");
+    _mnuMainLeftViewShowPropertiesPanel= new Wt::WMenuItem("Properties");
     _mnuMainLeftViewShowPropertiesPanel->setCheckable(true);
     _mnuMainLeftViewShowPropertiesPanel->setChecked(true);
     _mnuMainLeftViewShowPropertiesPanel->triggered().connect(this, &Views::ViewApp::_mnuMainLeftViewShowPropertiesPanelTriggered);
 
     _mnuMainLeftViewPanelsSub->addItem(_mnuMainLeftViewShowPropertiesPanel);//add "Show properties panel" item to mnuMainViewSub
 
-    _mnuMainLeftViewShowLogPanel = new Wt::WMenuItem("Show log panel");
+    _mnuMainLeftViewShowLogPanel = new Wt::WMenuItem("Log");
     _mnuMainLeftViewShowLogPanel->setCheckable(true);
     _mnuMainLeftViewShowLogPanel->setChecked(true);
     _mnuMainLeftViewShowLogPanel->triggered().connect(this, &Views::ViewApp::_mnuMainLeftViewShowLogPanelTriggered);
@@ -678,31 +328,7 @@ void Views::ViewApp::_prepareView()
     _layMainH->addWidget(_stkMainView, 1);
 
     /**************Properties View********************/
-    _viwProperties = new Views::ViewProperties();
-
-    _layMainH->addWidget(_viwProperties);
-
-    _viwProjects->projectsQueryTableView()->tableSelectionChanged().connect(this, &Views::ViewApp::updatePropertiesView);
-    _viwProjects->sequencesQueryTableView()->tableSelectionChanged().connect(this, &Views::ViewApp::updatePropertiesView);
-    _viwProjects->shotsQueryTableView()->tableSelectionChanged().connect(this, &Views::ViewApp::updatePropertiesView);
-    _viwProjects->assetsQueryTableView()->tableSelectionChanged().connect(this, &Views::ViewApp::updatePropertiesView);
-    _viwProjects->tasksQueryTableView()->tableSelectionChanged().connect(this, &Views::ViewApp::updatePropertiesView);
-    _viwUsers->usersQueryTableView()->tableSelectionChanged().connect(this, &Views::ViewApp::updatePropertiesView);
-    _viwUsers->groupsQueryTableView()->tableSelectionChanged().connect(this, &Views::ViewApp::updatePropertiesView);
-    _viwMyDashboard->tasksQueryTableView()->tableSelectionChanged().connect(this, &Views::ViewApp::updatePropertiesView);
-
-    _viwProperties->onAddData().connect(this, &Views::ViewApp::_onAddData);
-    _viwProperties->onRemoveData().connect(this, &Views::ViewApp::_onRemoveData);
-    _viwProperties->onAddTag().connect(this, &Views::ViewApp::_onAddTag);
-    _viwProperties->onRemoveTag().connect(this, &Views::ViewApp::_onRemoveTag);
-    _viwProperties->onAddNote().connect(this, &Views::ViewApp::_onAddNote);
-    _viwProperties->onRemoveNote().connect(this, &Views::ViewApp::_onRemoveNote);
-    _viwProperties->onAddPrivilegeToGroup().connect(this, &Views::ViewApp::_onAddPrivilegeToGroup);
-    _viwProperties->onRemovePrivilegeFromGroup().connect(this, &Views::ViewApp::_onRemovePrivilegeFromGroup);
-    _viwProperties->onTabDataSelected().connect(this, &Views::ViewApp::updatePropertiesView);
-    _viwProperties->onTabTagsSelected().connect(this, &Views::ViewApp::updatePropertiesView);
-    _viwProperties->onTabNotesSelected().connect(this, &Views::ViewApp::updatePropertiesView);
-    _viwProperties->onTabGroupsPrivilegesSelected().connect(this, &Views::ViewApp::updatePropertiesView);
+    _layMainH->addWidget(_propertiesPanel);
 
     /**************Log Panel********************/
     _viwLog = new ViewLog();
@@ -726,8 +352,6 @@ void Views::ViewApp::_prepareChildViews(Wt::WStackedWidget *widget)
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("View"))
     {
         _viwUsers = new ViewUsers();
-        _viwUsers->onTabUsersSelected().connect(this, &Views::ViewApp::_onUsresViewUsersTabSelected);
-        _viwUsers->onTabGroupsSelected().connect(this, &Views::ViewApp::_onUsresViewGroupsTabSelected);
 
         _viwProjects = new ViewProjects();
         //_viwReports = new ViewReports();

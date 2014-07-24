@@ -15,7 +15,6 @@ DEFINES += MSCORE_LIBRARY
 LIBS += -lwthttp -lwt -lwtdbo -lwtdbomysql -lboost_signals -lboost_filesystem -lboost_system -lboost_regex -lboost_date_time
 
 SOURCES += \
-    Dbo/Mdbo.cpp \
     Core/MManagerBase.cpp \
     Core/MSettingsBase.cpp \
     Widgets/MWidgetFactory.cpp \
@@ -41,12 +40,12 @@ SOURCES += \
     Log/MLogger.cpp \
     Widgets/MLogWidget.cpp \
     Widgets/Delegates/MComboBoxDelegate.cpp \
-    Exceptions/MNullPointerException.cpp
+    Exceptions/MNullPointerException.cpp \
+    Widgets/MPropertiesPanel.cpp \
+    Dbo/MdboBase.cpp
 
 HEADERS +=\
     Mscore_global.h \
-    Dbo/MDbo.h \
-    Dbo/MDbo_impl.h \
     Core/MManagerBase_impl.h \
     Dbo/MDboQueryModel.h \
     Dbo/MDboQueryModel.h \
@@ -85,7 +84,10 @@ HEADERS +=\
     Log/MLogGlobals.h \
     Widgets/MLogWidget.h \
     Widgets/Delegates/MComboBoxDelegate.h \
-    Exceptions/MNullPointerException.h
+    Exceptions/MNullPointerException.h \
+    Widgets/MPropertiesPanel.h \
+    Dbo/MDboBase.h \
+    Dbo/MDboBase_impl.h
 
 unix {
     target.path = /usr/lib

@@ -2,7 +2,7 @@
 
 
 Database::DboData::DboData() :
-    Ms::Dbo::MDbo()
+    Ms::Dbo::MDboBase()
 {
     _init();
 }
@@ -16,7 +16,7 @@ Database::DboData::DboData(const std::string &key, const std::string &value) :
 
 Database::DboData *Database::DboData::modify()
 {
-    Ms::Dbo::MDbo::modify();
+    Ms::Dbo::MDboBase::modify();
 
     return this;
 }

@@ -1,7 +1,8 @@
 #ifndef VIEWLOG_H
 #define VIEWLOG_H
 
-#include "../../Log/logmanager.h"
+#include <Ms/Widgets/MLogWidget.h>
+#include <Ms/Widgets/MPropertiesPanel.h>
 
 #include <Wt/WVBoxLayout>
 #include <Wt/WToolBar>

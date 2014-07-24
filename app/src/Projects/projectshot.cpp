@@ -2,7 +2,7 @@
 #include "Database/databasemanager.h"
 
 Projects::ProjectShot::ProjectShot() :
-    Ms::Dbo::MDbo()
+    Database::Dbo()
 {
     _init();
 }
@@ -15,7 +15,7 @@ Projects::ProjectShot::ProjectShot(const std::string &shotName) :
 
 Projects::ProjectShot *Projects::ProjectShot::modify()
 {
-    Ms::Dbo::MDbo::modify();
+    Database::Dbo::modify();
 
     return this;
 }

@@ -8,12 +8,16 @@
 #include "../Files/dlgfilesmanager.h"
 #include "../../Projects/projectsio.h"
 #include "../../Projects/projectsmanager.h"
+#include "../../Log/logmanager.h"
 
 #include <Ms/Widgets/Delegates/MDelegates>
 #include <Ms/IO/IO.h>
 
 Views::ViewMyDashboard::ViewMyDashboard()
 {
+    _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
+    _propertiesPanel = Session::SessionManager::instance().getSessionPropertiesPanel(Wt::WApplication::instance()->sessionId());
+
     _prepareView();
 
     _mnuNavBarMain->select(_mnuNavBarMainMyTasksItem);
@@ -69,6 +73,11 @@ void Views::ViewMyDashboard::updateTasksView()
     }
 }
 
+void Views::ViewMyDashboard::showPropertiesView()
+{
+    _propertiesPanel->showView("MyDashboard");
+}
+
 bool Views::ViewMyDashboard::isTasksViewShown() const
 {
     return _stkMain->currentWidget() == _qtvTasks;
@@ -95,7 +104,7 @@ void Views::ViewMyDashboard::_createTasksTableView()
     _qtvTasks->setFilterRegExp("[^$]{0,255}");
     _qtvTasks->setDefaultFilterColumnIndex(0);
     _qtvTasks->setIgnoreNumFilterColumns(0);
-    _qtvTasks->setImportOptionVisible(false);
+    _qtvTasks->setImportCSVFetureEnabled(false);
 
     //requires "CheckIn or CheckOut" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In") ||
@@ -154,6 +163,12 @@ void Views::ViewMyDashboard::_mnuNavBarMainMyTasksItemTriggered()
     _onTabMyTasksSelected();
 }
 
+void Views::ViewMyDashboard::_createPropertiesView()
+{
+    _cntPropertiesMain = new Wt::WContainerWidget();
+    _propertiesPanel->addPropertiesView("MyDashboard", _cntPropertiesMain);
+}
+
 void Views::ViewMyDashboard::_prepareView()
 {
     /*******************--MyTasks--********************/
@@ -197,4 +212,7 @@ void Views::ViewMyDashboard::_prepareView()
 
     _createTasksTableView();
     _stkMain->addWidget(_qtvTasks);
+
+    /*******************--Properties--********************/
+    _createPropertiesView();
 }
