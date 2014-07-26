@@ -42,7 +42,8 @@ SOURCES += \
     Widgets/Delegates/MComboBoxDelegate.cpp \
     Exceptions/MNullPointerException.cpp \
     Widgets/MPropertiesPanel.cpp \
-    Dbo/MdboBase.cpp
+    Dbo/MdboBase.cpp \
+    Views/MViewBase.cpp
 
 HEADERS +=\
     Mscore_global.h \
@@ -87,7 +88,8 @@ HEADERS +=\
     Exceptions/MNullPointerException.h \
     Widgets/MPropertiesPanel.h \
     Dbo/MDboBase.h \
-    Dbo/MDboBase_impl.h
+    Dbo/MDboBase_impl.h \
+    Views/MViewBase.h
 
 unix {
     target.path = /usr/lib

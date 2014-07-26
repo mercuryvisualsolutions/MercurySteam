@@ -877,7 +877,7 @@ namespace Ms
             _tblMain = new Wt::WTableView();
             _tblMain->setColumnResizeEnabled(true);
             _tblMain->setAlternatingRowColors(true);
-            _tblMain->setRowHeight(160);
+            _tblMain->setRowHeight(30);
             _tblMain->setHeaderHeight(30);
             _tblMain->setSelectionMode(Wt::ExtendedSelection);
             _tblMain->selectionChanged().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_mainTableSelectionChanged);
@@ -899,16 +899,16 @@ namespace Ms
             _cntAdvancedFilter->setMaximumSize(Wt::WLength::Auto, 300);
 
             _layCntAdvancedFilter = new Wt::WVBoxLayout();
-            _layCntAdvancedFilter->setContentsMargins(0,0,0,0);
+            _layCntAdvancedFilter->setContentsMargins(0,10,0,10);
             _layCntAdvancedFilter->setSpacing(0);
 
             _cntAdvancedFilter->setLayout(_layCntAdvancedFilter);
 
             _txtAdvancedFilterTitle = new Wt::WText("<b><i>Advanced Filter</i></b>");
-            _txtAdvancedFilterTitle->setStyleClass("soft-text");
+            _txtAdvancedFilterTitle->setStyleClass("title-bar-text");
 
             _cntTxtAdvancedFilterTitle = new Wt::WContainerWidget();
-            _cntTxtAdvancedFilterTitle->setStyleClass("toolbar");
+            _cntTxtAdvancedFilterTitle->setStyleClass("title-bar");
             _cntTxtAdvancedFilterTitle->setContentAlignment(Wt::AlignCenter);
             _cntTxtAdvancedFilterTitle->setMinimumSize(Wt::WLength::Auto, 25);
 
@@ -916,10 +916,19 @@ namespace Ms
 
             _cntTxtAdvancedFilterTitle->addWidget(_txtAdvancedFilterTitle);
 
-            _tbAdvancedFilter = new Wt::WToolBar();
-            _tbAdvancedFilter->setStyleClass("toolbar");
+            _cntTbAdvancedFilter = new Wt::WContainerWidget();
 
-            _layCntAdvancedFilter->addWidget(_tbAdvancedFilter);
+            _layCntAdvancedFilter->addWidget(_cntTbAdvancedFilter);
+
+            _layCntTbAdvancedFilter = new Wt::WVBoxLayout();
+            _layCntTbAdvancedFilter->setContentsMargins(0,10,0,10);
+            _layCntTbAdvancedFilter->setSpacing(0);
+
+            _cntTbAdvancedFilter->setLayout(_layCntTbAdvancedFilter);
+
+            _tbAdvancedFilter = new Wt::WToolBar();
+
+            _layCntTbAdvancedFilter->addWidget(_tbAdvancedFilter);
 
             Wt::WPushButton *btnFilterAdd = new Wt::WPushButton("");
             btnFilterAdd->setToolTip("Add Filter");
@@ -953,8 +962,8 @@ namespace Ms
             _tblAdvancedFilter = new Wt::WTableView();
             _tblAdvancedFilter->setColumnResizeEnabled(true);
             _tblAdvancedFilter->setAlternatingRowColors(true);
-            _tblAdvancedFilter->setRowHeight(24);
-            _tblAdvancedFilter->setHeaderHeight(24);
+            _tblAdvancedFilter->setRowHeight(30);
+            _tblAdvancedFilter->setHeaderHeight(30);
             _tblAdvancedFilter->setSelectionMode(Wt::ExtendedSelection);
 
             _layCntAdvancedFilter->addWidget(_tblAdvancedFilter, 1);
@@ -1099,11 +1108,10 @@ namespace Ms
 
             //Main Toolbar
             Wt::WHBoxLayout *layTbMain = new Wt::WHBoxLayout();
-            layTbMain->setContentsMargins(0,0,0,0);
+            layTbMain->setContentsMargins(0,14,0,14);
             layTbMain->setSpacing(0);
 
             Wt::WContainerWidget *cntTbMain = new Wt::WContainerWidget();
-            cntTbMain->setStyleClass("toolbar");
             cntTbMain->setLayout(layTbMain);
 
             _tbMain = new Wt::WToolBar();
@@ -1162,7 +1170,6 @@ namespace Ms
 
             _lnFilter = new Wt::WLineEdit();
             _lnFilter->setEmptyText("Search");
-            //_lnFilter->setStyleClass("search-box");
             _lnFilter->keyWentUp().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_lnFilterKeyWentUp);
 
             layTbMain-> addWidget(_lnFilter);

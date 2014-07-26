@@ -154,11 +154,6 @@ void Views::ViewUsers::updatePropertiesView()
     }
 }
 
-void Views::ViewUsers::showPropertiesView()
-{
-    _propertiesPanel->showView("UsersAndGroups");
-}
-
 bool Views::ViewUsers::isUsersViewShown()
 {
     return _stkMain->currentWidget() == _qtvUsers;
@@ -227,7 +222,7 @@ void Views::ViewUsers::_addDataToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec)
        delete dlg;
     }));
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 template<typename T>
@@ -255,7 +250,7 @@ void Views::ViewUsers::_addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec)
        delete dlg;
     }));
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 template<typename T>
@@ -345,7 +340,7 @@ void Views::ViewUsers::_btnUsersCreateClicked()
         delete dlg;
     }));
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::ViewUsers::_btnUsersChangePasswordClicked()
@@ -372,7 +367,7 @@ void Views::ViewUsers::_btnUsersChangePasswordClicked()
         delete dlg;
     }));
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::ViewUsers::_btnUsersRemoveClicked()
@@ -464,7 +459,7 @@ void Views::ViewUsers::_btnUsersImportThumbnailsClicked()
         delete dlg;
     }));
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::ViewUsers::_createUsersTableView()
@@ -543,7 +538,7 @@ void Views::ViewUsers::_btnGroupsCreateClicked()
         delete dlg;
     }));
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::ViewUsers::_btnGroupsRemoveClicked()
@@ -731,7 +726,7 @@ void Views::ViewUsers::_createPropertiesView()
 {
     _cntPropertiesMain = new Wt::WContainerWidget();
 
-    _propertiesPanel->addPropertiesView("UsersAndGroups", _cntPropertiesMain);
+    _propertiesPanel->addPropertiesView(this->id(), _cntPropertiesMain);
 
     _layCntPropertiesMain = new Wt::WVBoxLayout();
     _layCntPropertiesMain->setContentsMargins(0,0,0,0);
@@ -764,6 +759,7 @@ void Views::ViewUsers::_createPropertiesView()
     _mnuPropertiesNavBar->addItem(_mnuPropertiesNavBarGroupsPrivilegesItem);
 
     _stkProperties = new Wt::WStackedWidget();
+    _stkProperties->setTransitionAnimation(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Fade, Wt::WAnimation::TimingFunction::EaseInOut), true);
 
     _layCntPropertiesMain->addWidget(_stkProperties, 1);
 
@@ -792,14 +788,14 @@ void Views::ViewUsers::_createPropertiesView()
     _cntPropertiesAssignedTags->setLayout(_layCntPropertiesAssignedTags);
 
     _cntTxtPropertiesAssignedTagsLabel = new Wt::WContainerWidget();
-    _cntTxtPropertiesAssignedTagsLabel->setStyleClass("toolbar");
+    _cntTxtPropertiesAssignedTagsLabel->setStyleClass("title-bar");
     _cntTxtPropertiesAssignedTagsLabel->setContentAlignment(Wt::AlignCenter);
     _cntTxtPropertiesAssignedTagsLabel->setMinimumSize(Wt::WLength::Auto, 25);
 
     _layCntPropertiesAssignedTags->addWidget(_cntTxtPropertiesAssignedTagsLabel);
 
     _txtPropertiesAssignedTagsLabel = new Wt::WText("<b><i>Assigned Tags</i></b>");
-    _txtPropertiesAssignedTagsLabel->setStyleClass("soft-text");
+    _txtPropertiesAssignedTagsLabel->setStyleClass("title-bar-text");
     _cntTxtPropertiesAssignedTagsLabel->addWidget(_txtPropertiesAssignedTagsLabel);
 
     _createPropertiesAssignedTagsTableView();
@@ -817,14 +813,14 @@ void Views::ViewUsers::_createPropertiesView()
     _cntPropertiesAvailableTags->setLayout(_layCntPropertiesAvailableTags);
 
     _cntTxtPropertiesAvailableTagsLabel = new Wt::WContainerWidget();
-    _cntTxtPropertiesAvailableTagsLabel->setStyleClass("toolbar");
+    _cntTxtPropertiesAvailableTagsLabel->setStyleClass("title-bar");
     _cntTxtPropertiesAvailableTagsLabel->setContentAlignment(Wt::AlignCenter);
     _cntTxtPropertiesAvailableTagsLabel->setMinimumSize(Wt::WLength::Auto, 25);
 
     _layCntPropertiesAvailableTags->addWidget(_cntTxtPropertiesAvailableTagsLabel);
 
     _txtPropertiesAvailableTagsLabel = new Wt::WText("<b><i>Available Tags</i></b>");
-    _txtPropertiesAvailableTagsLabel->setStyleClass("soft-text");
+    _txtPropertiesAvailableTagsLabel->setStyleClass("title-bar-text");
     _cntTxtPropertiesAvailableTagsLabel->addWidget(_txtPropertiesAvailableTagsLabel);
 
     //Tags Table View
@@ -856,14 +852,14 @@ void Views::ViewUsers::_createPropertiesView()
     _cntPropertiesGroupsAssignedPrivileges->setLayout(_layCntPropertiesGroupsAssignedPrivileges);
 
     _cntTxtPropertiesGroupsAssignedPrivilegesLabel = new Wt::WContainerWidget();
-    _cntTxtPropertiesGroupsAssignedPrivilegesLabel->setStyleClass("toolbar");
+    _cntTxtPropertiesGroupsAssignedPrivilegesLabel->setStyleClass("title-bar");
     _cntTxtPropertiesGroupsAssignedPrivilegesLabel->setContentAlignment(Wt::AlignCenter);
     _cntTxtPropertiesGroupsAssignedPrivilegesLabel->setMinimumSize(Wt::WLength::Auto, 25);
 
     _layCntPropertiesGroupsAssignedPrivileges->addWidget(_cntTxtPropertiesGroupsAssignedPrivilegesLabel);
 
     _txtPropertiesGroupsAssignedPrivilegesLabel = new Wt::WText("<b><i>Assigned Privileges</i></b>");
-    _txtPropertiesGroupsAssignedPrivilegesLabel->setStyleClass("soft-text");
+    _txtPropertiesGroupsAssignedPrivilegesLabel->setStyleClass("title-bar-text");
     _cntTxtPropertiesGroupsAssignedPrivilegesLabel->addWidget(_txtPropertiesGroupsAssignedPrivilegesLabel);
 
     _createPropertiesGroupsAssignedPrivilegesTableView();
@@ -881,14 +877,14 @@ void Views::ViewUsers::_createPropertiesView()
     _cntPropertiesGroupsAvailablePrivileges->setLayout(_layCntPropertiesGroupsAvailablePrivileges);
 
     _cntTxtPropertiesGroupsAvailablePrivilegesLabel = new Wt::WContainerWidget();
-    _cntTxtPropertiesGroupsAvailablePrivilegesLabel->setStyleClass("toolbar");
+    _cntTxtPropertiesGroupsAvailablePrivilegesLabel->setStyleClass("title-bar");
     _cntTxtPropertiesGroupsAvailablePrivilegesLabel->setContentAlignment(Wt::AlignCenter);
     _cntTxtPropertiesGroupsAvailablePrivilegesLabel->setMinimumSize(Wt::WLength::Auto, 25);
 
     _layCntPropertiesGroupsAvailablePrivileges->addWidget(_cntTxtPropertiesGroupsAvailablePrivilegesLabel);
 
     _txtPropertiesGroupsAvailablePrivilegesLabel = new Wt::WText("<b><i>Available Privileges</i></b>");
-    _txtPropertiesGroupsAvailablePrivilegesLabel->setStyleClass("soft-text");
+    _txtPropertiesGroupsAvailablePrivilegesLabel->setStyleClass("title-bar-text");
     _cntTxtPropertiesGroupsAvailablePrivilegesLabel->addWidget(_txtPropertiesGroupsAvailablePrivilegesLabel);
 
     _createPropertiesGroupsPrivilegesTableView();
@@ -1293,10 +1289,17 @@ void Views::ViewUsers::_updatePropertiesGroupsAssignedPrivilegesView()
     _qtvPropertiesGroupsAssignedPrivileges->updateView();
 }
 
+/*******************--Main--********************/
 void Views::ViewUsers::_mnuMainUsersItemTriggered()
 {
     _stkMain->setCurrentWidget(_qtvUsers);
+
+    _mnuPropertiesNavBarGroupsPrivilegesItem->hide();
+
     updateUsersView();
+
+    if(_stkProperties->currentWidget() == _cntPropertiesGroupsPrivileges)
+        _mnuPropertiesNavBar->select(_mnuPropertiesNavBarDataItem);
 
     _onTabUsersSelected();
 }
@@ -1304,6 +1307,9 @@ void Views::ViewUsers::_mnuMainUsersItemTriggered()
 void Views::ViewUsers::_mnuMainGroupsItemTriggered()
 {
     _stkMain->setCurrentWidget(_qtvGroups);
+
+    _mnuPropertiesNavBarGroupsPrivilegesItem->show();
+
     updateGroupsView();
 
     _onTabGroupsSelected();
@@ -1313,20 +1319,20 @@ void Views::ViewUsers::_prepareView()
 {
     /*******************--Layouts--********************/
     _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
+    _layMain->setContentsMargins(14,14,14,14);
     _layMain->setSpacing(0);
     setLayout(_layMain);
 
     /*******************--Main--********************/
     _cntTxtUsersPanelTitle = new Wt::WContainerWidget();
-    _cntTxtUsersPanelTitle->setStyleClass("toolbar");
+    _cntTxtUsersPanelTitle->setStyleClass("title-bar");
     _cntTxtUsersPanelTitle->setContentAlignment(Wt::AlignCenter);
     _cntTxtUsersPanelTitle->setMinimumSize(Wt::WLength::Auto, 25);
 
     _layMain->addWidget(_cntTxtUsersPanelTitle);
 
     _txtUsersPanelTitle = new Wt::WText("<b><i>Users And Groups</i></b>");
-    _txtUsersPanelTitle->setStyleClass("soft-text");
+    _txtUsersPanelTitle->setStyleClass("title-bar-text");
 
     _cntTxtUsersPanelTitle->addWidget(_txtUsersPanelTitle);
 
@@ -1347,6 +1353,8 @@ void Views::ViewUsers::_prepareView()
     _layMain->addWidget(_navBarMain);
 
     _stkMain = new Wt::WStackedWidget();
+    _stkMain->setTransitionAnimation(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Fade, Wt::WAnimation::TimingFunction::EaseInOut), true);
+
     _layMain->addWidget(_stkMain, 1);
 
     /*******************--Users--********************/

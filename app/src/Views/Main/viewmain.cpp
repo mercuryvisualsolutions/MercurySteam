@@ -64,6 +64,8 @@ void Views::ViewMain::_prepareView()
     setLayout(_layMain);
 
     _stkMain = new Wt::WStackedWidget();
+    _stkMain->setTransitionAnimation(Wt::WAnimation(Wt::WAnimation::AnimationEffect::SlideInFromTop, Wt::WAnimation::TimingFunction::EaseInOut, 500), true);
+
     _layMain->addWidget(_stkMain);
 
     _layCntAuth = new Wt::WVBoxLayout();

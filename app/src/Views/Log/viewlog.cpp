@@ -28,7 +28,6 @@ void Views::ViewLog::_prepareView()
 
     //Wt::WAnimation panLogAnimation(Wt::WAnimation::SlideInFromTop, Wt::WAnimation::EaseOut, 100);
     //_panLog->setAnimation(panLogAnimation);
-    _panLog->setStyleClass("toolbar");
     _panLog->setCollapsed(true);
     _panLog->setLineHeight(15);
     _layMain->addWidget(_panLog, 1);

@@ -64,24 +64,24 @@ std::string Ms::Widgets::MPropertiesPanel::currentShownView() const
 
 void Ms::Widgets::MPropertiesPanel::_prepareView()
 {
-    setMaximumSize(520, Wt::WLength::Auto);
-    setMinimumSize(520, Wt::WLength::Auto);
+    setMaximumSize(534, Wt::WLength::Auto);
+    setMinimumSize(534, Wt::WLength::Auto);
 
     _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
+    _layMain->setContentsMargins(14,14,14,14);
     _layMain->setSpacing(0);
 
     setLayout(_layMain);
 
     _cntTxtPropertiesTitle = new Wt::WContainerWidget();
-    _cntTxtPropertiesTitle->setStyleClass("toolbar");
+    _cntTxtPropertiesTitle->setStyleClass("title-bar");
     _cntTxtPropertiesTitle->setContentAlignment(Wt::AlignCenter);
     _cntTxtPropertiesTitle->setMinimumSize(Wt::WLength::Auto, 25);
 
     _layMain->addWidget(_cntTxtPropertiesTitle);
 
     _txtPropertiesTitle = new Wt::WText("<b><i>Properties</i></b>");
-    _txtPropertiesTitle->setStyleClass("soft-text");
+    _txtPropertiesTitle->setStyleClass("title-bar-text");
 
     _cntTxtPropertiesTitle->addWidget(_txtPropertiesTitle);
 

@@ -66,7 +66,6 @@ void Views::ViewSearch::_prepareView()
     _laySearchProjects->setSpacing(0);
 
     _cntSearchProjects = new Wt::WContainerWidget();
-    _cntSearchProjects->setStyleClass("toolbar");
     _cntSearchProjects->setLayout(_laySearchProjects);
 
     //add our Projects view to the Search view
@@ -79,7 +78,6 @@ void Views::ViewSearch::_prepareView()
     _laySearchUsers->setSpacing(0);
 
     _cntSearchUsers = new Wt::WContainerWidget();
-    _cntSearchUsers->setStyleClass("toolbar");
     _cntSearchUsers->setLayout(_laySearchUsers);
 
     //add our Projects view to the Search view

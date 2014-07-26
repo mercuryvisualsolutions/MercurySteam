@@ -184,6 +184,8 @@ namespace Ms
             Wt::WText *_txtAdvancedFilterTitle;
             Wt::WContainerWidget *_cntTxtAdvancedFilterTitle;
             Wt::WToolBar *_tbAdvancedFilter;
+            Wt::WContainerWidget *_cntTbAdvancedFilter;
+            Wt::WVBoxLayout *_layCntTbAdvancedFilter;
             Wt::WTableView *_tblAdvancedFilter;
             Wt::WStandardItemModel *_mdlAdvancedFilter;
         };

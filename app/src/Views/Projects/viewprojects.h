@@ -30,6 +30,7 @@ namespace Views
     {
     public:
         ViewProjects();
+
         //functions
         void updateView();
         void updateProjectsView();
@@ -38,8 +39,6 @@ namespace Views
         void updateAssetsView();
         void updateTasksView();
         void updatePropertiesView();
-
-        void showPropertiesView();
 
         bool isProjectsViewShown();
         bool isSequencesViewShown();

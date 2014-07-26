@@ -313,11 +313,6 @@ void Views::ViewSettings::updateTagsView()
     }
 }
 
-void Views::ViewSettings::showPropertiesView()
-{
-    _propertiesPanel->showView("Settings");
-}
-
 Wt::Signal<> &Views::ViewSettings::onTabGeneralSelected()
 {
     return _onTabGeneralSelected;
@@ -361,7 +356,7 @@ void Views::ViewSettings::_btnSaveClicked()
     {
         delete msg;
     }));
-    msg->show();
+    msg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::ViewSettings::_mnuProjectSettingsTaskTypeItemTriggered()
@@ -454,7 +449,7 @@ void Views::ViewSettings::_btnCreateTaskTypeClicked()
         delete dlg;
     }));
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::ViewSettings::_btnRemoveTaskTypeClicked()
@@ -522,7 +517,7 @@ void Views::ViewSettings::_btnCreateAssetTypeClicked()
         delete dlg;
     }));
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::ViewSettings::_btnRemoveAssetTypeClicked()
@@ -591,7 +586,7 @@ void Views::ViewSettings::_btnCreateWorkStatusClicked()
         delete dlg;
     }));
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::ViewSettings::_btnRemoveWorkStatusClicked()
@@ -659,7 +654,7 @@ void Views::ViewSettings::_btnCreateUserTitleClicked()
         delete dlg;
     }));
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::ViewSettings::_btnRemoveUserTitlesClicked()
@@ -731,7 +726,7 @@ void Views::ViewSettings::_btnCreateTagClicked()
         delete dlg;
     }));
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::ViewSettings::_btnRemoveTagClicked()
@@ -742,27 +737,27 @@ void Views::ViewSettings::_btnRemoveTagClicked()
 void Views::ViewSettings::_createPropertiesView()
 {
     _cntPropertiesMain = new Wt::WContainerWidget();
-    _propertiesPanel->addPropertiesView("Settings", _cntPropertiesMain);
+    _propertiesPanel->addPropertiesView(this->id(), _cntPropertiesMain);
 }
 
 void Views::ViewSettings::_prepareView()
 {
     /*******************--Settings--********************/
     _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
+    _layMain->setContentsMargins(14,14,14,14);
     _layMain->setSpacing(0);
 
     setLayout(_layMain);
 
     _cntTxtSettingsPanelTitle = new Wt::WContainerWidget();
-    _cntTxtSettingsPanelTitle->setStyleClass("toolbar");
+    _cntTxtSettingsPanelTitle->setStyleClass("title-bar");
     _cntTxtSettingsPanelTitle->setContentAlignment(Wt::AlignCenter);
     _cntTxtSettingsPanelTitle->setMinimumSize(Wt::WLength::Auto, 25);
 
     _layMain->addWidget(_cntTxtSettingsPanelTitle);
 
     _txtSettingsPanelTitle = new Wt::WText("<b><i>Settings</i></b>");
-    _txtSettingsPanelTitle->setStyleClass("soft-text");
+    _txtSettingsPanelTitle->setStyleClass("title-bar-text");
 
     _cntTxtSettingsPanelTitle->addWidget(_txtSettingsPanelTitle);
 
@@ -794,6 +789,8 @@ void Views::ViewSettings::_prepareView()
     _mnuSettings->addItem(_mnuSettingsGlobalItem);
 
     _stkSettings = new Wt::WStackedWidget();
+    _stkSettings->setTransitionAnimation(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Fade, Wt::WAnimation::TimingFunction::EaseInOut), true);
+
     _layMain->addWidget(_stkSettings, 1);//stack general view
 
     //General//////////////////////////////////////
@@ -802,7 +799,6 @@ void Views::ViewSettings::_prepareView()
     _laySettingsGeneral->setSpacing(0);
 
     _cntGeneralSettings = new Wt::WContainerWidget();
-    _cntGeneralSettings->setStyleClass("toolbar");
     _cntGeneralSettings->setLayout(_laySettingsGeneral);
 
     _grpGeneral = new Wt::WGroupBox();
@@ -889,11 +885,12 @@ void Views::ViewSettings::_prepareView()
 
     //add our Projects properties to our settings view
     _stkProjectProperties = new Wt::WStackedWidget();
+    _stkProjectProperties->setTransitionAnimation(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Fade, Wt::WAnimation::TimingFunction::EaseInOut), true);
     _layCntProjectsSettings->addWidget(_stkProjectProperties, 1);
 
     /*******************--TaskType--********************/
     _layCntTaskType = new Wt::WVBoxLayout();
-    _layCntTaskType->setContentsMargins(0,0,0,0);
+    _layCntTaskType->setContentsMargins(14,0,0,0);
     _layCntTaskType->setSpacing(0);
 
     _cntTaskType = new Wt::WContainerWidget();
@@ -908,7 +905,7 @@ void Views::ViewSettings::_prepareView()
 
     /*******************--AssetType--********************/
     _layCntAssetType = new Wt::WVBoxLayout();
-    _layCntAssetType->setContentsMargins(0,0,0,0);
+    _layCntAssetType->setContentsMargins(14,0,0,0);
     _layCntAssetType->setSpacing(0);
 
     _cntAssetType = new Wt::WContainerWidget();
@@ -923,7 +920,7 @@ void Views::ViewSettings::_prepareView()
 
     /*******************--WorkStatus--********************/
     _layCntWorkStatus = new Wt::WVBoxLayout();
-    _layCntWorkStatus->setContentsMargins(0,0,0,0);
+    _layCntWorkStatus->setContentsMargins(14,0,0,0);
     _layCntWorkStatus->setSpacing(0);
 
     _cntWorkStatus = new Wt::WContainerWidget();
@@ -971,11 +968,12 @@ void Views::ViewSettings::_prepareView()
 
     //add our Users properties to our settings view
     _stkUsersProperties = new Wt::WStackedWidget();
+    _stkUsersProperties->setTransitionAnimation(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Fade, Wt::WAnimation::TimingFunction::EaseInOut), true);
     _layCntUsersSettings->addWidget(_stkUsersProperties, 1);
 
     /*******************--UserTitles--********************/
     _layCntUserTitles = new Wt::WVBoxLayout();
-    _layCntUserTitles->setContentsMargins(0,0,0,0);
+    _layCntUserTitles->setContentsMargins(14,0,0,0);
     _layCntUserTitles->setSpacing(0);
 
     _cntUserTitles = new Wt::WContainerWidget();
@@ -1023,11 +1021,12 @@ void Views::ViewSettings::_prepareView()
 
     //add our Global properties to our settings view
     _stkGlobalProperties = new Wt::WStackedWidget();
+    _stkGlobalProperties->setTransitionAnimation(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Fade, Wt::WAnimation::TimingFunction::EaseInOut), true);
     _layCntGlobalSettings->addWidget(_stkGlobalProperties, 1);
 
     /*******************--Tags--********************/
     _layCntTags = new Wt::WVBoxLayout();
-    _layCntTags->setContentsMargins(0,0,0,0);
+    _layCntTags->setContentsMargins(14,0,0,0);
     _layCntTags->setSpacing(0);
 
     _cntTags = new Wt::WContainerWidget();

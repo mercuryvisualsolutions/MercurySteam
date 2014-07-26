@@ -40,7 +40,7 @@ void Views::DlgFilesManager::_btnCreateClicked()
         delete dlg;
     }));
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::DlgFilesManager::_btnCheckInClicked()
@@ -82,7 +82,7 @@ void Views::DlgFilesManager::_btnCheckInClicked()
         delete dlg;
     }));
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::DlgFilesManager::_btnCheckOutClicked()
@@ -123,7 +123,7 @@ void Views::DlgFilesManager::_btnCheckOutClicked()
         delete dlg;
     }));
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::DlgFilesManager::_btnRefreshClicked()
@@ -161,7 +161,7 @@ void Views::DlgFilesManager::_btnCloseClicked()
             delete dlg;//delete the messagebox dialog
         }));
 
-        dlg->show();
+        dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
     }
     else
         this->accept();
@@ -420,7 +420,6 @@ void Views::DlgFilesManager::_prepareView()
     _layCntTbMain->setSpacing(0);
 
     _cntTbMain = new Wt::WContainerWidget();
-    _cntTbMain->setStyleClass("toolbar");
     _cntTbMain->setLayout(_layCntTbMain);
 
     _layCntTbMain->addWidget(_tbMain);

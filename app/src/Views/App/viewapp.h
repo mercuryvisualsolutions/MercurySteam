@@ -96,6 +96,7 @@ class ViewApp : public Wt::WContainerWidget
         ViewLog *_viwLog;//Log View
 
         /*******************--Properties View--********************/
+        Wt::WContainerWidget *_cntPropertiesEmpty;
 
         /*******************--Footer--********************/
         Wt::WText *_txtFooter;//footer text

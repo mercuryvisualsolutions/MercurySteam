@@ -66,7 +66,6 @@ void Views::ViewReports::_prepareView()
     _layReportsProjects->setSpacing(0);
 
     _cntReportsProjects = new Wt::WContainerWidget();
-    _cntReportsProjects->setStyleClass("toolbar");
     _cntReportsProjects->setLayout(_layReportsProjects);
 
     //add our Projects view to the Reports view
@@ -79,7 +78,6 @@ void Views::ViewReports::_prepareView()
     _layReportsUsers->setSpacing(0);
 
     _cntReportsUsers = new Wt::WContainerWidget();
-    _cntReportsUsers->setStyleClass("toolbar");
     _cntReportsUsers->setLayout(_layReportsUsers);
 
     //add our Projects view to the Reports view

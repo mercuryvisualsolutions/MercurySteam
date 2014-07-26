@@ -40,15 +40,31 @@ Wt::WApplication *createApplication(const Wt::WEnvironment &env)
     }
 
     //theme
-    const std::string *theme = env.getParameter("theme");
-    if (theme)
-        app->setTheme(new Wt::WCssTheme(*theme));
+    const std::string *themePtr = env.getParameter("theme");
+    std::string theme;
+    if (!themePtr)
+        theme = "bootstrap2";
     else
+        theme = *themePtr;
+
+    if(theme == "bootstrap3")
     {
-        Wt::WBootstrapTheme* theme = new Wt::WBootstrapTheme(app);
-        theme->setVersion(Wt::WBootstrapTheme::Version2);
-        app->setTheme(theme);
-    }
+        Wt::WBootstrapTheme *bootstrapTheme = new Wt::WBootstrapTheme(app);
+        bootstrapTheme->setVersion(Wt::WBootstrapTheme::Version3);
+        bootstrapTheme->setResponsive(true);
+        app->setTheme(bootstrapTheme);
+
+        // load the default bootstrap3 (sub-)theme
+        app->useStyleSheet("resources/themes/bootstrap/3/bootstrap-theme.min.css");
+      }
+    else if (theme == "bootstrap2")
+    {
+        Wt::WBootstrapTheme *bootstrapTheme = new Wt::WBootstrapTheme(app);
+        bootstrapTheme->setResponsive(true);
+        app->setTheme(bootstrapTheme);
+      }
+    else
+        app->setTheme(new Wt::WCssTheme(theme));
 
     //main layout
     Wt::WVBoxLayout *layMain = new Wt::WVBoxLayout(app->root());
@@ -69,7 +85,9 @@ Wt::WApplication *createApplication(const Wt::WEnvironment &env)
     //stylesheet
     app->useStyleSheet("style/focusStyle.css");
 
-    app->root()->setStyleClass("toolbar");
+    //js required files
+    app->require("resources/themes/bootstrap/js/bootstrap.js");
+    app->require("resources/themes/bootstrap/js/bootstrap.min.js");
 
     //handle internalPathChange
     //app->setInternalPath("/auth", true);

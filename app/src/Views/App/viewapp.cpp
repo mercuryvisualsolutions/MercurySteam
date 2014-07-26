@@ -10,6 +10,7 @@
 
 #include <Wt/WMessageBox>
 #include <Wt/WApplication>
+#include <Wt/WImage>
 
 Views::ViewApp::ViewApp()
 : WContainerWidget()
@@ -30,64 +31,42 @@ void Views::ViewApp::showAuthView()
 
 void Views::ViewApp::showProjectsView()
 {
-    //_mnuSideMain->select(_mnuSideMainProjectsItem);
-    if(_stkMainView->currentWidget() != _viwProjects)
-    {
-        _stkMainView->setCurrentWidget(_viwProjects);
-        _viwProjects->showPropertiesView();
-        _viwProjects->updateView();
-    }
+    _propertiesPanel->showView(_viwProjects->id());
+    _stkMainView->setCurrentWidget(_viwProjects);
+    _viwProjects->updateView();
 }
 
 void Views::ViewApp::showUsersView()
 {
-    //_mnuSideMain->select(_mnuSideMainUsersAndGroupsItem);
-    if(_stkMainView->currentWidget() != _viwUsers)
-    {
-        _stkMainView->setCurrentWidget(_viwUsers);
-        _viwUsers->showPropertiesView();
-        _viwUsers->updateView();
-    }
+    _propertiesPanel->showView(_viwUsers->id());
+    _stkMainView->setCurrentWidget(_viwUsers);
+    _viwUsers->updateView();
 }
 
 void Views::ViewApp::showReportsView(const std::string &subView)
 {
-    if(_stkMainView->currentWidget() != _viwReports)
-    {
-        //_mnuSideMain->select(_mnuSideMainReportsItem);
-        _stkMainView->setCurrentWidget(_viwReports);
-    }
+    _propertiesPanel->showView(_viwReports->id());
+    _stkMainView->setCurrentWidget(_viwReports);
 }
 
 void Views::ViewApp::showSearchView(const std::string &subView)
 {
-    if(_stkMainView->currentWidget() != _viwSearch)
-    {
-        //_mnuSideMain->select(_mnuSideMainSearchItem);
-        _stkMainView->setCurrentWidget(_viwSearch);
-    }
+    _propertiesPanel->showView(_viwSearch->id());
+    _stkMainView->setCurrentWidget(_viwSearch);
 }
 
 void Views::ViewApp::showMyDashboardView()
 {
-    if(_stkMainView->currentWidget() != _viwMyDashboard)
-    {
-        //_mnuSideMain->select(_mnuSideMainMyDashboardItem);
-        _stkMainView->setCurrentWidget(_viwMyDashboard);
-        _viwMyDashboard->showPropertiesView();
-        _viwMyDashboard->updateView();
-    }
+    _propertiesPanel->showView(_viwMyDashboard->id());
+    _stkMainView->setCurrentWidget(_viwMyDashboard);
+    _viwMyDashboard->updateView();
 }
 
 void Views::ViewApp::showSettingsView()
 {
-    if(_stkMainView->currentWidget() != _viwSettings)
-    {
-        //_mnuSideMain->select(_mnuSideMainSettingsItem);
-        _stkMainView->setCurrentWidget(_viwSettings);
-        _viwSettings->showPropertiesView();
-        _viwSettings->updateView();
-    }
+    _propertiesPanel->showView(_viwSettings->id());
+    _stkMainView->setCurrentWidget(_viwSettings);
+    _viwSettings->updateView();
 }
 
 void Views::ViewApp::_mnuMainLeftHelpAboutTriggered()
@@ -97,35 +76,35 @@ void Views::ViewApp::_mnuMainLeftHelpAboutTriggered()
     {
         delete msg;
     }));
-    msg->show();
+    msg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewApp::_mnuMainLeftViewShowMenuPanelTriggered()
 {
     if(_mnuMainLeftViewShowMenuPanel->isChecked())
-        _cntLeftMenu->show();
+        _cntLeftMenu->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::SlideInFromLeft, Wt::WAnimation::TimingFunction::EaseInOut));
     else
-        _cntLeftMenu->hide();
+        _cntLeftMenu->animateHide(Wt::WAnimation(Wt::WAnimation::AnimationEffect::SlideInFromLeft, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewApp::_mnuMainLeftViewShowPropertiesPanelTriggered()
 {
     if(_mnuMainLeftViewShowPropertiesPanel->isChecked())
     {
-        _propertiesPanel->show();
+        _propertiesPanel->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::SlideInFromRight, Wt::WAnimation::TimingFunction::EaseInOut));
     }
     else
     {
-        _propertiesPanel->hide();
+        _propertiesPanel->animateHide(Wt::WAnimation(Wt::WAnimation::AnimationEffect::SlideInFromRight, Wt::WAnimation::TimingFunction::EaseInOut));
     }
 }
 
 void Views::ViewApp::_mnuMainLeftViewShowLogPanelTriggered()
 {
     if(_mnuMainLeftViewShowLogPanel->isChecked())
-        _viwLog->show();
+        _viwLog->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::SlideInFromBottom, Wt::WAnimation::TimingFunction::EaseInOut));
     else
-        _viwLog->hide();
+        _viwLog->animateHide(Wt::WAnimation(Wt::WAnimation::AnimationEffect::SlideInFromBottom, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewApp::_mnuMainRightCurrentUserSignOutTriggered()
@@ -243,6 +222,7 @@ void Views::ViewApp::_prepareView()
     _mnuMainLeftHelpItem->setMenu(_mnuMainLeftHelpSub);//add mnuMainHelpSub to mnuMainHelpItem
 
     _mnuMainLeftHelpAbout= new Wt::WMenuItem("About");
+    _mnuMainLeftHelpAbout->setIcon("icons/About.png");
     _mnuMainLeftHelpAbout->triggered().connect(this, &Views::ViewApp::_mnuMainLeftHelpAboutTriggered);
 
     _mnuMainLeftHelpSub->addItem(_mnuMainLeftHelpAbout);//add "About" item to mnuMainHelpSub
@@ -258,6 +238,7 @@ void Views::ViewApp::_prepareView()
     _mnuMainRightCurrentUserItem->setMenu(_mnuMainRightCurrentUserSub);//add mnuMainCurrentUserSub to mnuMainCurrentUserItem
 
     _mnuMainRightCurrentUserSignOut= new Wt::WMenuItem("Sign Out");
+    _mnuMainRightCurrentUserSignOut->setIcon("icons/SignOut.png");
     _mnuMainRightCurrentUserSignOut->triggered().connect(this, &Views::ViewApp::_mnuMainRightCurrentUserSignOutTriggered);
 
     _mnuMainRightCurrentUserSub->addItem(_mnuMainRightCurrentUserSignOut);//add "Aign out" item to mnuMainCurrentUserSub
@@ -276,21 +257,26 @@ void Views::ViewApp::_prepareView()
     //requires "view" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("View"))
     {
-        _mnuSideMain->addSectionHeader("Management");
+        //_mnuSideMain->addSectionHeader("Management");
+
+        Wt::WContainerWidget *cntProjectMnuItem = new Wt::WContainerWidget();
+        cntProjectMnuItem->setLayout(new Wt::WHBoxLayout());
 
         _mnuSideMainProjectsItem = new Wt::WMenuItem("Projects");//projects menu item
+        _mnuSideMainProjectsItem->setStyleClass("side-menu-item");
         _mnuSideMainProjectsItem->triggered().connect(this, &Views::ViewApp::_mnuSideMainProjectsItemTriggered);
         _mnuSideMain->addItem(_mnuSideMainProjectsItem);
 
-        _mnuSideMain->addSeparator();
+        //_mnuSideMain->addSeparator();
 
         //_mnuSideMain->addSectionHeader("Security");
 
         _mnuSideMainUsersAndGroupsItem = new Wt::WMenuItem("Users And Groups");//Users menu item
+        _mnuSideMainUsersAndGroupsItem->setStyleClass("side-menu-item");
         _mnuSideMainUsersAndGroupsItem->triggered().connect(this, &Views::ViewApp::_mnuSideMainUsersAndGroupsItemTriggered);
         _mnuSideMain->addItem(_mnuSideMainUsersAndGroupsItem);
 
-        _mnuSideMain->addSeparator();
+        //_mnuSideMain->addSeparator();
 
         //_mnuSideMain->addSectionHeader("Reports");
 
@@ -304,16 +290,18 @@ void Views::ViewApp::_prepareView()
         //_mnuSideMainSearchItem->triggered().connect(this, &Views::ViewApp::_mnuSideMainSearchItemTriggered);
         //_mnuSideMain->addItem(_mnuSideMainSearchItem);
 
-        _mnuSideMain->addSectionHeader("Settings");
+        //_mnuSideMain->addSectionHeader("Settings");
 
         _mnuSideMainSettingsItem = new Wt::WMenuItem("Settings");//settings menu item
+        _mnuSideMainSettingsItem->setStyleClass("side-menu-item");
         _mnuSideMainSettingsItem->triggered().connect(this, &Views::ViewApp::_mnuSideMainSettingsItemTriggered);
         _mnuSideMain->addItem(_mnuSideMainSettingsItem);
     }
 
-    _mnuSideMain->addSectionHeader("My Steam");
+    //_mnuSideMain->addSectionHeader("My Steam");
 
     _mnuSideMainMyDashboardItem = new Wt::WMenuItem("My Dashboard");//my tasks menu item
+    _mnuSideMainMyDashboardItem->setStyleClass("side-menu-item");
     _mnuSideMainMyDashboardItem->triggered().connect(this, &Views::ViewApp::_mnuSideMainMyDashboardItemTriggered);
     _mnuSideMain->addItem(_mnuSideMainMyDashboardItem);
 
@@ -323,12 +311,17 @@ void Views::ViewApp::_prepareView()
     //Prepare child view
     _stkMainView = new Wt::WStackedWidget();
 
+    _stkMainView->setTransitionAnimation(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Fade, Wt::WAnimation::TimingFunction::EaseInOut), true);
+
     _prepareChildViews(_stkMainView);
 
     _layMainH->addWidget(_stkMainView, 1);
 
     /**************Properties View********************/
     _layMainH->addWidget(_propertiesPanel);
+
+    _cntPropertiesEmpty = new Wt::WContainerWidget();
+    _propertiesPanel->addPropertiesView("NoProperties", _cntPropertiesEmpty);
 
     /**************Log Panel********************/
     _viwLog = new ViewLog();

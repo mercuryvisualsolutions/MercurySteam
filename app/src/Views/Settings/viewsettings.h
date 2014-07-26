@@ -44,7 +44,6 @@ namespace Views
         void updateWorkStatusView();
         void updateUserTitlesView();
         void updateTagsView();
-        void showPropertiesView();
 
         //Signal
         Wt::Signal<> &onTabGeneralSelected();

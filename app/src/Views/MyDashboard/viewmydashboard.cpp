@@ -173,20 +173,20 @@ void Views::ViewMyDashboard::_prepareView()
 {
     /*******************--MyTasks--********************/
     _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
+    _layMain->setContentsMargins(14,14,14,14);
     _layMain->setSpacing(0);
 
     setLayout(_layMain);
 
     _cntTxtMyDashboardPanelTitle = new Wt::WContainerWidget();
-    _cntTxtMyDashboardPanelTitle->setStyleClass("toolbar");
+    _cntTxtMyDashboardPanelTitle->setStyleClass("title-bar");
     _cntTxtMyDashboardPanelTitle->setContentAlignment(Wt::AlignCenter);
     _cntTxtMyDashboardPanelTitle->setMinimumSize(Wt::WLength::Auto, 25);
 
     _layMain->addWidget(_cntTxtMyDashboardPanelTitle);
 
     _txtMyDashboardPanelTitle = new Wt::WText("<b><i>My Dashboard</i></b>");
-    _txtMyDashboardPanelTitle->setStyleClass("soft-text");
+    _txtMyDashboardPanelTitle->setStyleClass("title-bar-text");
 
     _cntTxtMyDashboardPanelTitle->addWidget(_txtMyDashboardPanelTitle);
 
@@ -208,6 +208,7 @@ void Views::ViewMyDashboard::_prepareView()
     _mnuNavBarMain->addItem(_mnuNavBarMainMyTasksItem);
 
     _stkMain = new Wt::WStackedWidget();
+    _stkMain->setTransitionAnimation(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Fade, Wt::WAnimation::TimingFunction::EaseInOut), true);
     _layMain->addWidget(_stkMain, 1);
 
     _createTasksTableView();

@@ -94,7 +94,6 @@ void Ms::Widgets::MLogWidget::_prepareView()
 
     _tbMain = new Wt::WToolBar();
     _tbMain->setMaximumSize(Wt::WLength::Auto, 30);
-    _tbMain->setStyleClass("toolbar");
     _layMain->addWidget(_tbMain);
 
     _btnClearLog = Ms::Widgets::MWidgetFactory::createButton("", "icons/Clear.png", "Clear log");

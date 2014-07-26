@@ -549,11 +549,6 @@ void Views::ViewProjects::updatePropertiesView()
     }
 }
 
-void Views::ViewProjects::showPropertiesView()
-{
-    _propertiesPanel->showView("Projects");
-}
-
 bool Views::ViewProjects::isProjectsViewShown()
 {
     return _mnuMain->currentItem() == _mnuMainProjectsItem;
@@ -667,7 +662,7 @@ void Views::ViewProjects::_addDataToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboV
        delete dlg;
     }));
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 template<typename T>
@@ -695,7 +690,7 @@ void Views::ViewProjects::_addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboV
        delete dlg;
     }));
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 template<typename T>
@@ -819,7 +814,7 @@ void Views::ViewProjects::_btnProjectsCreateClicked()
         delete dlg;
     }));
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::ViewProjects::_btnProjectsRemoveClicked()
@@ -848,7 +843,7 @@ void Views::ViewProjects::_btnProjectsFilesClicked()
     if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
         dlg->setCheckOutDisabled(true);
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::ViewProjects::_btnProjectsImportThumbnailsClicked()
@@ -914,7 +909,7 @@ void Views::ViewProjects::_btnProjectsImportThumbnailsClicked()
         delete dlg;
     }));
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::ViewProjects::_createProjectsTableView()
@@ -1017,7 +1012,7 @@ void Views::ViewProjects::_btnSequencesCreateClicked()
             delete dlg;
         }));
 
-        dlg->show();
+        dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
     }
 }
 
@@ -1047,7 +1042,7 @@ void Views::ViewProjects::_btnSequencesFilesClicked()
     if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
         dlg->setCheckOutDisabled(true);
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::ViewProjects::_btnSequencesImportThumbnailsClicked()
@@ -1117,7 +1112,7 @@ void Views::ViewProjects::_btnSequencesImportThumbnailsClicked()
         delete dlg;
     }));
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::ViewProjects::_createSequencesTableView()
@@ -1220,7 +1215,7 @@ void Views::ViewProjects::_btnShotsCreateClicked()
             delete dlg;
         }));
 
-        dlg->show();
+        dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
     }
 }
 
@@ -1250,7 +1245,7 @@ void Views::ViewProjects::_btnShotsFilesClicked()
     if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
         dlg->setCheckOutDisabled(true);
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::ViewProjects::_btnShotsImportThumbnailsClicked()
@@ -1321,7 +1316,7 @@ void Views::ViewProjects::_btnShotsImportThumbnailsClicked()
         delete dlg;
     }));
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::ViewProjects::_createShotsTableView()
@@ -1424,7 +1419,7 @@ void Views::ViewProjects::_btnAssetsCreateClicked()
             delete dlg;
         }));
 
-        dlg->show();
+        dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
     }
 }
 
@@ -1454,7 +1449,7 @@ void Views::ViewProjects::_btnAssetsFilesClicked()
     if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
         dlg->setCheckOutDisabled(true);
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::ViewProjects::_btnAssetsImportThumbnailsClicked()
@@ -1524,7 +1519,7 @@ void Views::ViewProjects::_btnAssetsImportThumbnailsClicked()
         delete dlg;
     }));
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::ViewProjects::_createAssetsTableView()
@@ -1645,7 +1640,7 @@ void Views::ViewProjects::_btnTasksCreateClicked()
             delete dlg;
         }));
 
-        dlg->show();
+        dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
     }
 }
 
@@ -1689,7 +1684,7 @@ void Views::ViewProjects::_btnTasksFilesClicked()
     if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
         dlg->setCheckOutDisabled(true);
 
-    dlg->show();
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
 void Views::ViewProjects::_createTasksTableView()
@@ -1883,7 +1878,7 @@ void Views::ViewProjects::_createPropertiesView()
 {
     _cntPropertiesMain = new Wt::WContainerWidget();
 
-    _propertiesPanel->addPropertiesView("Projects", _cntPropertiesMain);
+    _propertiesPanel->addPropertiesView(this->id(), _cntPropertiesMain);
 
     _layCntPropertiesMain = new Wt::WVBoxLayout();
     _layCntPropertiesMain->setContentsMargins(0,0,0,0);
@@ -1912,6 +1907,7 @@ void Views::ViewProjects::_createPropertiesView()
     _mnuPropertiesNavBar->addItem(_mnuPropertiesNavBarNotesItem);
 
     _stkProperties = new Wt::WStackedWidget();
+    _stkProperties->setTransitionAnimation(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Fade, Wt::WAnimation::TimingFunction::EaseInOut), true);
 
     _layCntPropertiesMain->addWidget(_stkProperties, 1);
 
@@ -1940,14 +1936,14 @@ void Views::ViewProjects::_createPropertiesView()
     _cntPropertiesAssignedTags->setLayout(_layCntPropertiesAssignedTags);
 
     _cntTxtPropertiesAssignedTagsLabel = new Wt::WContainerWidget();
-    _cntTxtPropertiesAssignedTagsLabel->setStyleClass("toolbar");
+    _cntTxtPropertiesAssignedTagsLabel->setStyleClass("title-bar");
     _cntTxtPropertiesAssignedTagsLabel->setContentAlignment(Wt::AlignCenter);
     _cntTxtPropertiesAssignedTagsLabel->setMinimumSize(Wt::WLength::Auto, 25);
 
     _layCntPropertiesAssignedTags->addWidget(_cntTxtPropertiesAssignedTagsLabel);
 
     _txtPropertiesAssignedTagsLabel = new Wt::WText("<b><i>Assigned Tags</i></b>");
-    _txtPropertiesAssignedTagsLabel->setStyleClass("soft-text");
+    _txtPropertiesAssignedTagsLabel->setStyleClass("title-bar-text");
     _cntTxtPropertiesAssignedTagsLabel->addWidget(_txtPropertiesAssignedTagsLabel);
 
     _createPropertiesAssignedTagsTableView();
@@ -1965,14 +1961,14 @@ void Views::ViewProjects::_createPropertiesView()
     _cntPropertiesAvailableTags->setLayout(_layCntPropertiesAvailableTags);
 
     _cntTxtPropertiesAvailableTagsLabel = new Wt::WContainerWidget();
-    _cntTxtPropertiesAvailableTagsLabel->setStyleClass("toolbar");
+    _cntTxtPropertiesAvailableTagsLabel->setStyleClass("title-bar");
     _cntTxtPropertiesAvailableTagsLabel->setContentAlignment(Wt::AlignCenter);
     _cntTxtPropertiesAvailableTagsLabel->setMinimumSize(Wt::WLength::Auto, 25);
 
     _layCntPropertiesAvailableTags->addWidget(_cntTxtPropertiesAvailableTagsLabel);
 
     _txtPropertiesAvailableTagsLabel = new Wt::WText("<b><i>Available Tags</i></b>");
-    _txtPropertiesAvailableTagsLabel->setStyleClass("soft-text");
+    _txtPropertiesAvailableTagsLabel->setStyleClass("title-bar-text");
     _cntTxtPropertiesAvailableTagsLabel->addWidget(_txtPropertiesAvailableTagsLabel);
 
     //Tags Table View
@@ -2434,20 +2430,20 @@ void Views::ViewProjects::_prepareView()
 {
     /*******************--Project--********************/
     _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
+    _layMain->setContentsMargins(14,14,14,14);
     _layMain->setSpacing(0);
 
     setLayout(_layMain);
 
     _cntTxtProjectsPanelTitle = new Wt::WContainerWidget();
-    _cntTxtProjectsPanelTitle->setStyleClass("toolbar");
+    _cntTxtProjectsPanelTitle->setStyleClass("title-bar");
     _cntTxtProjectsPanelTitle->setContentAlignment(Wt::AlignCenter);
     _cntTxtProjectsPanelTitle->setMinimumSize(Wt::WLength::Auto, 25);
 
     _layMain->addWidget(_cntTxtProjectsPanelTitle);
 
     _txtProjectsPanelTitle = new Wt::WText("<b><i>Projects</i></b>");
-    _txtProjectsPanelTitle->setStyleClass("soft-text");
+    _txtProjectsPanelTitle->setStyleClass("title-bar-text");
 
     _cntTxtProjectsPanelTitle->addWidget(_txtProjectsPanelTitle);
 
@@ -2483,6 +2479,7 @@ void Views::ViewProjects::_prepareView()
     _mnuMain->addItem(_mnuMainTasksItem);
 
     _stkMain = new Wt::WStackedWidget();
+    _stkMain->setTransitionAnimation(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Fade, Wt::WAnimation::TimingFunction::EaseInOut), true);
 
     _layMain->addWidget(_stkMain, 1);
 
@@ -2507,7 +2504,6 @@ void Views::ViewProjects::_prepareView()
     _laySequences->setSpacing(0);
 
     _cntSequences = new Wt::WContainerWidget();
-    _cntSequences->setStyleClass("toolbar");
     _cntSequences->setLayout(_laySequences);
 
     //add our sequences view to the project view
