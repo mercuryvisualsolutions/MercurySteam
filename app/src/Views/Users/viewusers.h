@@ -165,10 +165,14 @@ namespace Views
         void _btnRemovePropertiesDataClicked();
         void _btnAddPropertiesTagClicked();
         void _btnRemovePropertiesTagClicked();
+        void _btnFilterPropertiesTagClicked();
+        void _btnClearFilterPropertiesTagClicked();
         void _btnAddPropertiesNoteClicked();
         void _btnRemovePropertiesNoteClicked();
         void _btnAddPropertiesGroupsPrivilegesClicked();
         void _btnRemovePropertiesGroupsPrivilegesClicked();
+        void _btnFilterPropertiesGroupsPrivilegesClicked();
+        void _btnClearFilterPropertiesGroupsPrivilegesClicked();
 
         //functions
         void _createPropertiesView();

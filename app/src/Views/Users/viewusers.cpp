@@ -671,6 +671,47 @@ void Views::ViewUsers::_btnRemovePropertiesTagClicked()
     }
 }
 
+void Views::ViewUsers::_btnFilterPropertiesTagClicked()
+{
+    std::string strFilterQuery = "";
+
+    if(_qtvPropertiesTags->table()->selectedIndexes().size() == 0)
+        return;
+
+    std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Database::Tag>(_qtvPropertiesTags->selectedItems());
+
+    if(_stkMain->currentWidget() == _qtvUsers)
+    {
+        strFilterQuery = "Name IN (SELECT ut.user_Name FROM rel_user_tags ut WHERE tag_Tag_Name IN (" + idValues.at(0) + ") AND "
+                "tag_Tag_Content IN (" + idValues.at(1) + "))";
+
+        _qtvUsers->setCustomFilterString(strFilterQuery);
+        _qtvUsers->setCustomFilterActive(true);
+    }
+    else if(_stkMain->currentWidget() == _qtvGroups)
+    {
+        strFilterQuery = "Name IN (SELECT gt.group_Name FROM rel_group_tags gt WHERE tag_Tag_Name IN (" + idValues.at(0) + ") AND "
+                "tag_Tag_Content IN (" + idValues.at(1) + "))";
+
+        _qtvGroups->setCustomFilterString(strFilterQuery);
+        _qtvGroups->setCustomFilterActive(true);
+    }
+}
+
+void Views::ViewUsers::_btnClearFilterPropertiesTagClicked()
+{
+    if(_stkMain->currentWidget() == _qtvUsers)
+    {
+        _qtvUsers->setCustomFilterString("");
+        _qtvUsers->setCustomFilterActive(true);
+    }
+    else if(_stkMain->currentWidget() == _qtvGroups)
+    {
+        _qtvGroups->setCustomFilterString("");
+        _qtvGroups->setCustomFilterActive(true);
+    }
+}
+
 void Views::ViewUsers::_btnAddPropertiesNoteClicked()
 {
     if(_stkMain->currentWidget() == _qtvUsers)
@@ -720,6 +761,27 @@ void Views::ViewUsers::_btnRemovePropertiesGroupsPrivilegesClicked()
 
         _updatePropertiesGroupsAssignedPrivilegesView();
     }
+}
+
+void Views::ViewUsers::_btnFilterPropertiesGroupsPrivilegesClicked()
+{
+    std::string strFilterQuery = "";
+
+    if(_qtvPropertiesGroupsPrivileges->table()->selectedIndexes().size() == 0)
+        return;
+
+    std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Users::Privilege>(_qtvPropertiesGroupsPrivileges->selectedItems());
+
+    strFilterQuery = "Name IN (SELECT gp.group_Name FROM rel_group_privileges gp WHERE privilege_Name IN (" + idValues.at(0) + "))";
+
+    _qtvGroups->setCustomFilterString(strFilterQuery);
+    _qtvGroups->setCustomFilterActive(true);
+}
+
+void Views::ViewUsers::_btnClearFilterPropertiesGroupsPrivilegesClicked()
+{
+    _qtvGroups->setCustomFilterString("");
+    _qtvGroups->setCustomFilterActive(true);
 }
 
 void Views::ViewUsers::_createPropertiesView()
@@ -782,7 +844,7 @@ void Views::ViewUsers::_createPropertiesView()
     _layCntPropertiesTags->addWidget(_cntPropertiesAssignedTags);
 
     _layCntPropertiesAssignedTags = new Wt::WVBoxLayout();
-    _layCntPropertiesAssignedTags->setContentsMargins(0,0,0,0);
+    _layCntPropertiesAssignedTags->setContentsMargins(0,14,0,0);
     _layCntPropertiesAssignedTags->setSpacing(0);
 
     _cntPropertiesAssignedTags->setLayout(_layCntPropertiesAssignedTags);
@@ -807,7 +869,7 @@ void Views::ViewUsers::_createPropertiesView()
     _layCntPropertiesTags->addWidget(_cntPropertiesAvailableTags);
 
     _layCntPropertiesAvailableTags = new Wt::WVBoxLayout();
-    _layCntPropertiesAvailableTags->setContentsMargins(0,0,0,0);
+    _layCntPropertiesAvailableTags->setContentsMargins(0,14,0,0);
     _layCntPropertiesAvailableTags->setSpacing(0);
 
     _cntPropertiesAvailableTags->setLayout(_layCntPropertiesAvailableTags);
@@ -928,6 +990,12 @@ void Views::ViewUsers::_createPropertiesTagsTableView()
         btn->clicked().connect(this, &Views::ViewUsers::_btnAddPropertiesTagClicked);
     }
 
+    Wt::WPushButton *btnFilter = _qtvPropertiesTags->createToolButton("", "icons/Filter.png", "Filter active view by selected tags");
+    btnFilter->clicked().connect(this, &Views::ViewUsers::_btnFilterPropertiesTagClicked);
+
+    Wt::WPushButton *btnClearFilter = _qtvPropertiesTags->createToolButton("", "icons/ClearFilter.png", "Clear tags filter on the active view");
+    btnClearFilter->clicked().connect(this, &Views::ViewUsers::_btnClearFilterPropertiesTagClicked);
+
     _updatePropertiesTagsView();
 }
 
@@ -979,6 +1047,12 @@ void Views::ViewUsers::_createPropertiesGroupsPrivilegesTableView()
         Wt::WPushButton *btn = _qtvPropertiesGroupsPrivileges->createToolButton("", "icons/AddTo.png", "Add selected privileges to selected groups");
         btn->clicked().connect(this, &Views::ViewUsers::_btnAddPropertiesGroupsPrivilegesClicked);
     }
+
+    Wt::WPushButton *btnFilter = _qtvPropertiesGroupsPrivileges->createToolButton("", "icons/Filter.png", "Filter groups view by selected privileges");
+    btnFilter->clicked().connect(this, &Views::ViewUsers::_btnFilterPropertiesGroupsPrivilegesClicked);
+
+    Wt::WPushButton *btnClearFilter = _qtvPropertiesGroupsPrivileges->createToolButton("", "icons/ClearFilter.png", "Clear privileges filter on the groups view");
+    btnClearFilter->clicked().connect(this, &Views::ViewUsers::_btnClearFilterPropertiesGroupsPrivilegesClicked);
 
     _updatePropertiesGroupsPrivilegesView();
 }

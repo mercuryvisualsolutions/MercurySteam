@@ -1179,36 +1179,37 @@ namespace Ms
             layMain->setSpacing(0);
 
             setLayout(layMain);
+            setStyleClass("container-box");
 
             Wt::WContainerWidget *cntMainView = new Wt::WContainerWidget();
 
             layMain->addWidget(cntMainView);
 
             Wt::WVBoxLayout *layCntMainView = new Wt::WVBoxLayout();
-            layCntMainView->setContentsMargins(0,0,0,0);
+            layCntMainView->setContentsMargins(8,0,8,0);
             layCntMainView->setSpacing(0);
 
             cntMainView->setLayout(layCntMainView);
 
             //Main Toolbar
-            Wt::WHBoxLayout *layTbMain = new Wt::WHBoxLayout();
-            layTbMain->setContentsMargins(0,14,0,14);
-            layTbMain->setSpacing(0);
+            Wt::WHBoxLayout *layCntTbGlobal = new Wt::WHBoxLayout();
+            layCntTbGlobal->setContentsMargins(0,10,0,10);
+            layCntTbGlobal->setSpacing(4);
 
-            Wt::WContainerWidget *cntTbMain = new Wt::WContainerWidget();
-            cntTbMain->setLayout(layTbMain);
+            Wt::WContainerWidget *cntTbGlobal = new Wt::WContainerWidget();
+            cntTbGlobal->setLayout(layCntTbGlobal);
 
-            _tbMain = new Wt::WToolBar();
-            layTbMain->addWidget(_tbMain, 1);
+            layCntMainView->addWidget(cntTbGlobal);
 
-            layCntMainView->addWidget(cntTbMain);
+            _tbGlobal = new Wt::WToolBar();
+            layCntTbGlobal->addWidget(_tbGlobal, 1);
 
             _btnMnuTools = new Wt::WPushButton("");
             _btnMnuTools->setToolTip("Tools");
             Wt::WLink lnkBtnIcon("icons/Tools.png");
             _btnMnuTools->setIcon(lnkBtnIcon);
 
-            layTbMain->addWidget(_btnMnuTools);
+            layCntTbGlobal->addWidget(_btnMnuTools);
 
             _popMnuTools = new Wt::WPopupMenu();
             _btnMnuTools->setMenu(_popMnuTools);
@@ -1250,27 +1251,40 @@ namespace Ms
             _cmbColumnFilter->changed().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_cmbColumnFilterChanged);
             _mdlCmbColumnFilter = new Wt::WStandardItemModel();
             _cmbColumnFilter->setModel(_mdlCmbColumnFilter);
-            layTbMain->addWidget(_cmbColumnFilter);
+            layCntTbGlobal->addWidget(_cmbColumnFilter);
 
             _lnFilter = new Wt::WLineEdit();
             _lnFilter->setEmptyText("Search");
             _lnFilter->keyWentUp().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_lnFilterKeyWentUp);
 
-            layTbMain-> addWidget(_lnFilter);
+            layCntTbGlobal-> addWidget(_lnFilter);
 
             //Main Table View
-            Wt::WVBoxLayout *layTblMain = new Wt::WVBoxLayout();
-            layTblMain->setContentsMargins(0,0,0,0);
-            layTblMain->setSpacing(0);
+            Wt::WVBoxLayout *layCntTblMain = new Wt::WVBoxLayout();
+            layCntTblMain->setContentsMargins(0,0,0,0);
+            layCntTblMain->setSpacing(0);
 
             Wt::WContainerWidget *cntTblMain = new Wt::WContainerWidget();
-            cntTblMain->setLayout(layTblMain);
+            cntTblMain->setLayout(layCntTblMain);
 
             _createMainTable();
 
-            layTblMain->addWidget(_tblMain, 1);
+            layCntTblMain->addWidget(_tblMain, 1);
 
             layCntMainView->addWidget(cntTblMain, 1);
+
+            //Main toolbar
+            Wt::WHBoxLayout *layTbMain = new Wt::WHBoxLayout();
+            layTbMain->setContentsMargins(0,8,0,8);
+            layTbMain->setSpacing(0);
+
+            Wt::WContainerWidget *cntTbMain = new Wt::WContainerWidget();
+            cntTbMain->setLayout(layTbMain);
+
+            layCntMainView->addWidget(cntTbMain);
+
+            _tbMain = new Wt::WToolBar();
+            layTbMain->addWidget(_tbMain, 1);
 
             //advancedFilter
             _createAdvancedFilterView();

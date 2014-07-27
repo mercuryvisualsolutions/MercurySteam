@@ -220,6 +220,8 @@ namespace Views
         void _btnRemovePropertiesDataClicked();
         void _btnAddPropertiesTagClicked();
         void _btnRemovePropertiesTagClicked();
+        void _btnFilterPropertiesTagClicked();
+        void _btnClearFilterPropertiesTagClicked();
         void _btnAddPropertiesNoteClicked();
         void _btnRemovePropertiesNoteClicked();
 

@@ -122,4 +122,6 @@ HEADERS += \
     Log/logger.h \
     Log/logmanager.h \
     Views/Dialogs/dlgcreatedbodata.h \
-    Views/Dialogs/dlgcreatenote.h
+    Views/Dialogs/dlgcreatenote.h \
+    Widgets/Delegates/workstatusquerycomboboxdelegate.h \
+    Widgets/Delegates/workstatusquerycomboboxdelegate_impl.h

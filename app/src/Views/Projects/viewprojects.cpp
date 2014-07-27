@@ -10,6 +10,7 @@
 #include "../../Auth/authmanager.h"
 #include "../Dialogs/dlgcreatedbodata.h"
 #include "../Dialogs/dlgcreatenote.h"
+#include "../../Widgets/Delegates/workstatusquerycomboboxdelegate.h"
 
 #include <Ms/Widgets/MTableViewColumn.h>
 #include <Ms/Widgets/Delegates/MDelegates>
@@ -88,7 +89,7 @@ void Views::ViewProjects::updateProjectsView()
         _qtvProjects->addColumn(Ms::Widgets::MTableViewColumn("FPS", "FPS", flags, new Ms::Widgets::Delegates::MFloatFieldDelegate(editRank)));
         _qtvProjects->addColumn(Ms::Widgets::MTableViewColumn("Frame_Width", "Frame Width", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
         _qtvProjects->addColumn(Ms::Widgets::MTableViewColumn("Frame_Height", "Frame Height", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
-        _qtvProjects->addColumn(Ms::Widgets::MTableViewColumn("Current_Status", "Status", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectWorkStatus>(
+        _qtvProjects->addColumn(Ms::Widgets::MTableViewColumn("Current_Status", "Status", flags, new Widgets::Delegates::WorkStatusQueryComboBoxDelegate<Projects::ProjectWorkStatus>(
          Database::DatabaseManager::instance().session(),
          AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>() :
          Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true),
@@ -1840,6 +1841,94 @@ void Views::ViewProjects::_btnRemovePropertiesTagClicked()
     }
 }
 
+void Views::ViewProjects::_btnFilterPropertiesTagClicked()
+{
+    std::string strFilterQuery = "";
+
+    if(_qtvPropertiesTags->table()->selectedIndexes().size() == 0)
+        return;
+
+    std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Database::Tag>(_qtvPropertiesTags->selectedItems());
+
+    if(_stkMain->currentWidget() == _cntProjects)
+    {
+        strFilterQuery = "Project_Name IN (SELECT pt.project_Project_Name FROM rel_project_tags pt WHERE tag_Tag_Name IN (" + idValues.at(0) + ") AND "
+                "tag_Tag_Content IN (" + idValues.at(1) + "))";
+
+        _qtvProjects->setCustomFilterString(strFilterQuery);
+        _qtvProjects->setCustomFilterActive(true);
+    }
+    else if(_stkMain->currentWidget() == _cntSequences)
+    {
+        strFilterQuery = "Sequence_Name IN (SELECT st.project_sequence_Sequence_Name FROM rel_project_sequence_tags st WHERE tag_Tag_Name IN (" + idValues.at(0) + ") AND "
+                "tag_Tag_Content IN (" + idValues.at(1) + ")) AND "
+                "Sequence_Project_Project_Name IN (SELECT st.project_sequence_Sequence_Project_Project_Name FROM rel_project_sequence_tags st WHERE tag_Tag_Name IN (" + idValues.at(0) + ") AND "
+                                "tag_Tag_Content IN (" + idValues.at(1) + "))";
+
+        _qtvSequences->setCustomFilterString(strFilterQuery);
+        _qtvSequences->setCustomFilterActive(true);
+    }
+    else if(_stkMain->currentWidget() == _cntShots)
+    {
+        strFilterQuery = "Shot_Name IN (SELECT st.project_shot_Shot_Name FROM rel_project_shot_tags st WHERE tag_Tag_Name IN (" + idValues.at(0) + ") AND "
+                "tag_Tag_Content IN (" + idValues.at(1) + ")) AND "
+                "Shot_Sequence_Sequence_Name IN (SELECT st.project_shot_Shot_Sequence_Sequence_Name FROM rel_project_shot_tags st WHERE tag_Tag_Name IN (" + idValues.at(0) + ") AND "
+                                "tag_Tag_Content IN (" + idValues.at(1) + ")) AND "
+                "Shot_Sequence_Sequence_Project_Project_Name IN (SELECT st.project_shot_Shot_Sequence_Sequence_Project_Project_Name FROM rel_project_shot_tags st WHERE tag_Tag_Name IN (" + idValues.at(0) + ") AND "
+                                "tag_Tag_Content IN (" + idValues.at(1) + "))";
+
+        _qtvShots->setCustomFilterString(strFilterQuery);
+        _qtvShots->setCustomFilterActive(true);
+    }
+    else if(_stkMain->currentWidget() == _cntAssets)
+    {
+        strFilterQuery = "Asset_Name IN (SELECT at.project_asset_Asset_Name FROM rel_project_asset_tags at WHERE tag_Tag_Name IN (" + idValues.at(0) + ") AND "
+                "tag_Tag_Content IN (" + idValues.at(1) + ")) AND "
+                "Asset_Project_Project_Name IN (SELECT at.project_asset_Asset_Project_Project_Name FROM rel_project_asset_tags at WHERE tag_Tag_Name IN (" + idValues.at(0) + ") AND "
+                                "tag_Tag_Content IN (" + idValues.at(1) + "))";
+
+        _qtvAssets->setCustomFilterString(strFilterQuery);
+        _qtvAssets->setCustomFilterActive(true);
+    }
+    else if(_stkMain->currentWidget() == _cntTasks)
+    {
+        strFilterQuery = "id IN (SELECT tt.project_task_id FROM rel_project_task_tags tt WHERE tag_Tag_Name IN (" + idValues.at(0) + ") AND "
+                "tag_Tag_Content IN (" + idValues.at(1) + "))";
+
+        _qtvTasks->setCustomFilterString(strFilterQuery);
+        _qtvTasks->setCustomFilterActive(true);
+    }
+}
+
+void Views::ViewProjects::_btnClearFilterPropertiesTagClicked()
+{
+    if(_stkMain->currentWidget() == _cntProjects)
+    {
+        _qtvProjects->setCustomFilterString("");
+        _qtvProjects->setCustomFilterActive(true);
+    }
+    else if(_stkMain->currentWidget() == _cntSequences)
+    {
+        _qtvSequences->setCustomFilterString("");
+        _qtvSequences->setCustomFilterActive(true);
+    }
+    else if(_stkMain->currentWidget() == _cntShots)
+    {
+        _qtvShots->setCustomFilterString("");
+        _qtvShots->setCustomFilterActive(true);
+    }
+    else if(_stkMain->currentWidget() == _cntAssets)
+    {
+        _qtvAssets->setCustomFilterString("");
+        _qtvAssets->setCustomFilterActive(true);
+    }
+    else if(_stkMain->currentWidget() == _cntTasks)
+    {
+        _qtvTasks->setCustomFilterString("");
+        _qtvTasks->setCustomFilterActive(true);
+    }
+}
+
 void Views::ViewProjects::_btnAddPropertiesNoteClicked()
 {
     if(_stkMain->currentWidget() == _cntProjects)
@@ -2016,6 +2105,12 @@ void Views::ViewProjects::_createPropertiesTagsTableView()
         Wt::WPushButton *btn = _qtvPropertiesTags->createToolButton("", "icons/AddTo.png", "Add selected tags to selected items");
         btn->clicked().connect(this, &Views::ViewProjects::_btnAddPropertiesTagClicked);
     }
+
+    Wt::WPushButton *btnFilter = _qtvPropertiesTags->createToolButton("", "icons/Filter.png", "Filter active view by selected tags");
+    btnFilter->clicked().connect(this, &Views::ViewProjects::_btnFilterPropertiesTagClicked);
+
+    Wt::WPushButton *btnClearFilter = _qtvPropertiesTags->createToolButton("", "icons/ClearFilter.png", "Clear tags filter on the active view");
+    btnClearFilter->clicked().connect(this, &Views::ViewProjects::_btnClearFilterPropertiesTagClicked);
 
     _updatePropertiesTagsView();
 }

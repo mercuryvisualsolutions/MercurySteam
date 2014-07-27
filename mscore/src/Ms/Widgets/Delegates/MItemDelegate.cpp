@@ -25,11 +25,11 @@ Wt::WWidget *Ms::Widgets::Delegates::MItemDelegate::update(Wt::WWidget *widget, 
 {
     Wt::WWidget *wid = Wt::WItemDelegate::update(widget, index, flags);
 
-    boost::any data = index.data(Wt::UserRole);
+    boost::any rankData = index.data(Wt::UserRole);
 
-    if(!data.empty())
+    if(!rankData.empty())
     {
-        int rank = boost::any_cast<int>(data);
+        int rank = boost::any_cast<int>(rankData);
         if(rank > _editRank)//edit rank is not high engough ?
             wid->setDisabled(true);//prevent editing
     }

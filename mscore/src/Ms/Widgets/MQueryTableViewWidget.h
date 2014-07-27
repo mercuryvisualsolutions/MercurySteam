@@ -180,6 +180,7 @@ namespace Ms
             Ms::Dbo::MDboQueryModel<Wt::Dbo::ptr<T>> *_model;
             Wt::WSortFilterProxyModel *_proxyModel;
             Wt::WToolBar *_tbMain;
+            Wt::WToolBar *_tbGlobal;
             Wt::WComboBox *_cmbColumnFilter;
             Wt::WStandardItemModel *_mdlCmbColumnFilter;
             Wt::WLineEdit *_lnFilter;
