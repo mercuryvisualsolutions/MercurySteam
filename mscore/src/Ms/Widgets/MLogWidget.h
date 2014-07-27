@@ -39,6 +39,8 @@ namespace Ms
 	    Wt::WContainerWidget *_cntLogArea;
 	    Wt::WVBoxLayout *_layCntLogArea;
 	    Wt::WToolBar *_tbMain;
+        Wt::WContainerWidget *_cntTbMain;
+        Wt::WVBoxLayout *_layCntTbMain;
 	    Wt::WPushButton *_btnClearLog;
 
 	    unsigned int _maxLogMessages;

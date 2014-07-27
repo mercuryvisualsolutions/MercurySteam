@@ -1930,7 +1930,7 @@ void Views::ViewProjects::_createPropertiesView()
     _layCntPropertiesTags->addWidget(_cntPropertiesAssignedTags);
 
     _layCntPropertiesAssignedTags = new Wt::WVBoxLayout();
-    _layCntPropertiesAssignedTags->setContentsMargins(0,0,0,0);
+    _layCntPropertiesAssignedTags->setContentsMargins(0,14,0,0);
     _layCntPropertiesAssignedTags->setSpacing(0);
 
     _cntPropertiesAssignedTags->setLayout(_layCntPropertiesAssignedTags);
@@ -1955,7 +1955,7 @@ void Views::ViewProjects::_createPropertiesView()
     _layCntPropertiesTags->addWidget(_cntPropertiesAvailableTags);
 
     _layCntPropertiesAvailableTags = new Wt::WVBoxLayout();
-    _layCntPropertiesAvailableTags->setContentsMargins(0,0,0,0);
+    _layCntPropertiesAvailableTags->setContentsMargins(0,14,0,0);
     _layCntPropertiesAvailableTags->setSpacing(0);
 
     _cntPropertiesAvailableTags->setLayout(_layCntPropertiesAvailableTags);

@@ -42,6 +42,9 @@ namespace Ms
             _defaultFilterColumnIndex = 0;
             _ignoreNumFilterColumns = 0;
             _advancedFilterActive = false;
+            _customFilterActive = false;
+            _customFilterString = "";
+            _advancedFilterString = "";
 
             //features
             _importCSVFeatureEnabled = true;
@@ -498,6 +501,52 @@ namespace Ms
                 _cntAdvancedFilter->hide();
         }
 
+        template<typename T>
+        std::string Ms::Widgets::MQueryTableViewWidget<T>::advancedFilterString() const
+        {
+            return _advancedFilterString;
+        }
+
+        template<typename T>
+        bool Ms::Widgets::MQueryTableViewWidget<T>::isAdvancedFilterActive() const
+        {
+            return _advancedFilterActive;
+        }
+
+        template<typename T>
+        void Ms::Widgets::MQueryTableViewWidget<T>::setAdvancedFilterActive(bool active)
+        {
+            _advancedFilterActive = active;
+
+            _updateModel();
+        }
+
+        template<typename T>
+        bool Ms::Widgets::MQueryTableViewWidget<T>::isCustomFilterActive() const
+        {
+            return _customFilterActive;
+        }
+
+        template<typename T>
+        void Ms::Widgets::MQueryTableViewWidget<T>::setCustomFilterActive(bool active)
+        {
+            _customFilterActive = active;
+
+            _updateModel();
+        }
+
+        template<typename T>
+        std::string Ms::Widgets::MQueryTableViewWidget<T>::customFilterString() const
+        {
+            return _customFilterString;
+        }
+
+        template<typename T>
+        void Ms::Widgets::MQueryTableViewWidget<T>::setCustomFilterString(const std::string &customFilterString)
+        {
+            _customFilterString = customFilterString;
+        }
+
         //Signals
         template<typename T>
         Wt::Signal<> &Ms::Widgets::MQueryTableViewWidget<T>::tableSelectionChanged()
@@ -510,9 +559,6 @@ namespace Ms
         void Ms::Widgets::MQueryTableViewWidget<T>::_mainTableSelectionChanged()
         {
             _tableSelectionChanged();
-
-            if(_propertiesFeatureEnabled)
-                _updatePropertiesRequested();
         }
 
         template<typename T>
@@ -612,7 +658,12 @@ namespace Ms
         void Ms::Widgets::MQueryTableViewWidget<T>::_btnAdvancedFilterAddClicked()
         {
             std::vector<Wt::WStandardItem*> items;
-            for(unsigned int i = 0; i < _mdlAdvancedFilter->columnCount(); ++i)
+
+            Wt::WStandardItem *item = new Wt::WStandardItem("");
+            item->setData(true, Wt::EditRole);
+            items.push_back(item);
+
+            for(unsigned int i = 1; i < _mdlAdvancedFilter->columnCount(); ++i)
             {
                 Wt::WStandardItem *item = new Wt::WStandardItem("");
                 item->setFlags(Wt::ItemIsSelectable | Wt::ItemIsEditable);
@@ -636,24 +687,50 @@ namespace Ms
         {
             _advancedFilterActive = true;
 
-            std::string strQuery = "";
+            _advancedFilterString = "";
+
             bool openBracket = false;
 
+            std::vector<std::tuple<std::string, std::string, std::string, std::string, std::string>> vecValidItems;
+
+            //gather valid columns
             for(unsigned int row = 0; row < _mdlAdvancedFilter->rowCount(); ++row)
             {
-                std::string colDispName = boost::any_cast<Wt::WString>(_mdlAdvancedFilter->data(row, 0)).toUTF8();
-                std::string op1 = boost::any_cast<Wt::WString>(_mdlAdvancedFilter->data(row, 1)).toUTF8();
-                std::string value = boost::any_cast<Wt::WString>(_mdlAdvancedFilter->data(row, 2)).toUTF8();
-                std::string op2 = boost::any_cast<Wt::WString>(_mdlAdvancedFilter->data(row, 3)).toUTF8();
-                std::string combine = boost::any_cast<Wt::WString>(_mdlAdvancedFilter->data(row, 4)).toUTF8();
+                bool colActive = boost::any_cast<bool>(_mdlAdvancedFilter->data(row, 0, Wt::EditRole));
 
-                if((colDispName == "" || op1 == "" || value == "") ||
-                        ((row < _mdlAdvancedFilter->rowCount() - 1) && (op2 == "" || combine == "")))
+                if(!colActive)
+                    continue;
+
+                std::string colDispName = boost::any_cast<Wt::WString>(_mdlAdvancedFilter->data(row, 1)).toUTF8();
+                std::string op1 = boost::any_cast<Wt::WString>(_mdlAdvancedFilter->data(row, 2)).toUTF8();
+                std::string value = boost::any_cast<Wt::WString>(_mdlAdvancedFilter->data(row, 3)).toUTF8();
+                std::string op2 = boost::any_cast<Wt::WString>(_mdlAdvancedFilter->data(row, 4)).toUTF8();
+                std::string combine = boost::any_cast<Wt::WString>(_mdlAdvancedFilter->data(row, 5)).toUTF8();
+
+                if((colDispName == "" || op1 == "" || value == ""))
+                    continue;
+
+                vecValidItems.push_back(std::make_tuple(colDispName, op1, value, op2, combine));
+            }
+
+            //generate sql
+            for(unsigned int row = 0; row < vecValidItems.size(); ++row)
+            {
+                std::string colDispName = std::get<0>(vecValidItems.at(row));
+                std::string op1 = std::get<1>(vecValidItems.at(row));
+                std::string value = std::get<2>(vecValidItems.at(row));
+                std::string op2 = std::get<3>(vecValidItems.at(row));
+                std::string combine = std::get<4>(vecValidItems.at(row));
+
+                bool hasMoreRows = row < (vecValidItems.size() - 1);
+                bool isLastRow = row == (vecValidItems.size() - 1);
+
+                if((hasMoreRows) && (op2 == "" || combine == ""))
                     continue;
 
                 std::string subQueryStr = "";
 
-                if((row < _mdlAdvancedFilter->rowCount() - 1) && combine == "YES" && (!openBracket))
+                if(hasMoreRows && combine == "YES" && (!openBracket))
                 {
                     subQueryStr += "(";
                     openBracket = true;
@@ -663,36 +740,27 @@ namespace Ms
                 subQueryStr += " " + op1;
                 subQueryStr += " '" + value + "'";
 
-                if(((row == _mdlAdvancedFilter->rowCount() - 1) || combine == "NO") && openBracket)
+                if(((isLastRow) || combine == "NO") && openBracket)
                 {
                     subQueryStr += ")";
                     openBracket = false;
                 }
 
-                if(row < _mdlAdvancedFilter->rowCount() - 1)
-                {
+                if(hasMoreRows)
                     subQueryStr += " " + op2 + " ";
-                }
 
-                strQuery += subQueryStr;
+                _advancedFilterString += subQueryStr;
             }
 
-            std::cout << strQuery << std::endl;
+            std::cout << _advancedFilterString << std::endl;
 
-            _queryAdvancedFilter = _query;
-
-            if(strQuery != "")
-                _queryAdvancedFilter.where(std::string("(") + strQuery + ")");
-
-            _updateModel();
+            setAdvancedFilterActive(true);
         }
 
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::_btnAdvancedFilterClearClicked()
         {
-            _advancedFilterActive = false;
-
-            updateView();
+            setAdvancedFilterActive(false);
         }
 
         template<typename T>
@@ -968,18 +1036,21 @@ namespace Ms
 
             _layCntAdvancedFilter->addWidget(_tblAdvancedFilter, 1);
 
-            _mdlAdvancedFilter = new Wt::WStandardItemModel(0,5);
+            _mdlAdvancedFilter = new Wt::WStandardItemModel(0,6);
 
             _tblAdvancedFilter->setModel(_mdlAdvancedFilter);
 
-            _mdlAdvancedFilter->setHeaderData(0, std::string("Column Name"));
-            _mdlAdvancedFilter->setHeaderData(1, std::string("Operator"));
-            _mdlAdvancedFilter->setHeaderData(2, std::string("Value"));
-            _mdlAdvancedFilter->setHeaderData(3, std::string("Operator"));
-            _mdlAdvancedFilter->setHeaderData(4, std::string("Combine With Next"));
+            _mdlAdvancedFilter->setHeaderData(0, std::string("Active"));
+            _mdlAdvancedFilter->setHeaderData(1, std::string("Column Name"));
+            _mdlAdvancedFilter->setHeaderData(2, std::string("Operator"));
+            _mdlAdvancedFilter->setHeaderData(3, std::string("Value"));
+            _mdlAdvancedFilter->setHeaderData(4, std::string("Operator"));
+            _mdlAdvancedFilter->setHeaderData(5, std::string("Combine With Next"));
 
             std::vector<std::string> delegateColNameItems;
             int i = 0;
+
+            Ms::Widgets::Delegates::MCheckBoxDelegate *colActiveDelegate = new Ms::Widgets::Delegates::MCheckBoxDelegate();
 
             for(auto iter = _columns.begin(); iter != _columns.end(); ++iter)
             {
@@ -989,7 +1060,7 @@ namespace Ms
 
             Ms::Widgets::Delegates::MComboBoxDelegate *colNameDelegate = new Ms::Widgets::Delegates::MComboBoxDelegate(delegateColNameItems);
 
-            std::vector<std::string> delegateOperator1Items = {"=", "!=", ">", "<"};
+            std::vector<std::string> delegateOperator1Items = {"=", "!=", ">", ">=", "<", "<="};
             Ms::Widgets::Delegates::MComboBoxDelegate *colOperator1Delegate = new Ms::Widgets::Delegates::MComboBoxDelegate(delegateOperator1Items);
 
             std::vector<std::string> delegateOperator2Items = {"AND", "OR"};
@@ -998,11 +1069,13 @@ namespace Ms
             std::vector<std::string> delegateCombineWithNextItems = {"NO", "YES"};
             Ms::Widgets::Delegates::MComboBoxDelegate *colCombineWithNextDelegate = new Ms::Widgets::Delegates::MComboBoxDelegate(delegateCombineWithNextItems);
 
-            _tblAdvancedFilter->setItemDelegateForColumn(0, colNameDelegate);
-            _tblAdvancedFilter->setItemDelegateForColumn(1, colOperator1Delegate);
-            _tblAdvancedFilter->setItemDelegateForColumn(2, new Ms::Widgets::Delegates::MItemDelegate());
-            _tblAdvancedFilter->setItemDelegateForColumn(3, colOperator2Delegate);
-            _tblAdvancedFilter->setItemDelegateForColumn(4, colCombineWithNextDelegate);
+
+            _tblAdvancedFilter->setItemDelegateForColumn(0, colActiveDelegate);
+            _tblAdvancedFilter->setItemDelegateForColumn(1, colNameDelegate);
+            _tblAdvancedFilter->setItemDelegateForColumn(2, colOperator1Delegate);
+            _tblAdvancedFilter->setItemDelegateForColumn(3, new Ms::Widgets::Delegates::MItemDelegate());
+            _tblAdvancedFilter->setItemDelegateForColumn(4, colOperator2Delegate);
+            _tblAdvancedFilter->setItemDelegateForColumn(5, colCombineWithNextDelegate);
         }
 
         template<typename T>
@@ -1019,10 +1092,21 @@ namespace Ms
                 if(!_dboManager->openTransaction())
                     return;
 
+                _queryFilter = _query;
+
+                if(_customFilterActive)
+                {
+                    if(_customFilterString != "")
+                        _queryFilter.where(std::string("(") + _customFilterString + ")");
+                }
+
                 if(_advancedFilterActive)
-                    _model->setQuery(_queryAdvancedFilter);
-                else
-                    _model->setQuery(_query);
+                {
+                    if(_advancedFilterString != "")
+                        _queryFilter.where(std::string("(") + _advancedFilterString + ")");
+                }
+
+                _model->setQuery(_queryFilter);
 
                 _dboManager->commitTransaction();
 
@@ -1083,7 +1167,7 @@ namespace Ms
                     delegateColNameItems.push_back((*iter).displayName());
             }
 
-            Ms::Widgets::Delegates::MComboBoxDelegate *delegate = dynamic_cast<Ms::Widgets::Delegates::MComboBoxDelegate*>(_tblAdvancedFilter->itemDelegateForColumn(0));
+            Ms::Widgets::Delegates::MComboBoxDelegate *delegate = dynamic_cast<Ms::Widgets::Delegates::MComboBoxDelegate*>(_tblAdvancedFilter->itemDelegateForColumn(1));
             delegate->setItems(delegateColNameItems); //update delegate columnName column with new columns (if any)
         }
 

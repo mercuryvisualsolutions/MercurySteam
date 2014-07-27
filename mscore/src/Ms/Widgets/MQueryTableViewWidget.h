@@ -95,14 +95,19 @@ namespace Ms
             void setIgnoreNumFilterColumns(int numColumns);
             void ignoredNumFilterColumns();
             std::vector<Wt::Dbo::ptr<T>> selectedItems() const;
-            void addPropertiesPanel(const std::string &title, Wt::WContainerWidget *widget);
-            Wt::WContainerWidget *currentPropertiesWidget() const;
             bool isImportCSVFetureEnabled() const;
             void setImportCSVFetureEnabled(bool enabled);
             bool isExportCSVFetureEnabled() const;
             void setExportCSVFetureEnabled(bool enabled);
             bool isAdvancedFilterFeatureEnabled() const;
             void setAdvancedFilterFeatureEnabled(bool enabled);
+            bool isAdvancedFilterActive() const;
+            void setAdvancedFilterActive(bool active);
+            std::string advancedFilterString() const;
+            bool isCustomFilterActive() const;
+            void setCustomFilterActive(bool active);
+            std::string customFilterString() const;
+            void setCustomFilterString(const std::string &customFilterString);
 
             //signals
             Wt::Signal<> &tableSelectionChanged();
@@ -146,16 +151,18 @@ namespace Ms
             std::vector<Ms::Widgets::MTableViewColumn> _columns;
             int _defaultFilterColumnIndex;
             Wt::Dbo::Query<Wt::Dbo::ptr<T>> _query;
-            Wt::Dbo::Query<Wt::Dbo::ptr<T>> _queryAdvancedFilter;
+            Wt::Dbo::Query<Wt::Dbo::ptr<T>> _queryFilter;
             Ms::Core::Dbo::MDboManagerBase *_dboManager;
             std::vector<typename Wt::Dbo::dbo_traits<T>::IdType> _selection;//for saving/loading selection in view
             Wt::WString _filterRegExpression;
             int _ignoreNumFilterColumns;//numbers of columns to ignore when filtering
             bool _advancedFilterActive;
+            bool _customFilterActive;
+            std::string _customFilterString;
+            std::string _advancedFilterString;
             bool _importCSVFeatureEnabled;
             bool _exportCSVFeatureEnabled;
             bool _advancedFilterFeatureEnabled;
-            bool _propertiesFeatureEnabled;
 
             //ui variables
             Wt::WPushButton *_btnMnuTools;

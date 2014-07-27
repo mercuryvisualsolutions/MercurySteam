@@ -846,7 +846,7 @@ void Views::ViewUsers::_createPropertiesView()
     _layCntPropertiesGroupsPrivileges->addWidget(_cntPropertiesGroupsAssignedPrivileges);
 
     _layCntPropertiesGroupsAssignedPrivileges = new Wt::WVBoxLayout();
-    _layCntPropertiesGroupsAssignedPrivileges->setContentsMargins(0,0,0,0);
+    _layCntPropertiesGroupsAssignedPrivileges->setContentsMargins(0,14,0,0);
     _layCntPropertiesGroupsAssignedPrivileges->setSpacing(0);
 
     _cntPropertiesGroupsAssignedPrivileges->setLayout(_layCntPropertiesGroupsAssignedPrivileges);
@@ -871,7 +871,7 @@ void Views::ViewUsers::_createPropertiesView()
     _layCntPropertiesGroupsPrivileges->addWidget(_cntPropertiesGroupsAvailablePrivileges);
 
     _layCntPropertiesGroupsAvailablePrivileges = new Wt::WVBoxLayout();
-    _layCntPropertiesGroupsAvailablePrivileges->setContentsMargins(0,0,0,0);
+    _layCntPropertiesGroupsAvailablePrivileges->setContentsMargins(0,14,0,0);
     _layCntPropertiesGroupsAvailablePrivileges->setSpacing(0);
 
     _cntPropertiesGroupsAvailablePrivileges->setLayout(_layCntPropertiesGroupsAvailablePrivileges);

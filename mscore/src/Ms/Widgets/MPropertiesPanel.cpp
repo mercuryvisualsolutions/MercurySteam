@@ -7,20 +7,13 @@ Ms::Widgets::MPropertiesPanel::MPropertiesPanel()
 
 void Ms::Widgets::MPropertiesPanel::showView(const std::string &name)
 {
-    if(propertiesViewExists(name))
-        _stkMain->setCurrentWidget(_views[name]);
-}
-
-void Ms::Widgets::MPropertiesPanel::showView(const Wt::WWidget *widget)
-{
-    for(auto &pair : _views)
+    if(!propertiesViewExists(name))
     {
-        if(pair.second == widget)
-        {
-            showView(pair.first);
-            break;
-        }
+        Wt::WContainerWidget *view = new Wt::WContainerWidget();
+        addPropertiesView(name, view);
     }
+
+    _stkMain->setCurrentWidget(_views[name]);
 }
 
 void Ms::Widgets::MPropertiesPanel::addPropertiesView(const std::string &name, Wt::WWidget *widget)

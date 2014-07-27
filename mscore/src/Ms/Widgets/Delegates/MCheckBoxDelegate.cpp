@@ -86,9 +86,12 @@ Wt::WWidget *Ms::Widgets::Delegates::MCheckBoxDelegate::update(Wt::WWidget *widg
         const_cast<Wt::WAbstractItemModel*>(index.model())->setData(index, chkEdit->isChecked(), Wt::EditRole);
     }));
 
-    int rank = boost::any_cast<int>(index.data(Wt::UserRole));
-    if(rank > _editRank)//edit rank is not high engough ?
-        result->setDisabled(true);//prevent editing
+    boost::any rank = index.data(Wt::UserRole);
+    if(!rank.empty())
+    {
+        if(boost::any_cast<int>(rank) > _editRank)//edit rank is not high engough ?
+            result->setDisabled(true);//prevent editing
+    }
 
     return result;
 }

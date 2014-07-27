@@ -17,7 +17,6 @@ namespace Ms
 
             //functions
             void showView(const std::string &name);
-            void showView(const Wt::WWidget *widget);
             void addPropertiesView(const std::string &name, Wt::WWidget *widget);
             void removePropertiesView(const std::string &name);
             bool propertiesViewExists(const std::string &name) const;
