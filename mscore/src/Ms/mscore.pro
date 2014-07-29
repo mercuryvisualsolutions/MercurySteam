@@ -43,7 +43,7 @@ SOURCES += \
     Exceptions/MNullPointerException.cpp \
     Widgets/MPropertiesPanel.cpp \
     Dbo/MdboBase.cpp \
-    Views/MViewBase.cpp
+    Widgets/MContainerWidget.cpp
 
 HEADERS +=\
     Mscore_global.h \
@@ -89,7 +89,7 @@ HEADERS +=\
     Widgets/MPropertiesPanel.h \
     Dbo/MDboBase.h \
     Dbo/MDboBase_impl.h \
-    Views/MViewBase.h
+    Widgets/MContainerWidget.h
 
 unix {
     target.path = /usr/lib

@@ -24,10 +24,11 @@
 #include "settingsdialogs.h"
 
 #include <Ms/Widgets/MQueryTableViewWidget.h>
+#include <Ms/Widgets/MContainerWidget.h>
 
 namespace Views
 {
-    class ViewSettings : public Wt::WContainerWidget
+    class ViewSettings : public Ms::Widgets::MContainerWidget
     {
     public:
         ViewSettings();
@@ -66,10 +67,7 @@ namespace Views
         Ms::Widgets::MPropertiesPanel *_propertiesPanel;
 
         /*******************--Main--********************/
-        Wt::WVBoxLayout *_layMain;//main layout
         Wt::WStackedWidget *_stkSettings; //for switching settings
-        Wt::WText *_txtSettingsPanelTitle;
-        Wt::WContainerWidget *_cntTxtSettingsPanelTitle;
         Wt::WNavigationBar *_navBarSettings;//settings navigation bar
         Wt::WContainerWidget *_cntNavBarSettings;//container for navBarSettings
         Wt::WMenu *_mnuSettings;//settings menu (holding, General..etc)

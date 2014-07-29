@@ -6,11 +6,13 @@
 #include <Wt/WStackedWidget>
 #include <Wt/WText>
 
+#include "MContainerWidget.h"
+
 namespace Ms
 {
     namespace Widgets
     {
-        class MPropertiesPanel : public Wt::WContainerWidget
+        class MPropertiesPanel : public Ms::Widgets::MContainerWidget
         {
         public:
             MPropertiesPanel();
@@ -27,11 +29,8 @@ namespace Ms
             //variables
             //ui
             Wt::WStackedWidget *_stkMain;
-            Wt::WVBoxLayout *_layMain;
-            Wt::WText *_txtPropertiesTitle;
-            Wt::WContainerWidget *_cntTxtPropertiesTitle;
 
-            //
+            //different views
             std::map<std::string,Wt::WWidget*> _views;
 
             //functions

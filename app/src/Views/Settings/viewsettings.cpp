@@ -11,7 +11,8 @@
 #include <Ms/Widgets/Delegates/MDelegates>
 #include <Ms/Widgets/MWidgetFactory.h>
 
-Views::ViewSettings::ViewSettings()
+Views::ViewSettings::ViewSettings() :
+    Ms::Widgets::MContainerWidget()
 {
     _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
     _propertiesPanel = Session::SessionManager::instance().getSessionPropertiesPanel(Wt::WApplication::instance()->sessionId());
@@ -743,23 +744,10 @@ void Views::ViewSettings::_createPropertiesView()
 void Views::ViewSettings::_prepareView()
 {
     /*******************--Settings--********************/
-    _layMain = new Wt::WVBoxLayout();
+    setTitle("<b><i>Settings</i></b>");
+
+    Wt::WVBoxLayout *_layMain = dynamic_cast<Wt::WVBoxLayout*>(layout());
     _layMain->setContentsMargins(14,14,14,14);
-    _layMain->setSpacing(0);
-
-    setLayout(_layMain);
-
-    _cntTxtSettingsPanelTitle = new Wt::WContainerWidget();
-    _cntTxtSettingsPanelTitle->setStyleClass("title-bar");
-    _cntTxtSettingsPanelTitle->setContentAlignment(Wt::AlignCenter);
-    _cntTxtSettingsPanelTitle->setMinimumSize(Wt::WLength::Auto, 25);
-
-    _layMain->addWidget(_cntTxtSettingsPanelTitle);
-
-    _txtSettingsPanelTitle = new Wt::WText("<b><i>Settings</i></b>");
-    _txtSettingsPanelTitle->setStyleClass("title-bar-text");
-
-    _cntTxtSettingsPanelTitle->addWidget(_txtSettingsPanelTitle);
 
     _navBarSettings = new Wt::WNavigationBar();
 

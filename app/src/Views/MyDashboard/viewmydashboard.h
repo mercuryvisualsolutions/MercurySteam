@@ -22,10 +22,11 @@
 #include "../../Session/sessionmanager.h"
 
 #include <Ms/Widgets/MQueryTableViewWidget.h>
+#include <Ms/Widgets/MContainerWidget.h>
 
 namespace Views
 {
-    class ViewMyDashboard : public Wt::WContainerWidget
+    class ViewMyDashboard : public Ms::Widgets::MContainerWidget
     {
     public:
         ViewMyDashboard();
@@ -50,8 +51,6 @@ namespace Views
         Wt::Signal<> _onTabMyTasksSelected;
 
         /*******************--Main--********************/
-        Wt::WText *_txtMyDashboardPanelTitle;
-        Wt::WContainerWidget *_cntTxtMyDashboardPanelTitle;
         Wt::WNavigationBar *_navBarMain;
         Wt::WContainerWidget *_cntNavBarMain;
         Wt::WMenu *_mnuNavBarMain;
@@ -59,8 +58,6 @@ namespace Views
         Wt::WStackedWidget *_stkMain;
 
         /*******************--MyTasks--********************/
-        Wt::WVBoxLayout *_layMain;
-
         Wt::WVBoxLayout *_layTasks;
         Wt::WContainerWidget *_cntTasks;//container for task view
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *_qtvTasks;

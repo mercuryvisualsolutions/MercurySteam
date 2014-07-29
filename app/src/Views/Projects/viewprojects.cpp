@@ -24,7 +24,7 @@
 #include <Wt/WEnvironment>
 
 Views::ViewProjects::ViewProjects()
-: WContainerWidget()
+    : Ms::Widgets::MContainerWidget()
 {
     _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
     _propertiesPanel = Session::SessionManager::instance().getSessionPropertiesPanel(Wt::WApplication::instance()->sessionId());
@@ -2524,23 +2524,10 @@ void Views::ViewProjects::_updatePropertiesNotesView()
 void Views::ViewProjects::_prepareView()
 {
     /*******************--Project--********************/
-    _layMain = new Wt::WVBoxLayout();
+    setTitle("<b><i>Projects</i></b>");
+
+    Wt::WVBoxLayout *_layMain = dynamic_cast<Wt::WVBoxLayout*>(layout());
     _layMain->setContentsMargins(14,14,14,14);
-    _layMain->setSpacing(0);
-
-    setLayout(_layMain);
-
-    _cntTxtProjectsPanelTitle = new Wt::WContainerWidget();
-    _cntTxtProjectsPanelTitle->setStyleClass("title-bar");
-    _cntTxtProjectsPanelTitle->setContentAlignment(Wt::AlignCenter);
-    _cntTxtProjectsPanelTitle->setMinimumSize(Wt::WLength::Auto, 25);
-
-    _layMain->addWidget(_cntTxtProjectsPanelTitle);
-
-    _txtProjectsPanelTitle = new Wt::WText("<b><i>Projects</i></b>");
-    _txtProjectsPanelTitle->setStyleClass("title-bar-text");
-
-    _cntTxtProjectsPanelTitle->addWidget(_txtProjectsPanelTitle);
 
     _navBarMain= new Wt::WNavigationBar();
 

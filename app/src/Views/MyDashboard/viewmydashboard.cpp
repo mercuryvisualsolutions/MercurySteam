@@ -13,7 +13,8 @@
 #include <Ms/Widgets/Delegates/MDelegates>
 #include <Ms/IO/IO.h>
 
-Views::ViewMyDashboard::ViewMyDashboard()
+Views::ViewMyDashboard::ViewMyDashboard() :
+    Ms::Widgets::MContainerWidget()
 {
     _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
     _propertiesPanel = Session::SessionManager::instance().getSessionPropertiesPanel(Wt::WApplication::instance()->sessionId());
@@ -172,23 +173,10 @@ void Views::ViewMyDashboard::_createPropertiesView()
 void Views::ViewMyDashboard::_prepareView()
 {
     /*******************--MyTasks--********************/
-    _layMain = new Wt::WVBoxLayout();
+    setTitle("<b><i>My Dashboard</i></b>");
+
+    Wt::WVBoxLayout *_layMain = dynamic_cast<Wt::WVBoxLayout*>(layout());
     _layMain->setContentsMargins(14,14,14,14);
-    _layMain->setSpacing(0);
-
-    setLayout(_layMain);
-
-    _cntTxtMyDashboardPanelTitle = new Wt::WContainerWidget();
-    _cntTxtMyDashboardPanelTitle->setStyleClass("title-bar");
-    _cntTxtMyDashboardPanelTitle->setContentAlignment(Wt::AlignCenter);
-    _cntTxtMyDashboardPanelTitle->setMinimumSize(Wt::WLength::Auto, 25);
-
-    _layMain->addWidget(_cntTxtMyDashboardPanelTitle);
-
-    _txtMyDashboardPanelTitle = new Wt::WText("<b><i>My Dashboard</i></b>");
-    _txtMyDashboardPanelTitle->setStyleClass("title-bar-text");
-
-    _cntTxtMyDashboardPanelTitle->addWidget(_txtMyDashboardPanelTitle);
 
     _navBarMain = new Wt::WNavigationBar();
 

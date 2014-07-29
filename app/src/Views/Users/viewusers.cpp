@@ -24,7 +24,7 @@
 #include <Wt/WEnvironment>
 
 Views::ViewUsers::ViewUsers() :
-    WContainerWidget()
+    Ms::Widgets::MContainerWidget()
 {
     _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
     _propertiesPanel = Session::SessionManager::instance().getSessionPropertiesPanel(Wt::WApplication::instance()->sessionId());
@@ -1391,24 +1391,11 @@ void Views::ViewUsers::_mnuMainGroupsItemTriggered()
 
 void Views::ViewUsers::_prepareView()
 {
-    /*******************--Layouts--********************/
-    _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(14,14,14,14);
-    _layMain->setSpacing(0);
-    setLayout(_layMain);
-
     /*******************--Main--********************/
-    _cntTxtUsersPanelTitle = new Wt::WContainerWidget();
-    _cntTxtUsersPanelTitle->setStyleClass("title-bar");
-    _cntTxtUsersPanelTitle->setContentAlignment(Wt::AlignCenter);
-    _cntTxtUsersPanelTitle->setMinimumSize(Wt::WLength::Auto, 25);
+    setTitle("<b><i>Users And Groups</i></b>");
 
-    _layMain->addWidget(_cntTxtUsersPanelTitle);
-
-    _txtUsersPanelTitle = new Wt::WText("<b><i>Users And Groups</i></b>");
-    _txtUsersPanelTitle->setStyleClass("title-bar-text");
-
-    _cntTxtUsersPanelTitle->addWidget(_txtUsersPanelTitle);
+    Wt::WVBoxLayout* _layMain = dynamic_cast<Wt::WVBoxLayout*>(layout());
+    _layMain->setContentsMargins(14,14,14,14);
 
     _navBarMain = new Wt::WNavigationBar();
 

@@ -27,12 +27,13 @@
 
 #include <Ms/Widgets/MWidgetFactory.h>
 #include <Ms/Widgets/MQueryTableViewWidget.h>
+#include <Ms/Widgets/MContainerWidget.h>
 
 namespace Views
 {
     using userData = boost::tuple<Wt::Dbo::ptr<Users::User>, Wt::Dbo::ptr<Users::AuthInfo>, Wt::Dbo::ptr<Users::AuthInfo::AuthIdentityType>>;
 
-    class ViewUsers : public Wt::WContainerWidget
+    class ViewUsers : public Ms::Widgets::MContainerWidget
     {
     public:
         ViewUsers();
@@ -77,12 +78,7 @@ namespace Views
         Wt::Signal<> _onTabUsersSelected;
         Wt::Signal<> _onTabGroupsSelected;
 
-        /*******************--Layouts--********************/
-        Wt::WVBoxLayout *_layMain;//main layout
-
-        Wt::WText *_txtUsersPanelTitle;
-        Wt::WContainerWidget *_cntTxtUsersPanelTitle;
-
+        /*******************--UI--********************/
         Wt::WNavigationBar *_navBarMain;//main navigation bar
         Wt::WStackedWidget *_stkMain;
         Wt::WMenu *_mnuMain;

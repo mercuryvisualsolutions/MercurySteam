@@ -23,10 +23,11 @@
 
 #include <Ms/Widgets/MWidgetFactory.h>
 #include <Ms/Widgets/MQueryTableViewWidget.h>
+#include <Ms/Widgets/MContainerWidget.h>
 
 namespace Views
 {
-    class ViewProjects : public Wt::WContainerWidget
+    class ViewProjects : public Ms::Widgets::MContainerWidget
     {
     public:
         ViewProjects();
@@ -84,12 +85,9 @@ namespace Views
         Log::Logger *_logger;
         Ms::Widgets::MPropertiesPanel *_propertiesPanel;
         /*******************--Main--********************/
-        Wt::WVBoxLayout *_layMain;
         Wt::WContainerWidget *_cntProjectsAndData;
         Wt::WHBoxLayout *_layCntProjectsAndData;
         Wt::WStackedWidget *_stkMain; //for switching sequences, shots, assets..etc
-        Wt::WText *_txtProjectsPanelTitle;
-        Wt::WContainerWidget *_cntTxtProjectsPanelTitle;
         Wt::WNavigationBar *_navBarMain;//project navigation bar
         Wt::WContainerWidget *_cntNavBarMain;//container for navBarProject
         Wt::WMenu *_mnuMain;//project menu (holding, shots, assets, sequences..etc)
