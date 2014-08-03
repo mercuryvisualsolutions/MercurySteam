@@ -222,7 +222,7 @@ void Views::ViewUsers::_addDataToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec)
        delete dlg;
     }));
 
-    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 template<typename T>
@@ -451,7 +451,7 @@ void Views::ViewUsers::_btnUsersImportThumbnailsClicked()
         for(std::vector<std::string>::size_type i = 0; i <delFiles.size(); ++i)
         {
             Ms::IO::removeFile(delFiles.at(i));//after finish processing, delete the uploaded thumbnails
-            _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info);
+            _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
         }
 
         _qtvUsers->reload();
@@ -608,12 +608,12 @@ void Views::ViewUsers::_btnAddPropertiesDataClicked()
     }
 }
 
-void Views::ViewUsers::_btnRemovePropertiesDataClicked(std::vector<Wt::Dbo::ptr<Database::DboData>> dataVec)
+void Views::ViewUsers::_btnRemovePropertiesDataClicked(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec)
 {
 
 }
 
-void Views::ViewUsers::_btnAddPropertiesTagClicked(std::vector<Wt::Dbo::ptr<Database::Tag>> tagVec)
+void Views::ViewUsers::_btnAddPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
     if(_stkMain->currentWidget() == _qtvUsers)
     {
@@ -627,7 +627,7 @@ void Views::ViewUsers::_btnAddPropertiesTagClicked(std::vector<Wt::Dbo::ptr<Data
     }
 }
 
-void Views::ViewUsers::_btnRemovePropertiesTagClicked(std::vector<Wt::Dbo::ptr<Database::Tag>> tagVec)
+void Views::ViewUsers::_btnRemovePropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
     if(_stkMain->currentWidget() == _qtvUsers)
     {
@@ -641,7 +641,7 @@ void Views::ViewUsers::_btnRemovePropertiesTagClicked(std::vector<Wt::Dbo::ptr<D
     }
 }
 
-void Views::ViewUsers::_btnFilterPropertiesTagClicked(std::vector<Wt::Dbo::ptr<Database::Tag>> tagVec)
+void Views::ViewUsers::_btnFilterPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
     std::string strFilterQuery = "";
 
@@ -696,12 +696,12 @@ void Views::ViewUsers::_btnAddPropertiesNoteClicked()
     }
 }
 
-void Views::ViewUsers::_btnRemovePropertiesNoteClicked(std::vector<Wt::Dbo::ptr<Database::Note>> noteVec)
+void Views::ViewUsers::_btnRemovePropertiesNoteClicked(const std::vector<Wt::Dbo::ptr<Database::Note>> &noteVec)
 {
 
 }
 
-void Views::ViewUsers::_btnAddPropertiesGroupsPrivilegesClicked(std::vector<Wt::Dbo::ptr<Users::Privilege>> privVec)
+void Views::ViewUsers::_btnAddPropertiesGroupsPrivilegesClicked(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec)
 {
     if(_qtvGroups->table()->selectedIndexes().size() > 0)
     {
@@ -717,7 +717,7 @@ void Views::ViewUsers::_btnAddPropertiesGroupsPrivilegesClicked(std::vector<Wt::
     }
 }
 
-void Views::ViewUsers::_btnRemovePropertiesGroupsPrivilegesClicked(std::vector<Wt::Dbo::ptr<Users::Privilege>> privVec)
+void Views::ViewUsers::_btnRemovePropertiesGroupsPrivilegesClicked(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec)
 {
     if(_qtvGroups->table()->selectedIndexes().size() > 0)
     {
@@ -733,7 +733,7 @@ void Views::ViewUsers::_btnRemovePropertiesGroupsPrivilegesClicked(std::vector<W
     }
 }
 
-void Views::ViewUsers::_btnFilterPropertiesGroupsPrivilegesClicked(std::vector<Wt::Dbo::ptr<Users::Privilege>> privVec)
+void Views::ViewUsers::_btnFilterPropertiesGroupsPrivilegesClicked(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec)
 {
     std::string strFilterQuery = "";
 

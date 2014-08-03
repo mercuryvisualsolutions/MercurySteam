@@ -902,7 +902,7 @@ void Views::ViewProjects::_btnProjectsImportThumbnailsClicked()
         for(std::vector<std::string>::size_type i = 0; i <delFiles.size(); ++i)
         {
             Ms::IO::removeFile(delFiles.at(i));//after finish processing, delete the uploaded thumbnails
-            _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info);
+            _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
         }
 
         _qtvProjects->reload();
@@ -1105,7 +1105,7 @@ void Views::ViewProjects::_btnSequencesImportThumbnailsClicked()
         for(std::vector<std::string>::size_type i = 0; i < delFiles.size(); ++i)
         {
             Ms::IO::removeFile(delFiles.at(i));//after finish processing, delete the uploaded thumbnails
-            _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info);
+            _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
         }
 
         _qtvSequences->reload();
@@ -1309,7 +1309,7 @@ void Views::ViewProjects::_btnShotsImportThumbnailsClicked()
         {
             Ms::IO::removeFile(delFiles.at(i));//after finish processing, delete the uploaded thumbnails
 
-            _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info);
+            _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
         }
 
         _qtvShots->reload();
@@ -1512,7 +1512,7 @@ void Views::ViewProjects::_btnAssetsImportThumbnailsClicked()
         for(std::vector<std::string>::size_type i = 0; i < delFiles.size(); ++i)
         {
             Ms::IO::removeFile(delFiles.at(i));//after finish processing, delete the uploaded thumbnails
-            _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info);
+            _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
         }
 
         _qtvAssets->reload();
@@ -1757,12 +1757,12 @@ void Views::ViewProjects::_btnAddPropertiesDataClicked()
     }
 }
 
-void Views::ViewProjects::_btnRemovePropertiesDataClicked(std::vector<Wt::Dbo::ptr<Database::DboData>> dataVec)
+void Views::ViewProjects::_btnRemovePropertiesDataClicked(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec)
 {
 
 }
 
-void Views::ViewProjects::_btnAddPropertiesTagClicked(std::vector<Wt::Dbo::ptr<Database::Tag>> tagVec)
+void Views::ViewProjects::_btnAddPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
     if(tagVec.size() == 0)
         return;
@@ -1794,7 +1794,7 @@ void Views::ViewProjects::_btnAddPropertiesTagClicked(std::vector<Wt::Dbo::ptr<D
     }
 }
 
-void Views::ViewProjects::_btnRemovePropertiesTagClicked(std::vector<Wt::Dbo::ptr<Database::Tag>> tagVec)
+void Views::ViewProjects::_btnRemovePropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
     if(tagVec.size() == 0)
         return;
@@ -1826,7 +1826,7 @@ void Views::ViewProjects::_btnRemovePropertiesTagClicked(std::vector<Wt::Dbo::pt
     }
 }
 
-void Views::ViewProjects::_btnFilterPropertiesTagClicked(std::vector<Wt::Dbo::ptr<Database::Tag>> tagVec)
+void Views::ViewProjects::_btnFilterPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
     std::string strFilterQuery = "";
 
@@ -1943,7 +1943,7 @@ void Views::ViewProjects::_btnAddPropertiesNoteClicked()
     }
 }
 
-void Views::ViewProjects::_btnRemovePropertiesNoteClicked(std::vector<Wt::Dbo::ptr<Database::Note>> noteVec)
+void Views::ViewProjects::_btnRemovePropertiesNoteClicked(const std::vector<Wt::Dbo::ptr<Database::Note>> &noteVec)
 {
 
 }

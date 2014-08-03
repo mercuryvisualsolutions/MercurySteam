@@ -16,20 +16,23 @@ namespace Ms
             MFileInfo(const std::string &fileName);
 
             //functions
-            std::string name();
-            std::string fullName();
-            u_int64_t size();
-            std::string lastModifiedDate();
+            const std::string name() const;
+            const std::string fullName() const;
+            const std::string extension() const;
+            u_int64_t size() const;
+            const std::string lastModifiedDate() const;
 
         private:
             //variables
             std::string _name;
             std::string _fullName;
+            std::string _extension;
             u_int64_t _size;
             std::string _lastModifiedDate;
 
             //functions
             void _extractName();
+            void _extractExtension();
         };
     }
 }

@@ -8,6 +8,8 @@
 #include <Wt/WIconPair>
 #include <Wt/WStandardItem>
 #include <Wt/WApplication>
+#include <Wt/WImage>
+#include <Wt/WMediaPlayer>
 
 #include <stack>
 
@@ -129,6 +131,35 @@ void Views::DlgFilesManager::_btnCheckOutClicked()
 void Views::DlgFilesManager::_btnRefreshClicked()
 {
     _refresh();
+}
+
+void Views::DlgFilesManager::_btnViewClicked()
+{
+    if(_tblFiles->selectedIndexes().size() > 0)
+    {
+        Wt::WModelIndex index = *_tblFiles->selectedIndexes().begin();
+
+        std::string dir = (*_trDirs->selectedNodes().begin())->objectName();//only view first selected item
+        std::string fileName = dir + Ms::IO::dirSeparator() + _mdlTblFiles->item(index.row())->text().toUTF8();
+
+        Ms::IO::MFileInfo file(fileName);
+
+        Wt::WDialog *dlg = new Wt::WDialog("View");
+        dlg->rejectWhenEscapePressed(true);
+        dlg->finished().connect(std::bind([=]()
+        {
+            delete dlg;
+        }));
+
+        if(file.extension() == "jpg" ||
+                file.extension() == "jpg")
+        {
+            Wt::WImage *img = new Wt::WImage(fileName);
+            dlg->contents()->addWidget(img);
+        }
+
+        dlg->show();
+    }
 }
 
 void Views::DlgFilesManager::_btnCloseClicked()
@@ -441,6 +472,10 @@ void Views::DlgFilesManager::_prepareView()
     _btnRefresh = Ms::Widgets::MWidgetFactory::createButton("", "icons/Reload.png", "Refresh");
     _btnRefresh->clicked().connect(this, &Views::DlgFilesManager::_btnRefreshClicked);
     _tbMain->addButton(_btnRefresh);
+
+    _btnView = Ms::Widgets::MWidgetFactory::createButton("", "icons/View.png", "View");
+    _btnView->clicked().connect(this, &Views::DlgFilesManager::_btnViewClicked);
+    _tbMain->addButton(_btnView);
 
     _layFiles = new Wt::WHBoxLayout();
     _layFiles->setContentsMargins(0,0,0,0);

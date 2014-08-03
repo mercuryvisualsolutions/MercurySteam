@@ -191,13 +191,13 @@ namespace Views
 
         //slots
         void _btnAddPropertiesDataClicked();
-        void _btnRemovePropertiesDataClicked(std::vector<Wt::Dbo::ptr<Database::DboData>> dataVec);
-        void _btnAddPropertiesTagClicked(std::vector<Wt::Dbo::ptr<Database::Tag> > tagVec);
-        void _btnRemovePropertiesTagClicked(std::vector<Wt::Dbo::ptr<Database::Tag> > tagVec);
-        void _btnFilterPropertiesTagClicked(std::vector<Wt::Dbo::ptr<Database::Tag>> tagVec);
+        void _btnRemovePropertiesDataClicked(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec);
+        void _btnAddPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
+        void _btnRemovePropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
+        void _btnFilterPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
         void _btnClearFilterPropertiesTagClicked();
         void _btnAddPropertiesNoteClicked();
-        void _btnRemovePropertiesNoteClicked(std::vector<Wt::Dbo::ptr<Database::Note>> noteVec);
+        void _btnRemovePropertiesNoteClicked(const std::vector<Wt::Dbo::ptr<Database::Note>> &noteVec);
         void _onViewPropertiesSubViewExposed(const std::string &viewName);
 
         //functions

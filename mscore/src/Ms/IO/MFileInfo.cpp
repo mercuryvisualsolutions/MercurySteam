@@ -14,24 +14,30 @@ Ms::IO::MFileInfo::MFileInfo(const std::string &fileName)
 {
     _fullName = fileName;
     _extractName();
+    _extractExtension();
 }
 
-std::string Ms::IO::MFileInfo::name()
+const std::string Ms::IO::MFileInfo::name() const
 {
     return _name;
 }
 
-std::string Ms::IO::MFileInfo::fullName()
+const std::string Ms::IO::MFileInfo::fullName() const
 {
     return _fullName;
 }
 
-u_int64_t Ms::IO::MFileInfo::size()
+const std::string Ms::IO::MFileInfo::extension() const
+{
+    return _extension;
+}
+
+u_int64_t Ms::IO::MFileInfo::size() const
 {
     return boost::filesystem::file_size(_fullName);
 }
 
-std::string Ms::IO::MFileInfo::lastModifiedDate()
+const std::string Ms::IO::MFileInfo::lastModifiedDate() const
 {
     time_t rawtime = boost::filesystem::last_write_time(_fullName);
     char buffer [80];
@@ -45,4 +51,9 @@ std::string Ms::IO::MFileInfo::lastModifiedDate()
 void Ms::IO::MFileInfo::_extractName()
 {
     _name = _fullName.substr(_fullName.find_last_of(Ms::IO::dirSeparator()) + 1, _fullName.length() -1);
+}
+
+void Ms::IO::MFileInfo::_extractExtension()
+{
+    _extension = _fullName.substr(_fullName.find_last_of('.') + 1, _fullName.length() -1);
 }

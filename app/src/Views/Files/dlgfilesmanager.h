@@ -46,6 +46,7 @@ namespace Views
         Wt::WPushButton *_btnCheckIn;
         Wt::WPushButton *_btnCheckOut;
         Wt::WPushButton *_btnRefresh;
+        Wt::WPushButton *_btnView;
         Wt::WContainerWidget *_cntFiles;
         Wt::WHBoxLayout *_layFiles;
         Wt::WTree *_trDirs;
@@ -67,6 +68,7 @@ namespace Views
         void _btnCheckInClicked();
         void _btnCheckOutClicked();
         void _btnRefreshClicked();
+        void _btnViewClicked();
         void _btnCloseClicked();
         void _trDirsItemSelectionChanged();
 

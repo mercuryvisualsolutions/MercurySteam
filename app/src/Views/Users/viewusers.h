@@ -118,16 +118,16 @@ namespace Views
 
         //slots
         void _btnAddPropertiesDataClicked();
-        void _btnRemovePropertiesDataClicked(std::vector<Wt::Dbo::ptr<Database::DboData>> dataVec);
-        void _btnAddPropertiesTagClicked(std::vector<Wt::Dbo::ptr<Database::Tag>> tagVec);
-        void _btnRemovePropertiesTagClicked(std::vector<Wt::Dbo::ptr<Database::Tag>> tagVec);
-        void _btnFilterPropertiesTagClicked(std::vector<Wt::Dbo::ptr<Database::Tag>> tagVec);
+        void _btnRemovePropertiesDataClicked(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec);
+        void _btnAddPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
+        void _btnRemovePropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
+        void _btnFilterPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
         void _btnClearFilterPropertiesTagClicked();
         void _btnAddPropertiesNoteClicked();
-        void _btnRemovePropertiesNoteClicked(std::vector<Wt::Dbo::ptr<Database::Note>> noteVec);
-        void _btnAddPropertiesGroupsPrivilegesClicked(std::vector<Wt::Dbo::ptr<Users::Privilege>> privVec);
-        void _btnRemovePropertiesGroupsPrivilegesClicked(std::vector<Wt::Dbo::ptr<Users::Privilege>> privVec);
-        void _btnFilterPropertiesGroupsPrivilegesClicked(std::vector<Wt::Dbo::ptr<Users::Privilege>> privVec);
+        void _btnRemovePropertiesNoteClicked(const std::vector<Wt::Dbo::ptr<Database::Note>> &noteVec);
+        void _btnAddPropertiesGroupsPrivilegesClicked(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec);
+        void _btnRemovePropertiesGroupsPrivilegesClicked(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec);
+        void _btnFilterPropertiesGroupsPrivilegesClicked(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec);
         void _btnClearFilterPropertiesGroupsPrivilegesClicked();
         void _onViewPropertiesSubViewExposed(const std::string &viewName);
 
