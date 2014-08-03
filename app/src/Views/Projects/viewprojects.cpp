@@ -535,16 +535,16 @@ void Views::ViewProjects::updateTasksView()
 
 void Views::ViewProjects::updatePropertiesView()
 {
-    if(_stkProperties->currentWidget() == _qtvPropertiesData)
+    if(_viewProperties->currentView() == "Data")
     {
         _updatePropertiesDataView();
     }
-    else if(_stkProperties->currentWidget() == _cntPropertiesTags)
+    else if(_viewProperties->currentView() == "Tags")
     {
-        _updatePropertiesTagsView();
+        _viewProperties->updateTagsView();
         _updatePropertiesAssignedTagsView();
     }
-    else if(_stkProperties->currentWidget() == _qtvPropertiesNotes)
+    else if(_viewProperties->currentView() == "Notes")
     {
         _updatePropertiesNotesView();
     }
@@ -1727,27 +1727,6 @@ void Views::ViewProjects::_createTasksTableView()
 }
 
 //Properties
-void Views::ViewProjects::_mnuPropertiesNavBarDataItemTriggered()
-{
-    _stkProperties->setCurrentWidget(_qtvPropertiesData);
-
-    _updatePropertiesDataView();
-}
-
-void Views::ViewProjects::_mnuPropertiesNavBarTagsItemTriggered()
-{
-    _stkProperties->setCurrentWidget(_cntPropertiesTags);
-
-    _updatePropertiesTagsView();
-    _updatePropertiesAssignedTagsView();
-}
-
-void Views::ViewProjects::_mnuPropertiesNavBarNotesItemTriggered()
-{
-    _stkProperties->setCurrentWidget(_qtvPropertiesNotes);
-
-    _updatePropertiesNotesView();
-}
 
 void Views::ViewProjects::_btnAddPropertiesDataClicked()
 {
@@ -1778,77 +1757,83 @@ void Views::ViewProjects::_btnAddPropertiesDataClicked()
     }
 }
 
-void Views::ViewProjects::_btnRemovePropertiesDataClicked()
+void Views::ViewProjects::_btnRemovePropertiesDataClicked(std::vector<Wt::Dbo::ptr<Database::DboData>> dataVec)
 {
 
 }
 
-void Views::ViewProjects::_btnAddPropertiesTagClicked()
+void Views::ViewProjects::_btnAddPropertiesTagClicked(std::vector<Wt::Dbo::ptr<Database::Tag>> tagVec)
 {
+    if(tagVec.size() == 0)
+        return;
+
     if(_stkMain->currentWidget() == _cntProjects)
     {
         if(_qtvProjects->table()->selectedIndexes().size() > 0)
-            _addTagsToDbo<Projects::Project>(_qtvProjects->selectedItems(), _qtvPropertiesTags->selectedItems());
+            _addTagsToDbo<Projects::Project>(_qtvProjects->selectedItems(), tagVec);
     }
     else if(_stkMain->currentWidget() == _cntSequences)
     {
         if(_qtvSequences->table()->selectedIndexes().size() > 0)
-            _addTagsToDbo<Projects::ProjectSequence>(_qtvSequences->selectedItems(), _qtvPropertiesTags->selectedItems());
+            _addTagsToDbo<Projects::ProjectSequence>(_qtvSequences->selectedItems(), tagVec);
     }
     else if(_stkMain->currentWidget() == _cntShots)
     {
         if(_qtvShots->table()->selectedIndexes().size() > 0)
-            _addTagsToDbo<Projects::ProjectShot>(_qtvShots->selectedItems(), _qtvPropertiesTags->selectedItems());
+            _addTagsToDbo<Projects::ProjectShot>(_qtvShots->selectedItems(), tagVec);
     }
     else if(_stkMain->currentWidget() == _cntAssets)
     {
         if(_qtvAssets->table()->selectedIndexes().size() > 0)
-            _addTagsToDbo<Projects::ProjectAsset>(_qtvAssets->selectedItems(), _qtvPropertiesTags->selectedItems());
+            _addTagsToDbo<Projects::ProjectAsset>(_qtvAssets->selectedItems(), tagVec);
     }
     else if(_stkMain->currentWidget() == _cntTasks)
     {
         if(_qtvTasks->table()->selectedIndexes().size() > 0)
-            _addTagsToDbo<Projects::ProjectTask>(_qtvTasks->selectedItems(), _qtvPropertiesTags->selectedItems());
+            _addTagsToDbo<Projects::ProjectTask>(_qtvTasks->selectedItems(), tagVec);
     }
 }
 
-void Views::ViewProjects::_btnRemovePropertiesTagClicked()
+void Views::ViewProjects::_btnRemovePropertiesTagClicked(std::vector<Wt::Dbo::ptr<Database::Tag>> tagVec)
 {
+    if(tagVec.size() == 0)
+        return;
+
     if(_stkMain->currentWidget() == _cntProjects)
     {
         if(_qtvProjects->table()->selectedIndexes().size() > 0)
-            _removeTagsFromDbo<Projects::Project>(_qtvProjects->selectedItems(), _qtvPropertiesAssignedTags->selectedItems());
+            _removeTagsFromDbo<Projects::Project>(_qtvProjects->selectedItems(), tagVec);
     }
     else if(_stkMain->currentWidget() == _cntSequences)
     {
         if(_qtvSequences->table()->selectedIndexes().size() > 0)
-            _removeTagsFromDbo<Projects::ProjectSequence>(_qtvSequences->selectedItems(), _qtvPropertiesAssignedTags->selectedItems());
+            _removeTagsFromDbo<Projects::ProjectSequence>(_qtvSequences->selectedItems(), tagVec);
     }
     else if(_stkMain->currentWidget() == _cntShots)
     {
         if(_qtvShots->table()->selectedIndexes().size() > 0)
-            _removeTagsFromDbo<Projects::ProjectShot>(_qtvShots->selectedItems(), _qtvPropertiesAssignedTags->selectedItems());
+            _removeTagsFromDbo<Projects::ProjectShot>(_qtvShots->selectedItems(), tagVec);
     }
     else if(_stkMain->currentWidget() == _cntAssets)
     {
         if(_qtvAssets->table()->selectedIndexes().size() > 0)
-            _removeTagsFromDbo<Projects::ProjectAsset>(_qtvAssets->selectedItems(), _qtvPropertiesAssignedTags->selectedItems());
+            _removeTagsFromDbo<Projects::ProjectAsset>(_qtvAssets->selectedItems(), tagVec);
     }
     else if(_stkMain->currentWidget() == _cntTasks)
     {
         if(_qtvTasks->table()->selectedIndexes().size() > 0)
-            _removeTagsFromDbo<Projects::ProjectTask>(_qtvTasks->selectedItems(), _qtvPropertiesAssignedTags->selectedItems());
+            _removeTagsFromDbo<Projects::ProjectTask>(_qtvTasks->selectedItems(), tagVec);
     }
 }
 
-void Views::ViewProjects::_btnFilterPropertiesTagClicked()
+void Views::ViewProjects::_btnFilterPropertiesTagClicked(std::vector<Wt::Dbo::ptr<Database::Tag>> tagVec)
 {
     std::string strFilterQuery = "";
 
-    if(_qtvPropertiesTags->table()->selectedIndexes().size() == 0)
+    if(tagVec.size() == 0)
         return;
 
-    std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Database::Tag>(_qtvPropertiesTags->selectedItems());
+    std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Database::Tag>(tagVec);
 
     if(_stkMain->currentWidget() == _cntProjects)
     {
@@ -1958,198 +1943,44 @@ void Views::ViewProjects::_btnAddPropertiesNoteClicked()
     }
 }
 
-void Views::ViewProjects::_btnRemovePropertiesNoteClicked()
+void Views::ViewProjects::_btnRemovePropertiesNoteClicked(std::vector<Wt::Dbo::ptr<Database::Note>> noteVec)
 {
 
+}
+
+void Views::ViewProjects::_onViewPropertiesSubViewExposed(const std::string &viewName)
+{
+    if(viewName == "Data")
+    {
+        _updatePropertiesDataView();
+    }
+    else if(viewName == "Tags")
+    {
+        _viewProperties->updateTagsView();
+        _updatePropertiesAssignedTagsView();
+    }
+    else if(viewName == "Notes")
+    {
+        _updatePropertiesNotesView();
+    }
 }
 
 void Views::ViewProjects::_createPropertiesView()
 {
-    _cntPropertiesMain = new Wt::WContainerWidget();
+    _viewProperties = new Views::ViewProperties();
+    _viewProperties->addDataRequested().connect(this, &Views::ViewProjects::_btnAddPropertiesDataClicked);
+    _viewProperties->removeDataRequested().connect(this, &Views::ViewProjects::_btnRemovePropertiesDataClicked);
+    _viewProperties->addTagRequested().connect(this, &Views::ViewProjects::_btnAddPropertiesTagClicked);
+    _viewProperties->removeTagRequested().connect(this, &Views::ViewProjects::_btnRemovePropertiesTagClicked);
+    _viewProperties->filterByTagRequested().connect(this, &Views::ViewProjects::_btnFilterPropertiesTagClicked);
+    _viewProperties->clearTagFilterRequested().connect(this, &Views::ViewProjects::_btnClearFilterPropertiesTagClicked);
+    _viewProperties->addNoteRequested().connect(this, &Views::ViewProjects::_btnAddPropertiesNoteClicked);
+    _viewProperties->removeNoteRequested().connect(this, &Views::ViewProjects::_btnRemovePropertiesNoteClicked);
+    _viewProperties->viewExposed().connect(this, &Views::ViewProjects::_onViewPropertiesSubViewExposed);
 
-    _propertiesPanel->addPropertiesView(this->id(), _cntPropertiesMain);
+    _viewProperties->setViewHidden("Groups Privileges", true);
 
-    _layCntPropertiesMain = new Wt::WVBoxLayout();
-    _layCntPropertiesMain->setContentsMargins(0,0,0,0);
-    _layCntPropertiesMain->setSpacing(0);
-
-    _cntPropertiesMain->setLayout(_layCntPropertiesMain);
-
-    _navBarPropertiesMain = new Wt::WNavigationBar();
-
-    _layCntPropertiesMain->addWidget(_navBarPropertiesMain);
-
-    _mnuPropertiesNavBar = new Wt::WMenu(Wt::Horizontal);
-
-    _navBarPropertiesMain->addMenu(_mnuPropertiesNavBar);
-
-    _mnuPropertiesNavBarDataItem = new Wt::WMenuItem("Data");
-    _mnuPropertiesNavBarDataItem->triggered().connect(this, &Views::ViewProjects::_mnuPropertiesNavBarDataItemTriggered);
-    _mnuPropertiesNavBar->addItem(_mnuPropertiesNavBarDataItem);
-
-    _mnuPropertiesNavBarTagsItem = new Wt::WMenuItem("Tags");
-    _mnuPropertiesNavBarTagsItem->triggered().connect(this, &Views::ViewProjects::_mnuPropertiesNavBarTagsItemTriggered);
-    _mnuPropertiesNavBar->addItem(_mnuPropertiesNavBarTagsItem);
-
-    _mnuPropertiesNavBarNotesItem = new Wt::WMenuItem("Notes");
-    _mnuPropertiesNavBarNotesItem->triggered().connect(this, &Views::ViewProjects::_mnuPropertiesNavBarNotesItemTriggered);
-    _mnuPropertiesNavBar->addItem(_mnuPropertiesNavBarNotesItem);
-
-    _stkProperties = new Wt::WStackedWidget();
-    _stkProperties->setTransitionAnimation(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Fade, Wt::WAnimation::TimingFunction::EaseInOut), true);
-
-    _layCntPropertiesMain->addWidget(_stkProperties, 1);
-
-    //Data Table View
-    _createPropertiesDataTableView();
-    _stkProperties->addWidget(_qtvPropertiesData);
-
-    //Tags/AssignedTags Table Views
-    _cntPropertiesTags = new Wt::WContainerWidget();
-    _stkProperties->addWidget(_cntPropertiesTags);
-
-    _layCntPropertiesTags = new Wt::WVBoxLayout();
-    _layCntPropertiesTags->setContentsMargins(0,0,0,0);
-    _layCntPropertiesTags->setSpacing(0);
-
-    _cntPropertiesTags->setLayout(_layCntPropertiesTags);
-
-    _cntPropertiesAssignedTags = new Wt::WContainerWidget();
-
-    _layCntPropertiesTags->addWidget(_cntPropertiesAssignedTags);
-
-    _layCntPropertiesAssignedTags = new Wt::WVBoxLayout();
-    _layCntPropertiesAssignedTags->setContentsMargins(0,14,0,0);
-    _layCntPropertiesAssignedTags->setSpacing(0);
-
-    _cntPropertiesAssignedTags->setLayout(_layCntPropertiesAssignedTags);
-
-    _cntTxtPropertiesAssignedTagsLabel = new Wt::WContainerWidget();
-    _cntTxtPropertiesAssignedTagsLabel->setStyleClass("title-bar");
-    _cntTxtPropertiesAssignedTagsLabel->setContentAlignment(Wt::AlignCenter);
-    _cntTxtPropertiesAssignedTagsLabel->setMinimumSize(Wt::WLength::Auto, 25);
-
-    _layCntPropertiesAssignedTags->addWidget(_cntTxtPropertiesAssignedTagsLabel);
-
-    _txtPropertiesAssignedTagsLabel = new Wt::WText("<b><i>Assigned Tags</i></b>");
-    _txtPropertiesAssignedTagsLabel->setStyleClass("title-bar-text");
-    _cntTxtPropertiesAssignedTagsLabel->addWidget(_txtPropertiesAssignedTagsLabel);
-
-    _createPropertiesAssignedTagsTableView();
-    _layCntPropertiesAssignedTags->addWidget(_qtvPropertiesAssignedTags, 1);
-
-    //Available Tags
-    _cntPropertiesAvailableTags = new Wt::WContainerWidget();
-
-    _layCntPropertiesTags->addWidget(_cntPropertiesAvailableTags);
-
-    _layCntPropertiesAvailableTags = new Wt::WVBoxLayout();
-    _layCntPropertiesAvailableTags->setContentsMargins(0,14,0,0);
-    _layCntPropertiesAvailableTags->setSpacing(0);
-
-    _cntPropertiesAvailableTags->setLayout(_layCntPropertiesAvailableTags);
-
-    _cntTxtPropertiesAvailableTagsLabel = new Wt::WContainerWidget();
-    _cntTxtPropertiesAvailableTagsLabel->setStyleClass("title-bar");
-    _cntTxtPropertiesAvailableTagsLabel->setContentAlignment(Wt::AlignCenter);
-    _cntTxtPropertiesAvailableTagsLabel->setMinimumSize(Wt::WLength::Auto, 25);
-
-    _layCntPropertiesAvailableTags->addWidget(_cntTxtPropertiesAvailableTagsLabel);
-
-    _txtPropertiesAvailableTagsLabel = new Wt::WText("<b><i>Available Tags</i></b>");
-    _txtPropertiesAvailableTagsLabel->setStyleClass("title-bar-text");
-    _cntTxtPropertiesAvailableTagsLabel->addWidget(_txtPropertiesAvailableTagsLabel);
-
-    //Tags Table View
-    _createPropertiesTagsTableView();
-    _layCntPropertiesAvailableTags->addWidget(_qtvPropertiesTags, 1);
-
-    //Notes Table View
-    _createPropertiesNotesTableView();
-    _stkProperties->addWidget(_qtvPropertiesNotes);
-
-    //Default Selected Tab
-    _mnuPropertiesNavBar->select(_mnuPropertiesNavBarDataItem);
-}
-
-void Views::ViewProjects::_createPropertiesDataTableView()
-{
-    _qtvPropertiesData = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::DboData>(&Database::DatabaseManager::instance());
-    //requires "create" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
-    {
-        Wt::WPushButton *btn = _qtvPropertiesData->createToolButton("", "icons/Add.png", "Add A New Field");
-        btn->clicked().connect(this, &Views::ViewProjects::_btnAddPropertiesDataClicked);
-    }
-    else
-        _qtvPropertiesData->setImportCSVFetureEnabled(false);
-
-    //requires "remove" privilege
-//    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
-//    {
-//        Wt::WPushButton *btn = _qtvPropertiesData->createToolButton("", "icons/Remove.png", "Remove Selected Fields");
-//        btn->clicked().connect(this, &Views::ViewProjects::_btnRemovePropertiesDataClicked);
-//    }
-
-    _updatePropertiesDataView();
-}
-
-void Views::ViewProjects::_createPropertiesTagsTableView()
-{
-    _qtvPropertiesTags = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::Tag>(&Database::DatabaseManager::instance());
-    _qtvPropertiesTags->setImportCSVFetureEnabled(false);
-
-    //requires "create" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
-    {
-        Wt::WPushButton *btn = _qtvPropertiesTags->createToolButton("", "icons/AddTo.png", "Add selected tags to selected items");
-        btn->clicked().connect(this, &Views::ViewProjects::_btnAddPropertiesTagClicked);
-    }
-
-    Wt::WPushButton *btnFilter = _qtvPropertiesTags->createToolButton("", "icons/Filter.png", "Filter active view by selected tags");
-    btnFilter->clicked().connect(this, &Views::ViewProjects::_btnFilterPropertiesTagClicked);
-
-    Wt::WPushButton *btnClearFilter = _qtvPropertiesTags->createToolButton("", "icons/ClearFilter.png", "Clear tags filter on the active view");
-    btnClearFilter->clicked().connect(this, &Views::ViewProjects::_btnClearFilterPropertiesTagClicked);
-
-    _updatePropertiesTagsView();
-}
-
-void Views::ViewProjects::_createPropertiesAssignedTagsTableView()
-{
-    _qtvPropertiesAssignedTags = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::Tag>(&Database::DatabaseManager::instance());
-    _qtvPropertiesAssignedTags->setImportCSVFetureEnabled(false);
-
-    //requires "create" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
-    {
-        Wt::WPushButton *btn = _qtvPropertiesAssignedTags->createToolButton("", "icons/RemoveFrom.png", "Remove selected tags from selected items");
-        btn->clicked().connect(this, &Views::ViewProjects::_btnRemovePropertiesTagClicked);
-    }
-
-    _updatePropertiesAssignedTagsView();
-}
-
-void Views::ViewProjects::_createPropertiesNotesTableView()
-{
-    _qtvPropertiesNotes = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::Note>(&Database::DatabaseManager::instance());
-    //requires "create" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
-    {
-        Wt::WPushButton *btn = _qtvPropertiesNotes->createToolButton("", "icons/Add.png", "Add A New Note");
-        btn->clicked().connect(this, &Views::ViewProjects::_btnAddPropertiesNoteClicked);
-    }
-    else
-        _qtvPropertiesNotes->setImportCSVFetureEnabled(false);
-
-    //requires "remove" privilege
-//    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
-//    {
-//        Wt::WPushButton *btn = _qtvPropertiesNotes->createToolButton("", "icons/Remove.png", "Remove Selected Notes");
-//        btn->clicked().connect(this, &Views::ViewProjects::_btnRemovePropertiesNotesClicked);
-//    }
-
-    _updatePropertiesNotesView();
+    _propertiesPanel->addPropertiesView(this->id(), _viewProperties);
 }
 
 void Views::ViewProjects::_updatePropertiesDataView()
@@ -2165,6 +1996,8 @@ void Views::ViewProjects::_updatePropertiesDataView()
         flags = Wt::ItemIsSelectable;
 
     int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+
+    Ms::Widgets::MQueryTableViewWidget<Database::DboData> *_qtvPropertiesData = _viewProperties->qtvData();
 
     _qtvPropertiesData->clearColumns();
 
@@ -2265,36 +2098,6 @@ void Views::ViewProjects::_updatePropertiesDataView()
     _qtvPropertiesData->updateView();
 }
 
-void Views::ViewProjects::_updatePropertiesTagsView()
-{
-    if(!Database::DatabaseManager::instance().openTransaction())
-        return;
-
-    Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query;
-
-    int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
-
-    if(AppSettings::instance().isLoadInactiveData())
-        query = Database::DatabaseManager::instance().session()->find<Database::Tag>().where("View_Rank <= ?").bind(viewRank);
-    else
-        query = Database::DatabaseManager::instance().session()->find<Database::Tag>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
-
-    _qtvPropertiesTags->setQuery(query);
-
-    _qtvPropertiesTags->clearColumns();
-
-    //add columns
-    _qtvPropertiesTags->addColumn(Ms::Widgets::MTableViewColumn("Tag_Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), true));
-    _qtvPropertiesTags->addColumn(Ms::Widgets::MTableViewColumn("Tag_Content", "Content", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), true));
-
-    if(AppSettings::instance().isShowExtraColumns())
-        _addExtraColumns<Database::Tag>(_qtvPropertiesTags, Wt::ItemIsSelectable, 0);
-
-    _qtvPropertiesTags->removeColumn(Ms::Widgets::MTableViewColumn("Active"));
-
-    _qtvPropertiesTags->updateView();
-}
-
 void Views::ViewProjects::_updatePropertiesAssignedTagsView()
 {
     if(!Database::DatabaseManager::instance().openTransaction())
@@ -2308,6 +2111,8 @@ void Views::ViewProjects::_updatePropertiesAssignedTagsView()
         flags = Wt::ItemIsSelectable;
 
     int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+
+    Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesAssignedTags = _viewProperties->qtvAssignedTags();
 
     _qtvPropertiesAssignedTags->clearColumns();
 
@@ -2421,6 +2226,8 @@ void Views::ViewProjects::_updatePropertiesNotesView()
         flags = Wt::ItemIsSelectable;
 
     int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+
+    Ms::Widgets::MQueryTableViewWidget<Database::Note> *_qtvPropertiesNotes = _viewProperties->qtvNotes();
 
     _qtvPropertiesNotes->clearColumns();
 

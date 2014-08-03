@@ -19,7 +19,7 @@
 #include "projectsdialogs.h"
 #include "../../Log/logger.h"
 #include "../../Session/sessionmanager.h"
-
+#include "../Properties/viewproperties.h"
 
 #include <Ms/Widgets/MWidgetFactory.h>
 #include <Ms/Widgets/MQueryTableViewWidget.h>
@@ -84,6 +84,7 @@ namespace Views
         //variables
         Log::Logger *_logger;
         Ms::Widgets::MPropertiesPanel *_propertiesPanel;
+
         /*******************--Main--********************/
         Wt::WContainerWidget *_cntProjectsAndData;
         Wt::WHBoxLayout *_layCntProjectsAndData;
@@ -123,30 +124,7 @@ namespace Views
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *_qtvTasks;
 
         //Properties
-        Wt::WContainerWidget *_cntPropertiesMain;
-        Wt::WVBoxLayout *_layCntPropertiesMain;
-        Wt::WNavigationBar *_navBarPropertiesMain;
-        Wt::WMenu *_mnuPropertiesNavBar;
-        Wt::WMenuItem *_mnuPropertiesNavBarDataItem;
-        Wt::WMenuItem *_mnuPropertiesNavBarTagsItem;
-        Wt::WMenuItem *_mnuPropertiesNavBarNotesItem;
-        Wt::WStackedWidget *_stkProperties;
-
-        Wt::WContainerWidget *_cntPropertiesTags;
-        Wt::WVBoxLayout *_layCntPropertiesTags;
-        Wt::WContainerWidget *_cntPropertiesAssignedTags;
-        Wt::WVBoxLayout *_layCntPropertiesAssignedTags;
-        Wt::WText *_txtPropertiesAssignedTagsLabel;
-        Wt::WContainerWidget *_cntTxtPropertiesAssignedTagsLabel;
-        Wt::WContainerWidget *_cntPropertiesAvailableTags;
-        Wt::WVBoxLayout *_layCntPropertiesAvailableTags;
-        Wt::WText *_txtPropertiesAvailableTagsLabel;
-        Wt::WContainerWidget *_cntTxtPropertiesAvailableTagsLabel;
-
-        Ms::Widgets::MQueryTableViewWidget<Database::DboData> *_qtvPropertiesData;
-        Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesTags;
-        Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesAssignedTags;
-        Ms::Widgets::MQueryTableViewWidget<Database::Note> *_qtvPropertiesNotes;
+        Views::ViewProperties *_viewProperties;
 
         //slots
         /*******************--Main--********************/
@@ -210,26 +188,20 @@ namespace Views
         void _createTasksTableView();
 
         /*******************--Properties--********************/
+
         //slots
-        void _mnuPropertiesNavBarDataItemTriggered();
-        void _mnuPropertiesNavBarTagsItemTriggered();
-        void _mnuPropertiesNavBarNotesItemTriggered();
         void _btnAddPropertiesDataClicked();
-        void _btnRemovePropertiesDataClicked();
-        void _btnAddPropertiesTagClicked();
-        void _btnRemovePropertiesTagClicked();
-        void _btnFilterPropertiesTagClicked();
+        void _btnRemovePropertiesDataClicked(std::vector<Wt::Dbo::ptr<Database::DboData>> dataVec);
+        void _btnAddPropertiesTagClicked(std::vector<Wt::Dbo::ptr<Database::Tag> > tagVec);
+        void _btnRemovePropertiesTagClicked(std::vector<Wt::Dbo::ptr<Database::Tag> > tagVec);
+        void _btnFilterPropertiesTagClicked(std::vector<Wt::Dbo::ptr<Database::Tag>> tagVec);
         void _btnClearFilterPropertiesTagClicked();
         void _btnAddPropertiesNoteClicked();
-        void _btnRemovePropertiesNoteClicked();
+        void _btnRemovePropertiesNoteClicked(std::vector<Wt::Dbo::ptr<Database::Note>> noteVec);
+        void _onViewPropertiesSubViewExposed(const std::string &viewName);
 
         //functions
         void _createPropertiesView();
-
-        void _createPropertiesDataTableView();
-        void _createPropertiesTagsTableView();
-        void _createPropertiesAssignedTagsTableView();
-        void _createPropertiesNotesTableView();
 
         void _updatePropertiesDataView();
         void _updatePropertiesTagsView();
