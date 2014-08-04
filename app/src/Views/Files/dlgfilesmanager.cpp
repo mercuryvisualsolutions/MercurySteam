@@ -4,11 +4,13 @@
 #include "../../Users/usersio.h"
 #include "../../Log/logmanager.h"
 #include "../../Auth/authmanager.h"
+#include "../../Settings/appsettings.h"
 
 #include <Wt/WIconPair>
 #include <Wt/WStandardItem>
 #include <Wt/WApplication>
 #include <Wt/WImage>
+#include <Wt/WPainter>
 #include <Wt/WMediaPlayer>
 
 #include <stack>
@@ -20,6 +22,8 @@ Views::DlgFilesManager::DlgFilesManager(const std::string &rootPath) :
     _rootPath(rootPath)
 {
     _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
+
+    _absoluteRootPath = Ms::IO::absolutePath(AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + _rootPath);
 
     _prepareView();
 }
@@ -52,7 +56,7 @@ void Views::DlgFilesManager::_btnCheckInClicked()
             (*_trDirs->selectedNodes().begin())->parentNode() != _trDirs->treeRoot())//selection parent is not root node
         return;
 
-    std::string path = (*_trDirs->selectedNodes().begin())->objectName();
+    std::string path = AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + (*_trDirs->selectedNodes().begin())->objectName();
 
     Ms::Widgets::Dialogs::MFilesUploadDialog *dlg = new Ms::Widgets::Dialogs::MFilesUploadDialog(true, true);
     dlg->finished().connect(std::bind([=]()
@@ -140,25 +144,52 @@ void Views::DlgFilesManager::_btnViewClicked()
         Wt::WModelIndex index = *_tblFiles->selectedIndexes().begin();
 
         std::string dir = (*_trDirs->selectedNodes().begin())->objectName();//only view first selected item
-        std::string fileName = dir + Ms::IO::dirSeparator() + _mdlTblFiles->item(index.row())->text().toUTF8();
+        std::string fileUrl = dir + Ms::IO::dirSeparator() + _mdlTblFiles->item(index.row())->text().toUTF8();
 
-        Ms::IO::MFileInfo file(fileName);
+        Ms::IO::MFileInfo file(fileUrl);
 
         Wt::WDialog *dlg = new Wt::WDialog("View");
+        dlg->contents()->setContentAlignment(Wt::AlignCenter);
+        dlg->setResizable(true);
         dlg->rejectWhenEscapePressed(true);
         dlg->finished().connect(std::bind([=]()
         {
             delete dlg;
         }));
 
-        if(file.extension() == "jpg" ||
-                file.extension() == "jpg")
+        if(file.extension() == "jpg" || file.extension() == "png" || file.extension() == "gif")//image
         {
-            Wt::WImage *img = new Wt::WImage(fileName);
+            Wt::WImage *img = new Wt::WImage(std::string(fileUrl));
+            img->setInline(false);
+
             dlg->contents()->addWidget(img);
         }
+        else if(file.extension() == "mp3" || file.extension() == "wav")//audio
+        {
+            Wt::WMediaPlayer *player = new Wt::WMediaPlayer(Wt::WMediaPlayer::Audio);
+            player->setTitle(file.name());
 
-        dlg->show();
+            if(file.extension() == "mp3")
+                player->addSource(Wt::WMediaPlayer::MP3, Wt::WLink(fileUrl));
+            else
+                player->addSource(Wt::WMediaPlayer::WAV, Wt::WLink(fileUrl));
+
+            dlg->contents()->addWidget(player);
+        }
+        else if(file.extension() == "mp4" || file.extension() == "flv")//video
+        {
+            Wt::WMediaPlayer *player = new Wt::WMediaPlayer(Wt::WMediaPlayer::Video);
+            player->setTitle(file.name());
+
+            if(file.extension() == "mp4")
+                player->addSource(Wt::WMediaPlayer::M4V, Wt::WLink(fileUrl));
+            else
+                player->addSource(Wt::WMediaPlayer::FLV, Wt::WLink(fileUrl));
+
+            dlg->contents()->addWidget(player);
+        }
+
+        dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Fade, Wt::WAnimation::TimingFunction::EaseInOut));
     }
 }
 
@@ -205,7 +236,7 @@ void Views::DlgFilesManager::_trDirsItemSelectionChanged()
 
     _mdlTblFiles->clear();
 
-    std::string path = (*_trDirs->selectedNodes().begin())->objectName();
+    std::string path = AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + (*_trDirs->selectedNodes().begin())->objectName();
 
     std::vector<Ms::IO::MFileInfo> list = Ms::IO::dirFilesInfo(path);
 
@@ -235,6 +266,8 @@ void Views::DlgFilesManager::_trDirsItemSelectionChanged()
 void Views::DlgFilesManager::setRootpath(const std::string &rootPath)
 {
     _rootPath = rootPath;
+
+    _absoluteRootPath = Ms::IO::absolutePath(AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + _rootPath);
 }
 
 bool Views::DlgFilesManager::createDisabled()
@@ -297,7 +330,7 @@ void Views::DlgFilesManager::_populateDirTree()
         Wt::WTreeNode *currentNode = nodesStack.top();
         nodesStack.pop();
 
-        std::vector<std::string> dirs = Ms::IO::dirChildren(currentNode->objectName());
+        std::vector<std::string> dirs = Ms::IO::dirChildren(AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + currentNode->objectName());
 
         for(std::string &dir : dirs)
         {
@@ -369,7 +402,7 @@ std::string Views::DlgFilesManager::_generateDownloadUrl()
             (*_trDirs->selectedNodes().begin())->parentNode() == _trDirs->treeRoot())//selection is a main repo folder
         return "";
 
-    std::string orgDir = (*_trDirs->selectedNodes().begin())->objectName();
+    std::string orgDir = AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + (*_trDirs->selectedNodes().begin())->objectName();
     std::string tmpfilePath = _getUniqueTmpFileName() + ".zip";
     std::string command = "zip -j -r \'" + tmpfilePath + "\'";
 

@@ -171,6 +171,16 @@ void Projects::ProjectSequence::setStatus(const Wt::Dbo::ptr<Projects::ProjectWo
     _status = status;
 }
 
+int Projects::ProjectSequence::priority() const
+{
+    return _priority;
+}
+
+void Projects::ProjectSequence::setPriority(int priority)
+{
+    _priority = priority;
+}
+
 bool Projects::ProjectSequence::operator ==(const Projects::ProjectSequence &other) const
 {
     return _id.name == other.name() &&
@@ -195,4 +205,5 @@ void Projects::ProjectSequence::_init()
     _frameWidth = 1920;
     _frameHeight = 1080;
     _description = "";
+    _priority = 0;
 }

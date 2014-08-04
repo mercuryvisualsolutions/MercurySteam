@@ -8,6 +8,7 @@
 #include "../../Log/logmanager.h"
 #include "../Dialogs/dlgcreatedbodata.h"
 #include "../Dialogs/dlgcreatenote.h"
+#include "../Dialogs/dlgcreatetag.h"
 
 #include <Ms/Widgets/Delegates/MDelegates>
 #include <Ms/Widgets/Dialogs/MFilesUploadDialog.h>
@@ -125,6 +126,7 @@ void Views::ViewUsers::updateGroupsView()
 
     //add columns
     _qtvGroups->addColumn(Ms::Widgets::MTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvGroups->addColumn(Ms::Widgets::MTableViewColumn("Rank", "Rank", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
     if(AppSettings::instance().isShowExtraColumns())
         _addExtraColumns<Users::Group>(_qtvGroups, flags, editRank);
@@ -140,7 +142,7 @@ void Views::ViewUsers::updatePropertiesView()
     }
     else if(_viewProperties->currentView() == "Tags")
     {
-        _viewProperties->updateTagsView();
+        _updatePropertiesTagsView();
         _updatePropertiesAssignedTagsView();
     }
     else if(_viewProperties->currentView() == "Notes")
@@ -250,11 +252,50 @@ void Views::ViewUsers::_addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec)
        delete dlg;
     }));
 
-    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 template<typename T>
-void Views::ViewUsers::_addTagsToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
+void Views::ViewUsers::_addTagToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec)
+{
+    Views::Dialogs::DlgCreateTag *dlg = new Views::Dialogs::DlgCreateTag();
+    dlg->finished().connect(std::bind([=]()
+    {
+       if(dlg->result() == Wt::WDialog::Accepted)
+       {
+           for(auto &ptr : dboVec)
+           {
+               Database::Tag *tag = new Database::Tag(dlg->tagName(), dlg->tagContent());
+               tag->setType("Custom");
+               tag->setActive(dlg->isActive());
+
+                Wt::Dbo::ptr<Database::Tag> tagPtr = Database::DatabaseManager::instance().createDbo<Database::Tag>(tag);
+
+                if(tagPtr.get())
+                {
+                    Database::DatabaseManager::instance().modifyDbo<T>(ptr)->addTag(tagPtr);
+
+                     _logger->log(std::string("Created tag ") + dlg->tagName(), Ms::Log::LogMessageType::Info);
+                }
+                else
+                {
+                    delete tag;
+
+                    _logger->log(std::string("Error creating tag ") + dlg->tagName(), Ms::Log::LogMessageType::Error);
+                }
+           }
+
+           _updatePropertiesTagsView();
+       }
+
+       delete dlg;
+    }));
+
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
+}
+
+template<typename T>
+void Views::ViewUsers::_assignTagToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
     if(dboVec.size() > 0)
     {
@@ -262,7 +303,7 @@ void Views::ViewUsers::_addTagsToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec,
         {
             for(auto &tagPtr : tagVec)
             {
-                Database::DatabaseManager::instance().modifyDbo<T>(dboPtr)->addTag(tagPtr);
+                Database::DatabaseManager::instance().modifyDbo<T>(dboPtr)->assignTag(tagPtr);
             }
         }
 
@@ -271,7 +312,7 @@ void Views::ViewUsers::_addTagsToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec,
 }
 
 template<typename T>
-void Views::ViewUsers::_removeTagsFromDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
+void Views::ViewUsers::_unAssignTagFromDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
     if(dboVec.size() > 0)
     {
@@ -279,7 +320,7 @@ void Views::ViewUsers::_removeTagsFromDbo(const std::vector<Wt::Dbo::ptr<T>> &db
         {
             for(auto &tagPtr : tagVec)
             {
-                Database::DatabaseManager::instance().modifyDbo<T>(dboPtr)->removeTag(tagPtr);
+                Database::DatabaseManager::instance().modifyDbo<T>(dboPtr)->unassignTag(tagPtr);
             }
         }
 
@@ -454,7 +495,7 @@ void Views::ViewUsers::_btnUsersImportThumbnailsClicked()
             _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
         }
 
-        _qtvUsers->reload();
+        _qtvUsers->updateView();
 
         delete dlg;
     }));
@@ -613,31 +654,45 @@ void Views::ViewUsers::_btnRemovePropertiesDataClicked(const std::vector<Wt::Dbo
 
 }
 
-void Views::ViewUsers::_btnAddPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
+void Views::ViewUsers::_btnCreatePropertiesTagClicked()
 {
     if(_stkMain->currentWidget() == _qtvUsers)
     {
         if(_qtvUsers->table()->selectedIndexes().size() > 0)
-            _addTagsToDbo<Users::User>(_qtvUsers->selectedItems(), tagVec);
+            _addTagToDbo<Users::User>(_qtvUsers->selectedItems());
     }
     else if(_stkMain->currentWidget() == _qtvGroups)
     {
         if(_qtvGroups->table()->selectedIndexes().size() > 0)
-            _addTagsToDbo<Users::Group>(_qtvGroups->selectedItems(), tagVec);
+            _addTagToDbo<Users::Group>(_qtvGroups->selectedItems());
     }
 }
 
-void Views::ViewUsers::_btnRemovePropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
+void Views::ViewUsers::_btnAssignPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
     if(_stkMain->currentWidget() == _qtvUsers)
     {
         if(_qtvUsers->table()->selectedIndexes().size() > 0)
-            _removeTagsFromDbo<Users::User>(_qtvUsers->selectedItems(), tagVec);
+            _assignTagToDbo<Users::User>(_qtvUsers->selectedItems(), tagVec);
     }
     else if(_stkMain->currentWidget() == _qtvGroups)
     {
         if(_qtvGroups->table()->selectedIndexes().size() > 0)
-            _removeTagsFromDbo<Users::Group>(_qtvGroups->selectedItems(), tagVec);
+            _assignTagToDbo<Users::Group>(_qtvGroups->selectedItems(), tagVec);
+    }
+}
+
+void Views::ViewUsers::_btnUnAssignPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
+{
+    if(_stkMain->currentWidget() == _qtvUsers)
+    {
+        if(_qtvUsers->table()->selectedIndexes().size() > 0)
+            _unAssignTagFromDbo<Users::User>(_qtvUsers->selectedItems(), tagVec);
+    }
+    else if(_stkMain->currentWidget() == _qtvGroups)
+    {
+        if(_qtvGroups->table()->selectedIndexes().size() > 0)
+            _unAssignTagFromDbo<Users::Group>(_qtvGroups->selectedItems(), tagVec);
     }
 }
 
@@ -652,16 +707,14 @@ void Views::ViewUsers::_btnFilterPropertiesTagClicked(const std::vector<Wt::Dbo:
 
     if(_stkMain->currentWidget() == _qtvUsers)
     {
-        strFilterQuery = "Name IN (SELECT ut.user_Name FROM rel_user_tags ut WHERE tag_Tag_Name IN (" + idValues.at(0) + ") AND "
-                "tag_Tag_Content IN (" + idValues.at(1) + "))";
+        strFilterQuery = "Name IN (SELECT ut.user_Name FROM rel_user_assigned_tags ut WHERE tag_id IN (" + idValues.at(0) + "))";
 
         _qtvUsers->setCustomFilterString(strFilterQuery);
         _qtvUsers->setCustomFilterActive(true);
     }
     else if(_stkMain->currentWidget() == _qtvGroups)
     {
-        strFilterQuery = "Name IN (SELECT gt.group_Name FROM rel_group_tags gt WHERE tag_Tag_Name IN (" + idValues.at(0) + ") AND "
-                "tag_Tag_Content IN (" + idValues.at(1) + "))";
+        strFilterQuery = "Name IN (SELECT gt.group_Name FROM rel_group_tags gt WHERE tag_id IN (" + idValues.at(0) + "))";
 
         _qtvGroups->setCustomFilterString(strFilterQuery);
         _qtvGroups->setCustomFilterActive(true);
@@ -762,7 +815,7 @@ void Views::ViewUsers::_onViewPropertiesSubViewExposed(const std::string &viewNa
     }
     else if(viewName == "Tags")
     {
-        _viewProperties->updateTagsView();
+        _updatePropertiesTagsView();
         _updatePropertiesAssignedTagsView();
     }
     else if(viewName == "Notes")
@@ -781,8 +834,9 @@ void Views::ViewUsers::_createPropertiesView()
     _viewProperties = new Views::ViewProperties();
     _viewProperties->addDataRequested().connect(this, &Views::ViewUsers::_btnAddPropertiesDataClicked);
     _viewProperties->removeDataRequested().connect(this, &Views::ViewUsers::_btnRemovePropertiesDataClicked);
-    _viewProperties->addTagRequested().connect(this, &Views::ViewUsers::_btnAddPropertiesTagClicked);
-    _viewProperties->removeTagRequested().connect(this, &Views::ViewUsers::_btnRemovePropertiesTagClicked);
+    _viewProperties->createTagRequested().connect(this, &Views::ViewUsers::_btnCreatePropertiesTagClicked);
+    _viewProperties->assignTagRequested().connect(this, &Views::ViewUsers::_btnAssignPropertiesTagClicked);
+    _viewProperties->unAssignTagRequested().connect(this, &Views::ViewUsers::_btnUnAssignPropertiesTagClicked);
     _viewProperties->filterByTagRequested().connect(this, &Views::ViewUsers::_btnFilterPropertiesTagClicked);
     _viewProperties->clearTagFilterRequested().connect(this, &Views::ViewUsers::_btnClearFilterPropertiesTagClicked);
     _viewProperties->addNoteRequested().connect(this, &Views::ViewUsers::_btnAddPropertiesNoteClicked);
@@ -864,6 +918,70 @@ void Views::ViewUsers::_updatePropertiesDataView()
     _qtvPropertiesData->updateView();
 }
 
+void Views::ViewUsers::_updatePropertiesTagsView()
+{
+    if(!Database::DatabaseManager::instance().openTransaction())
+            return;
+
+    bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+    Wt::WFlags<Wt::ItemFlag> flags;
+    if(canEdit)
+        flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
+    else
+        flags = Wt::ItemIsSelectable;
+
+    int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+
+    Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesTags = _viewProperties->qtvTags();
+
+    _qtvPropertiesTags->clearColumns();
+
+    //add columns
+    _qtvPropertiesTags->addColumn(Ms::Widgets::MTableViewColumn("id", "ID", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesTags->addColumn(Ms::Widgets::MTableViewColumn("Name", "Name", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesTags->addColumn(Ms::Widgets::MTableViewColumn("Content", "Content", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesTags->addColumn(Ms::Widgets::MTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+
+    Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query = Database::DatabaseManager::instance().session()->find<Database::Tag>();
+
+    if(_stkMain->currentWidget() == _qtvUsers)
+    {
+        if(_qtvUsers->table()->selectedIndexes().size() > 0)
+        {
+            std::string usersSelectSql = "(pt.user_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Users::User>(_qtvUsers->selectedItems()).at(0) + "))";
+
+            query.where("(id IN (SELECT pt.tag_id FROM rel_user_tags pt WHERE " + usersSelectSql + ") OR (Type = 'Global'))");
+        }
+        else
+            query.where("Type = ?").bind("Global");
+    }
+    else if(_stkMain->currentWidget() == _qtvGroups)
+    {
+        if(_qtvGroups->table()->selectedIndexes().size() > 0)
+        {
+            std::string groupsSelectSql = "pt.group_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Users::Group>(_qtvGroups->selectedItems()).at(0) + ")";
+
+            query.where("(id IN (SELECT pt.tag_id FROM rel_group_tags pt WHERE " + groupsSelectSql + ") OR (Type = 'Global'))");
+        }
+        else
+            query.where("Type = ?").bind("Global");
+    }
+
+    int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+
+    if(!AppSettings::instance().isLoadInactiveData())
+        query.where("Active = ?").bind(true);
+
+    query.where("View_Rank <= ?").bind(viewRank);
+
+    _qtvPropertiesTags->setQuery(query);
+
+    if(AppSettings::instance().isShowExtraColumns())
+        _addExtraColumns<Database::Tag>(_qtvPropertiesTags, flags, editRank);
+
+    _qtvPropertiesTags->updateView();
+}
+
 void Views::ViewUsers::_updatePropertiesAssignedTagsView()
 {
     if(!Database::DatabaseManager::instance().openTransaction())
@@ -883,8 +1001,10 @@ void Views::ViewUsers::_updatePropertiesAssignedTagsView()
     _qtvPropertiesAssignedTags->clearColumns();
 
     //add columns
-    _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MTableViewColumn("Tag_Name", "Name", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-    _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MTableViewColumn("Tag_Content", "Content", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MTableViewColumn("id", "ID", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MTableViewColumn("Name", "Name", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MTableViewColumn("Content", "Content", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query = Database::DatabaseManager::instance().session()->find<Database::Tag>();
 
@@ -896,10 +1016,9 @@ void Views::ViewUsers::_updatePropertiesAssignedTagsView()
         {
             update = true;
 
-            std::string usersSelectSql = "pt.user_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Users::User>(_qtvUsers->selectedItems()).at(0) + ")";
+            std::string usersSelectSql = "(pt.user_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Users::User>(_qtvUsers->selectedItems()).at(0) + "))";
 
-            query.where("Tag_Name IN (SELECT pt.tag_Tag_Name FROM rel_user_tags pt WHERE " +
-                    usersSelectSql + ") AND Tag_Content IN (SELECT pt.tag_Tag_Content FROM rel_user_tags pt WHERE " + usersSelectSql  + ")");
+            query.where("(id IN (SELECT pt.tag_id FROM rel_user_assigned_tags pt WHERE " + usersSelectSql + "))");
         }
     }
     else if(_stkMain->currentWidget() == _qtvGroups)
@@ -910,8 +1029,7 @@ void Views::ViewUsers::_updatePropertiesAssignedTagsView()
 
             std::string groupsSelectSql = "pt.group_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Users::Group>(_qtvGroups->selectedItems()).at(0) + ")";
 
-            query.where("Tag_Name IN (SELECT pt.tag_Tag_Name FROM rel_group_tags pt WHERE " +
-                        groupsSelectSql + ") AND Tag_Content IN (SELECT pt.tag_Tag_Content FROM rel_group_tags pt WHERE " + groupsSelectSql  + ")");
+            query.where("(id IN (SELECT pt.tag_id FROM rel_group_assigned_tags pt WHERE " + groupsSelectSql + "))");
         }
     }
 
@@ -925,7 +1043,7 @@ void Views::ViewUsers::_updatePropertiesAssignedTagsView()
         query.where("View_Rank <= ?").bind(viewRank);
     }
     else
-        query.where("Tag_Name = ? AND Tag_Content = ?").bind("").bind("");
+        query.where("id = ?").bind(-1);
 
     _qtvPropertiesAssignedTags->setQuery(query);
 

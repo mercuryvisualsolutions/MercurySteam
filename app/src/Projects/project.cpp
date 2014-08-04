@@ -196,6 +196,16 @@ void Projects::Project::setManager(const Wt::Dbo::ptr<Users::User> user)
     _projectManager = user;
 }
 
+int Projects::Project::priority() const
+{
+    return _priority;
+}
+
+void Projects::Project::setPriority(int priority)
+{
+    _priority = priority;
+}
+
 bool Projects::Project::operator ==(const Projects::Project &other) const
 {
     return _name == other.name();
@@ -220,4 +230,5 @@ void Projects::Project::_init()
     _frameHeight = 1080;
     _progress = 0;
     _description = "";
+    _priority = 0;
 }

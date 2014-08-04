@@ -69,6 +69,30 @@ void Views::ViewApp::showSettingsView()
     _viwSettings->updateView();
 }
 
+void Views::ViewApp::_globalAppKeyWentDown(Wt::WKeyEvent key)
+{
+    if(((key.modifiers() & Wt::KeyboardModifier::ShiftModifier) == Wt::KeyboardModifier::ShiftModifier) && key.key() == Wt::Key::Key_M)
+    {
+        _mnuMainLeftViewShowMenuPanel->setChecked(!_mnuMainLeftViewShowMenuPanel->isChecked());
+        _toggleLeftMenuView();
+    }
+    else if(((key.modifiers() & Wt::KeyboardModifier::ShiftModifier) == Wt::KeyboardModifier::ShiftModifier) && key.key() == Wt::Key::Key_P)
+    {
+        _mnuMainLeftViewShowPropertiesPanel->setChecked(!_mnuMainLeftViewShowPropertiesPanel->isChecked());
+        _togglePropertiesPanel();
+    }
+    else if(((key.modifiers() & Wt::KeyboardModifier::ShiftModifier) == Wt::KeyboardModifier::ShiftModifier) && key.key() == Wt::Key::Key_L)
+    {
+        _mnuMainLeftViewShowLogPanel->setChecked(!_mnuMainLeftViewShowLogPanel->isChecked());
+        _toggleLogPanel();
+    }
+}
+
+void Views::ViewApp::_globalAppKeyWentUp(Wt::WKeyEvent key)
+{
+
+}
+
 void Views::ViewApp::_mnuMainLeftHelpAboutTriggered()
 {
     Wt::WMessageBox *msg = new Wt::WMessageBox("About", "MercurySteam (c) Ver 1.0<p>Coder: Mohamed Samir</p>", Wt::Information, Wt::Ok);
@@ -79,7 +103,7 @@ void Views::ViewApp::_mnuMainLeftHelpAboutTriggered()
     msg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
-void Views::ViewApp::_mnuMainLeftViewShowMenuPanelTriggered()
+void Views::ViewApp::_toggleLeftMenuView()
 {
     if(_mnuMainLeftViewShowMenuPanel->isChecked())
         _cntLeftMenu->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::SlideInFromLeft, Wt::WAnimation::TimingFunction::EaseInOut));
@@ -87,19 +111,15 @@ void Views::ViewApp::_mnuMainLeftViewShowMenuPanelTriggered()
         _cntLeftMenu->animateHide(Wt::WAnimation(Wt::WAnimation::AnimationEffect::SlideInFromLeft, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
-void Views::ViewApp::_mnuMainLeftViewShowPropertiesPanelTriggered()
+void Views::ViewApp::_togglePropertiesPanel()
 {
     if(_mnuMainLeftViewShowPropertiesPanel->isChecked())
-    {
         _propertiesPanel->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::SlideInFromRight, Wt::WAnimation::TimingFunction::EaseInOut));
-    }
     else
-    {
         _propertiesPanel->animateHide(Wt::WAnimation(Wt::WAnimation::AnimationEffect::SlideInFromRight, Wt::WAnimation::TimingFunction::EaseInOut));
-    }
 }
 
-void Views::ViewApp::_mnuMainLeftViewShowLogPanelTriggered()
+void Views::ViewApp::_toggleLogPanel()
 {
     if(_mnuMainLeftViewShowLogPanel->isChecked())
         _viwLog->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::SlideInFromBottom, Wt::WAnimation::TimingFunction::EaseInOut));
@@ -144,6 +164,10 @@ void Views::ViewApp::_mnuSideMainSettingsItemTriggered()
 
 void Views::ViewApp::_prepareView()
 {
+    /*******************--Application--********************/
+    Wt::WApplication::instance()->globalKeyWentDown().connect(this, &Views::ViewApp::_globalAppKeyWentDown);
+    Wt::WApplication::instance()->globalKeyWentUp().connect(this, &Views::ViewApp::_globalAppKeyWentUp);
+
     /*******************--Layouts--********************/
     _layMain = new Wt::WVBoxLayout();
     _layMain->setContentsMargins(0,0,0,0);
@@ -192,24 +216,24 @@ void Views::ViewApp::_prepareView()
     _mnuMainLeftViewPanelsSub = new Wt::WPopupMenu();
     _mnuMainLeftViewPanelsItem->setSubMenu(_mnuMainLeftViewPanelsSub);
 
-    _mnuMainLeftViewShowMenuPanel= new Wt::WMenuItem("Main Menu");
+    _mnuMainLeftViewShowMenuPanel= new Wt::WMenuItem("Main Menu - Shift+M");
     _mnuMainLeftViewShowMenuPanel->setCheckable(true);
     _mnuMainLeftViewShowMenuPanel->setChecked(true);
-    _mnuMainLeftViewShowMenuPanel->triggered().connect(this, &Views::ViewApp::_mnuMainLeftViewShowMenuPanelTriggered);
+    _mnuMainLeftViewShowMenuPanel->triggered().connect(this, &Views::ViewApp::_toggleLeftMenuView);
 
     _mnuMainLeftViewPanelsSub->addItem(_mnuMainLeftViewShowMenuPanel);//add "Show menu panel" item to mnuMainViewSub
 
-    _mnuMainLeftViewShowPropertiesPanel= new Wt::WMenuItem("Properties");
+    _mnuMainLeftViewShowPropertiesPanel= new Wt::WMenuItem("Properties - Shift+P");
     _mnuMainLeftViewShowPropertiesPanel->setCheckable(true);
     _mnuMainLeftViewShowPropertiesPanel->setChecked(true);
-    _mnuMainLeftViewShowPropertiesPanel->triggered().connect(this, &Views::ViewApp::_mnuMainLeftViewShowPropertiesPanelTriggered);
+    _mnuMainLeftViewShowPropertiesPanel->triggered().connect(this, &Views::ViewApp::_togglePropertiesPanel);
 
     _mnuMainLeftViewPanelsSub->addItem(_mnuMainLeftViewShowPropertiesPanel);//add "Show properties panel" item to mnuMainViewSub
 
-    _mnuMainLeftViewShowLogPanel = new Wt::WMenuItem("Log");
+    _mnuMainLeftViewShowLogPanel = new Wt::WMenuItem("Log - Shift+L");
     _mnuMainLeftViewShowLogPanel->setCheckable(true);
     _mnuMainLeftViewShowLogPanel->setChecked(true);
-    _mnuMainLeftViewShowLogPanel->triggered().connect(this, &Views::ViewApp::_mnuMainLeftViewShowLogPanelTriggered);
+    _mnuMainLeftViewShowLogPanel->triggered().connect(this, &Views::ViewApp::_toggleLogPanel);
 
     _mnuMainLeftViewPanelsSub->addItem(_mnuMainLeftViewShowLogPanel);//add "Show log panel" item to mnuMainViewSub
 

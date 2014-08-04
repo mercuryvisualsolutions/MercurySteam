@@ -76,6 +76,13 @@ std::string Ms::IO::absolutePath(const std::string &path)
     return boost::filesystem::absolute(path).string();
 }
 
+std::string Ms::IO::relativePath(const std::string &path)
+{
+    boost::filesystem::path bpath(path);
+
+    return bpath.relative_path().string();
+}
+
 std::vector<std::string> Ms::IO::dirChildren(const std::string &rootDir)
 {
     boost::filesystem::path path(rootDir);
@@ -134,7 +141,6 @@ u_int64_t Ms::IO::dirFilesCount(const std::string &rootDir)
 {
     return Ms::IO::dirFiles(rootDir).size();
 }
-
 
 bool Ms::IO::readCsv(const std::string &fileName, Ms::IO::Data::MDataCSV &dcsv)
 {

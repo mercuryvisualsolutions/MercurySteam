@@ -23,7 +23,6 @@ namespace Views
 
         //functions
         void setViewHidden(const std::string &viewName, bool hidden) const;
-        void updateTagsView();
         void updateGroupsPrivilegesView();
         const std::string currentView() const;
         void setCurrentView(const std::string &viewName) const;
@@ -40,8 +39,9 @@ namespace Views
         Wt::Signal<std::string> &viewExposed();
         Wt::Signal<> &addDataRequested();
         Wt::Signal<std::vector<Wt::Dbo::ptr<Database::DboData>>> &removeDataRequested();
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> &addTagRequested();
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> &removeTagRequested();
+        Wt::Signal<> &createTagRequested();
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> &assignTagRequested();
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> &unAssignTagRequested();
         Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> &filterByTagRequested();
         Wt::Signal<> &clearTagFilterRequested();
         Wt::Signal<> &addNoteRequested();
@@ -85,8 +85,9 @@ namespace Views
         Wt::Signal<std::string> _viewExposed;
         Wt::Signal<> _addDataRequested;
         Wt::Signal<std::vector<Wt::Dbo::ptr<Database::DboData>>> _removeDataRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> _addTagRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> _removeTagRequested;
+        Wt::Signal<> _createTagRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> _assignTagRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> _unAssignTagRequested;
         Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> _filterByTagRequested;
         Wt::Signal<> _clearTagFilterRequested;
         Wt::Signal<> _addNoteRequested;
@@ -103,8 +104,9 @@ namespace Views
         void _mnuNavBarGroupsPrivilegesItemTriggered();
         void _btnAddDataClicked();
         void _btnRemoveDataClicked();
-        void _btnAddTagClicked();
-        void _btnRemoveTagClicked();
+        void _btnCreateTagClicked();
+        void _btnAssignTagClicked();
+        void _btnUnAssignTagClicked();
         void _btnFilterTagClicked();
         void _btnClearFilterTagClicked();
         void _btnAddNoteClicked();

@@ -79,6 +79,42 @@ bool Database::Dbo::removeTag(Wt::Dbo::ptr<Database::Tag> tag)
     return false;
 }
 
+bool Database::Dbo::hasTagAssigned(Wt::Dbo::ptr<Database::Tag> tag) const
+{
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = assignedTags_.begin(); iter != assignedTags_.end(); ++iter)
+        {
+            if((*iter).id() == tag.id())
+                return true;
+        }
+    }
+
+    return false;
+}
+
+bool Database::Dbo::assignTag(Wt::Dbo::ptr<Database::Tag> tag)
+{
+    if(!hasTagAssigned(tag))
+    {
+        assignedTags_.insert(tag);
+        return true;
+    }
+
+    return false;
+}
+
+bool Database::Dbo::unassignTag(Wt::Dbo::ptr<Database::Tag> tag)
+{
+    if(hasTagAssigned(tag))
+    {
+        assignedTags_.erase(tag);
+        return true;
+    }
+
+    return false;
+}
+
 bool Database::Dbo::hasNote(Wt::Dbo::ptr<Database::Note> note) const
 {
     if(dboManager_ && dboManager_->openTransaction())

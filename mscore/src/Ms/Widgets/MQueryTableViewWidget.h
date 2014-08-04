@@ -77,7 +77,6 @@ namespace Ms
             bool isColumnResizeEnabled() const;
             void setAlternatingRowColors(bool enable);
             bool alternatingRowColors() const;
-            void reload();
             void updateView();
             void saveSelection();
             void loadSelection();
@@ -122,6 +121,7 @@ namespace Ms
             void _mainTableSelectionChanged();
             void _cmbColumnFilterChanged();
             void _lnFilterKeyWentUp();
+            void _cntTblMainKeyWentDown(Wt::WKeyEvent key);
             void _popMnuSelectAllItemTriggered();
             void _popMnuSelectNoneItemTriggered();
             void _popMnuInverseSelectionItemTriggered();
@@ -145,6 +145,7 @@ namespace Ms
             void _updateModel();
             void _updateTable();
             void _updateAdvancedFilterTable();
+            void _toggleAdvancedFilterView();
             void _prepareView();
 
             //variables

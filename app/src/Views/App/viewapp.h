@@ -102,9 +102,11 @@ class ViewApp : public Wt::WContainerWidget
         Wt::WText *_txtFooter;//footer text
         Wt::WContainerWidget *_cntTxtFooter;//container for txtFooter
 
-
         //functions
         //slots
+        //app
+        void _globalAppKeyWentDown(Wt::WKeyEvent key);
+        void _globalAppKeyWentUp(Wt::WKeyEvent key);
         //left menu
         void _mnuSideMainProjectsItemTriggered();
         void _mnuSideMainUsersAndGroupsItemTriggered();
@@ -115,9 +117,9 @@ class ViewApp : public Wt::WContainerWidget
 
         //main application menu
         void _mnuMainLeftHelpAboutTriggered();
-        void _mnuMainLeftViewShowMenuPanelTriggered();
-        void _mnuMainLeftViewShowPropertiesPanelTriggered();
-        void _mnuMainLeftViewShowLogPanelTriggered();
+        void _toggleLeftMenuView();
+        void _togglePropertiesPanel();
+        void _toggleLogPanel();
         void _mnuMainRightCurrentUserSignOutTriggered();
 
         //functions

@@ -246,19 +246,6 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::reload()
-        {
-            try
-            {
-                _model->reload();
-            }
-            catch(...)
-            {
-              std::cerr << "Exception occured while trying to reload table view" << std::endl;
-            }
-        }
-
-        template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::updateView()
         {
             try
@@ -575,6 +562,32 @@ namespace Ms
         }
 
         template<typename T>
+        void Ms::Widgets::MQueryTableViewWidget<T>::_cntTblMainKeyWentDown(Wt::WKeyEvent key)
+        {
+            if(((key.modifiers() & Wt::KeyboardModifier::ShiftModifier) == Wt::KeyboardModifier::ShiftModifier) && key.key() == Wt::Key::Key_A)
+            {
+                selectAll();
+            }
+            else if(((key.modifiers() & Wt::KeyboardModifier::ShiftModifier) == Wt::KeyboardModifier::ShiftModifier) && key.key() == Wt::Key::Key_D)
+            {
+                selectNone();
+            }
+            else if(((key.modifiers() & Wt::KeyboardModifier::ShiftModifier) == Wt::KeyboardModifier::ShiftModifier) && key.key() == Wt::Key::Key_I)
+            {
+                inverseSelection();
+            }
+            else if(((key.modifiers() & Wt::KeyboardModifier::ShiftModifier) == Wt::KeyboardModifier::ShiftModifier) && key.key() == Wt::Key::Key_F)
+            {
+                _popMnuViewAdvancedFilterItem->setChecked(!_popMnuViewAdvancedFilterItem->isChecked());
+                _toggleAdvancedFilterView();
+            }
+            else if(((key.modifiers() & Wt::KeyboardModifier::ShiftModifier) == Wt::KeyboardModifier::ShiftModifier) && key.key() == Wt::Key::Key_R)
+            {
+                updateView();
+            }
+        }
+
+        template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::_popMnuSelectAllItemTriggered()
         {
             selectAll();
@@ -648,10 +661,7 @@ namespace Ms
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::_popMnuViewAdvancedFilterItemTriggered()
         {
-            if(_popMnuViewAdvancedFilterItem->isChecked())
-                _updateAdvancedFilterTable();
-
-            _cntAdvancedFilter->setHidden(!_popMnuViewAdvancedFilterItem->isChecked());
+            _toggleAdvancedFilterView();
         }
 
         template<typename T>
@@ -766,11 +776,7 @@ namespace Ms
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::_popMnuReloadItemTriggered()
         {
-            saveSelection();
-
-            reload();
-
-            loadSelection();
+            updateView();
         }
 
         template<typename T>
@@ -1172,6 +1178,15 @@ namespace Ms
         }
 
         template<typename T>
+        void Ms::Widgets::MQueryTableViewWidget<T>::_toggleAdvancedFilterView()
+        {
+            if(_popMnuViewAdvancedFilterItem->isChecked())
+                _updateAdvancedFilterTable();
+
+            _cntAdvancedFilter->setHidden(!_popMnuViewAdvancedFilterItem->isChecked());
+        }
+
+        template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::_prepareView()
         {
             Wt::WHBoxLayout *layMain = new Wt::WHBoxLayout();
@@ -1217,13 +1232,13 @@ namespace Ms
             _popMnuSelection = new Wt::WPopupMenu();
             _popMnuTools->addMenu("Selection", _popMnuSelection);
 
-            _popMnuSelectAllItem = _popMnuSelection->addItem("Select All");
+            _popMnuSelectAllItem = _popMnuSelection->addItem("Select All - Shift+A");
             _popMnuSelectAllItem->triggered().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_popMnuSelectAllItemTriggered);
 
-            _popMnuSelectNoneItem = _popMnuSelection->addItem("Select None");
+            _popMnuSelectNoneItem = _popMnuSelection->addItem("Select None - Shift+D");
             _popMnuSelectNoneItem->triggered().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_popMnuSelectNoneItemTriggered);
 
-            _popMnuInverseSelectionItem = _popMnuSelection->addItem("Inverse Selection");
+            _popMnuInverseSelectionItem = _popMnuSelection->addItem("Inverse Selection - Shift+I");
             _popMnuInverseSelectionItem->triggered().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_popMnuInverseSelectionItemTriggered);
 
             _popMnuIO = new Wt::WPopupMenu();
@@ -1238,13 +1253,13 @@ namespace Ms
             _popMnuView = new Wt::WPopupMenu();
             _popMnuTools->addMenu("View", _popMnuView);
 
-            _popMnuViewAdvancedFilterItem = _popMnuView->addItem("Advanced Filter");
+            _popMnuViewAdvancedFilterItem = _popMnuView->addItem("Advanced Filter - Shift+F");
             _popMnuViewAdvancedFilterItem->setCheckable(true);
             _popMnuViewAdvancedFilterItem->triggered().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_popMnuViewAdvancedFilterItemTriggered);
 
             _popMnuTools->addSeparator();
 
-            _popMnuReloadItem = _popMnuTools->addItem("Reload");
+            _popMnuReloadItem = _popMnuTools->addItem("Reload - Shift+R");
             _popMnuReloadItem->triggered().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_popMnuReloadItemTriggered);
 
             _cmbColumnFilter = new Wt::WComboBox();
@@ -1266,6 +1281,8 @@ namespace Ms
 
             Wt::WContainerWidget *cntTblMain = new Wt::WContainerWidget();
             cntTblMain->setLayout(layCntTblMain);
+            cntTblMain->setAttributeValue("tabindex", "0");
+            cntTblMain->keyWentDown().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_cntTblMainKeyWentDown);
 
             _createMainTable();
 

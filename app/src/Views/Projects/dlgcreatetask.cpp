@@ -90,9 +90,9 @@ void Views::DlgCreateTask::_prepareView()
     _layLeft->addWidget(new Wt::WBreak());
 
     _createCmbUser();
-//    _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("User:", _cntCmbUser));
+    _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("User:", _cntCmbUser));
 
-//    _layLeft->addWidget(new Wt::WBreak());
+    _layLeft->addWidget(new Wt::WBreak());
 
     _createCmbType();
     _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Type:", _cntCmbType));
@@ -220,7 +220,7 @@ bool Views::DlgCreateTask::_validate()
 {
     if((_datStartDate->validate() != Wt::WDateValidator::Valid) ||
             (_datEndDate->validate() != Wt::WDateValidator::Valid) ||
-            /*(cmbUser->currentIndex() == -1) ||*/
+            (_cmbUser->currentIndex() == -1) ||
             (_cmbStatus->currentIndex() == -1) ||
             (_cmbType->currentIndex() == -1))
         return false;

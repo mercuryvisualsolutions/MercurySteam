@@ -40,6 +40,8 @@ void Views::ViewMyDashboard::updateTasksView()
         if(!Database::DatabaseManager::instance().openTransaction())
             return;
 
+        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+
         Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTask>> query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTask>();
 
         //load inactive data if selected from settings
@@ -65,6 +67,8 @@ void Views::ViewMyDashboard::updateTasksView()
         _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Task_Asset_Asset_Name", "Asset Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, true));
         _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Task_Asset_Asset_Project_Project_Name", "Asset Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, true));
         _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Description", "Description"));
+        _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Priority", "Priority", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
+        _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Accepted_By_User", "Accepted", Wt::ItemIsSelectable | Wt::ItemIsUserCheckable, new Ms::Widgets::Delegates::MCheckBoxDelegate(editRank), false, true));
 
         _qtvTasks->updateView();
     }

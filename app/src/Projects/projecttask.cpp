@@ -94,6 +94,26 @@ void Projects::ProjectTask::setAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset)
     _asset = asset;
 }
 
+int Projects::ProjectTask::priority() const
+{
+    return _priority;
+}
+
+void Projects::ProjectTask::setPriority(int priority)
+{
+    _priority = priority;
+}
+
+bool Projects::ProjectTask::isAcceptedByUser()
+{
+    return _acceptedByUser;
+}
+
+void Projects::ProjectTask::setAcceptedByUser(bool accepted)
+{
+    _acceptedByUser = accepted;
+}
+
 void Projects::ProjectTask::_init()
 {
     dboManager_ = &Database::DatabaseManager::instance();
@@ -102,4 +122,6 @@ void Projects::ProjectTask::_init()
     _startDate = Wt::WDate::currentDate();
     _endDate = Wt::WDate::currentDate();
     _description = "";
+    _priority = 0;
+    _acceptedByUser = false;
 }

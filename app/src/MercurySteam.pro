@@ -66,14 +66,14 @@ SOURCES += main.cpp \
     Database/note.cpp \
     Database/tag.cpp \
     Views/MyDashboard/viewmydashboard.cpp \
-    Views/Settings/dlgcreatetag.cpp \
     Session/sessionmanager.cpp \
     Log/logger.cpp \
     Log/logmanager.cpp \
     Database/dbo.cpp \
     Views/Dialogs/dlgcreatedbodata.cpp \
     Views/Dialogs/dlgcreatenote.cpp \
-    Views/Properties/viewproperties.cpp
+    Views/Properties/viewproperties.cpp \
+    Views/Dialogs/dlgcreatetag.cpp
 
 HEADERS += \
     Views/Projects/viewprojects.h \
@@ -115,7 +115,6 @@ HEADERS += \
     Views/Users/dlgchangeuserpssword.h \
     Views/Log/viewlog.h \
     Views/MyDashboard/viewmydashboard.h \
-    Views/Settings/dlgcreatetag.h \
     Database/globaldbospecialization.h \
     Database/databasemanager_impl.h \
     Log/logglobals.h \
@@ -126,4 +125,5 @@ HEADERS += \
     Views/Dialogs/dlgcreatenote.h \
     Widgets/Delegates/workstatusquerycomboboxdelegate.h \
     Widgets/Delegates/workstatusquerycomboboxdelegate_impl.h \
-    Views/Properties/viewproperties.h
+    Views/Properties/viewproperties.h \
+    Views/Dialogs/dlgcreatetag.h

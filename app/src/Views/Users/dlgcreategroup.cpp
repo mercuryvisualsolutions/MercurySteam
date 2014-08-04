@@ -46,7 +46,7 @@ void Views::DlgCreateGroup::_prepareView()
     _chkActive = new Wt::WCheckBox("Active");
     _chkActive->setChecked(true);
 
-    _layMain->addWidget(_chkActive);
+    _layMain->addWidget(_chkActive, 1);
 
     _btnOk = new Wt::WPushButton("Ok", this->footer());
     _btnOk->setDefault(true);

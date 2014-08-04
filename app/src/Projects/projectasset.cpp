@@ -140,6 +140,16 @@ void Projects::ProjectAsset::setStatus(const Wt::Dbo::ptr<Projects::ProjectWorkS
     _status = status;
 }
 
+int Projects::ProjectAsset::priority() const
+{
+    return _priority;
+}
+
+void Projects::ProjectAsset::setPriority(int priority)
+{
+    _priority = priority;
+}
+
 bool Projects::ProjectAsset::operator ==(const Projects::ProjectAsset &other) const
 {
     return _id == other.id();
@@ -159,4 +169,5 @@ void Projects::ProjectAsset::_init()
     _startDate = Wt::WDate::currentDate();
     _endDate = Wt::WDate::currentDate();
     _description = "";
+    _priority = 0;
 }

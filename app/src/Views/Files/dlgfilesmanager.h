@@ -57,6 +57,7 @@ namespace Views
         //variables
         Log::Logger *_logger;
         std::string _rootPath;
+        std::string _absoluteRootPath;
         bool _createEnabled;
         bool _checkInEnabled;
         bool _checkOutEnabled;

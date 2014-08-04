@@ -47,36 +47,6 @@ void Views::ViewProperties::setViewHidden(const std::string &viewName, bool hidd
     }
 }
 
-void Views::ViewProperties::updateTagsView()
-{
-    if(!Database::DatabaseManager::instance().openTransaction())
-        return;
-
-    Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query;
-
-    int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
-
-    if(AppSettings::instance().isLoadInactiveData())
-        query = Database::DatabaseManager::instance().session()->find<Database::Tag>().where("View_Rank <= ?").bind(viewRank);
-    else
-        query = Database::DatabaseManager::instance().session()->find<Database::Tag>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
-
-    _qtvTags->setQuery(query);
-
-    _qtvTags->clearColumns();
-
-    //add columns
-    _qtvTags->addColumn(Ms::Widgets::MTableViewColumn("Tag_Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), true));
-    _qtvTags->addColumn(Ms::Widgets::MTableViewColumn("Tag_Content", "Content", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), true));
-
-    if(AppSettings::instance().isShowExtraColumns())
-        _addExtraColumns<Database::Tag>(_qtvTags, Wt::ItemIsSelectable, 0);
-
-    _qtvTags->removeColumn(Ms::Widgets::MTableViewColumn("Active"));
-
-    _qtvTags->updateView();
-}
-
 void Views::ViewProperties::updateGroupsPrivilegesView()
 {
     if(!Database::DatabaseManager::instance().openTransaction())
@@ -183,14 +153,19 @@ Wt::Signal<std::vector<Wt::Dbo::ptr<Database::DboData>>> &Views::ViewProperties:
     return _removeDataRequested;
 }
 
-Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> &Views::ViewProperties::addTagRequested()
+Wt::Signal<> &Views::ViewProperties::createTagRequested()
 {
-    return _addTagRequested;
+    return _createTagRequested;
 }
 
-Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> &Views::ViewProperties::removeTagRequested()
+Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> &Views::ViewProperties::assignTagRequested()
 {
-    return _removeTagRequested;
+    return _assignTagRequested;
+}
+
+Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> &Views::ViewProperties::unAssignTagRequested()
+{
+    return _unAssignTagRequested;
 }
 
 Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> &Views::ViewProperties::filterByTagRequested()
@@ -268,14 +243,19 @@ void Views::ViewProperties::_btnRemoveDataClicked()
     _removeDataRequested(_qtvData->selectedItems());
 }
 
-void Views::ViewProperties::_btnAddTagClicked()
+void Views::ViewProperties::_btnCreateTagClicked()
 {
-    _addTagRequested(_qtvTags->selectedItems());
+    _createTagRequested();
 }
 
-void Views::ViewProperties::_btnRemoveTagClicked()
+void Views::ViewProperties::_btnAssignTagClicked()
 {
-    _removeTagRequested(_qtvAssignedTags->selectedItems());
+    _assignTagRequested(_qtvTags->selectedItems());
+}
+
+void Views::ViewProperties::_btnUnAssignTagClicked()
+{
+    _unAssignTagRequested(_qtvAssignedTags->selectedItems());
 }
 
 void Views::ViewProperties::_btnFilterTagClicked()
@@ -347,8 +327,11 @@ void Views::ViewProperties::_createTagsTableView()
     //requires "create" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
-        Wt::WPushButton *btn = _qtvTags->createToolButton("", "icons/AddTo.png", "Add selected tags to selected items");
-        btn->clicked().connect(this, &Views::ViewProperties::_btnAddTagClicked);
+        Wt::WPushButton *btnCreate = _qtvTags->createToolButton("", "icons/Add.png", "Create A Custom Tag");
+        btnCreate->clicked().connect(this, &Views::ViewProperties::_btnCreateTagClicked);
+
+        Wt::WPushButton *btnAssign = _qtvTags->createToolButton("", "icons/AddTo.png", "Add selected tags to selected items");
+        btnAssign->clicked().connect(this, &Views::ViewProperties::_btnAssignTagClicked);
     }
 
     Wt::WPushButton *btnFilter = _qtvTags->createToolButton("", "icons/Filter.png", "Filter active view by selected tags");
@@ -356,8 +339,6 @@ void Views::ViewProperties::_createTagsTableView()
 
     Wt::WPushButton *btnClearFilter = _qtvTags->createToolButton("", "icons/ClearFilter.png", "Clear tags filter on the active view");
     btnClearFilter->clicked().connect(this, &Views::ViewProperties::_btnClearFilterTagClicked);
-
-    updateTagsView();
 }
 
 void Views::ViewProperties::_createAssignedTagsTableView()
@@ -369,7 +350,7 @@ void Views::ViewProperties::_createAssignedTagsTableView()
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
     {
         Wt::WPushButton *btn = _qtvAssignedTags->createToolButton("", "icons/RemoveFrom.png", "Remove selected tags from selected items");
-        btn->clicked().connect(this, &Views::ViewProperties::_btnRemoveTagClicked);
+        btn->clicked().connect(this, &Views::ViewProperties::_btnUnAssignTagClicked);
     }
 }
 

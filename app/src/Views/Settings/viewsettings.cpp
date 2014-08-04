@@ -7,6 +7,7 @@
 #include "../../Settings/appsettings.h"
 #include "Users/usersmanager.h"
 #include "../../Auth/authmanager.h"
+#include "../Dialogs/dlgcreatetag.h"
 
 #include <Ms/Widgets/Delegates/MDelegates>
 #include <Ms/Widgets/MWidgetFactory.h>
@@ -282,9 +283,9 @@ void Views::ViewSettings::updateTagsView()
         int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
 
         if(AppSettings::instance().isLoadInactiveData())
-            query = Database::DatabaseManager::instance().session()->find<Database::Tag>().where("View_Rank <= ?").bind(viewRank);
+            query = Database::DatabaseManager::instance().session()->find<Database::Tag>().where("Type = ? AND View_Rank <= ?").bind("Global").bind(viewRank);
         else
-            query = Database::DatabaseManager::instance().session()->find<Database::Tag>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
+            query = Database::DatabaseManager::instance().session()->find<Database::Tag>().where("Type = ? AND View_Rank <= ? AND Active = ?").bind("Global").bind(viewRank).bind(true);
 
         _qtvTags->setQuery(query);
 
@@ -300,8 +301,9 @@ void Views::ViewSettings::updateTagsView()
         _qtvTags->clearColumns();
 
         //add columns
-        _qtvTags->addColumn(Ms::Widgets::MTableViewColumn("Tag_Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-        _qtvTags->addColumn(Ms::Widgets::MTableViewColumn("Tag_Content", "Content", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvTags->addColumn(Ms::Widgets::MTableViewColumn("id", "ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvTags->addColumn(Ms::Widgets::MTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvTags->addColumn(Ms::Widgets::MTableViewColumn("Content", "Content", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
         if(AppSettings::instance().isShowExtraColumns())
             _addExtraColumns<Database::Tag>(_qtvTags, flags, editRank);
@@ -428,7 +430,9 @@ void Views::ViewSettings::_btnCreateTaskTypeClicked()
                 Projects::ProjectTaskType *type = new Projects::ProjectTaskType(dlg->type());
                 type->setActive(dlg->isActive());
 
-                if(Database::DatabaseManager::instance().createDbo<Projects::ProjectTaskType>(type))
+                Wt::Dbo::ptr<Projects::ProjectTaskType> typePtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectTaskType>(type);
+
+                if(typePtr.get())
                 {
                     updateTaskTypeView();
 
@@ -496,7 +500,9 @@ void Views::ViewSettings::_btnCreateAssetTypeClicked()
                 Projects::ProjectAssetType *type = new Projects::ProjectAssetType(dlg->type());
                 type->setActive(dlg->isActive());
 
-                if(Database::DatabaseManager::instance().createDbo<Projects::ProjectAssetType>(type))
+                Wt::Dbo::ptr<Projects::ProjectAssetType> typePtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectAssetType>(type);
+
+                if(typePtr.get())
                 {
                     updateAssetTypeView();
 
@@ -565,7 +571,9 @@ void Views::ViewSettings::_btnCreateWorkStatusClicked()
                 status->setWorkStatusType(dlg->belongsToType());
                 status->setActive(dlg->isActive());
 
-                if(Database::DatabaseManager::instance().createDbo<Projects::ProjectWorkStatus>(status))
+                Wt::Dbo::ptr<Projects::ProjectWorkStatus> statusPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectWorkStatus>(status);
+
+                if(statusPtr.get())
                 {
                     updateWorkStatusView();
 
@@ -633,7 +641,9 @@ void Views::ViewSettings::_btnCreateUserTitleClicked()
                 Users::UserTitle *title = new Users::UserTitle(dlg->title());
                 title->setActive(dlg->isActive());
 
-                if(Database::DatabaseManager::instance().createDbo<Users::UserTitle>(title))
+                Wt::Dbo::ptr<Users::UserTitle> titlePtr = Database::DatabaseManager::instance().createDbo<Users::UserTitle>(title);
+
+                if(titlePtr.get())
                 {
                     updateUserTitlesView();
 
@@ -691,36 +701,27 @@ void Views::ViewSettings::_createTagsTableView()
 
 void Views::ViewSettings::_btnCreateTagClicked()
 {
-    Views::DlgCreateTag *dlg = new Views::DlgCreateTag();
+    Views::Dialogs::DlgCreateTag *dlg = new Views::Dialogs::DlgCreateTag();
     dlg->finished().connect(std::bind([=]()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
-            Database::TagId id;
-            id.name = dlg->tagName();
-            id.content = dlg->tagContent();
+            Database::Tag *tag = new Database::Tag(dlg->tagName(), dlg->tagContent());
+            tag->setActive(dlg->isActive());
 
-            if(!Database::DatabaseManager::instance().dboExists<Database::Tag>(id))
+            Wt::Dbo::ptr<Database::Tag> tagPtr = Database::DatabaseManager::instance().createDbo<Database::Tag>(tag);
+
+            if(tagPtr.get())
             {
-                Database::Tag *tag = new Database::Tag(dlg->tagName(), dlg->tagContent());
-                tag->setActive(dlg->isActive());
+                updateTagsView();
 
-                if(Database::DatabaseManager::instance().createDbo<Database::Tag>(tag))
-                {
-                    updateTagsView();
-
-                    _logger->log(std::string("Created tag ") + dlg->tagName(), Ms::Log::LogMessageType::Info);
-                }
-                else
-                {
-                    delete tag;
-
-                    _logger->log(std::string("Error creating tag ") + dlg->tagName(), Ms::Log::LogMessageType::Error);
-                }
+                _logger->log(std::string("Created tag ") + dlg->tagName(), Ms::Log::LogMessageType::Info);
             }
             else
             {
-                _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
+                delete tag;
+
+                _logger->log(std::string("Error creating tag ") + dlg->tagName(), Ms::Log::LogMessageType::Error);
             }
         }
 

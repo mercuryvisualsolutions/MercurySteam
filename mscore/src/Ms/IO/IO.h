@@ -41,6 +41,8 @@ namespace Ms
         bool copyFile(const std::string file, const std::string path, bool overwrite = false);
         //Returns the absolute path
         std::string absolutePath(const std::string &path);
+        //Returns the reltive path
+        std::string relativePath(const std::string &path);
         //returns child dirs of the given root dir
         std::vector<std::string> dirChildren(const std::string &rootDir);
         //return files list in the given root directory

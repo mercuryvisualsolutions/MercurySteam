@@ -11,6 +11,7 @@
 #include "../Dialogs/dlgcreatedbodata.h"
 #include "../Dialogs/dlgcreatenote.h"
 #include "../../Widgets/Delegates/workstatusquerycomboboxdelegate.h"
+#include "../Dialogs/dlgcreatetag.h"
 
 #include <Ms/Widgets/MTableViewColumn.h>
 #include <Ms/Widgets/Delegates/MDelegates>
@@ -100,6 +101,7 @@ void Views::ViewProjects::updateProjectsView()
          Database::DatabaseManager::instance().session()->find<Users::User>().where("Active = ?").bind(true),
          "Name", editRank)));
         _qtvProjects->addColumn(Ms::Widgets::MTableViewColumn("Description", "Description", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
+        _qtvProjects->addColumn(Ms::Widgets::MTableViewColumn("Priority", "Priority", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
 
         if(AppSettings::instance().isShowExtraColumns())
             _addExtraColumns<Projects::Project>(_qtvProjects, flags, editRank);
@@ -181,6 +183,7 @@ void Views::ViewProjects::updateSequencesView()
          Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true),
          "Status", editRank)));
         _qtvSequences->addColumn(Ms::Widgets::MTableViewColumn("Description", "Description", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
+        _qtvSequences->addColumn(Ms::Widgets::MTableViewColumn("Priority", "Priority", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
 
 
         if(AppSettings::instance().isShowExtraColumns())
@@ -286,6 +289,7 @@ void Views::ViewProjects::updateShotsView()
          Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true),
          "Status", editRank)));
         _qtvShots->addColumn(Ms::Widgets::MTableViewColumn("Description", "Description", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
+        _qtvShots->addColumn(Ms::Widgets::MTableViewColumn("Priority", "Priority", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
 
         if(AppSettings::instance().isShowExtraColumns())
             _addExtraColumns<Projects::ProjectShot>(_qtvShots, flags, editRank);
@@ -366,6 +370,7 @@ void Views::ViewProjects::updateAssetsView()
         Database::DatabaseManager::instance().session(),AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>() :
          Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true), "Status", editRank)));
         _qtvAssets->addColumn(Ms::Widgets::MTableViewColumn("Description", "Description", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
+        _qtvAssets->addColumn(Ms::Widgets::MTableViewColumn("Priority", "Priority", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
 
         if(AppSettings::instance().isShowExtraColumns())
             _addExtraColumns<Projects::ProjectAsset>(_qtvAssets, flags, editRank);
@@ -521,6 +526,9 @@ void Views::ViewProjects::updateTasksView()
         _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Task_Asset_Asset_Name", "Asset Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
         _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Task_Asset_Asset_Project_Project_Name", "Asset Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
         _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Description", "Description", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
+        _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Priority", "Priority", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
+        _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Accepted_By_User", "Accepted By User", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
+
 
         if(AppSettings::instance().isShowExtraColumns())
             _addExtraColumns<Projects::ProjectTask>(_qtvTasks, flags, editRank);
@@ -541,7 +549,7 @@ void Views::ViewProjects::updatePropertiesView()
     }
     else if(_viewProperties->currentView() == "Tags")
     {
-        _viewProperties->updateTagsView();
+        _updatePropertiesTagsView();
         _updatePropertiesAssignedTagsView();
     }
     else if(_viewProperties->currentView() == "Notes")
@@ -663,7 +671,7 @@ void Views::ViewProjects::_addDataToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboV
        delete dlg;
     }));
 
-    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 template<typename T>
@@ -691,11 +699,42 @@ void Views::ViewProjects::_addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboV
        delete dlg;
     }));
 
-    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 template<typename T>
-void Views::ViewProjects::_addTagsToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
+void Views::ViewProjects::_addTagToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec)
+{
+    Views::Dialogs::DlgCreateTag *dlg = new Views::Dialogs::DlgCreateTag();
+    dlg->finished().connect(std::bind([=]()
+    {
+       if(dlg->result() == Wt::WDialog::Accepted)
+       {
+           for(auto &ptr : dboVec)
+           {
+               Database::Tag *tag = new Database::Tag(dlg->tagName(), dlg->tagContent());
+               tag->setType("Custom");
+               tag->setActive(dlg->isActive());
+
+                Wt::Dbo::ptr<Database::Tag> tagPtr = Database::DatabaseManager::instance().createDbo<Database::Tag>(tag);
+
+                if(tagPtr.get())
+                    Database::DatabaseManager::instance().modifyDbo<T>(ptr)->addTag(tagPtr);
+                else
+                    delete tag;
+           }
+
+           _updatePropertiesTagsView();
+       }
+
+       delete dlg;
+    }));
+
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
+}
+
+template<typename T>
+void Views::ViewProjects::_assignTagToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
     if(dboVec.size() > 0)
     {
@@ -703,7 +742,7 @@ void Views::ViewProjects::_addTagsToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboV
         {
             for(auto &tagPtr : tagVec)
             {
-                Database::DatabaseManager::instance().modifyDbo<T>(dboPtr)->addTag(tagPtr);
+                Database::DatabaseManager::instance().modifyDbo<T>(dboPtr)->assignTag(tagPtr);
             }
         }
 
@@ -712,7 +751,7 @@ void Views::ViewProjects::_addTagsToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboV
 }
 
 template<typename T>
-void Views::ViewProjects::_removeTagsFromDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
+void Views::ViewProjects::_unAssignTagFromDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
     if(dboVec.size() > 0)
     {
@@ -720,7 +759,7 @@ void Views::ViewProjects::_removeTagsFromDbo(const std::vector<Wt::Dbo::ptr<T>> 
         {
             for(auto &tagPtr : tagVec)
             {
-                Database::DatabaseManager::instance().modifyDbo<T>(dboPtr)->removeTag(tagPtr);
+                Database::DatabaseManager::instance().modifyDbo<T>(dboPtr)->unassignTag(tagPtr);
             }
         }
 
@@ -815,7 +854,7 @@ void Views::ViewProjects::_btnProjectsCreateClicked()
         delete dlg;
     }));
 
-    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewProjects::_btnProjectsRemoveClicked()
@@ -831,7 +870,7 @@ void Views::ViewProjects::_btnProjectsFilesClicked()
     std::string prjName = _qtvProjects->model()->resultRow(_qtvProjects->proxyModel()->mapToSource(
                                                                *_qtvProjects->table()->selectedIndexes().begin()).row())->name();
 
-    DlgFilesManager *dlg = new DlgFilesManager(Projects::ProjectsIO::getAbsoluteProjectDir(prjName) + Ms::IO::dirSeparator() + "files");
+    DlgFilesManager *dlg = new DlgFilesManager(Projects::ProjectsIO::getRelativeProjectDir(prjName) + Ms::IO::dirSeparator() + "files");
     dlg->finished().connect(std::bind([=]()
     {
         delete dlg;
@@ -844,7 +883,7 @@ void Views::ViewProjects::_btnProjectsFilesClicked()
     if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
         dlg->setCheckOutDisabled(true);
 
-    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewProjects::_btnProjectsImportThumbnailsClicked()
@@ -905,12 +944,12 @@ void Views::ViewProjects::_btnProjectsImportThumbnailsClicked()
             _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
         }
 
-        _qtvProjects->reload();
+        _qtvProjects->updateView();
 
         delete dlg;
     }));
 
-    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewProjects::_createProjectsTableView()
@@ -1013,7 +1052,7 @@ void Views::ViewProjects::_btnSequencesCreateClicked()
             delete dlg;
         }));
 
-        dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
+        dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
     }
 }
 
@@ -1043,7 +1082,7 @@ void Views::ViewProjects::_btnSequencesFilesClicked()
     if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
         dlg->setCheckOutDisabled(true);
 
-    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewProjects::_btnSequencesImportThumbnailsClicked()
@@ -1108,12 +1147,12 @@ void Views::ViewProjects::_btnSequencesImportThumbnailsClicked()
             _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
         }
 
-        _qtvSequences->reload();
+        _qtvSequences->updateView();
 
         delete dlg;
     }));
 
-    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewProjects::_createSequencesTableView()
@@ -1216,7 +1255,7 @@ void Views::ViewProjects::_btnShotsCreateClicked()
             delete dlg;
         }));
 
-        dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
+        dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
     }
 }
 
@@ -1246,7 +1285,7 @@ void Views::ViewProjects::_btnShotsFilesClicked()
     if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
         dlg->setCheckOutDisabled(true);
 
-    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewProjects::_btnShotsImportThumbnailsClicked()
@@ -1312,12 +1351,12 @@ void Views::ViewProjects::_btnShotsImportThumbnailsClicked()
             _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
         }
 
-        _qtvShots->reload();
+        _qtvShots->updateView();
 
         delete dlg;
     }));
 
-    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewProjects::_createShotsTableView()
@@ -1420,7 +1459,7 @@ void Views::ViewProjects::_btnAssetsCreateClicked()
             delete dlg;
         }));
 
-        dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
+        dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
     }
 }
 
@@ -1450,7 +1489,7 @@ void Views::ViewProjects::_btnAssetsFilesClicked()
     if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
         dlg->setCheckOutDisabled(true);
 
-    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewProjects::_btnAssetsImportThumbnailsClicked()
@@ -1515,12 +1554,12 @@ void Views::ViewProjects::_btnAssetsImportThumbnailsClicked()
             _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
         }
 
-        _qtvAssets->reload();
+        _qtvAssets->updateView();
 
         delete dlg;
     }));
 
-    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewProjects::_createAssetsTableView()
@@ -1585,6 +1624,7 @@ void Views::ViewProjects::_btnTasksCreateClicked()
                 for(auto &shotPtr : _qtvShots->selectedItems())
                 {
                     Projects::ProjectTask *task = new Projects::ProjectTask();
+                    task->setUser(dlg->user());
                     task->setShot(shotPtr);
                     task->setStatus(dlg->status());
                     task->setType(dlg->type());
@@ -1612,6 +1652,7 @@ void Views::ViewProjects::_btnTasksCreateClicked()
                 for(auto &assetPtr : _qtvAssets->selectedItems())
                 {
                     Projects::ProjectTask *task = new Projects::ProjectTask();
+                    task->setUser(dlg->user());
                     task->setAsset(assetPtr);
                     task->setStatus(dlg->status());
                     task->setType(dlg->type());
@@ -1641,7 +1682,7 @@ void Views::ViewProjects::_btnTasksCreateClicked()
             delete dlg;
         }));
 
-        dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
+        dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
     }
 }
 
@@ -1685,7 +1726,7 @@ void Views::ViewProjects::_btnTasksFilesClicked()
     if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
         dlg->setCheckOutDisabled(true);
 
-    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewProjects::_createTasksTableView()
@@ -1762,39 +1803,36 @@ void Views::ViewProjects::_btnRemovePropertiesDataClicked(const std::vector<Wt::
 
 }
 
-void Views::ViewProjects::_btnAddPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
+void Views::ViewProjects::_btnCreatePropertiesTagClicked()
 {
-    if(tagVec.size() == 0)
-        return;
-
     if(_stkMain->currentWidget() == _cntProjects)
     {
         if(_qtvProjects->table()->selectedIndexes().size() > 0)
-            _addTagsToDbo<Projects::Project>(_qtvProjects->selectedItems(), tagVec);
+            _addTagToDbo<Projects::Project>(_qtvProjects->selectedItems());
     }
     else if(_stkMain->currentWidget() == _cntSequences)
     {
         if(_qtvSequences->table()->selectedIndexes().size() > 0)
-            _addTagsToDbo<Projects::ProjectSequence>(_qtvSequences->selectedItems(), tagVec);
+            _addTagToDbo<Projects::ProjectSequence>(_qtvSequences->selectedItems());
     }
     else if(_stkMain->currentWidget() == _cntShots)
     {
         if(_qtvShots->table()->selectedIndexes().size() > 0)
-            _addTagsToDbo<Projects::ProjectShot>(_qtvShots->selectedItems(), tagVec);
+            _addTagToDbo<Projects::ProjectShot>(_qtvShots->selectedItems());
     }
     else if(_stkMain->currentWidget() == _cntAssets)
     {
         if(_qtvAssets->table()->selectedIndexes().size() > 0)
-            _addTagsToDbo<Projects::ProjectAsset>(_qtvAssets->selectedItems(), tagVec);
+            _addTagToDbo<Projects::ProjectAsset>(_qtvAssets->selectedItems());
     }
     else if(_stkMain->currentWidget() == _cntTasks)
     {
         if(_qtvTasks->table()->selectedIndexes().size() > 0)
-            _addTagsToDbo<Projects::ProjectTask>(_qtvTasks->selectedItems(), tagVec);
+            _addTagToDbo<Projects::ProjectTask>(_qtvTasks->selectedItems());
     }
 }
 
-void Views::ViewProjects::_btnRemovePropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
+void Views::ViewProjects::_btnAssignPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
     if(tagVec.size() == 0)
         return;
@@ -1802,27 +1840,59 @@ void Views::ViewProjects::_btnRemovePropertiesTagClicked(const std::vector<Wt::D
     if(_stkMain->currentWidget() == _cntProjects)
     {
         if(_qtvProjects->table()->selectedIndexes().size() > 0)
-            _removeTagsFromDbo<Projects::Project>(_qtvProjects->selectedItems(), tagVec);
+            _assignTagToDbo<Projects::Project>(_qtvProjects->selectedItems(), tagVec);
     }
     else if(_stkMain->currentWidget() == _cntSequences)
     {
         if(_qtvSequences->table()->selectedIndexes().size() > 0)
-            _removeTagsFromDbo<Projects::ProjectSequence>(_qtvSequences->selectedItems(), tagVec);
+            _assignTagToDbo<Projects::ProjectSequence>(_qtvSequences->selectedItems(), tagVec);
     }
     else if(_stkMain->currentWidget() == _cntShots)
     {
         if(_qtvShots->table()->selectedIndexes().size() > 0)
-            _removeTagsFromDbo<Projects::ProjectShot>(_qtvShots->selectedItems(), tagVec);
+            _assignTagToDbo<Projects::ProjectShot>(_qtvShots->selectedItems(), tagVec);
     }
     else if(_stkMain->currentWidget() == _cntAssets)
     {
         if(_qtvAssets->table()->selectedIndexes().size() > 0)
-            _removeTagsFromDbo<Projects::ProjectAsset>(_qtvAssets->selectedItems(), tagVec);
+            _assignTagToDbo<Projects::ProjectAsset>(_qtvAssets->selectedItems(), tagVec);
     }
     else if(_stkMain->currentWidget() == _cntTasks)
     {
         if(_qtvTasks->table()->selectedIndexes().size() > 0)
-            _removeTagsFromDbo<Projects::ProjectTask>(_qtvTasks->selectedItems(), tagVec);
+            _assignTagToDbo<Projects::ProjectTask>(_qtvTasks->selectedItems(), tagVec);
+    }
+}
+
+void Views::ViewProjects::_btnUnAssignPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
+{
+    if(tagVec.size() == 0)
+        return;
+
+    if(_stkMain->currentWidget() == _cntProjects)
+    {
+        if(_qtvProjects->table()->selectedIndexes().size() > 0)
+            _unAssignTagFromDbo<Projects::Project>(_qtvProjects->selectedItems(), tagVec);
+    }
+    else if(_stkMain->currentWidget() == _cntSequences)
+    {
+        if(_qtvSequences->table()->selectedIndexes().size() > 0)
+            _unAssignTagFromDbo<Projects::ProjectSequence>(_qtvSequences->selectedItems(), tagVec);
+    }
+    else if(_stkMain->currentWidget() == _cntShots)
+    {
+        if(_qtvShots->table()->selectedIndexes().size() > 0)
+            _unAssignTagFromDbo<Projects::ProjectShot>(_qtvShots->selectedItems(), tagVec);
+    }
+    else if(_stkMain->currentWidget() == _cntAssets)
+    {
+        if(_qtvAssets->table()->selectedIndexes().size() > 0)
+            _unAssignTagFromDbo<Projects::ProjectAsset>(_qtvAssets->selectedItems(), tagVec);
+    }
+    else if(_stkMain->currentWidget() == _cntTasks)
+    {
+        if(_qtvTasks->table()->selectedIndexes().size() > 0)
+            _unAssignTagFromDbo<Projects::ProjectTask>(_qtvTasks->selectedItems(), tagVec);
     }
 }
 
@@ -1837,48 +1907,39 @@ void Views::ViewProjects::_btnFilterPropertiesTagClicked(const std::vector<Wt::D
 
     if(_stkMain->currentWidget() == _cntProjects)
     {
-        strFilterQuery = "Project_Name IN (SELECT pt.project_Project_Name FROM rel_project_tags pt WHERE tag_Tag_Name IN (" + idValues.at(0) + ") AND "
-                "tag_Tag_Content IN (" + idValues.at(1) + "))";
+        strFilterQuery = "Project_Name IN (SELECT pt.project_Project_Name FROM rel_project_assigned_tags pt WHERE tag_id IN (" + idValues.at(0) + "))";
 
         _qtvProjects->setCustomFilterString(strFilterQuery);
         _qtvProjects->setCustomFilterActive(true);
     }
     else if(_stkMain->currentWidget() == _cntSequences)
     {
-        strFilterQuery = "Sequence_Name IN (SELECT st.project_sequence_Sequence_Name FROM rel_project_sequence_tags st WHERE tag_Tag_Name IN (" + idValues.at(0) + ") AND "
-                "tag_Tag_Content IN (" + idValues.at(1) + ")) AND "
-                "Sequence_Project_Project_Name IN (SELECT st.project_sequence_Sequence_Project_Project_Name FROM rel_project_sequence_tags st WHERE tag_Tag_Name IN (" + idValues.at(0) + ") AND "
-                                "tag_Tag_Content IN (" + idValues.at(1) + "))";
+        strFilterQuery = "Sequence_Name IN (SELECT st.project_sequence_Sequence_Name FROM rel_project_sequence_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + ")) AND "
+                "Sequence_Project_Project_Name IN (SELECT st.project_sequence_Sequence_Project_Project_Name FROM rel_project_sequence_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + "))";
 
         _qtvSequences->setCustomFilterString(strFilterQuery);
         _qtvSequences->setCustomFilterActive(true);
     }
     else if(_stkMain->currentWidget() == _cntShots)
     {
-        strFilterQuery = "Shot_Name IN (SELECT st.project_shot_Shot_Name FROM rel_project_shot_tags st WHERE tag_Tag_Name IN (" + idValues.at(0) + ") AND "
-                "tag_Tag_Content IN (" + idValues.at(1) + ")) AND "
-                "Shot_Sequence_Sequence_Name IN (SELECT st.project_shot_Shot_Sequence_Sequence_Name FROM rel_project_shot_tags st WHERE tag_Tag_Name IN (" + idValues.at(0) + ") AND "
-                                "tag_Tag_Content IN (" + idValues.at(1) + ")) AND "
-                "Shot_Sequence_Sequence_Project_Project_Name IN (SELECT st.project_shot_Shot_Sequence_Sequence_Project_Project_Name FROM rel_project_shot_tags st WHERE tag_Tag_Name IN (" + idValues.at(0) + ") AND "
-                                "tag_Tag_Content IN (" + idValues.at(1) + "))";
+        strFilterQuery = "Shot_Name IN (SELECT st.project_shot_Shot_Name FROM rel_project_shot_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + ")) AND "
+                "Shot_Sequence_Sequence_Name IN (SELECT st.project_shot_Shot_Sequence_Sequence_Name FROM rel_project_shot_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + ")) AND "
+                "Shot_Sequence_Sequence_Project_Project_Name IN (SELECT st.project_shot_Shot_Sequence_Sequence_Project_Project_Name FROM rel_project_shot_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + "))";
 
         _qtvShots->setCustomFilterString(strFilterQuery);
         _qtvShots->setCustomFilterActive(true);
     }
     else if(_stkMain->currentWidget() == _cntAssets)
     {
-        strFilterQuery = "Asset_Name IN (SELECT at.project_asset_Asset_Name FROM rel_project_asset_tags at WHERE tag_Tag_Name IN (" + idValues.at(0) + ") AND "
-                "tag_Tag_Content IN (" + idValues.at(1) + ")) AND "
-                "Asset_Project_Project_Name IN (SELECT at.project_asset_Asset_Project_Project_Name FROM rel_project_asset_tags at WHERE tag_Tag_Name IN (" + idValues.at(0) + ") AND "
-                                "tag_Tag_Content IN (" + idValues.at(1) + "))";
+        strFilterQuery = "Asset_Name IN (SELECT at.project_asset_Asset_Name FROM rel_project_asset_assigned_tags at WHERE tag_id IN (" + idValues.at(0) + ")) AND "
+                "Asset_Project_Project_Name IN (SELECT at.project_asset_Asset_Project_Project_Name FROM rel_project_asset_assigned_tags at WHERE tag_id IN (" + idValues.at(0) + "))";
 
         _qtvAssets->setCustomFilterString(strFilterQuery);
         _qtvAssets->setCustomFilterActive(true);
     }
     else if(_stkMain->currentWidget() == _cntTasks)
     {
-        strFilterQuery = "id IN (SELECT tt.project_task_id FROM rel_project_task_tags tt WHERE tag_Tag_Name IN (" + idValues.at(0) + ") AND "
-                "tag_Tag_Content IN (" + idValues.at(1) + "))";
+        strFilterQuery = "id IN (SELECT tt.project_task_id FROM rel_project_task_assigned_tags tt WHERE tag_id IN (" + idValues.at(0) + "))";
 
         _qtvTasks->setCustomFilterString(strFilterQuery);
         _qtvTasks->setCustomFilterActive(true);
@@ -1956,7 +2017,7 @@ void Views::ViewProjects::_onViewPropertiesSubViewExposed(const std::string &vie
     }
     else if(viewName == "Tags")
     {
-        _viewProperties->updateTagsView();
+        _updatePropertiesTagsView();
         _updatePropertiesAssignedTagsView();
     }
     else if(viewName == "Notes")
@@ -1970,8 +2031,9 @@ void Views::ViewProjects::_createPropertiesView()
     _viewProperties = new Views::ViewProperties();
     _viewProperties->addDataRequested().connect(this, &Views::ViewProjects::_btnAddPropertiesDataClicked);
     _viewProperties->removeDataRequested().connect(this, &Views::ViewProjects::_btnRemovePropertiesDataClicked);
-    _viewProperties->addTagRequested().connect(this, &Views::ViewProjects::_btnAddPropertiesTagClicked);
-    _viewProperties->removeTagRequested().connect(this, &Views::ViewProjects::_btnRemovePropertiesTagClicked);
+    _viewProperties->createTagRequested().connect(this, &Views::ViewProjects::_btnCreatePropertiesTagClicked);
+    _viewProperties->assignTagRequested().connect(this, &Views::ViewProjects::_btnAssignPropertiesTagClicked);
+    _viewProperties->unAssignTagRequested().connect(this, &Views::ViewProjects::_btnUnAssignPropertiesTagClicked);
     _viewProperties->filterByTagRequested().connect(this, &Views::ViewProjects::_btnFilterPropertiesTagClicked);
     _viewProperties->clearTagFilterRequested().connect(this, &Views::ViewProjects::_btnClearFilterPropertiesTagClicked);
     _viewProperties->addNoteRequested().connect(this, &Views::ViewProjects::_btnAddPropertiesNoteClicked);
@@ -2098,119 +2160,236 @@ void Views::ViewProjects::_updatePropertiesDataView()
     _qtvPropertiesData->updateView();
 }
 
-void Views::ViewProjects::_updatePropertiesAssignedTagsView()
+void Views::ViewProjects::_updatePropertiesTagsView()
 {
     if(!Database::DatabaseManager::instance().openTransaction())
-            return;
+        return;
 
-    bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
-    Wt::WFlags<Wt::ItemFlag> flags;
-    if(canEdit)
-        flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
-    else
-        flags = Wt::ItemIsSelectable;
-
-    int editRank = Auth::AuthManager::instance().currentUser()->editRank();
-
-    Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesAssignedTags = _viewProperties->qtvAssignedTags();
-
-    _qtvPropertiesAssignedTags->clearColumns();
-
-    //add columns
-    _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MTableViewColumn("Tag_Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-    _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MTableViewColumn("Tag_Content", "Content", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-
-    Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query = Database::DatabaseManager::instance().session()->find<Database::Tag>();
-
-    bool update = false;
-
-    if(_stkMain->currentWidget() == _cntProjects)
+    try
     {
-        if(_qtvProjects->table()->selectedIndexes().size() > 0)
+        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+        Wt::WFlags<Wt::ItemFlag> flags;
+        if(canEdit)
+            flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
+        else
+            flags = Wt::ItemIsSelectable;
+
+        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+
+        Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesTags = _viewProperties->qtvTags();
+
+        _qtvPropertiesTags->clearColumns();
+
+        //add columns
+        _qtvPropertiesTags->addColumn(Ms::Widgets::MTableViewColumn("id", "ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesTags->addColumn(Ms::Widgets::MTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesTags->addColumn(Ms::Widgets::MTableViewColumn("Content", "Content", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesTags->addColumn(Ms::Widgets::MTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+
+        Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query = Database::DatabaseManager::instance().session()->find<Database::Tag>();
+
+        if(_stkMain->currentWidget() == _cntProjects)
         {
-            update = true;
-            std::string projectsSelectSql = "pt.project_Project_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Projects::Project>(_qtvProjects->selectedItems()).at(0) + ")";
-            query.where("Tag_Name IN (SELECT pt.tag_Tag_Name FROM rel_project_tags pt WHERE " +
-                    projectsSelectSql + ") AND Tag_Content IN (SELECT pt.tag_Tag_Content FROM rel_project_tags pt WHERE " + projectsSelectSql  + ")");
+            if(_qtvProjects->table()->selectedIndexes().size() > 0)
+            {
+                std::string projectsSelectSql = "(pt.project_Project_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Projects::Project>(_qtvProjects->selectedItems()).at(0) + "))";
+                query.where("(id IN (SELECT pt.tag_id FROM rel_project_tags pt WHERE " + projectsSelectSql + ") OR (Type = 'Global'))");
+            }
+            else
+                query.where("Type = ?").bind("Global");
         }
-    }
-    else if(_stkMain->currentWidget() == _cntSequences)
-    {
-        if(_qtvSequences->table()->selectedIndexes().size() > 0)
+        else if(_stkMain->currentWidget() == _cntSequences)
         {
-            update = true;
+            if(_qtvSequences->table()->selectedIndexes().size() > 0)
+            {
+                std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectSequence>(_qtvSequences->selectedItems());
 
-            std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectSequence>(_qtvSequences->selectedItems());
+                std::string sequencesSelectSql = "(pt.project_sequence_Sequence_Name IN (" + idValues.at(0) + ") AND "
+                        "pt.project_sequence_Sequence_Project_Project_Name IN (" + idValues.at(1) + "))";
 
-            std::string sequencesSelectSql = "pt.project_sequence_Sequence_Name IN (" + idValues.at(0) + ") AND "
-                    "pt.project_sequence_Sequence_Project_Project_Name IN (" + idValues.at(1) + ")";
-
-            query.where("Tag_Name IN (SELECT pt.tag_Tag_Name FROM rel_project_sequence_tags pt WHERE " +
-                    sequencesSelectSql + ") AND Tag_Content IN (SELECT pt.tag_Tag_Content FROM rel_project_sequence_tags pt WHERE " + sequencesSelectSql  + ")");
+                query.where("(id IN (SELECT pt.tag_id FROM rel_project_sequence_tags pt WHERE " + sequencesSelectSql + ") OR (Type = 'Global'))");
+            }
+            else
+                query.where("Type = ?").bind("Global");
         }
-    }
-    else if(_stkMain->currentWidget() == _cntShots)
-    {
-        if(_qtvShots->table()->selectedIndexes().size() > 0)
+        else if(_stkMain->currentWidget() == _cntShots)
         {
-            update = true;
+            if(_qtvShots->table()->selectedIndexes().size() > 0)
+            {
+                std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectShot>(_qtvShots->selectedItems());
 
-            std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectShot>(_qtvShots->selectedItems());
+                std::string shotsSelectSql = "(pt.project_shot_Shot_Name IN (" + idValues.at(0) + ") AND "
+                        "pt.project_shot_Shot_Sequence_Sequence_Name IN (" + idValues.at(1) + ") AND "
+                        "pt.project_shot_Shot_Sequence_Sequence_Project_Project_Name IN (" + idValues.at(2) + "))";
 
-            std::string shotsSelectSql = "pt.project_shot_Shot_Name IN (" + idValues.at(0) + ") AND "
-                    "pt.project_shot_Shot_Sequence_Sequence_Name IN (" + idValues.at(1) + ") AND "
-                    "pt.project_shot_Shot_Sequence_Sequence_Project_Project_Name IN (" + idValues.at(2) + ")";
-
-            query.where("Tag_Name IN (SELECT pt.tag_Tag_Name FROM rel_project_shot_tags pt WHERE " +
-                    shotsSelectSql + ") AND Tag_Content IN (SELECT pt.tag_Tag_Content FROM rel_project_shot_tags pt WHERE " + shotsSelectSql  + ")");
+                query.where("(id IN (SELECT pt.tag_id FROM rel_project_shot_tags pt WHERE " + shotsSelectSql + ") OR (Type = 'Global'))");
+            }
+            else
+                query.where("Type = ?").bind("Global");
         }
-    }
-    else if(_stkMain->currentWidget() == _cntAssets)
-    {
-        if(_qtvAssets->table()->selectedIndexes().size() > 0)
+        else if(_stkMain->currentWidget() == _cntAssets)
         {
-            update = true;
+            if(_qtvAssets->table()->selectedIndexes().size() > 0)
+            {
+                std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectAsset>(_qtvAssets->selectedItems());
 
-            std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectAsset>(_qtvAssets->selectedItems());
+                std::string assetsSelectSql = "(pt.project_asset_Asset_Name IN (" + idValues.at(0) + ") AND "
+                        "pt.project_asset_Asset_Project_Project_Name IN (" + idValues.at(1) + "))";
 
-            std::string assetsSelectSql = "pt.project_asset_Asset_Name IN (" + idValues.at(0) + ") AND "
-                    "pt.project_asset_Asset_Project_Project_Name IN (" + idValues.at(1) + ")";
-
-            query.where("Tag_Name IN (SELECT pt.tag_Tag_Name FROM rel_project_asset_tags pt WHERE " +
-                    assetsSelectSql + ") AND Tag_Content IN (SELECT pt.tag_Tag_Content FROM rel_project_asset_tags pt WHERE " + assetsSelectSql  + ")");
+                query.where("(id IN (SELECT pt.tag_id FROM rel_project_asset_tags pt WHERE " + assetsSelectSql + ") OR (Type = 'Global'))");
+            }
+            else
+                query.where("Type = ?").bind("Global");
         }
-    }
-    else if(_stkMain->currentWidget() == _cntTasks)
-    {
-        if(_qtvTasks->table()->selectedIndexes().size() > 0)
+        else if(_stkMain->currentWidget() == _cntTasks)
         {
-            update = true;
+            if(_qtvTasks->table()->selectedIndexes().size() > 0)
+            {
+                std::string tasksSelectSql = "(pt.project_task_id IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectTask>(_qtvTasks->selectedItems()).at(0) + "))";
 
-            std::string tasksSelectSql = "pt.project_task_id IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectTask>(_qtvTasks->selectedItems()).at(0) + ")";
-
-            query.where("Tag_Name IN (SELECT pt.tag_Tag_Name FROM rel_project_task_tags pt WHERE " +
-                    tasksSelectSql + ") AND Tag_Content IN (SELECT pt.tag_Tag_Content FROM rel_project_task_tags pt WHERE " + tasksSelectSql  + ")");
+                query.where("(id IN (SELECT pt.tag_id FROM rel_project_task_tags pt WHERE " + tasksSelectSql + ") OR (Type = 'Global'))");
+            }
+            else
+                query.where("Type = ?").bind("Global");
         }
-    }
 
-    if(update)
-    {
         int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
 
         if(!AppSettings::instance().isLoadInactiveData())
             query.where("Active = ?").bind(true);
 
         query.where("View_Rank <= ?").bind(viewRank);
+
+        _qtvPropertiesTags->setQuery(query);
+
+        if(AppSettings::instance().isShowExtraColumns())
+            _addExtraColumns<Database::Tag>(_qtvPropertiesTags, flags, editRank);
+
+        _qtvPropertiesTags->updateView();
     }
-    else
-        query.where("Tag_Name = ? AND Tag_Content = ?").bind("").bind("");
+    catch(Wt::Dbo::Exception ex)
+    {
+        _logger->log(std::string("error occured while trying to update tags view ") + ex.what(), Ms::Log::LogMessageType::Error);
+    }
+}
 
-    _qtvPropertiesAssignedTags->setQuery(query);
+void Views::ViewProjects::_updatePropertiesAssignedTagsView()
+{
+    if(!Database::DatabaseManager::instance().openTransaction())
+        return;
 
-    if(AppSettings::instance().isShowExtraColumns())
-        _addExtraColumns<Database::Tag>(_qtvPropertiesAssignedTags, flags, editRank);
+    try
+    {
+        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+        Wt::WFlags<Wt::ItemFlag> flags;
+        if(canEdit)
+            flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
+        else
+            flags = Wt::ItemIsSelectable;
 
-    _qtvPropertiesAssignedTags->updateView();
+        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+
+        Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesAssignedTags = _viewProperties->qtvAssignedTags();
+
+        _qtvPropertiesAssignedTags->clearColumns();
+
+        //add columns
+        _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MTableViewColumn("id", "ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MTableViewColumn("Content", "Content", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+
+        Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query = Database::DatabaseManager::instance().session()->find<Database::Tag>();
+
+        bool update = false;
+
+        if(_stkMain->currentWidget() == _cntProjects)
+        {
+            if(_qtvProjects->table()->selectedIndexes().size() > 0)
+            {
+                update = true;
+                std::string projectsSelectSql = "(pt.project_Project_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Projects::Project>(_qtvProjects->selectedItems()).at(0) + "))";
+                query.where("(id IN (SELECT pt.tag_id FROM rel_project_assigned_tags pt WHERE " + projectsSelectSql + "))");
+            }
+        }
+        else if(_stkMain->currentWidget() == _cntSequences)
+        {
+            if(_qtvSequences->table()->selectedIndexes().size() > 0)
+            {
+                update = true;
+
+                std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectSequence>(_qtvSequences->selectedItems());
+
+                std::string sequencesSelectSql = "(pt.project_sequence_Sequence_Name IN (" + idValues.at(0) + ") AND "
+                        "pt.project_sequence_Sequence_Project_Project_Name IN (" + idValues.at(1) + "))";
+
+                query.where("(id IN (SELECT pt.tag_id FROM rel_project_sequence_assigned_tags pt WHERE " + sequencesSelectSql + "))");
+            }
+        }
+        else if(_stkMain->currentWidget() == _cntShots)
+        {
+            if(_qtvShots->table()->selectedIndexes().size() > 0)
+            {
+                update = true;
+
+                std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectShot>(_qtvShots->selectedItems());
+
+                std::string shotsSelectSql = "(pt.project_shot_Shot_Name IN (" + idValues.at(0) + ") AND "
+                        "pt.project_shot_Shot_Sequence_Sequence_Name IN (" + idValues.at(1) + ") AND "
+                        "pt.project_shot_Shot_Sequence_Sequence_Project_Project_Name IN (" + idValues.at(2) + "))";
+
+                query.where("(id IN (SELECT pt.tag_id FROM rel_project_shot_assigned_tags pt WHERE " + shotsSelectSql + "))");
+            }
+        }
+        else if(_stkMain->currentWidget() == _cntAssets)
+        {
+            if(_qtvAssets->table()->selectedIndexes().size() > 0)
+            {
+                update = true;
+
+                std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectAsset>(_qtvAssets->selectedItems());
+
+                std::string assetsSelectSql = "(pt.project_asset_Asset_Name IN (" + idValues.at(0) + ") AND "
+                        "pt.project_asset_Asset_Project_Project_Name IN (" + idValues.at(1) + "))";
+
+                query.where("(id IN (SELECT pt.tag_id FROM rel_project_asset_assigned_tags pt WHERE " + assetsSelectSql + "))");
+            }
+        }
+        else if(_stkMain->currentWidget() == _cntTasks)
+        {
+            if(_qtvTasks->table()->selectedIndexes().size() > 0)
+            {
+                update = true;
+
+                std::string tasksSelectSql = "(pt.project_task_id IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectTask>(_qtvTasks->selectedItems()).at(0) + "))";
+
+                query.where("(id IN (SELECT pt.tag_id FROM rel_project_task_assigned_tags pt WHERE " + tasksSelectSql + "))");
+            }
+        }
+
+        if(update)
+        {
+            int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+
+            if(!AppSettings::instance().isLoadInactiveData())
+                query.where("Active = ?").bind(true);
+
+            query.where("View_Rank <= ?").bind(viewRank);
+        }
+        else
+            query.where("id = ?").bind(-1);
+
+        _qtvPropertiesAssignedTags->setQuery(query);
+
+        if(AppSettings::instance().isShowExtraColumns())
+            _addExtraColumns<Database::Tag>(_qtvPropertiesAssignedTags, flags, editRank);
+
+        _qtvPropertiesAssignedTags->updateView();
+    }
+    catch(Wt::Dbo::Exception ex)
+    {
+        _logger->log(std::string("error occured while trying to update assigned tags view ") + ex.what(), Ms::Log::LogMessageType::Error);
+    }
 }
 
 void Views::ViewProjects::_updatePropertiesNotesView()

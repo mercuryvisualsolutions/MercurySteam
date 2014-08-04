@@ -67,9 +67,11 @@ namespace Views
         template<typename T>
         void _addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec);
         template<typename T>
-        void _addTagsToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
+        void _addTagToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec);
         template<typename T>
-        void _removeTagsFromDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
+        void _assignTagToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
+        template<typename T>
+        void _unAssignTagFromDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
 
         //variables
         Log::Logger *_logger;
@@ -119,8 +121,9 @@ namespace Views
         //slots
         void _btnAddPropertiesDataClicked();
         void _btnRemovePropertiesDataClicked(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec);
-        void _btnAddPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
-        void _btnRemovePropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
+        void _btnCreatePropertiesTagClicked();
+        void _btnAssignPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
+        void _btnUnAssignPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
         void _btnFilterPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
         void _btnClearFilterPropertiesTagClicked();
         void _btnAddPropertiesNoteClicked();
@@ -135,6 +138,7 @@ namespace Views
         void _createPropertiesView();
 
         void _updatePropertiesDataView();
+        void _updatePropertiesTagsView();
         void _updatePropertiesAssignedTagsView();
         void _updatePropertiesNotesView();
         void _updatePropertiesGroupsAssignedPrivilegesView();

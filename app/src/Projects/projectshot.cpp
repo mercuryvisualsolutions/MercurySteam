@@ -184,6 +184,16 @@ void Projects::ProjectShot::setStatus(const Wt::Dbo::ptr<Projects::ProjectWorkSt
     _status = status;
 }
 
+int Projects::ProjectShot::priority() const
+{
+    return _priority;
+}
+
+void Projects::ProjectShot::setPriority(int priority)
+{
+    _priority = priority;
+}
+
 bool Projects::ProjectShot::operator ==(const Projects::ProjectShot &other) const
 {
     return _id == other.id();
@@ -207,4 +217,5 @@ void Projects::ProjectShot::_init()
     _frameWidth = 1920;
     _frameHeight = 1080;
     _description = "";
+    _priority = 0;
 }
