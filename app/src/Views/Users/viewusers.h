@@ -24,7 +24,6 @@
 #include "../../Database/dbtables.h"
 #include "../../Log/logger.h"
 #include "../../Session/sessionmanager.h"
-#include "../Properties/viewproperties.h"
 #include "viewprivileges.h"
 #include "../Database/viewdbodata.h"
 #include "../Database/viewtags.h"

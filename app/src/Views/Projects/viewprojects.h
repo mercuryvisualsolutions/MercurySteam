@@ -19,7 +19,6 @@
 #include "projectsdialogs.h"
 #include "../../Log/logger.h"
 #include "../../Session/sessionmanager.h"
-#include "../Properties/viewproperties.h"
 #include "viewsequences.h"
 #include "viewshots.h"
 #include "viewassets.h"
