@@ -72,7 +72,6 @@ SOURCES += main.cpp \
     Database/dbo.cpp \
     Views/Dialogs/dlgcreatedbodata.cpp \
     Views/Dialogs/dlgcreatenote.cpp \
-    Views/Properties/viewproperties.cpp \
     Views/Dialogs/dlgcreatetag.cpp \
     Views/Database/viewdbodata.cpp \
     Views/Database/viewtags.cpp \
@@ -133,7 +132,6 @@ HEADERS += \
     Views/Dialogs/dlgcreatenote.h \
     Widgets/Delegates/workstatusquerycomboboxdelegate.h \
     Widgets/Delegates/workstatusquerycomboboxdelegate_impl.h \
-    Views/Properties/viewproperties.h \
     Views/Dialogs/dlgcreatetag.h \
     Views/Database/viewdbodata.h \
     Views/Database/viewtags.h \
