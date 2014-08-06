@@ -94,6 +94,26 @@ void Projects::ProjectTask::setAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset)
     _asset = asset;
 }
 
+Wt::Dbo::ptr<Projects::ProjectSequence> Projects::ProjectTask::sequence() const
+{
+    return _sequence;
+}
+
+void Projects::ProjectTask::setShot(Wt::Dbo::ptr<Projects::ProjectSequence> sequence)
+{
+    _sequence = sequence;
+}
+
+Wt::Dbo::ptr<Projects::Project> Projects::ProjectTask::project() const
+{
+    return _project;
+}
+
+void Projects::ProjectTask::setShot(Wt::Dbo::ptr<Projects::Project> project)
+{
+    _project = project;
+}
+
 int Projects::ProjectTask::priority() const
 {
     return _priority;

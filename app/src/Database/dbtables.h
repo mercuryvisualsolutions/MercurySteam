@@ -707,6 +707,7 @@ namespace Projects
             Wt::Dbo::field(a, _priority, "Priority");
             Wt::Dbo::belongsTo(a, _status, "Current");//create a ManyToOne relationship to the table "project_work_status"
             Wt::Dbo::hasMany(a, _shots, Wt::Dbo::ManyToOne, "Shot_Sequence");//create a ManyToOne relationship to the table "project_shot"
+            Wt::Dbo::hasMany(a, _tasks, Wt::Dbo::ManyToOne, "Task_Sequence");//create a ManyToOne relationship to the table "project_task"
             Wt::Dbo::hasMany(a, data_, Wt::Dbo::ManyToOne, "Project_Sequence");
             Wt::Dbo::hasMany(a, notes_, Wt::Dbo::ManyToOne, "Project_Sequence");
             Wt::Dbo::hasMany(a, tags_, Wt::Dbo::ManyToMany, "rel_project_sequence_tags");
@@ -728,6 +729,7 @@ namespace Projects
         int _priority;
         Wt::Dbo::ptr<Projects::ProjectWorkStatus> _status;
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectShot>> _shots;
+        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>> _tasks;
 
         //variables
         void _init();
@@ -758,6 +760,10 @@ namespace Projects
         void setShot(Wt::Dbo::ptr<Projects::ProjectShot> shot);
         Wt::Dbo::ptr<Projects::ProjectAsset> asset() const;
         void setAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset);
+        Wt::Dbo::ptr<Projects::ProjectSequence> sequence() const;
+        void setShot(Wt::Dbo::ptr<Projects::ProjectSequence> sequence);
+        Wt::Dbo::ptr<Projects::Project> project() const;
+        void setShot(Wt::Dbo::ptr<Projects::Project> project);
         int priority() const;
         void setPriority(int priority);
         bool isAcceptedByUser();
@@ -780,6 +786,8 @@ namespace Projects
             Wt::Dbo::belongsTo(a, _user, "Task_User");//create a ManyToOne relationship to the table "user"
             Wt::Dbo::belongsTo(a, _shot, "Task_Shot");//create a ManyToOne relationship to the table "project_shot_task_type"
             Wt::Dbo::belongsTo(a, _asset, "Task_Asset");//create a ManyToOne relationship to the table "project_asset"
+            Wt::Dbo::belongsTo(a, _sequence, "Task_Sequence");//create a ManyToOne relationship to the table "project_sequence"
+            Wt::Dbo::belongsTo(a, _project, "Task_Project");//create a ManyToOne relationship to the table "project"
             Wt::Dbo::hasMany(a, data_, Wt::Dbo::ManyToOne, "Project_Task");
             Wt::Dbo::hasMany(a, notes_, Wt::Dbo::ManyToOne, "Project_Task");
             Wt::Dbo::hasMany(a, tags_, Wt::Dbo::ManyToMany, "rel_project_task_tags");//create a ManyToMany relationship to the table "tag"
@@ -798,6 +806,8 @@ namespace Projects
         Wt::Dbo::ptr<Users::User> _user;
         Wt::Dbo::ptr<Projects::ProjectShot> _shot;
         Wt::Dbo::ptr<Projects::ProjectAsset> _asset;
+        Wt::Dbo::ptr<Projects::ProjectSequence> _sequence;
+        Wt::Dbo::ptr<Projects::Project> _project;
         int _priority;
         bool _acceptedByUser;
 
@@ -1072,6 +1082,7 @@ namespace Projects
             Wt::Dbo::field(a, _priority, "Priority");
             Wt::Dbo::belongsTo(a, _status, "Current");//create a ManyToOne relationship to the table "project_work_status"
             Wt::Dbo::belongsTo(a, _projectManager, "Project_Manager");//create a ManyToOne relationship to the table "users"
+            Wt::Dbo::hasMany(a, _tasks, Wt::Dbo::ManyToOne, "Task_Project");//create a ManyToOne relationship to the table "project_task"
             Wt::Dbo::hasMany(a, _sequences, Wt::Dbo::ManyToOne, "Sequence_Project");//create a ManyToOne relationship to the table "project_sequence"
             Wt::Dbo::hasMany(a, _assets, Wt::Dbo::ManyToOne, "Asset_Project");//create a ManyToOne relationship to the table "project_asset"
             Wt::Dbo::hasMany(a, data_, Wt::Dbo::ManyToOne, "Project");//create a ManyToOne relationship to the table "data"
@@ -1098,6 +1109,7 @@ namespace Projects
         Wt::Dbo::ptr<Users::User> _projectManager;
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectSequence>> _sequences;
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectAsset>> _assets;
+        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>> _tasks;
 
         //functions
         void _init();

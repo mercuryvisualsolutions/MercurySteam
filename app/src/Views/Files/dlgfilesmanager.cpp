@@ -35,7 +35,7 @@ void Views::DlgFilesManager::_btnCreateClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
-            std::string path = _trDirs->treeRoot()->objectName() + Ms::IO::dirSeparator() + dlg->text();
+            std::string path = AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + _trDirs->treeRoot()->objectName() + Ms::IO::dirSeparator() + dlg->text();
 
             if(Ms::IO::createPath(path))
             {

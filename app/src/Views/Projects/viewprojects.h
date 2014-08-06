@@ -20,6 +20,13 @@
 #include "../../Log/logger.h"
 #include "../../Session/sessionmanager.h"
 #include "../Properties/viewproperties.h"
+#include "viewsequences.h"
+#include "viewshots.h"
+#include "viewassets.h"
+#include "viewtasks.h"
+#include "../Database/viewdbodata.h"
+#include "../Database/viewtags.h"
+#include "../Database/viewnotes.h"
 
 #include <Ms/Widgets/MWidgetFactory.h>
 #include <Ms/Widgets/MQueryTableViewWidget.h>
@@ -62,9 +69,6 @@ namespace Views
 
     private:
         //functions
-        template<typename T>
-        void _addExtraColumns(Ms::Widgets::MQueryTableViewWidget<T> *widget, Wt::WFlags<Wt::ItemFlag> flags, int editRank);
-
         template<typename T>
         void _addDataToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec);
         template<typename T>
@@ -126,7 +130,25 @@ namespace Views
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *_qtvTasks;
 
         //Properties
-        Views::ViewProperties *_viewProperties;
+        Wt::WContainerWidget *_cntPropertiesMain;
+        Wt::WVBoxLayout *_layCntPropertiesMain;
+        Wt::WNavigationBar *_navBarProperties;
+        Wt::WMenu *_mnuNavBarProperties;
+        Wt::WMenuItem *_mnuNavBarPropertiesDataItem;
+        Wt::WMenuItem *_mnuNavBarPropertiesTagsItem;
+        Wt::WMenuItem *_mnuNavBarPropertiesNotesItem;
+        Wt::WMenuItem *_mnuNavBarPropertiesSequencesItem;
+        Wt::WMenuItem *_mnuNavBarPropertiesShotsItem;
+        Wt::WMenuItem *_mnuNavBarPropertiesAssetsItem;
+        Wt::WMenuItem *_mnuNavBarPropertiesTasksItem;
+        Wt::WStackedWidget *_stkProperties;
+        Views::ViewDboData *_viewData;
+        Views::ViewTags *_viewTags;
+        Views::ViewNotes *_viewNotes;
+        Views::ViewSequences *_viewSequences;
+        Views::ViewShots *_viewShots;
+        Views::ViewAssets *_viewAssets;
+        Views::ViewTasks *_viewTasks;
 
         //slots
         /*******************--Main--********************/
@@ -152,39 +174,39 @@ namespace Views
 
         /*******************--Sequences--********************/
         //slots
-        void _btnSequencesCreateClicked();
-        void _btnSequencesRemoveClicked();
-        void _btnSequencesFilesClicked();
-        void _btnSequencesImportThumbnailsClicked();
+        void _createSequenceRequested();
+        void _removeSequencesRequested();
+        void _openSequencesFilesViewRequested();
+        void _importSequencesThumbnailsRequested();
 
         //functions
         void _createSequencesTableView();
 
         /*******************--Shots--********************/
         //slots
-        void _btnShotsCreateClicked();
-        void _btnShotsRemoveClicked();
-        void _btnShotsFilesClicked();
-        void _btnShotsImportThumbnailsClicked();
+        void _createShotRequested();
+        void _removeShotsRequested();
+        void _openShotsFilesViewRequested();
+        void _importShotsThumbnailsRequested();
 
         //functions
         void _createShotsTableView();
 
         /*******************--Assets--********************/
         //slots
-        void _btnAssetsCreateClicked();
-        void _btnAssetsRemoveClicked();
-        void _btnAssetsFilesClicked();
-        void _btnAssetsImportThumbnailsClicked();
+        void _createAssetRequested();
+        void _removeAssetsRequested();
+        void _openAssetsFilesViewRequested();
+        void _importAssetsThumbnailsRequested();
 
         //functions
         void _createAssetsTableView();
 
         /*******************--Tasks--********************/
         //slots
-        void _btnTasksCreateClicked();
-        void _btnTasksRemoveClicked();
-        void _btnTasksFilesClicked();
+        void _createTasksRequested();
+        void _removeTasksRequested();
+        void _openTasksFilesViewRequested();
 
         //functions
         void _createTasksTableView();
@@ -192,16 +214,23 @@ namespace Views
         /*******************--Properties--********************/
 
         //slots
-        void _btnAddPropertiesDataClicked();
-        void _btnRemovePropertiesDataClicked(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec);
-        void _btnCreatePropertiesTagClicked();
-        void _btnAssignPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
-        void _btnUnAssignPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
-        void _btnFilterPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
-        void _btnClearFilterPropertiesTagClicked();
-        void _btnAddPropertiesNoteClicked();
-        void _btnRemovePropertiesNoteClicked(const std::vector<Wt::Dbo::ptr<Database::Note>> &noteVec);
-        void _onViewPropertiesSubViewExposed(const std::string &viewName);
+        void _mnuNavBarPropertiesDataItemTriggered();
+        void _mnuNavBarPropertiesTagsItemTriggered();
+        void _mnuNavBarPropertiesNotesItemTriggered();
+        void _mnuNavBarPropertiesSequencesItemTriggered();
+        void _mnuNavBarPropertiesShotsItemTriggered();
+        void _mnuNavBarPropertiesAssetsItemTriggered();
+        void _mnuNavBarPropertiesTasksItemTriggered();
+
+        void _addDataRequested();
+        void _removeDataRequested(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec);
+        void _createTagRequested();
+        void _assignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
+        void _unassignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
+        void _filterByTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
+        void _clearTagsFilterRequested();
+        void _addNoteRequested();
+        void _removeNotesRequested(const std::vector<Wt::Dbo::ptr<Database::Note>> &noteVec);
 
         //functions
         void _createPropertiesView();

@@ -73,7 +73,15 @@ SOURCES += main.cpp \
     Views/Dialogs/dlgcreatedbodata.cpp \
     Views/Dialogs/dlgcreatenote.cpp \
     Views/Properties/viewproperties.cpp \
-    Views/Dialogs/dlgcreatetag.cpp
+    Views/Dialogs/dlgcreatetag.cpp \
+    Views/Database/viewdbodata.cpp \
+    Views/Database/viewtags.cpp \
+    Views/Database/viewnotes.cpp \
+    Views/Projects/viewsequences.cpp \
+    Views/Projects/viewshots.cpp \
+    Views/Projects/viewassets.cpp \
+    Views/Projects/viewtasks.cpp \
+    Views/Users/viewprivileges.cpp
 
 HEADERS += \
     Views/Projects/viewprojects.h \
@@ -126,4 +134,12 @@ HEADERS += \
     Widgets/Delegates/workstatusquerycomboboxdelegate.h \
     Widgets/Delegates/workstatusquerycomboboxdelegate_impl.h \
     Views/Properties/viewproperties.h \
-    Views/Dialogs/dlgcreatetag.h
+    Views/Dialogs/dlgcreatetag.h \
+    Views/Database/viewdbodata.h \
+    Views/Database/viewtags.h \
+    Views/Database/viewnotes.h \
+    Views/Projects/viewsequences.h \
+    Views/Projects/viewshots.h \
+    Views/Projects/viewassets.h \
+    Views/Projects/viewtasks.h \
+    Views/Users/viewprivileges.h

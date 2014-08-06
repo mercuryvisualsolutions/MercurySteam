@@ -25,6 +25,10 @@
 #include "../../Log/logger.h"
 #include "../../Session/sessionmanager.h"
 #include "../Properties/viewproperties.h"
+#include "viewprivileges.h"
+#include "../Database/viewdbodata.h"
+#include "../Database/viewtags.h"
+#include "../Database/viewnotes.h"
 
 #include <Ms/Widgets/MWidgetFactory.h>
 #include <Ms/Widgets/MQueryTableViewWidget.h>
@@ -46,8 +50,6 @@ namespace Views
 
         void updatePropertiesView();
 
-        void showPropertiesView();
-
         bool isUsersViewShown();
         bool isGroupsViewShown();
 
@@ -59,9 +61,6 @@ namespace Views
         Wt::Signal<> &onTabGroupsSelected();
 
     private: 
-        template<typename T>
-        void _addExtraColumns(Ms::Widgets::MQueryTableViewWidget<T> *widget, Wt::WFlags<Wt::ItemFlag> flags, int editRank);
-
         template<typename T>
         void _addDataToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec);
         template<typename T>
@@ -116,23 +115,39 @@ namespace Views
 
         /*******************--Properties--********************/
         //Properties
-        Views::ViewProperties *_viewProperties;
+        Wt::WContainerWidget *_cntPropertiesMain;
+        Wt::WVBoxLayout *_layCntPropertiesMain;
+        Wt::WNavigationBar *_navBarProperties;
+        Wt::WMenu *_mnuNavBarProperties;
+        Wt::WMenuItem *_mnuNavBarPropertiesDataItem;
+        Wt::WMenuItem *_mnuNavBarPropertiesTagsItem;
+        Wt::WMenuItem *_mnuNavBarPropertiesNotesItem;
+        Wt::WMenuItem *_mnuNavBarPropertiesPrivilegesItem;
+        Wt::WStackedWidget *_stkProperties;
+        Views::ViewDboData *_viewData;
+        Views::ViewTags *_viewTags;
+        Views::ViewNotes *_viewNotes;
+        Views::ViewPrivileges *_viewPrivileges;
 
         //slots
-        void _btnAddPropertiesDataClicked();
-        void _btnRemovePropertiesDataClicked(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec);
-        void _btnCreatePropertiesTagClicked();
-        void _btnAssignPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
-        void _btnUnAssignPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
-        void _btnFilterPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
-        void _btnClearFilterPropertiesTagClicked();
-        void _btnAddPropertiesNoteClicked();
-        void _btnRemovePropertiesNoteClicked(const std::vector<Wt::Dbo::ptr<Database::Note>> &noteVec);
-        void _btnAddPropertiesGroupsPrivilegesClicked(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec);
-        void _btnRemovePropertiesGroupsPrivilegesClicked(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec);
-        void _btnFilterPropertiesGroupsPrivilegesClicked(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec);
-        void _btnClearFilterPropertiesGroupsPrivilegesClicked();
-        void _onViewPropertiesSubViewExposed(const std::string &viewName);
+        void _mnuNavBarPropertiesDataItemTriggered();
+        void _mnuNavBarPropertiesTagsItemTriggered();
+        void _mnuNavBarPropertiesNotesItemTriggered();
+        void _mnuNavBarPropertiesPrivilegesItemTriggered();
+
+        void _addDataRequested();
+        void _removeDataRequested(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec);
+        void _createTagRequested();
+        void _assignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
+        void _unassignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
+        void _filterByTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
+        void _clearTagsFilterRequested();
+        void _addNoteRequested();
+        void _removeNotesRequested(const std::vector<Wt::Dbo::ptr<Database::Note>> &noteVec);
+        void _assignPrivilegesRequested(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec);
+        void _unassignPrivilegesRequested(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec);
+        void _filterByPrivilegesRequested(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec);
+        void _clearFilterPrivilegesFilterRequested();
 
         //functions
         void _createPropertiesView();
@@ -141,7 +156,8 @@ namespace Views
         void _updatePropertiesTagsView();
         void _updatePropertiesAssignedTagsView();
         void _updatePropertiesNotesView();
-        void _updatePropertiesGroupsAssignedPrivilegesView();
+        void _updatePropertiesPrivilegesView();
+        void _updatePropertiesAssignedPrivilegesView();
     };
 }
 

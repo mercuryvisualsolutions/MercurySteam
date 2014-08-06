@@ -133,13 +133,13 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::setQuery(Wt::Dbo::Query<Wt::Dbo::ptr<T> > &query)
+        void Ms::Widgets::MQueryTableViewWidget<T>::setQuery(Wt::Dbo::Query<Wt::Dbo::ptr<T> > &query) const
         {
             _query = query;
         }
 
         template<typename T>
-        Wt::Dbo::Query<Wt::Dbo::ptr<T>> &Ms::Widgets::MQueryTableViewWidget<T>::query()
+        Wt::Dbo::Query<Wt::Dbo::ptr<T>> &Ms::Widgets::MQueryTableViewWidget<T>::query() const
         {
             return _query;
         }
@@ -246,7 +246,7 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::updateView()
+        void Ms::Widgets::MQueryTableViewWidget<T>::updateView() const
         {
             try
             {
@@ -274,7 +274,7 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::saveSelection()
+        void Ms::Widgets::MQueryTableViewWidget<T>::saveSelection() const
         {
             //save selection by id
             _selection.clear();
@@ -284,7 +284,7 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::loadSelection()
+        void Ms::Widgets::MQueryTableViewWidget<T>::loadSelection() const
         {
             //load selection by id
             Wt::WModelIndexSet indexSet;
@@ -305,7 +305,7 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::selectAll()
+        void Ms::Widgets::MQueryTableViewWidget<T>::selectAll() const
         {
             Wt::WModelIndexSet indexSet;
 
@@ -318,14 +318,14 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::selectNone()
+        void Ms::Widgets::MQueryTableViewWidget<T>::selectNone() const
         {
             Wt::WModelIndexSet indexSet;
             _tblMain->setSelectedIndexes(indexSet);
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::inverseSelection()
+        void Ms::Widgets::MQueryTableViewWidget<T>::inverseSelection() const
         {
             Wt::WModelIndexSet indexSet;
 
@@ -339,13 +339,13 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::addColumn(Ms::Widgets::MTableViewColumn column)
+        void Ms::Widgets::MQueryTableViewWidget<T>::addColumn(const Ms::Widgets::MTableViewColumn &column) const
         {
             _columns.push_back(column);
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::removeColumn(const Ms::Widgets::MTableViewColumn &column)
+        void Ms::Widgets::MQueryTableViewWidget<T>::removeColumn(const Ms::Widgets::MTableViewColumn &column) const
         {
             for(std::vector<Ms::Widgets::MTableViewColumn>::iterator iter = _columns.begin(); iter != _columns.end(); ++iter)
             {
@@ -359,13 +359,13 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::clearColumns()
+        void Ms::Widgets::MQueryTableViewWidget<T>::clearColumns() const
         {
             _columns.clear();
         }
 
         template<typename T>
-        bool Ms::Widgets::MQueryTableViewWidget<T>::dbColumnExist(const std::string &dbColumnName)//searches for real column DB name
+        bool Ms::Widgets::MQueryTableViewWidget<T>::dbColumnExist(const std::string &dbColumnName) const//searches for real column DB name
         {
             return std::find_if(_columns.begin(), _columns.end(), [dbColumnName](const Ms::Widgets::MTableViewColumn &col){
                 return col.dbFieldName() == dbColumnName;
@@ -373,7 +373,7 @@ namespace Ms
         }
 
         template<typename T>
-        bool Ms::Widgets::MQueryTableViewWidget<T>::columnExist(const std::string &columnDisplayName)//searches for column display name
+        bool Ms::Widgets::MQueryTableViewWidget<T>::columnExist(const std::string &columnDisplayName) const//searches for column display name
         {
             return std::find_if(_columns.begin(), _columns.end(), [columnDisplayName](const Ms::Widgets::MTableViewColumn &col){
                 return col.displayName() == columnDisplayName;
@@ -381,7 +381,7 @@ namespace Ms
         }
 
         template<typename T>
-        bool Ms::Widgets::MQueryTableViewWidget<T>::columnIsIgnored(const std::string &columnDisplayName)
+        bool Ms::Widgets::MQueryTableViewWidget<T>::columnIsIgnored(const std::string &columnDisplayName) const
         {
             auto iter = std::find_if(_columns.begin(), _columns.end(), [columnDisplayName](const Ms::Widgets::MTableViewColumn &col){
                 return col.displayName() == columnDisplayName;
@@ -391,7 +391,7 @@ namespace Ms
         }
 
         template<typename T>
-        std::string Ms::Widgets::MQueryTableViewWidget<T>::columnName(const std::string &columnDisplayName)
+        std::string Ms::Widgets::MQueryTableViewWidget<T>::columnName(const std::string &columnDisplayName) const
         {
             auto iter = std::find_if(_columns.begin(), _columns.end(), [columnDisplayName](const Ms::Widgets::MTableViewColumn &col){
                 return col.displayName() == columnDisplayName;
@@ -401,7 +401,7 @@ namespace Ms
         }
 
         template<typename T>
-        std::string Ms::Widgets::MQueryTableViewWidget<T>::columnDisplayName(const std::string &dboName)
+        std::string Ms::Widgets::MQueryTableViewWidget<T>::columnDisplayName(const std::string &dboName) const
         {
             auto iter = std::find_if(_columns.begin(), _columns.end(), [dboName](const Ms::Widgets::MTableViewColumn &col){
                 return col.dbFieldName() == dboName;
@@ -417,7 +417,7 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::ignoredNumFilterColumns()
+        void Ms::Widgets::MQueryTableViewWidget<T>::ignoredNumFilterColumns() const
         {
             return _ignoreNumFilterColumns;
         }
@@ -437,13 +437,13 @@ namespace Ms
         }
 
         template<typename T>
-        bool Ms::Widgets::MQueryTableViewWidget<T>::isImportCSVFetureEnabled() const
+        bool Ms::Widgets::MQueryTableViewWidget<T>::isImportCSVFeatureEnabled() const
         {
             return _importCSVFeatureEnabled;
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::setImportCSVFetureEnabled(bool enabled)
+        void Ms::Widgets::MQueryTableViewWidget<T>::setImportCSVFeatureEnabled(bool enabled)
         {
             _importCSVFeatureEnabled = enabled;
 
@@ -451,13 +451,13 @@ namespace Ms
         }
 
         template<typename T>
-        bool Ms::Widgets::MQueryTableViewWidget<T>::isExportCSVFetureEnabled() const
+        bool Ms::Widgets::MQueryTableViewWidget<T>::isExportCSVFeatureEnabled() const
         {
             return _exportCSVFeatureEnabled;
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::setExportCSVFetureEnabled(bool enabled)
+        void Ms::Widgets::MQueryTableViewWidget<T>::setExportCSVFeatureEnabled(bool enabled)
         {
             _exportCSVFeatureEnabled = enabled;
 
@@ -532,6 +532,19 @@ namespace Ms
         void Ms::Widgets::MQueryTableViewWidget<T>::setCustomFilterString(const std::string &customFilterString)
         {
             _customFilterString = customFilterString;
+        }
+
+        template<typename T>
+        void Ms::Widgets::MQueryTableViewWidget<T>::addBaseColumns(Wt::WFlags<Wt::ItemFlag> flags, int editRank) const
+        {
+            addColumn(Ms::Widgets::MTableViewColumn("View_Rank", "View Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false, true));
+            addColumn(Ms::Widgets::MTableViewColumn("Edit_Rank", "Edit Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false, true));
+            addColumn(Ms::Widgets::MTableViewColumn("Remove_Rank", "Remove Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false, true));
+            addColumn(Ms::Widgets::MTableViewColumn("Date_Created", "Date Created", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
+            addColumn(Ms::Widgets::MTableViewColumn("Created_By", "Created By", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
+            addColumn(Ms::Widgets::MTableViewColumn("Last_Modified_Date", "Last Modified Date", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
+            addColumn(Ms::Widgets::MTableViewColumn("Last_Modified_By", "Last Modified By", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
+            addColumn(Ms::Widgets::MTableViewColumn("Active", "Active", Wt::ItemIsSelectable | Wt::ItemIsUserCheckable, new Ms::Widgets::Delegates::MCheckBoxDelegate(editRank)));
         }
 
         //Signals
@@ -780,7 +793,7 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_importCSV(const std::string &fileName)
+        void Ms::Widgets::MQueryTableViewWidget<T>::_importCSV(const std::string &fileName) const
         {
             if(!_dboManager->session())
             {
@@ -877,7 +890,7 @@ namespace Ms
         }
 
         template<typename T>
-        std::string Ms::Widgets::MQueryTableViewWidget<T>::_generateCSVData()
+        std::string Ms::Widgets::MQueryTableViewWidget<T>::_generateCSVData() const
         {
             std::string data = "";
             int i = 0;
@@ -933,14 +946,14 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_setModelUserName(const std::string &name)
+        void Ms::Widgets::MQueryTableViewWidget<T>::_setModelUserName(const std::string &name) const
         {
             if(_model)
                 _model->setUserName(name);
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_refilter()
+        void Ms::Widgets::MQueryTableViewWidget<T>::_refilter() const
         {
             _proxyModel->setFilterRegExp(_lnFilter->text() + _filterRegExpression);
         }
@@ -1085,7 +1098,7 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_updateModel()
+        void Ms::Widgets::MQueryTableViewWidget<T>::_updateModel() const
         {
             if(!_dboManager->session())
             {
@@ -1150,7 +1163,7 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_updateTable()
+        void Ms::Widgets::MQueryTableViewWidget<T>::_updateTable() const
         {
             _tblMain->setModel(_proxyModel);
 
@@ -1162,7 +1175,7 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_updateAdvancedFilterTable()
+        void Ms::Widgets::MQueryTableViewWidget<T>::_updateAdvancedFilterTable() const
         {
             std::vector<std::string> delegateColNameItems;
             int i = 0;
@@ -1178,7 +1191,7 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_toggleAdvancedFilterView()
+        void Ms::Widgets::MQueryTableViewWidget<T>::_toggleAdvancedFilterView() const
         {
             if(_popMnuViewAdvancedFilterItem->isChecked())
                 _updateAdvancedFilterTable();

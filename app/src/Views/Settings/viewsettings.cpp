@@ -127,7 +127,7 @@ void Views::ViewSettings::updateTaskTypeView()
         _qtvProjectTaskType->addColumn(Ms::Widgets::MTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
         if(AppSettings::instance().isShowExtraColumns())
-            _addExtraColumns<Projects::ProjectTaskType>(_qtvProjectTaskType, flags, editRank);
+            _qtvProjectTaskType->addBaseColumns(flags, editRank);
 
         _qtvProjectTaskType->updateView();
     }
@@ -170,7 +170,7 @@ void Views::ViewSettings::updateAssetTypeView()
         _qtvProjectAssetType->addColumn(Ms::Widgets::MTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
         if(AppSettings::instance().isShowExtraColumns())
-            _addExtraColumns<Projects::ProjectAssetType>(_qtvProjectAssetType, flags, editRank);
+            _qtvProjectAssetType->addBaseColumns(flags, editRank);
 
         _qtvProjectAssetType->updateView();
     }
@@ -218,7 +218,7 @@ void Views::ViewSettings::updateWorkStatusView()
          "Work_Status_Type", editRank), true));
 
         if(AppSettings::instance().isShowExtraColumns())
-            _addExtraColumns<Projects::ProjectWorkStatus>(_qtvProjectWorkStatus, flags, editRank);
+            _qtvProjectWorkStatus->addBaseColumns(flags, editRank);
 
         _qtvProjectWorkStatus->updateView();
     }
@@ -261,7 +261,7 @@ void Views::ViewSettings::updateUserTitlesView()
         _qtvUserTitle->addColumn(Ms::Widgets::MTableViewColumn("Name", "Title", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
         if(AppSettings::instance().isShowExtraColumns())
-            _addExtraColumns<Users::UserTitle>(_qtvUserTitle, flags, editRank);
+            _qtvUserTitle->addBaseColumns(flags, editRank);
 
         _qtvUserTitle->updateView();
     }
@@ -306,7 +306,7 @@ void Views::ViewSettings::updateTagsView()
         _qtvTags->addColumn(Ms::Widgets::MTableViewColumn("Content", "Content", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
         if(AppSettings::instance().isShowExtraColumns())
-            _addExtraColumns<Database::Tag>(_qtvTags, flags, editRank);
+            _qtvTags->addBaseColumns(flags, editRank);
 
         _qtvTags->updateView();
     }
@@ -334,19 +334,6 @@ Wt::Signal<> &Views::ViewSettings::onTabUsersSelected()
 Wt::Signal<> &Views::ViewSettings::onTabGlobalSelected()
 {
     return _onTabGlobalSelected;
-}
-
-template<typename T>
-void Views::ViewSettings::_addExtraColumns(Ms::Widgets::MQueryTableViewWidget<T> *widget, Wt::WFlags<Wt::ItemFlag> flags, int editRank)
-{
-    widget->addColumn(Ms::Widgets::MTableViewColumn("View_Rank", "View Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Edit_Rank", "Edit Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Remove_Rank", "Remove Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Date_Created", "Date Created", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Created_By", "Created By", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Last_Modified_Date", "Last Modified Date", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Last_Modified_By", "Last Modified By", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Active", "Active", Wt::ItemIsSelectable | Wt::ItemIsUserCheckable, new Ms::Widgets::Delegates::MCheckBoxDelegate(editRank)));
 }
 
 void Views::ViewSettings::_btnSaveClicked()
@@ -403,10 +390,10 @@ void Views::ViewSettings::_createTaskTypeTableView()
         Wt::WPushButton *btn = _qtvProjectTaskType->createToolButton("", "icons/Add.png", "Create A New Task Type");
         btn->clicked().connect(this, &Views::ViewSettings::_btnCreateTaskTypeClicked);
 
-        _qtvProjectTaskType->setImportCSVFetureEnabled(true);
+        _qtvProjectTaskType->setImportCSVFeatureEnabled(true);
     }
     else
-        _qtvProjectTaskType->setImportCSVFetureEnabled(false);
+        _qtvProjectTaskType->setImportCSVFeatureEnabled(false);
 
     //requires "remove" privilege
 //    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
@@ -473,10 +460,10 @@ void Views::ViewSettings::_createAssetTypeTableView()
         Wt::WPushButton *btn = _qtvProjectAssetType->createToolButton("", "icons/Add.png", "Create A New Asset Type");
         btn->clicked().connect(this, &Views::ViewSettings::_btnCreateAssetTypeClicked);
 
-        _qtvProjectAssetType->setImportCSVFetureEnabled(true);
+        _qtvProjectAssetType->setImportCSVFeatureEnabled(true);
     }
     else
-        _qtvProjectAssetType->setImportCSVFetureEnabled(false);
+        _qtvProjectAssetType->setImportCSVFeatureEnabled(false);
 
     //requires "remove" privilege
 //    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
@@ -543,10 +530,10 @@ void Views::ViewSettings::_createWorkStatusTableView()
         Wt::WPushButton *btn = _qtvProjectWorkStatus->createToolButton("", "icons/Add.png", "Create A New Work Status");
         btn->clicked().connect(this, &Views::ViewSettings::_btnCreateWorkStatusClicked);
 
-        _qtvProjectWorkStatus->setImportCSVFetureEnabled(true);
+        _qtvProjectWorkStatus->setImportCSVFeatureEnabled(true);
     }
     else
-        _qtvProjectWorkStatus->setImportCSVFetureEnabled(false);
+        _qtvProjectWorkStatus->setImportCSVFeatureEnabled(false);
 
     //requires "remove" privilege
 //    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
@@ -614,10 +601,10 @@ void Views::ViewSettings::_createUsersTitlesTableView()
         Wt::WPushButton *btn = _qtvUserTitle->createToolButton("", "icons/Add.png", "Create A New User Title");
         btn->clicked().connect(this, &Views::ViewSettings::_btnCreateUserTitleClicked);
 
-        _qtvUserTitle->setImportCSVFetureEnabled(true);
+        _qtvUserTitle->setImportCSVFeatureEnabled(true);
     }
     else
-        _qtvUserTitle->setImportCSVFetureEnabled(false);
+        _qtvUserTitle->setImportCSVFeatureEnabled(false);
 
     //requires "remove" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
@@ -684,10 +671,10 @@ void Views::ViewSettings::_createTagsTableView()
         Wt::WPushButton *btn = _qtvTags->createToolButton("", "icons/Add.png", "Create A New Tag");
         btn->clicked().connect(this, &Views::ViewSettings::_btnCreateTagClicked);
 
-        _qtvTags->setImportCSVFetureEnabled(true);
+        _qtvTags->setImportCSVFeatureEnabled(true);
     }
     else
-        _qtvTags->setImportCSVFetureEnabled(false);
+        _qtvTags->setImportCSVFeatureEnabled(false);
 
     //requires "remove" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))

@@ -28,14 +28,18 @@ namespace Views
         void setCurrentView(const std::string &viewName) const;
 
         //ui
+        //global
         Ms::Widgets::MQueryTableViewWidget<Database::DboData> *qtvData();
         Ms::Widgets::MQueryTableViewWidget<Database::Tag> *qtvTags();
         Ms::Widgets::MQueryTableViewWidget<Database::Tag> *qtvAssignedTags();
         Ms::Widgets::MQueryTableViewWidget<Database::Note> *qtvNotes();
+
+        //users
         Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *qtvGroupsPrivileges();
         Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *qtvGroupsAssignedPrivileges();
 
         //singals
+        //global
         Wt::Signal<std::string> &viewExposed();
         Wt::Signal<> &addDataRequested();
         Wt::Signal<std::vector<Wt::Dbo::ptr<Database::DboData>>> &removeDataRequested();
@@ -46,6 +50,8 @@ namespace Views
         Wt::Signal<> &clearTagFilterRequested();
         Wt::Signal<> &addNoteRequested();
         Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Note>>> &removeNoteRequested();
+
+        //users
         Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> &addGroupPrivilegeRequested();
         Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> &removeGroupPrivilegeRequested();
         Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> &filterGroupByPrivilegeRequested();
@@ -74,14 +80,18 @@ namespace Views
         Ms::Widgets::MContainerWidget *_cntGroupsAvailablePrivileges;
         Wt::WContainerWidget *_cntNoProperties;
 
+        //global
         Ms::Widgets::MQueryTableViewWidget<Database::DboData> *_qtvData;
         Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvTags;
         Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvAssignedTags;
         Ms::Widgets::MQueryTableViewWidget<Database::Note> *_qtvNotes;
+
+        //users
         Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *_qtvGroupsPrivileges;
         Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *_qtvGroupsAssignedPrivileges;
 
         //signals
+        //global
         Wt::Signal<std::string> _viewExposed;
         Wt::Signal<> _addDataRequested;
         Wt::Signal<std::vector<Wt::Dbo::ptr<Database::DboData>>> _removeDataRequested;
@@ -92,6 +102,8 @@ namespace Views
         Wt::Signal<> _clearTagFilterRequested;
         Wt::Signal<> _addNoteRequested;
         Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Note>>> _removeNoteRequested;
+
+        //users
         Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> _addGroupPrivilegeRequested;
         Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> _removeGroupPrivilegeRequested;
         Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> _filterGroupByPrivilegeRequested;
@@ -123,9 +135,6 @@ namespace Views
         void _createNotesTableView();
         void _createGroupsPrivilegesTableView();
         void _createGroupsAssignedPrivilegesTableView();
-
-        template<typename T>
-        void _addExtraColumns(Ms::Widgets::MQueryTableViewWidget<T> *widget, Wt::WFlags<Wt::ItemFlag> flags, int editRank);
 
         void _prepareView();
     };

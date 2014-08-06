@@ -53,9 +53,6 @@ namespace Views
         Wt::Signal<> &onTabGlobalSelected();
 
     private:
-        template<typename T>
-        void _addExtraColumns(Ms::Widgets::MQueryTableViewWidget<T> *widget, Wt::WFlags<Wt::ItemFlag> flags, int editRank);
-
         //Signals
         Wt::Signal<> _onTabGeneralSelected;
         Wt::Signal<> _onTabProjectsSelected;

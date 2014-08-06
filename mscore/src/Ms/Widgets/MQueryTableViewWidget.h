@@ -59,8 +59,8 @@ namespace Ms
             const Wt::WLength rowHeight() const;
             void setHeaderHeight(const Wt::WLength &height);
             const Wt::WLength headerHeight() const;
-            void setQuery(Wt::Dbo::Query<Wt::Dbo::ptr<T> > &query);
-            Wt::Dbo::Query<Wt::Dbo::ptr<T>> &query();
+            void setQuery(Wt::Dbo::Query<Wt::Dbo::ptr<T>> &query) const;
+            Wt::Dbo::Query<Wt::Dbo::ptr<T>> &query() const;
             const Ms::Core::Dbo::MDboManagerBase *dboManager() const;
             void setDboManager(Ms::Core::Dbo::MDboManagerBase *dboManager);
             void setDefaultFilterColumnIndex(int columnIndex);
@@ -77,27 +77,27 @@ namespace Ms
             bool isColumnResizeEnabled() const;
             void setAlternatingRowColors(bool enable);
             bool alternatingRowColors() const;
-            void updateView();
-            void saveSelection();
-            void loadSelection();
-            void selectAll();
-            void selectNone();
-            void inverseSelection();
-            void addColumn(Ms::Widgets::MTableViewColumn column);
-            void removeColumn(const Ms::Widgets::MTableViewColumn &column);
-            void clearColumns();
-            bool dbColumnExist(const std::string &dbColumnName);
-            bool columnExist(const std::string &columnDisplayName);
-            bool columnIsIgnored(const std::string &columnDisplayName);
-            std::string columnName(const std::string &columnDisplayName);
-            std::string columnDisplayName(const std::string &dboName);
+            void updateView() const;
+            void saveSelection() const;
+            void loadSelection() const;
+            void selectAll() const;
+            void selectNone() const;
+            void inverseSelection() const;
+            void addColumn(const Ms::Widgets::MTableViewColumn &column) const;
+            void removeColumn(const Ms::Widgets::MTableViewColumn &column) const;
+            void clearColumns() const;
+            bool dbColumnExist(const std::string &dbColumnName) const;
+            bool columnExist(const std::string &columnDisplayName) const;
+            bool columnIsIgnored(const std::string &columnDisplayName) const;
+            std::string columnName(const std::string &columnDisplayName) const;
+            std::string columnDisplayName(const std::string &dboName) const;
             void setIgnoreNumFilterColumns(int numColumns);
-            void ignoredNumFilterColumns();
+            void ignoredNumFilterColumns() const;
             std::vector<Wt::Dbo::ptr<T>> selectedItems() const;
-            bool isImportCSVFetureEnabled() const;
-            void setImportCSVFetureEnabled(bool enabled);
-            bool isExportCSVFetureEnabled() const;
-            void setExportCSVFetureEnabled(bool enabled);
+            bool isImportCSVFeatureEnabled() const;
+            void setImportCSVFeatureEnabled(bool enabled);
+            bool isExportCSVFeatureEnabled() const;
+            void setExportCSVFeatureEnabled(bool enabled);
             bool isAdvancedFilterFeatureEnabled() const;
             void setAdvancedFilterFeatureEnabled(bool enabled);
             bool isAdvancedFilterActive() const;
@@ -107,6 +107,7 @@ namespace Ms
             void setCustomFilterActive(bool active);
             std::string customFilterString() const;
             void setCustomFilterString(const std::string &customFilterString);
+            void addBaseColumns(Wt::WFlags<Wt::ItemFlag> flags, int editRank) const;
 
             //signals
             Wt::Signal<> &tableSelectionChanged();
@@ -135,26 +136,26 @@ namespace Ms
             void _popMnuReloadItemTriggered();
 
             //functions
-            void _importCSV(const std::string &fileName);
-            std::string _generateCSVData();
-            void _setModelUserName(const std::string &name);
-            void _refilter();
+            void _importCSV(const std::string &fileName) const;
+            std::string _generateCSVData() const;
+            void _setModelUserName(const std::string &name) const;
+            void _refilter() const;
             void _createMainTable();
             void _createAdvancedFilterView();
             void _createPropertiesView();
-            void _updateModel();
-            void _updateTable();
-            void _updateAdvancedFilterTable();
-            void _toggleAdvancedFilterView();
+            void _updateModel() const;
+            void _updateTable() const;
+            void _updateAdvancedFilterTable() const;
+            void _toggleAdvancedFilterView() const;
             void _prepareView();
 
             //variables
-            std::vector<Ms::Widgets::MTableViewColumn> _columns;
+            mutable std::vector<Ms::Widgets::MTableViewColumn> _columns;
+            mutable Wt::Dbo::Query<Wt::Dbo::ptr<T>> _query;
+            mutable Wt::Dbo::Query<Wt::Dbo::ptr<T>> _queryFilter;
+            mutable std::vector<typename Wt::Dbo::dbo_traits<T>::IdType> _selection;//for saving/loading selection in view
             int _defaultFilterColumnIndex;
-            Wt::Dbo::Query<Wt::Dbo::ptr<T>> _query;
-            Wt::Dbo::Query<Wt::Dbo::ptr<T>> _queryFilter;
             Ms::Core::Dbo::MDboManagerBase *_dboManager;
-            std::vector<typename Wt::Dbo::dbo_traits<T>::IdType> _selection;//for saving/loading selection in view
             Wt::WString _filterRegExpression;
             int _ignoreNumFilterColumns;//numbers of columns to ignore when filtering
             bool _advancedFilterActive;

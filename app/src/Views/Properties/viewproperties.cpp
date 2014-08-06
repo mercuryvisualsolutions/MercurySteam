@@ -69,7 +69,7 @@ void Views::ViewProperties::updateGroupsPrivilegesView()
     _qtvGroupsPrivileges->addColumn(Ms::Widgets::MTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), true));
 
     if(AppSettings::instance().isShowExtraColumns())
-        _addExtraColumns<Users::Privilege>(_qtvGroupsPrivileges, Wt::ItemIsSelectable, 0);
+        _qtvGroupsPrivileges->addBaseColumns(Wt::ItemIsSelectable, 0);
 
     _qtvGroupsPrivileges->removeColumn(Ms::Widgets::MTableViewColumn("Active"));
 
@@ -107,6 +107,7 @@ void Views::ViewProperties::setCurrentView(const std::string &viewName) const
 }
 
 //UI
+//Global
 Ms::Widgets::MQueryTableViewWidget<Database::DboData> *Views::ViewProperties::qtvData()
 {
     return _qtvData;
@@ -127,6 +128,7 @@ Ms::Widgets::MQueryTableViewWidget<Database::Note> *Views::ViewProperties::qtvNo
     return _qtvNotes;
 }
 
+//Users
 Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *Views::ViewProperties::qtvGroupsPrivileges()
 {
     return _qtvGroupsPrivileges;
@@ -309,7 +311,7 @@ void Views::ViewProperties::_createDataTableView()
         btn->clicked().connect(this, &Views::ViewProperties::_btnAddDataClicked);
     }
     else
-        _qtvData->setImportCSVFetureEnabled(false);
+        _qtvData->setImportCSVFeatureEnabled(false);
 
     //requires "remove" privilege
 //    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
@@ -322,7 +324,7 @@ void Views::ViewProperties::_createDataTableView()
 void Views::ViewProperties::_createTagsTableView()
 {
     _qtvTags = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::Tag>(&Database::DatabaseManager::instance());
-    _qtvTags->setImportCSVFetureEnabled(false);
+    _qtvTags->setImportCSVFeatureEnabled(false);
 
     //requires "create" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
@@ -344,7 +346,7 @@ void Views::ViewProperties::_createTagsTableView()
 void Views::ViewProperties::_createAssignedTagsTableView()
 {
     _qtvAssignedTags = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::Tag>(&Database::DatabaseManager::instance());
-    _qtvAssignedTags->setImportCSVFetureEnabled(false);
+    _qtvAssignedTags->setImportCSVFeatureEnabled(false);
 
     //requires "create" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
@@ -364,7 +366,7 @@ void Views::ViewProperties::_createNotesTableView()
         btn->clicked().connect(this, &Views::ViewProperties::_btnAddNoteClicked);
     }
     else
-        _qtvNotes->setImportCSVFetureEnabled(false);
+        _qtvNotes->setImportCSVFeatureEnabled(false);
 
     //requires "remove" privilege
 //    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
@@ -377,7 +379,7 @@ void Views::ViewProperties::_createNotesTableView()
 void Views::ViewProperties::_createGroupsPrivilegesTableView()
 {
     _qtvGroupsPrivileges = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Users::Privilege>(&Database::DatabaseManager::instance());
-    _qtvGroupsPrivileges->setImportCSVFetureEnabled(false);
+    _qtvGroupsPrivileges->setImportCSVFeatureEnabled(false);
 
     //requires "create" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
@@ -398,7 +400,7 @@ void Views::ViewProperties::_createGroupsPrivilegesTableView()
 void Views::ViewProperties::_createGroupsAssignedPrivilegesTableView()
 {
     _qtvGroupsAssignedPrivileges = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Users::Privilege>(&Database::DatabaseManager::instance());
-    _qtvGroupsAssignedPrivileges->setImportCSVFetureEnabled(false);
+    _qtvGroupsAssignedPrivileges->setImportCSVFeatureEnabled(false);
 
     //requires "edit" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
@@ -406,19 +408,6 @@ void Views::ViewProperties::_createGroupsAssignedPrivilegesTableView()
         Wt::WPushButton *btn = _qtvGroupsAssignedPrivileges->createToolButton("", "icons/RemoveFrom.png", "Remove selected privileges from selected groups");
         btn->clicked().connect(this, &Views::ViewProperties::_btnRemoveGroupsPrivilegesClicked);
     }
-}
-
-template<typename T>
-void Views::ViewProperties::_addExtraColumns(Ms::Widgets::MQueryTableViewWidget<T> *widget, Wt::WFlags<Wt::ItemFlag> flags, int editRank)
-{
-    widget->addColumn(Ms::Widgets::MTableViewColumn("View_Rank", "View Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Edit_Rank", "Edit Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Remove_Rank", "Remove Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Date_Created", "Date Created", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Created_By", "Created By", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Last_Modified_Date", "Last Modified Date", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Last_Modified_By", "Last Modified By", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Active", "Active", Wt::ItemIsSelectable | Wt::ItemIsUserCheckable, new Ms::Widgets::Delegates::MCheckBoxDelegate(editRank)));
 }
 
 void Views::ViewProperties::_prepareView()

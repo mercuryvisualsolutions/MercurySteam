@@ -91,7 +91,7 @@ void Views::ViewUsers::updateUsersView()
     {
         _qtvUsers->addColumn(Ms::Widgets::MTableViewColumn("Create_Rank", "Create Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
 
-        _addExtraColumns<Users::User>(_qtvUsers, flags, editRank);
+        _qtvUsers->addBaseColumns(flags, editRank);
     }
 
     _qtvUsers->updateView();
@@ -129,30 +129,30 @@ void Views::ViewUsers::updateGroupsView()
     _qtvGroups->addColumn(Ms::Widgets::MTableViewColumn("Rank", "Rank", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
     if(AppSettings::instance().isShowExtraColumns())
-        _addExtraColumns<Users::Group>(_qtvGroups, flags, editRank);
+        _qtvGroups->addBaseColumns(flags, editRank);
 
     _qtvGroups->updateView();
 }
 
 void Views::ViewUsers::updatePropertiesView()
 {
-    if(_viewProperties->currentView() == "Data")
+    if(_stkProperties->currentWidget() == _viewData)
     {
         _updatePropertiesDataView();
     }
-    else if(_viewProperties->currentView() == "Tags")
+    else if(_stkProperties->currentWidget() == _viewTags)
     {
         _updatePropertiesTagsView();
         _updatePropertiesAssignedTagsView();
     }
-    else if(_viewProperties->currentView() == "Notes")
+    else if(_stkProperties->currentWidget() == _viewNotes)
     {
         _updatePropertiesNotesView();
     }
-    else if(_viewProperties->currentView() == "Groups Privileges")
+    else if(_stkProperties->currentWidget() == _viewPrivileges)
     {
-        _viewProperties->updateGroupsPrivilegesView();
-        _updatePropertiesGroupsAssignedPrivilegesView();
+        _updatePropertiesPrivilegesView();
+        _updatePropertiesAssignedPrivilegesView();
     }
 }
 
@@ -184,19 +184,6 @@ Wt::Signal<> &Views::ViewUsers::onTabUsersSelected()
 Wt::Signal<> &Views::ViewUsers::onTabGroupsSelected()
 {
     return _onTabGroupsSelected;
-}
-
-template<typename T>
-void Views::ViewUsers::_addExtraColumns(Ms::Widgets::MQueryTableViewWidget<T> *widget, Wt::WFlags<Wt::ItemFlag> flags, int editRank)
-{
-    widget->addColumn(Ms::Widgets::MTableViewColumn("View_Rank", "View Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Edit_Rank", "Edit Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Remove_Rank", "Remove Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Date_Created", "Date Created", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Created_By", "Created By", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Last_Modified_Date", "Last Modified Date", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Last_Modified_By", "Last Modified By", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Active", "Active", Wt::ItemIsSelectable | Wt::ItemIsUserCheckable, new Ms::Widgets::Delegates::MCheckBoxDelegate(editRank)));
 }
 
 template<typename T>
@@ -510,7 +497,7 @@ void Views::ViewUsers::_createUsersTableView()
     _qtvUsers->setRowHeight(64);
     _qtvUsers->setDefaultFilterColumnIndex(1);
     _qtvUsers->setIgnoreNumFilterColumns(1);
-    _qtvUsers->setImportCSVFetureEnabled(false);
+    _qtvUsers->setImportCSVFeatureEnabled(false);
 
     //requires "create" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
@@ -619,10 +606,10 @@ void Views::ViewUsers::_createGroupsTableView()
         Wt::WPushButton *btn = _qtvGroups->createToolButton("", "icons/Add.png", "Create A New Group");
         btn->clicked().connect(this, &Views::ViewUsers::_btnGroupsCreateClicked);
 
-        _qtvGroups->setImportCSVFetureEnabled(true);
+        _qtvGroups->setImportCSVFeatureEnabled(true);
     }
     else
-        _qtvGroups->setImportCSVFetureEnabled(false);
+        _qtvGroups->setImportCSVFeatureEnabled(false);
 
     //requires "remove" privilege
 //    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
@@ -635,7 +622,33 @@ void Views::ViewUsers::_createGroupsTableView()
 }
 
 /*******************--Properties--********************/
-void Views::ViewUsers::_btnAddPropertiesDataClicked()
+void Views::ViewUsers::_mnuNavBarPropertiesDataItemTriggered()
+{
+    _updatePropertiesDataView();
+    _stkProperties->setCurrentWidget(_viewData);
+}
+
+void Views::ViewUsers::_mnuNavBarPropertiesTagsItemTriggered()
+{
+    _updatePropertiesTagsView();
+    _updatePropertiesAssignedTagsView();
+    _stkProperties->setCurrentWidget(_viewTags);
+}
+
+void Views::ViewUsers::_mnuNavBarPropertiesNotesItemTriggered()
+{
+    _updatePropertiesNotesView();
+    _stkProperties->setCurrentWidget(_viewNotes);
+}
+
+void Views::ViewUsers::_mnuNavBarPropertiesPrivilegesItemTriggered()
+{
+    _updatePropertiesPrivilegesView();
+    _updatePropertiesAssignedPrivilegesView();
+    _stkProperties->setCurrentWidget(_viewPrivileges);
+}
+
+void Views::ViewUsers::_addDataRequested()
 {
     if(_stkMain->currentWidget() == _qtvUsers)
     {
@@ -649,12 +662,12 @@ void Views::ViewUsers::_btnAddPropertiesDataClicked()
     }
 }
 
-void Views::ViewUsers::_btnRemovePropertiesDataClicked(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec)
+void Views::ViewUsers::_removeDataRequested(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec)
 {
 
 }
 
-void Views::ViewUsers::_btnCreatePropertiesTagClicked()
+void Views::ViewUsers::_createTagRequested()
 {
     if(_stkMain->currentWidget() == _qtvUsers)
     {
@@ -668,7 +681,7 @@ void Views::ViewUsers::_btnCreatePropertiesTagClicked()
     }
 }
 
-void Views::ViewUsers::_btnAssignPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
+void Views::ViewUsers::_assignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
     if(_stkMain->currentWidget() == _qtvUsers)
     {
@@ -682,7 +695,7 @@ void Views::ViewUsers::_btnAssignPropertiesTagClicked(const std::vector<Wt::Dbo:
     }
 }
 
-void Views::ViewUsers::_btnUnAssignPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
+void Views::ViewUsers::_unassignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
     if(_stkMain->currentWidget() == _qtvUsers)
     {
@@ -696,7 +709,7 @@ void Views::ViewUsers::_btnUnAssignPropertiesTagClicked(const std::vector<Wt::Db
     }
 }
 
-void Views::ViewUsers::_btnFilterPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
+void Views::ViewUsers::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
     std::string strFilterQuery = "";
 
@@ -714,14 +727,14 @@ void Views::ViewUsers::_btnFilterPropertiesTagClicked(const std::vector<Wt::Dbo:
     }
     else if(_stkMain->currentWidget() == _qtvGroups)
     {
-        strFilterQuery = "Name IN (SELECT gt.group_Name FROM rel_group_tags gt WHERE tag_id IN (" + idValues.at(0) + "))";
+        strFilterQuery = "Name IN (SELECT gt.group_Name FROM rel_group_assigned_tags gt WHERE tag_id IN (" + idValues.at(0) + "))";
 
         _qtvGroups->setCustomFilterString(strFilterQuery);
         _qtvGroups->setCustomFilterActive(true);
     }
 }
 
-void Views::ViewUsers::_btnClearFilterPropertiesTagClicked()
+void Views::ViewUsers::_clearTagsFilterRequested()
 {
     if(_stkMain->currentWidget() == _qtvUsers)
     {
@@ -735,7 +748,7 @@ void Views::ViewUsers::_btnClearFilterPropertiesTagClicked()
     }
 }
 
-void Views::ViewUsers::_btnAddPropertiesNoteClicked()
+void Views::ViewUsers::_addNoteRequested()
 {
     if(_stkMain->currentWidget() == _qtvUsers)
     {
@@ -749,12 +762,12 @@ void Views::ViewUsers::_btnAddPropertiesNoteClicked()
     }
 }
 
-void Views::ViewUsers::_btnRemovePropertiesNoteClicked(const std::vector<Wt::Dbo::ptr<Database::Note>> &noteVec)
+void Views::ViewUsers::_removeNotesRequested(const std::vector<Wt::Dbo::ptr<Database::Note>> &noteVec)
 {
 
 }
 
-void Views::ViewUsers::_btnAddPropertiesGroupsPrivilegesClicked(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec)
+void Views::ViewUsers::_assignPrivilegesRequested(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec)
 {
     if(_qtvGroups->table()->selectedIndexes().size() > 0)
     {
@@ -766,11 +779,11 @@ void Views::ViewUsers::_btnAddPropertiesGroupsPrivilegesClicked(const std::vecto
             }
         }
 
-        _updatePropertiesGroupsAssignedPrivilegesView();
+        _updatePropertiesAssignedPrivilegesView();
     }
 }
 
-void Views::ViewUsers::_btnRemovePropertiesGroupsPrivilegesClicked(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec)
+void Views::ViewUsers::_unassignPrivilegesRequested(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec)
 {
     if(_qtvGroups->table()->selectedIndexes().size() > 0)
     {
@@ -782,11 +795,11 @@ void Views::ViewUsers::_btnRemovePropertiesGroupsPrivilegesClicked(const std::ve
             }
         }
 
-        _updatePropertiesGroupsAssignedPrivilegesView();
+        _updatePropertiesAssignedPrivilegesView();
     }
 }
 
-void Views::ViewUsers::_btnFilterPropertiesGroupsPrivilegesClicked(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec)
+void Views::ViewUsers::_filterByPrivilegesRequested(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec)
 {
     std::string strFilterQuery = "";
 
@@ -801,53 +814,82 @@ void Views::ViewUsers::_btnFilterPropertiesGroupsPrivilegesClicked(const std::ve
     _qtvGroups->setCustomFilterActive(true);
 }
 
-void Views::ViewUsers::_btnClearFilterPropertiesGroupsPrivilegesClicked()
+void Views::ViewUsers::_clearFilterPrivilegesFilterRequested()
 {
     _qtvGroups->setCustomFilterString("");
     _qtvGroups->setCustomFilterActive(true);
 }
 
-void Views::ViewUsers::_onViewPropertiesSubViewExposed(const std::string &viewName)
-{
-    if(viewName == "Data")
-    {
-        _updatePropertiesDataView();
-    }
-    else if(viewName == "Tags")
-    {
-        _updatePropertiesTagsView();
-        _updatePropertiesAssignedTagsView();
-    }
-    else if(viewName == "Notes")
-    {
-        _updatePropertiesNotesView();
-    }
-    else if(viewName == "Groups Privileges")
-    {
-        _viewProperties->updateGroupsPrivilegesView();
-        _updatePropertiesGroupsAssignedPrivilegesView();
-    }
-}
-
 void Views::ViewUsers::_createPropertiesView()
 {
-    _viewProperties = new Views::ViewProperties();
-    _viewProperties->addDataRequested().connect(this, &Views::ViewUsers::_btnAddPropertiesDataClicked);
-    _viewProperties->removeDataRequested().connect(this, &Views::ViewUsers::_btnRemovePropertiesDataClicked);
-    _viewProperties->createTagRequested().connect(this, &Views::ViewUsers::_btnCreatePropertiesTagClicked);
-    _viewProperties->assignTagRequested().connect(this, &Views::ViewUsers::_btnAssignPropertiesTagClicked);
-    _viewProperties->unAssignTagRequested().connect(this, &Views::ViewUsers::_btnUnAssignPropertiesTagClicked);
-    _viewProperties->filterByTagRequested().connect(this, &Views::ViewUsers::_btnFilterPropertiesTagClicked);
-    _viewProperties->clearTagFilterRequested().connect(this, &Views::ViewUsers::_btnClearFilterPropertiesTagClicked);
-    _viewProperties->addNoteRequested().connect(this, &Views::ViewUsers::_btnAddPropertiesNoteClicked);
-    _viewProperties->removeNoteRequested().connect(this, &Views::ViewUsers::_btnRemovePropertiesNoteClicked);
-    _viewProperties->addGroupPrivilegeRequested().connect(this, &Views::ViewUsers::_btnAddPropertiesGroupsPrivilegesClicked);
-    _viewProperties->removeGroupPrivilegeRequested().connect(this, &Views::ViewUsers::_btnRemovePropertiesGroupsPrivilegesClicked);
-    _viewProperties->filterGroupByPrivilegeRequested().connect(this, &Views::ViewUsers::_btnFilterPropertiesGroupsPrivilegesClicked);
-    _viewProperties->clearGroupPrivilegeFilterRequested().connect(this, &Views::ViewUsers::_btnClearFilterPropertiesGroupsPrivilegesClicked);
-    _viewProperties->viewExposed().connect(this, &Views::ViewUsers::_onViewPropertiesSubViewExposed);
+    _cntPropertiesMain = new Wt::WContainerWidget();
 
-    _propertiesPanel->addPropertiesView(this->id(), _viewProperties);
+    _layCntPropertiesMain = new Wt::WVBoxLayout();
+    _layCntPropertiesMain->setContentsMargins(0,0,0,0);
+    _layCntPropertiesMain->setSpacing(0);
+
+    _cntPropertiesMain->setLayout(_layCntPropertiesMain);
+
+    _navBarProperties = new Wt::WNavigationBar();
+
+    _layCntPropertiesMain->addWidget(_navBarProperties);
+
+    _mnuNavBarProperties = new Wt::WMenu(Wt::Horizontal);
+
+    _navBarProperties->addMenu(_mnuNavBarProperties);
+
+    _mnuNavBarPropertiesDataItem = new Wt::WMenuItem("Data");
+    _mnuNavBarPropertiesDataItem->triggered().connect(this, &Views::ViewUsers::_mnuNavBarPropertiesDataItemTriggered);
+    _mnuNavBarProperties->addItem(_mnuNavBarPropertiesDataItem);
+
+    _mnuNavBarPropertiesTagsItem = new Wt::WMenuItem("Tags");
+    _mnuNavBarPropertiesTagsItem->triggered().connect(this, &Views::ViewUsers::_mnuNavBarPropertiesTagsItemTriggered);
+    _mnuNavBarProperties->addItem(_mnuNavBarPropertiesTagsItem);
+
+    _mnuNavBarPropertiesNotesItem = new Wt::WMenuItem("Notes");
+    _mnuNavBarPropertiesNotesItem->triggered().connect(this, &Views::ViewUsers::_mnuNavBarPropertiesNotesItemTriggered);
+    _mnuNavBarProperties->addItem(_mnuNavBarPropertiesNotesItem);
+
+    _mnuNavBarPropertiesPrivilegesItem = new Wt::WMenuItem("Privileges");
+    _mnuNavBarPropertiesPrivilegesItem->triggered().connect(this, &Views::ViewUsers::_mnuNavBarPropertiesPrivilegesItemTriggered);
+    _mnuNavBarProperties->addItem(_mnuNavBarPropertiesPrivilegesItem);
+
+    _stkProperties = new Wt::WStackedWidget();
+
+    _layCntPropertiesMain->addWidget(_stkProperties, 1);
+
+    _viewData = new Views::ViewDboData();
+    _viewData->addDataRequested().connect(this, &Views::ViewUsers::_addDataRequested);
+    _viewData->removeDataRequested().connect(this, &Views::ViewUsers::_removeDataRequested);
+
+    _stkProperties->addWidget(_viewData);
+
+    _viewTags = new Views::ViewTags();
+    _viewTags->createTagRequested().connect(this, &Views::ViewUsers::_createTagRequested);
+    _viewTags->assignTagsRequested().connect(this, &Views::ViewUsers::_assignTagsRequested);
+    _viewTags->unassignTagsRequested().connect(this, &Views::ViewUsers::_unassignTagsRequested);
+    _viewTags->filterByTagsRequested().connect(this, &Views::ViewUsers::_filterByTagsRequested);
+    _viewTags->clearTagsFilterRequested().connect(this, &Views::ViewUsers::_clearTagsFilterRequested);
+
+    _stkProperties->addWidget(_viewTags);
+
+    _viewNotes = new Views::ViewNotes();
+    _viewNotes->addNoteRequested().connect(this, &Views::ViewUsers::_addNoteRequested);
+    _viewNotes->removeNotesRequested().connect(this, &Views::ViewUsers::_removeNotesRequested);
+
+    _stkProperties->addWidget(_viewNotes);
+
+    _viewPrivileges = new Views::ViewPrivileges();
+    _viewPrivileges->assignPrivilegesRequested().connect(this, &Views::ViewUsers::_assignPrivilegesRequested);
+    _viewPrivileges->unassignPrivilegesRequested().connect(this, &Views::ViewUsers::_unassignPrivilegesRequested);
+    _viewPrivileges->filterByPrivilegesRequested().connect(this, &Views::ViewUsers::_filterByPrivilegesRequested);
+    _viewPrivileges->clearPrivilegesFilterRequested().connect(this, &Views::ViewUsers::_clearFilterPrivilegesFilterRequested);
+
+    _stkProperties->addWidget(_viewPrivileges);
+
+    _mnuNavBarPropertiesDataItem->select();//default selected item
+
+    _propertiesPanel->addPropertiesView(this->id(), _cntPropertiesMain);
 }
 
 void Views::ViewUsers::_updatePropertiesDataView()
@@ -864,7 +906,7 @@ void Views::ViewUsers::_updatePropertiesDataView()
 
     int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
-    Ms::Widgets::MQueryTableViewWidget<Database::DboData> *_qtvPropertiesData = _viewProperties->qtvData();
+    const Ms::Widgets::MQueryTableViewWidget<Database::DboData> *_qtvPropertiesData = _viewData->qtvData();
 
     _qtvPropertiesData->clearColumns();
 
@@ -913,7 +955,7 @@ void Views::ViewUsers::_updatePropertiesDataView()
     _qtvPropertiesData->setQuery(query);
 
     if(AppSettings::instance().isShowExtraColumns())
-        _addExtraColumns<Database::DboData>(_qtvPropertiesData, flags, editRank);
+        _qtvPropertiesData->addBaseColumns(flags, editRank);
 
     _qtvPropertiesData->updateView();
 }
@@ -932,7 +974,7 @@ void Views::ViewUsers::_updatePropertiesTagsView()
 
     int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
-    Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesTags = _viewProperties->qtvTags();
+    const Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesTags = _viewTags->qtvTags();
 
     _qtvPropertiesTags->clearColumns();
 
@@ -977,7 +1019,7 @@ void Views::ViewUsers::_updatePropertiesTagsView()
     _qtvPropertiesTags->setQuery(query);
 
     if(AppSettings::instance().isShowExtraColumns())
-        _addExtraColumns<Database::Tag>(_qtvPropertiesTags, flags, editRank);
+        _qtvPropertiesTags->addBaseColumns(flags, editRank);
 
     _qtvPropertiesTags->updateView();
 }
@@ -996,7 +1038,7 @@ void Views::ViewUsers::_updatePropertiesAssignedTagsView()
 
     int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
-    Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesAssignedTags = _viewProperties->qtvAssignedTags();
+    const Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesAssignedTags = _viewTags->qtvAssignedTags();
 
     _qtvPropertiesAssignedTags->clearColumns();
 
@@ -1048,7 +1090,7 @@ void Views::ViewUsers::_updatePropertiesAssignedTagsView()
     _qtvPropertiesAssignedTags->setQuery(query);
 
     if(AppSettings::instance().isShowExtraColumns())
-        _addExtraColumns<Database::Tag>(_qtvPropertiesAssignedTags, flags, editRank);
+        _qtvPropertiesAssignedTags->addBaseColumns(flags, editRank);
 
     _qtvPropertiesAssignedTags->updateView();
 }
@@ -1067,7 +1109,7 @@ void Views::ViewUsers::_updatePropertiesNotesView()
 
     int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
-    Ms::Widgets::MQueryTableViewWidget<Database::Note> *_qtvPropertiesNotes = _viewProperties->qtvNotes();
+    const Ms::Widgets::MQueryTableViewWidget<Database::Note> *_qtvPropertiesNotes = _viewNotes->qtvNotes();
 
     _qtvPropertiesNotes->clearColumns();
 
@@ -1116,12 +1158,43 @@ void Views::ViewUsers::_updatePropertiesNotesView()
     _qtvPropertiesNotes->setQuery(query);
 
     if(AppSettings::instance().isShowExtraColumns())
-        _addExtraColumns<Database::Note>(_qtvPropertiesNotes, flags, editRank);
+        _qtvPropertiesNotes->addBaseColumns(flags, editRank);
 
     _qtvPropertiesNotes->updateView();
 }
 
-void Views::ViewUsers::_updatePropertiesGroupsAssignedPrivilegesView()
+void Views::ViewUsers::_updatePropertiesPrivilegesView()
+{
+    if(!Database::DatabaseManager::instance().openTransaction())
+        return;
+
+    Wt::Dbo::Query<Wt::Dbo::ptr<Users::Privilege>> query;
+
+    int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+
+    if(AppSettings::instance().isLoadInactiveData())
+        query = Database::DatabaseManager::instance().session()->find<Users::Privilege>().where("View_Rank <= ?").bind(viewRank);
+    else
+        query = Database::DatabaseManager::instance().session()->find<Users::Privilege>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
+
+    const Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *_qtvGroupsPrivileges = _viewPrivileges->qtvPrivileges();
+
+    _qtvGroupsPrivileges->setQuery(query);
+
+    _qtvGroupsPrivileges->clearColumns();
+
+    //add columns
+    _qtvGroupsPrivileges->addColumn(Ms::Widgets::MTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), true));
+
+    if(AppSettings::instance().isShowExtraColumns())
+        _qtvGroupsPrivileges->addBaseColumns(Wt::ItemIsSelectable, 0);
+
+    _qtvGroupsPrivileges->removeColumn(Ms::Widgets::MTableViewColumn("Active"));
+
+    _qtvGroupsPrivileges->updateView();
+}
+
+void Views::ViewUsers::_updatePropertiesAssignedPrivilegesView()
 {
     if(_qtvGroups->table()->selectedIndexes().size() == 0)
         return;
@@ -1137,7 +1210,7 @@ void Views::ViewUsers::_updatePropertiesGroupsAssignedPrivilegesView()
     if(!AppSettings::instance().isLoadInactiveData())
         query.where("Active = ?").bind(true);
 
-    Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *_qtvPropertiesGroupsAssignedPrivileges = _viewProperties->qtvGroupsAssignedPrivileges();
+    const Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *_qtvPropertiesGroupsAssignedPrivileges = _viewPrivileges->qtvAssignedPrivileges();
 
     _qtvPropertiesGroupsAssignedPrivileges->setQuery(query);
 
@@ -1147,7 +1220,7 @@ void Views::ViewUsers::_updatePropertiesGroupsAssignedPrivilegesView()
     _qtvPropertiesGroupsAssignedPrivileges->addColumn(Ms::Widgets::MTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), true));
 
     if(AppSettings::instance().isShowExtraColumns())
-        _addExtraColumns<Users::Privilege>(_qtvPropertiesGroupsAssignedPrivileges, Wt::ItemIsSelectable, 0);
+        _qtvPropertiesGroupsAssignedPrivileges->addBaseColumns(Wt::ItemIsSelectable, 0);
 
     _qtvPropertiesGroupsAssignedPrivileges->removeColumn(Ms::Widgets::MTableViewColumn("Active"));
 
@@ -1159,10 +1232,10 @@ void Views::ViewUsers::_mnuMainUsersItemTriggered()
 {
     _stkMain->setCurrentWidget(_qtvUsers);
 
-    if(_viewProperties->currentView() == "Groups Privileges")
-        _viewProperties->setCurrentView("Data");
+    if(_stkProperties->currentWidget() == _viewPrivileges)
+        _mnuNavBarPropertiesDataItem->select();
 
-    _viewProperties->setViewHidden("Groups Privileges", true);
+    _mnuNavBarPropertiesPrivilegesItem->hide();
 
     updateUsersView();
 
@@ -1173,7 +1246,7 @@ void Views::ViewUsers::_mnuMainGroupsItemTriggered()
 {
     _stkMain->setCurrentWidget(_qtvGroups);
 
-    _viewProperties->setViewHidden("Groups Privileges", false);
+    _mnuNavBarPropertiesPrivilegesItem->show();
 
     updateGroupsView();
 

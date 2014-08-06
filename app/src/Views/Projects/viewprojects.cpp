@@ -104,7 +104,7 @@ void Views::ViewProjects::updateProjectsView()
         _qtvProjects->addColumn(Ms::Widgets::MTableViewColumn("Priority", "Priority", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
 
         if(AppSettings::instance().isShowExtraColumns())
-            _addExtraColumns<Projects::Project>(_qtvProjects, flags, editRank);
+            _qtvProjects->addBaseColumns(flags, editRank);
 
         _qtvProjects->updateView();
     }
@@ -187,7 +187,7 @@ void Views::ViewProjects::updateSequencesView()
 
 
         if(AppSettings::instance().isShowExtraColumns())
-            _addExtraColumns<Projects::ProjectSequence>(_qtvSequences, flags, editRank);
+            _qtvSequences->addBaseColumns(flags, editRank);
 
         _qtvSequences->updateView();
     }
@@ -292,7 +292,7 @@ void Views::ViewProjects::updateShotsView()
         _qtvShots->addColumn(Ms::Widgets::MTableViewColumn("Priority", "Priority", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
 
         if(AppSettings::instance().isShowExtraColumns())
-            _addExtraColumns<Projects::ProjectShot>(_qtvShots, flags, editRank);
+            _qtvShots->addBaseColumns(flags, editRank);
 
         _qtvShots->updateView();
     }
@@ -373,7 +373,7 @@ void Views::ViewProjects::updateAssetsView()
         _qtvAssets->addColumn(Ms::Widgets::MTableViewColumn("Priority", "Priority", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
 
         if(AppSettings::instance().isShowExtraColumns())
-            _addExtraColumns<Projects::ProjectAsset>(_qtvAssets, flags, editRank);
+            _qtvAssets->addBaseColumns(flags, editRank);
 
         _qtvAssets->updateView();
     }
@@ -520,8 +520,11 @@ void Views::ViewProjects::updateTasksView()
          "Status", editRank)));
         _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Start_Date", "Start Date", flags, new Ms::Widgets::Delegates::MDateDelegate(editRank)));
         _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("End_Date", "End Date",flags, new Ms::Widgets::Delegates::MDateDelegate(editRank)));
-        _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Task_Shot_Shot_Sequence_Sequence_Name", "Sequence Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-        _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Task_Shot_Shot_Sequence_Sequence_Project_Project_Name", "Sequence Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Task_Sequence_Sequence_Name", "Sequence Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Task_Sequence_Sequence_Project_Project_Name", "Sequence Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Task_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Task_Shot_Shot_Sequence_Sequence_Name", "Shot Sequence Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Task_Shot_Shot_Sequence_Sequence_Project_Project_Name", "Shot Sequence Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
         _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Task_Shot_Shot_Name", "Shot Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
         _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Task_Asset_Asset_Name", "Asset Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
         _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Task_Asset_Asset_Project_Project_Name", "Asset Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
@@ -529,9 +532,8 @@ void Views::ViewProjects::updateTasksView()
         _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Priority", "Priority", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
         _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Accepted_By_User", "Accepted By User", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
 
-
         if(AppSettings::instance().isShowExtraColumns())
-            _addExtraColumns<Projects::ProjectTask>(_qtvTasks, flags, editRank);
+            _qtvTasks->addBaseColumns(flags, editRank);
 
         _qtvTasks->updateView();
     }
@@ -543,16 +545,16 @@ void Views::ViewProjects::updateTasksView()
 
 void Views::ViewProjects::updatePropertiesView()
 {
-    if(_viewProperties->currentView() == "Data")
+    if(_stkProperties->currentWidget() == _viewData)
     {
         _updatePropertiesDataView();
     }
-    else if(_viewProperties->currentView() == "Tags")
+    else if(_stkProperties->currentWidget() == _viewTags)
     {
         _updatePropertiesTagsView();
         _updatePropertiesAssignedTagsView();
     }
-    else if(_viewProperties->currentView() == "Notes")
+    else if(_stkProperties->currentWidget() == _viewNotes)
     {
         _updatePropertiesNotesView();
     }
@@ -631,19 +633,6 @@ Wt::Signal<> &Views::ViewProjects::onTabAssetsSelected()
 Wt::Signal<> &Views::ViewProjects::onTabTasksSelected()
 {
     return _onTabTasksSelected;
-}
-
-template<typename T>
-void Views::ViewProjects::_addExtraColumns(Ms::Widgets::MQueryTableViewWidget<T> *widget, Wt::WFlags<Wt::ItemFlag> flags, int editRank)
-{
-    widget->addColumn(Ms::Widgets::MTableViewColumn("View_Rank", "View Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Edit_Rank", "Edit Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Remove_Rank", "Remove Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Date_Created", "Date Created", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Created_By", "Created By", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Last_Modified_Date", "Last Modified Date", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Last_Modified_By", "Last Modified By", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
-    widget->addColumn(Ms::Widgets::MTableViewColumn("Active", "Active", Wt::ItemIsSelectable | Wt::ItemIsUserCheckable, new Ms::Widgets::Delegates::MCheckBoxDelegate(editRank)));
 }
 
 template<typename T>
@@ -770,6 +759,14 @@ void Views::ViewProjects::_unAssignTagFromDbo(const std::vector<Wt::Dbo::ptr<T>>
 //Main
 void Views::ViewProjects::_mnuMainProjectsItemTriggered()
 {
+    if(_stkProperties->currentWidget() == _viewShots)
+        _mnuNavBarPropertiesDataItem->select();
+
+    _mnuNavBarPropertiesSequencesItem->show();
+    _mnuNavBarPropertiesShotsItem->hide();
+    _mnuNavBarPropertiesAssetsItem->show();
+    _mnuNavBarPropertiesTasksItem->show();
+
     _stkMain->setCurrentWidget(_cntProjects);
     updateProjectsView();
 
@@ -778,6 +775,17 @@ void Views::ViewProjects::_mnuMainProjectsItemTriggered()
 
 void Views::ViewProjects::_mnuMainSequencesItemTriggered()
 {
+    if((_stkProperties->currentWidget() == _viewSequences) ||
+            (_stkProperties->currentWidget() == _viewAssets))
+    {
+        _mnuNavBarPropertiesDataItem->select();
+    }
+
+    _mnuNavBarPropertiesSequencesItem->hide();
+    _mnuNavBarPropertiesShotsItem->show();
+    _mnuNavBarPropertiesAssetsItem->hide();
+    _mnuNavBarPropertiesTasksItem->show();
+
     _stkMain->setCurrentWidget(_cntSequences);
     updateSequencesView();
 
@@ -786,6 +794,18 @@ void Views::ViewProjects::_mnuMainSequencesItemTriggered()
 
 void Views::ViewProjects::_mnuMainShotsItemTriggered()
 {
+    if((_stkProperties->currentWidget() == _viewSequences) ||
+            (_stkProperties->currentWidget() == _viewShots) ||
+            (_stkProperties->currentWidget() == _viewAssets))
+    {
+        _mnuNavBarPropertiesDataItem->select();
+    }
+
+    _mnuNavBarPropertiesSequencesItem->hide();
+    _mnuNavBarPropertiesShotsItem->hide();
+    _mnuNavBarPropertiesAssetsItem->hide();
+    _mnuNavBarPropertiesTasksItem->show();
+
     _stkMain->setCurrentWidget(_cntShots);
     updateShotsView();
 
@@ -794,6 +814,18 @@ void Views::ViewProjects::_mnuMainShotsItemTriggered()
 
 void Views::ViewProjects::_mnuMainAssetsItemTriggered()
 {
+    if((_stkProperties->currentWidget() == _viewSequences) ||
+            (_stkProperties->currentWidget() == _viewShots) ||
+            (_stkProperties->currentWidget() == _viewAssets))
+    {
+        _mnuNavBarPropertiesDataItem->select();
+    }
+
+    _mnuNavBarPropertiesSequencesItem->hide();
+    _mnuNavBarPropertiesShotsItem->hide();
+    _mnuNavBarPropertiesAssetsItem->hide();
+    _mnuNavBarPropertiesTasksItem->show();
+
     _stkMain->setCurrentWidget(_cntAssets);
     updateAssetsView();
 
@@ -802,6 +834,19 @@ void Views::ViewProjects::_mnuMainAssetsItemTriggered()
 
 void Views::ViewProjects::_mnuMainTasksItemTriggered()
 {
+    if((_stkProperties->currentWidget() == _viewSequences) ||
+            (_stkProperties->currentWidget() == _viewShots) ||
+            (_stkProperties->currentWidget() == _viewAssets) ||
+            (_stkProperties->currentWidget() == _viewTasks))
+    {
+        _mnuNavBarPropertiesDataItem->select();
+    }
+
+    _mnuNavBarPropertiesSequencesItem->hide();
+    _mnuNavBarPropertiesShotsItem->hide();
+    _mnuNavBarPropertiesAssetsItem->hide();
+    _mnuNavBarPropertiesTasksItem->hide();
+
     _stkMain->setCurrentWidget(_cntTasks);
     updateTasksView();
 
@@ -865,10 +910,13 @@ void Views::ViewProjects::_btnProjectsRemoveClicked()
 void Views::ViewProjects::_btnProjectsFilesClicked()
 {
     if(_qtvProjects->table()->selectedIndexes().size() != 1)
-        return;
+    {
+        _logger->log("Please select only one item.", Ms::Log::LogMessageType::Warning);
 
-    std::string prjName = _qtvProjects->model()->resultRow(_qtvProjects->proxyModel()->mapToSource(
-                                                               *_qtvProjects->table()->selectedIndexes().begin()).row())->name();
+        return;
+    }
+
+    std::string prjName = _qtvProjects->selectedItems().at(0)->name();
 
     DlgFilesManager *dlg = new DlgFilesManager(Projects::ProjectsIO::getRelativeProjectDir(prjName) + Ms::IO::dirSeparator() + "files");
     dlg->finished().connect(std::bind([=]()
@@ -966,10 +1014,10 @@ void Views::ViewProjects::_createProjectsTableView()
         Wt::WPushButton *btn = _qtvProjects->createToolButton("", "icons/Add.png", "Create A New Project");
         btn->clicked().connect(this, &Views::ViewProjects::_btnProjectsCreateClicked);
 
-        _qtvProjects->setImportCSVFetureEnabled(true);
+        _qtvProjects->setImportCSVFeatureEnabled(true);
     }
     else
-        _qtvProjects->setImportCSVFetureEnabled(false);
+        _qtvProjects->setImportCSVFeatureEnabled(false);
 
     //requires "remove" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
@@ -998,7 +1046,7 @@ void Views::ViewProjects::_createProjectsTableView()
 }
 
 //Sequences
-void Views::ViewProjects::_btnSequencesCreateClicked()
+void Views::ViewProjects::_createSequenceRequested()
 {
     if(_qtvProjects->table()->selectedIndexes().size() > 0)
     {
@@ -1056,20 +1104,23 @@ void Views::ViewProjects::_btnSequencesCreateClicked()
     }
 }
 
-void Views::ViewProjects::_btnSequencesRemoveClicked()
+void Views::ViewProjects::_removeSequencesRequested()
 {
 
 }
 
-void Views::ViewProjects::_btnSequencesFilesClicked()
+void Views::ViewProjects::_openSequencesFilesViewRequested()
 {
     if(_qtvSequences->table()->selectedIndexes().size() != 1)
+    {
+        _logger->log("Please select only one item.", Ms::Log::LogMessageType::Warning);
+
         return;
+    }
 
-    Wt::Dbo::ptr<Projects::ProjectSequence> seqPtr = _qtvSequences->model()->resultRow(_qtvSequences->proxyModel()->mapToSource(
-                                                               *_qtvSequences->table()->selectedIndexes().begin()).row());
+    Wt::Dbo::ptr<Projects::ProjectSequence> seqPtr = _qtvSequences->selectedItems().at(0);
 
-    DlgFilesManager *dlg = new DlgFilesManager(Projects::ProjectsIO::getAbsoluteSequenceDir(seqPtr->projectName(), seqPtr->name()) + Ms::IO::dirSeparator() + "files");
+    DlgFilesManager *dlg = new DlgFilesManager(Projects::ProjectsIO::getRelativeSequenceDir(seqPtr->projectName(), seqPtr->name()) + Ms::IO::dirSeparator() + "files");
     dlg->finished().connect(std::bind([=]()
     {
         delete dlg;
@@ -1085,7 +1136,7 @@ void Views::ViewProjects::_btnSequencesFilesClicked()
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
-void Views::ViewProjects::_btnSequencesImportThumbnailsClicked()
+void Views::ViewProjects::_importSequencesThumbnailsRequested()
 {
     if(_qtvSequences->model()->rowCount() == 0)
         return;
@@ -1167,25 +1218,25 @@ void Views::ViewProjects::_createSequencesTableView()
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         Wt::WPushButton *btn = _qtvSequences->createToolButton("", "icons/Add.png", "Create A New Sequence");
-        btn->clicked().connect(this, &Views::ViewProjects::_btnSequencesCreateClicked);
+        btn->clicked().connect(this, &Views::ViewProjects::_createSequenceRequested);
 
-        _qtvSequences->setImportCSVFetureEnabled(true);
+        _qtvSequences->setImportCSVFeatureEnabled(true);
     }
     else
-        _qtvSequences->setImportCSVFetureEnabled(false);
+        _qtvSequences->setImportCSVFeatureEnabled(false);
 
     //requires "remove" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
     {
         //Wt::WPushButton *btn = _qtvSequences->createToolButton("", "icons/Remove.png", "Remove Selected Sequences");
-        //btn->clicked().connect(this, &Views::ViewProjects::_btnSequencesRemoveClicked);
+        //btn->clicked().connect(this, &Views::ViewProjects::_removeSequencesRequested);
     }
 
     //requires "view" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
     {
         Wt::WPushButton *btn = _qtvSequences->createToolButton("", "icons/Thumbnail.png", "Import Thumbnails");
-        btn->clicked().connect(this, &Views::ViewProjects::_btnSequencesImportThumbnailsClicked);
+        btn->clicked().connect(this, &Views::ViewProjects::_importSequencesThumbnailsRequested);
     }
 
     //requires "CheckIn or CheckOut" privilege
@@ -1194,14 +1245,14 @@ void Views::ViewProjects::_createSequencesTableView()
             Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
     {
         Wt::WPushButton *btn = _qtvSequences->createToolButton("", "icons/Files.png", "Files Manager");
-        btn->clicked().connect(this, &Views::ViewProjects::_btnSequencesFilesClicked);
+        btn->clicked().connect(this, &Views::ViewProjects::_openSequencesFilesViewRequested);
     }
 
     updateSequencesView();
 }
 
 //Shots
-void Views::ViewProjects::_btnShotsCreateClicked()
+void Views::ViewProjects::_createShotRequested()
 {
     if(_qtvSequences->table()->selectedIndexes().size() > 0)
     {
@@ -1259,20 +1310,23 @@ void Views::ViewProjects::_btnShotsCreateClicked()
     }
 }
 
-void Views::ViewProjects::_btnShotsRemoveClicked()
+void Views::ViewProjects::_removeShotsRequested()
 {
 
 }
 
-void Views::ViewProjects::_btnShotsFilesClicked()
+void Views::ViewProjects::_openShotsFilesViewRequested()
 {
     if(_qtvShots->table()->selectedIndexes().size() != 1)
+    {
+        _logger->log("Please select only one item.", Ms::Log::LogMessageType::Warning);
+
         return;
+    }
 
-    Wt::Dbo::ptr<Projects::ProjectShot> shotPtr = _qtvShots->model()->resultRow(_qtvShots->proxyModel()->mapToSource(
-                                                               *_qtvShots->table()->selectedIndexes().begin()).row());
+    Wt::Dbo::ptr<Projects::ProjectShot> shotPtr = _qtvShots->selectedItems().at(0);
 
-    DlgFilesManager *dlg = new DlgFilesManager(Projects::ProjectsIO::getAbsoluteShotDir(shotPtr->projectName(), shotPtr->sequenceName(), shotPtr->name()) + Ms::IO::dirSeparator() + "files");
+    DlgFilesManager *dlg = new DlgFilesManager(Projects::ProjectsIO::getRelativeShotDir(shotPtr->projectName(), shotPtr->sequenceName(), shotPtr->name()) + Ms::IO::dirSeparator() + "files");
     dlg->finished().connect(std::bind([=]()
     {
         delete dlg;
@@ -1288,7 +1342,7 @@ void Views::ViewProjects::_btnShotsFilesClicked()
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
-void Views::ViewProjects::_btnShotsImportThumbnailsClicked()
+void Views::ViewProjects::_importShotsThumbnailsRequested()
 {
     if(_qtvShots->model()->rowCount() == 0)
         return;
@@ -1371,28 +1425,25 @@ void Views::ViewProjects::_createShotsTableView()
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         Wt::WPushButton *btn = _qtvShots->createToolButton("", "icons/Add.png", "Create A New Shot");
-        btn->clicked().connect(this, &Views::ViewProjects::_btnShotsCreateClicked);
+        btn->clicked().connect(this, &Views::ViewProjects::_createShotRequested);
 
-        _qtvShots->setImportCSVFetureEnabled(true);
+        _qtvShots->setImportCSVFeatureEnabled(true);
     }
     else
-        _qtvShots->setImportCSVFetureEnabled(false);
+        _qtvShots->setImportCSVFeatureEnabled(false);
 
     //requires "remove" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
     {
         //Wt::WPushButton *btn = _qtvShots->createToolButton("", "icons/Remove.png", "Remove Selected Shots");
-        //btn->clicked().connect(this, &Views::ViewProjects::_btnShotsRemoveClicked);
+        //btn->clicked().connect(this, &Views::ViewProjects::_removeShotsRequested);
     }
-
-    //Wt::WPushButton *btnExport = _qtvShots->createToolButton("", "icons/Export.png", "Export Selected Shots");
-    //btnExport->clicked().connect(this, &Views::ViewSequences::_btnShotsExportClicked);
 
     //requires "view" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
     {
         Wt::WPushButton *btn = _qtvShots->createToolButton("", "icons/Thumbnail.png", "Import Thumbnails");
-        btn->clicked().connect(this, &Views::ViewProjects::_btnShotsImportThumbnailsClicked);
+        btn->clicked().connect(this, &Views::ViewProjects::_importShotsThumbnailsRequested);
     }
 
     //requires "CheckIn or CheckOut" privilege
@@ -1401,14 +1452,14 @@ void Views::ViewProjects::_createShotsTableView()
        Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
     {
         Wt::WPushButton *btn = _qtvShots->createToolButton("", "icons/Files.png", "Files Manager");
-        btn->clicked().connect(this, &Views::ViewProjects::_btnShotsFilesClicked);
+        btn->clicked().connect(this, &Views::ViewProjects::_openShotsFilesViewRequested);
     }
 
     updateShotsView();
 }
 
 //Assets
-void Views::ViewProjects::_btnAssetsCreateClicked()
+void Views::ViewProjects::_createAssetRequested()
 {
     if(_qtvProjects->table()->selectedIndexes().size() > 0)
     {
@@ -1463,20 +1514,23 @@ void Views::ViewProjects::_btnAssetsCreateClicked()
     }
 }
 
-void Views::ViewProjects::_btnAssetsRemoveClicked()
+void Views::ViewProjects::_removeAssetsRequested()
 {
 
 }
 
-void Views::ViewProjects::_btnAssetsFilesClicked()
+void Views::ViewProjects::_openAssetsFilesViewRequested()
 {
     if(_qtvAssets->table()->selectedIndexes().size() != 1)
+    {
+        _logger->log("Please select only one item.", Ms::Log::LogMessageType::Warning);
+
         return;
+    }
 
-    Wt::Dbo::ptr<Projects::ProjectAsset> assetPtr =  _qtvAssets->model()->resultRow(_qtvAssets->proxyModel()->mapToSource(
-                                                               *_qtvAssets->table()->selectedIndexes().begin()).row());
+    Wt::Dbo::ptr<Projects::ProjectAsset> assetPtr =  _qtvAssets->selectedItems().at(0);
 
-    DlgFilesManager *dlg = new DlgFilesManager(Projects::ProjectsIO::getAbsoluteAssetDir(assetPtr->projectName(), assetPtr->name()) + Ms::IO::dirSeparator() + "files");
+    DlgFilesManager *dlg = new DlgFilesManager(Projects::ProjectsIO::getRelativeAssetDir(assetPtr->projectName(), assetPtr->name()) + Ms::IO::dirSeparator() + "files");
     dlg->finished().connect(std::bind([=]()
     {
         delete dlg;
@@ -1492,7 +1546,7 @@ void Views::ViewProjects::_btnAssetsFilesClicked()
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
-void Views::ViewProjects::_btnAssetsImportThumbnailsClicked()
+void Views::ViewProjects::_importAssetsThumbnailsRequested()
 {
     if(_qtvAssets->model()->rowCount() == 0)
         return;
@@ -1574,28 +1628,25 @@ void Views::ViewProjects::_createAssetsTableView()
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         Wt::WPushButton *btn = _qtvAssets->createToolButton("", "icons/Add.png", "Create A New Asset");
-        btn->clicked().connect(this, &Views::ViewProjects::_btnAssetsCreateClicked);
+        btn->clicked().connect(this, &Views::ViewProjects::_createAssetRequested);
 
-        _qtvAssets->setImportCSVFetureEnabled(true);
+        _qtvAssets->setImportCSVFeatureEnabled(true);
     }
     else
-        _qtvAssets->setImportCSVFetureEnabled(false);
+        _qtvAssets->setImportCSVFeatureEnabled(false);
 
     //requires "remove" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
     {
         //Wt::WPushButton *btn = _qtvAssets->createToolButton("", "icons/Remove.png", "Remove Selected Assets");
-        //btn->clicked().connect(this, &Views::ViewProjects::_btnAssetsRemoveClicked);
+        //btn->clicked().connect(this, &Views::ViewProjects::_removeAssetsRequested);
     }
-
-    //Wt::WPushButton *btnExport = _qtvAssets->createToolButton("", "icons/Export.png", "Export Selected Assets");
-    //btnExport->clicked().connect(this, &Views::ViewSequences::_btnAssetsExportClicked);
 
     //requires "view" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
     {
         Wt::WPushButton *btn = _qtvAssets->createToolButton("", "icons/Thumbnail.png", "Import Thumbnails");
-        btn->clicked().connect(this, &Views::ViewProjects::_btnAssetsImportThumbnailsClicked);
+        btn->clicked().connect(this, &Views::ViewProjects::_importAssetsThumbnailsRequested);
     }
 
     //requires "CheckIn or CheckOut" privilege
@@ -1604,14 +1655,14 @@ void Views::ViewProjects::_createAssetsTableView()
             Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
     {
         Wt::WPushButton *btn = _qtvAssets->createToolButton("", "icons/Files.png", "Files Manager");
-        btn->clicked().connect(this, &Views::ViewProjects::_btnAssetsFilesClicked);
+        btn->clicked().connect(this, &Views::ViewProjects::_openAssetsFilesViewRequested);
     }
 
     updateAssetsView();
 }
 
 //Tasks
-void Views::ViewProjects::_btnTasksCreateClicked()
+void Views::ViewProjects::_createTasksRequested()
 {
     if((_qtvAssets->table()->selectedIndexes().size() > 0) || (_qtvShots->table()->selectedIndexes().size() > 0))
     {
@@ -1686,32 +1737,34 @@ void Views::ViewProjects::_btnTasksCreateClicked()
     }
 }
 
-void Views::ViewProjects::_btnTasksRemoveClicked()
+void Views::ViewProjects::_removeTasksRequested()
 {
 
 }
 
-void Views::ViewProjects::_btnTasksFilesClicked()
+void Views::ViewProjects::_openTasksFilesViewRequested()
 {
     if(_qtvTasks->table()->selectedIndexes().size() != 1)
+    {
+        _logger->log("Please select only one item.", Ms::Log::LogMessageType::Warning);
+
         return;
+    }
 
     if(!Database::DatabaseManager::instance().openTransaction())
         return;
 
-    Wt::Dbo::ptr<Projects::ProjectTask> taskPtr =  _qtvTasks->model()->resultRow(_qtvTasks->proxyModel()->mapToSource(
-                                                               *_qtvTasks->table()->selectedIndexes().begin()).row());
+    Wt::Dbo::ptr<Projects::ProjectTask> taskPtr =  _qtvTasks->selectedItems().at(0);
 
-
-    if((!taskPtr->asset()) && (!taskPtr->shot()))
+    if((!taskPtr->asset().get()) && (!taskPtr->shot().get()))
         return;
 
     std::string path = "";
 
     if(taskPtr->asset())
-        path = Projects::ProjectsIO::getAbsoluteAssetTaskDir(taskPtr->asset()->projectName(), taskPtr->asset()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
+        path = Projects::ProjectsIO::getRelativeAssetTaskDir(taskPtr->asset()->projectName(), taskPtr->asset()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
     else if(taskPtr->shot())
-        path = Projects::ProjectsIO::getAbsoluteShotTaskDir(taskPtr->shot()->projectName(), taskPtr->shot()->sequenceName(), taskPtr->shot()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
+        path = Projects::ProjectsIO::getRelativeShotTaskDir(taskPtr->shot()->projectName(), taskPtr->shot()->sequenceName(), taskPtr->shot()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
 
     DlgFilesManager *dlg = new DlgFilesManager(path);
     dlg->finished().connect(std::bind([=]()
@@ -1738,22 +1791,19 @@ void Views::ViewProjects::_createTasksTableView()
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         Wt::WPushButton *btn = _qtvTasks->createToolButton("", "icons/Add.png", "Create A New Shot");
-        btn->clicked().connect(this, &Views::ViewProjects::_btnTasksCreateClicked);
+        btn->clicked().connect(this, &Views::ViewProjects::_createTasksRequested);
 
-        _qtvTasks->setImportCSVFetureEnabled(true);
+        _qtvTasks->setImportCSVFeatureEnabled(true);
     }
     else
-        _qtvTasks->setImportCSVFetureEnabled(false);
+        _qtvTasks->setImportCSVFeatureEnabled(false);
 
     //requires "remove" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
     {
         //Wt::WPushButton *btn = _qtvTasks->createToolButton("", "icons/Remove.png", "Remove Selected Tasks");
-        //btn->clicked().connect(this, &Views::ViewProjects::_btnTasksRemoveClicked);
+        //btn->clicked().connect(this, &Views::ViewProjects::_removeTasksRequested);
     }
-
-    //Wt::WPushButton *btnExport = _qtvTasks->createToolButton("", "icons/Export.png", "Export Selected Tasks");
-    //btnExport->clicked().connect(this, &Views::ViewProjects::_btnTasksExportClicked);
 
     //requires "CheckIn or CheckOut" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In") ||
@@ -1761,15 +1811,57 @@ void Views::ViewProjects::_createTasksTableView()
             Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
     {
         Wt::WPushButton *btn = _qtvTasks->createToolButton("", "icons/Files.png", "Files Manager");
-        btn->clicked().connect(this, &Views::ViewProjects::_btnTasksFilesClicked);
+        btn->clicked().connect(this, &Views::ViewProjects::_openTasksFilesViewRequested);
     }
 
     updateTasksView();
 }
 
 //Properties
+void Views::ViewProjects::_mnuNavBarPropertiesDataItemTriggered()
+{
+    _updatePropertiesDataView();
+    _stkProperties->setCurrentWidget(_viewData);
+}
 
-void Views::ViewProjects::_btnAddPropertiesDataClicked()
+void Views::ViewProjects::_mnuNavBarPropertiesTagsItemTriggered()
+{
+    _updatePropertiesTagsView();
+    _updatePropertiesAssignedTagsView();
+    _stkProperties->setCurrentWidget(_viewTags);
+}
+
+void Views::ViewProjects::_mnuNavBarPropertiesNotesItemTriggered()
+{
+    _updatePropertiesNotesView();
+    _stkProperties->setCurrentWidget(_viewNotes);
+}
+
+void Views::ViewProjects::_mnuNavBarPropertiesSequencesItemTriggered()
+{
+    updateSequencesView();
+    _stkProperties->setCurrentWidget(_viewSequences);
+}
+
+void Views::ViewProjects::_mnuNavBarPropertiesShotsItemTriggered()
+{
+    updateShotsView();
+    _stkProperties->setCurrentWidget(_viewShots);
+}
+
+void Views::ViewProjects::_mnuNavBarPropertiesAssetsItemTriggered()
+{
+    updateAssetsView();
+    _stkProperties->setCurrentWidget(_viewAssets);
+}
+
+void Views::ViewProjects::_mnuNavBarPropertiesTasksItemTriggered()
+{
+    updateTasksView();
+    _stkProperties->setCurrentWidget(_viewTasks);
+}
+
+void Views::ViewProjects::_addDataRequested()
 {
     if(_stkMain->currentWidget() == _cntProjects)
     {
@@ -1798,12 +1890,12 @@ void Views::ViewProjects::_btnAddPropertiesDataClicked()
     }
 }
 
-void Views::ViewProjects::_btnRemovePropertiesDataClicked(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec)
+void Views::ViewProjects::_removeDataRequested(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec)
 {
 
 }
 
-void Views::ViewProjects::_btnCreatePropertiesTagClicked()
+void Views::ViewProjects::_createTagRequested()
 {
     if(_stkMain->currentWidget() == _cntProjects)
     {
@@ -1832,7 +1924,7 @@ void Views::ViewProjects::_btnCreatePropertiesTagClicked()
     }
 }
 
-void Views::ViewProjects::_btnAssignPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
+void Views::ViewProjects::_assignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
     if(tagVec.size() == 0)
         return;
@@ -1864,7 +1956,7 @@ void Views::ViewProjects::_btnAssignPropertiesTagClicked(const std::vector<Wt::D
     }
 }
 
-void Views::ViewProjects::_btnUnAssignPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
+void Views::ViewProjects::_unassignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
     if(tagVec.size() == 0)
         return;
@@ -1896,7 +1988,7 @@ void Views::ViewProjects::_btnUnAssignPropertiesTagClicked(const std::vector<Wt:
     }
 }
 
-void Views::ViewProjects::_btnFilterPropertiesTagClicked(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
+void Views::ViewProjects::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
     std::string strFilterQuery = "";
 
@@ -1946,7 +2038,7 @@ void Views::ViewProjects::_btnFilterPropertiesTagClicked(const std::vector<Wt::D
     }
 }
 
-void Views::ViewProjects::_btnClearFilterPropertiesTagClicked()
+void Views::ViewProjects::_clearTagsFilterRequested()
 {
     if(_stkMain->currentWidget() == _cntProjects)
     {
@@ -1975,7 +2067,7 @@ void Views::ViewProjects::_btnClearFilterPropertiesTagClicked()
     }
 }
 
-void Views::ViewProjects::_btnAddPropertiesNoteClicked()
+void Views::ViewProjects::_addNoteRequested()
 {
     if(_stkMain->currentWidget() == _cntProjects)
     {
@@ -2004,45 +2096,116 @@ void Views::ViewProjects::_btnAddPropertiesNoteClicked()
     }
 }
 
-void Views::ViewProjects::_btnRemovePropertiesNoteClicked(const std::vector<Wt::Dbo::ptr<Database::Note>> &noteVec)
+void Views::ViewProjects::_removeNotesRequested(const std::vector<Wt::Dbo::ptr<Database::Note>> &noteVec)
 {
 
-}
-
-void Views::ViewProjects::_onViewPropertiesSubViewExposed(const std::string &viewName)
-{
-    if(viewName == "Data")
-    {
-        _updatePropertiesDataView();
-    }
-    else if(viewName == "Tags")
-    {
-        _updatePropertiesTagsView();
-        _updatePropertiesAssignedTagsView();
-    }
-    else if(viewName == "Notes")
-    {
-        _updatePropertiesNotesView();
-    }
 }
 
 void Views::ViewProjects::_createPropertiesView()
 {
-    _viewProperties = new Views::ViewProperties();
-    _viewProperties->addDataRequested().connect(this, &Views::ViewProjects::_btnAddPropertiesDataClicked);
-    _viewProperties->removeDataRequested().connect(this, &Views::ViewProjects::_btnRemovePropertiesDataClicked);
-    _viewProperties->createTagRequested().connect(this, &Views::ViewProjects::_btnCreatePropertiesTagClicked);
-    _viewProperties->assignTagRequested().connect(this, &Views::ViewProjects::_btnAssignPropertiesTagClicked);
-    _viewProperties->unAssignTagRequested().connect(this, &Views::ViewProjects::_btnUnAssignPropertiesTagClicked);
-    _viewProperties->filterByTagRequested().connect(this, &Views::ViewProjects::_btnFilterPropertiesTagClicked);
-    _viewProperties->clearTagFilterRequested().connect(this, &Views::ViewProjects::_btnClearFilterPropertiesTagClicked);
-    _viewProperties->addNoteRequested().connect(this, &Views::ViewProjects::_btnAddPropertiesNoteClicked);
-    _viewProperties->removeNoteRequested().connect(this, &Views::ViewProjects::_btnRemovePropertiesNoteClicked);
-    _viewProperties->viewExposed().connect(this, &Views::ViewProjects::_onViewPropertiesSubViewExposed);
+    _cntPropertiesMain = new Wt::WContainerWidget();
 
-    _viewProperties->setViewHidden("Groups Privileges", true);
+    _layCntPropertiesMain = new Wt::WVBoxLayout();
+    _layCntPropertiesMain->setContentsMargins(0,0,0,0);
+    _layCntPropertiesMain->setSpacing(0);
 
-    _propertiesPanel->addPropertiesView(this->id(), _viewProperties);
+    _cntPropertiesMain->setLayout(_layCntPropertiesMain);
+
+    _navBarProperties = new Wt::WNavigationBar();
+
+    _layCntPropertiesMain->addWidget(_navBarProperties);
+
+    _mnuNavBarProperties = new Wt::WMenu(Wt::Horizontal);
+
+    _navBarProperties->addMenu(_mnuNavBarProperties);
+
+    _mnuNavBarPropertiesDataItem = new Wt::WMenuItem("Data");
+    _mnuNavBarPropertiesDataItem->triggered().connect(this, &Views::ViewProjects::_mnuNavBarPropertiesDataItemTriggered);
+    _mnuNavBarProperties->addItem(_mnuNavBarPropertiesDataItem);
+
+    _mnuNavBarPropertiesTagsItem = new Wt::WMenuItem("Tags");
+    _mnuNavBarPropertiesTagsItem->triggered().connect(this, &Views::ViewProjects::_mnuNavBarPropertiesTagsItemTriggered);
+    _mnuNavBarProperties->addItem(_mnuNavBarPropertiesTagsItem);
+
+    _mnuNavBarPropertiesNotesItem = new Wt::WMenuItem("Notes");
+    _mnuNavBarPropertiesNotesItem->triggered().connect(this, &Views::ViewProjects::_mnuNavBarPropertiesNotesItemTriggered);
+    _mnuNavBarProperties->addItem(_mnuNavBarPropertiesNotesItem);
+
+    _mnuNavBarPropertiesSequencesItem = new Wt::WMenuItem("Sequences");
+    _mnuNavBarPropertiesSequencesItem->triggered().connect(this, &Views::ViewProjects::_mnuNavBarPropertiesSequencesItemTriggered);
+    _mnuNavBarProperties->addItem(_mnuNavBarPropertiesSequencesItem);
+
+    _mnuNavBarPropertiesShotsItem = new Wt::WMenuItem("Shots");
+    _mnuNavBarPropertiesShotsItem->triggered().connect(this, &Views::ViewProjects::_mnuNavBarPropertiesShotsItemTriggered);
+    _mnuNavBarProperties->addItem(_mnuNavBarPropertiesShotsItem);
+
+    _mnuNavBarPropertiesAssetsItem = new Wt::WMenuItem("Assets");
+    _mnuNavBarPropertiesAssetsItem->triggered().connect(this, &Views::ViewProjects::_mnuNavBarPropertiesAssetsItemTriggered);
+    _mnuNavBarProperties->addItem(_mnuNavBarPropertiesAssetsItem);
+
+    _mnuNavBarPropertiesTasksItem = new Wt::WMenuItem("Tasks");
+    _mnuNavBarPropertiesTasksItem->triggered().connect(this, &Views::ViewProjects::_mnuNavBarPropertiesTasksItemTriggered);
+    _mnuNavBarProperties->addItem(_mnuNavBarPropertiesTasksItem);
+
+    _stkProperties = new Wt::WStackedWidget();
+
+    _layCntPropertiesMain->addWidget(_stkProperties, 1);
+
+    _viewData = new Views::ViewDboData();
+    _viewData->addDataRequested().connect(this, &Views::ViewProjects::_addDataRequested);
+    _viewData->removeDataRequested().connect(this, &Views::ViewProjects::_removeDataRequested);
+
+    _stkProperties->addWidget(_viewData);
+
+    _viewTags = new Views::ViewTags();
+    _viewTags->createTagRequested().connect(this, &Views::ViewProjects::_createTagRequested);
+    _viewTags->assignTagsRequested().connect(this, &Views::ViewProjects::_assignTagsRequested);
+    _viewTags->unassignTagsRequested().connect(this, &Views::ViewProjects::_unassignTagsRequested);
+    _viewTags->filterByTagsRequested().connect(this, &Views::ViewProjects::_filterByTagsRequested);
+    _viewTags->clearTagsFilterRequested().connect(this, &Views::ViewProjects::_clearTagsFilterRequested);
+
+    _stkProperties->addWidget(_viewTags);
+
+    _viewNotes = new Views::ViewNotes();
+    _viewNotes->addNoteRequested().connect(this, &Views::ViewProjects::_addNoteRequested);
+    _viewNotes->removeNotesRequested().connect(this, &Views::ViewProjects::_removeNotesRequested);
+
+    _stkProperties->addWidget(_viewNotes);
+
+    _viewSequences = new Views::ViewSequences();
+    _viewSequences->createSequenceRequested().connect(this, &Views::ViewProjects::_createSequenceRequested);
+    _viewSequences->removeSequencesRequested().connect(this, &Views::ViewProjects::_removeSequencesRequested);
+    _viewSequences->openfilesViewRequested().connect(this, &Views::ViewProjects::_openSequencesFilesViewRequested);
+    _viewSequences->importThumbnailsRequested().connect(this, &Views::ViewProjects::_importSequencesThumbnailsRequested);
+
+    _stkProperties->addWidget(_viewSequences);
+
+    _viewShots = new Views::ViewShots();
+    _viewShots->createShotRequested().connect(this, &Views::ViewProjects::_createShotRequested);
+    _viewShots->removeShotsRequested().connect(this, &Views::ViewProjects::_removeShotsRequested);
+    _viewShots->openfilesViewRequested().connect(this, &Views::ViewProjects::_openShotsFilesViewRequested);
+    _viewShots->importThumbnailsRequested().connect(this, &Views::ViewProjects::_importShotsThumbnailsRequested);
+
+    _stkProperties->addWidget(_viewShots);
+
+    _viewAssets = new Views::ViewAssets();
+    _viewAssets->createAssetRequested().connect(this, &Views::ViewProjects::_createAssetRequested);
+    _viewAssets->removeAssetsRequested().connect(this, &Views::ViewProjects::_removeAssetsRequested);
+    _viewAssets->openfilesViewRequested().connect(this, &Views::ViewProjects::_openAssetsFilesViewRequested);
+    _viewAssets->importThumbnailsRequested().connect(this, &Views::ViewProjects::_importAssetsThumbnailsRequested);
+
+    _stkProperties->addWidget(_viewAssets);
+
+    _viewTasks = new Views::ViewTasks();
+    _viewTasks->createTaskRequested().connect(this, &Views::ViewProjects::_createTasksRequested);
+    _viewTasks->removeTasksRequested().connect(this, &Views::ViewProjects::_removeTasksRequested);
+    _viewTasks->openfilesViewRequested().connect(this, &Views::ViewProjects::_openTasksFilesViewRequested);
+
+    _stkProperties->addWidget(_viewTasks);
+
+    _mnuNavBarPropertiesDataItem->select();//default selected item
+
+    _propertiesPanel->addPropertiesView(this->id(), _cntPropertiesMain);
 }
 
 void Views::ViewProjects::_updatePropertiesDataView()
@@ -2059,7 +2222,7 @@ void Views::ViewProjects::_updatePropertiesDataView()
 
     int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
-    Ms::Widgets::MQueryTableViewWidget<Database::DboData> *_qtvPropertiesData = _viewProperties->qtvData();
+    const Ms::Widgets::MQueryTableViewWidget<Database::DboData> *_qtvPropertiesData = _viewData->qtvData();
 
     _qtvPropertiesData->clearColumns();
 
@@ -2155,7 +2318,7 @@ void Views::ViewProjects::_updatePropertiesDataView()
     _qtvPropertiesData->setQuery(query);
 
     if(AppSettings::instance().isShowExtraColumns())
-        _addExtraColumns<Database::DboData>(_qtvPropertiesData, flags, editRank);
+        _qtvPropertiesData->addBaseColumns(flags, editRank);
 
     _qtvPropertiesData->updateView();
 }
@@ -2176,7 +2339,7 @@ void Views::ViewProjects::_updatePropertiesTagsView()
 
         int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
-        Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesTags = _viewProperties->qtvTags();
+        const Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesTags = _viewTags->qtvTags();
 
         _qtvPropertiesTags->clearColumns();
 
@@ -2263,7 +2426,7 @@ void Views::ViewProjects::_updatePropertiesTagsView()
         _qtvPropertiesTags->setQuery(query);
 
         if(AppSettings::instance().isShowExtraColumns())
-            _addExtraColumns<Database::Tag>(_qtvPropertiesTags, flags, editRank);
+            _qtvPropertiesTags->addBaseColumns(flags, editRank);
 
         _qtvPropertiesTags->updateView();
     }
@@ -2289,7 +2452,7 @@ void Views::ViewProjects::_updatePropertiesAssignedTagsView()
 
         int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
-        Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesAssignedTags = _viewProperties->qtvAssignedTags();
+        const Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesAssignedTags = _viewTags->qtvAssignedTags();
 
         _qtvPropertiesAssignedTags->clearColumns();
 
@@ -2382,7 +2545,7 @@ void Views::ViewProjects::_updatePropertiesAssignedTagsView()
         _qtvPropertiesAssignedTags->setQuery(query);
 
         if(AppSettings::instance().isShowExtraColumns())
-            _addExtraColumns<Database::Tag>(_qtvPropertiesAssignedTags, flags, editRank);
+            _qtvPropertiesAssignedTags->addBaseColumns(flags, editRank);
 
         _qtvPropertiesAssignedTags->updateView();
     }
@@ -2406,7 +2569,7 @@ void Views::ViewProjects::_updatePropertiesNotesView()
 
     int editRank = Auth::AuthManager::instance().currentUser()->editRank();
 
-    Ms::Widgets::MQueryTableViewWidget<Database::Note> *_qtvPropertiesNotes = _viewProperties->qtvNotes();
+    const Ms::Widgets::MQueryTableViewWidget<Database::Note> *_qtvPropertiesNotes = _viewNotes->qtvNotes();
 
     _qtvPropertiesNotes->clearColumns();
 
@@ -2502,7 +2665,7 @@ void Views::ViewProjects::_updatePropertiesNotesView()
     _qtvPropertiesNotes->setQuery(query);
 
     if(AppSettings::instance().isShowExtraColumns())
-        _addExtraColumns<Database::Note>(_qtvPropertiesNotes, flags, editRank);
+        _qtvPropertiesNotes->addBaseColumns(flags, editRank);
 
     _qtvPropertiesNotes->updateView();
 }

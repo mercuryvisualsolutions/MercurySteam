@@ -61,6 +61,9 @@ void Views::ViewMyDashboard::updateTasksView()
         _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Date_Created", "Date Created", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, false, true));
         _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Start_Date", "Start Date", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, false));
         _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("End_Date", "End Date", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, false));
+        _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Task_Sequence_Sequence_Name", "Sequence Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Task_Sequence_Sequence_Project_Project_Name", "Sequence Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Task_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
         _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Task_Shot_Shot_Sequence_Sequence_Name", "Sequence Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, true));
         _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Task_Shot_Shot_Sequence_Sequence_Project_Project_Name", "Sequence Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, true));
         _qtvTasks->addColumn(Ms::Widgets::MTableViewColumn("Task_Shot_Shot_Name", "Shot Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, true));
@@ -109,7 +112,7 @@ void Views::ViewMyDashboard::_createTasksTableView()
     _qtvTasks->setFilterRegExp("[^$]{0,255}");
     _qtvTasks->setDefaultFilterColumnIndex(0);
     _qtvTasks->setIgnoreNumFilterColumns(0);
-    _qtvTasks->setImportCSVFetureEnabled(false);
+    _qtvTasks->setImportCSVFeatureEnabled(false);
 
     //requires "CheckIn or CheckOut" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In") ||
