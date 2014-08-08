@@ -681,60 +681,63 @@ void Views::ViewProjects::_createProjectsTableView()
 //Sequences
 void Views::ViewProjects::_createSequenceRequested()
 {
-    if(_qtvProjects->table()->selectedIndexes().size() > 0)
+    if(_qtvProjects->table()->selectedIndexes().size() != 1)
     {
-        Views::DlgCreateSequence *dlg = new Views::DlgCreateSequence();
-        dlg->finished().connect(std::bind([=]()
+        _logger->log("Please select only one project.", Ms::Log::LogMessageType::Warning);
+
+        return;
+    }
+
+    Views::DlgCreateSequence *dlg = new Views::DlgCreateSequence();
+    dlg->finished().connect(std::bind([=]()
+    {
+        if(dlg->result() == Wt::WDialog::Accepted)
         {
-            if(dlg->result() == Wt::WDialog::Accepted)
+            Wt::Dbo::ptr<Projects::Project> prjPtr = _qtvProjects->selectedItems().at(0);
+
+            Projects::ProjectSequenceId id;
+            id.name = (dlg->sequenceName());
+            id.project = prjPtr;
+
+            if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectSequence>(id))
             {
-                for(auto prjPtr : _qtvProjects->selectedItems())
+                Projects::ProjectSequence *sequence = new Projects::ProjectSequence(dlg->sequenceName());
+                sequence->setProject(prjPtr);
+                sequence->setStatus(dlg->status());
+                sequence->setStartDate(dlg->startDate());
+                sequence->setEndDate(dlg->endDate());
+                sequence->setDurationInFrames(dlg->duration());
+                sequence->setFps(dlg->fps());
+                sequence->setFrameWidth(dlg->frameWidth());
+                sequence->setFrameHeight(dlg->frameHeight());
+                sequence->setDescription(dlg->description());
+                sequence->setActive(dlg->isActive());
+
+                Wt::Dbo::ptr<Projects::ProjectSequence> seqPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectSequence>(sequence);
+                if(seqPtr.get())
                 {
-                    Projects::ProjectSequenceId id;
-                    id.name = (dlg->sequenceName());
-                    id.project = prjPtr;
+                    Projects::ProjectsIO::createSequenceDirectoryStructure(prjPtr->name(), seqPtr->name());
+                    _updatePropertiesSequencesView();
 
-                    if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectSequence>(id))
-                    {
-                        Projects::ProjectSequence *sequence = new Projects::ProjectSequence(dlg->sequenceName());
-                        sequence->setProject(prjPtr);
-                        sequence->setStatus(dlg->status());
-                        sequence->setStartDate(dlg->startDate());
-                        sequence->setEndDate(dlg->endDate());
-                        sequence->setDurationInFrames(dlg->duration());
-                        sequence->setFps(dlg->fps());
-                        sequence->setFrameWidth(dlg->frameWidth());
-                        sequence->setFrameHeight(dlg->frameHeight());
-                        sequence->setDescription(dlg->description());
-                        sequence->setActive(dlg->isActive());
+                    _logger->log(std::string("Created sequence for project ") + prjPtr->name(), Ms::Log::LogMessageType::Info);
+                }
+                else
+                {
+                    delete sequence;
 
-                        Wt::Dbo::ptr<Projects::ProjectSequence> seqPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectSequence>(sequence);
-                        if(seqPtr.get())
-                        {
-                            Projects::ProjectsIO::createSequenceDirectoryStructure(prjPtr->name(), seqPtr->name());
-                            _updatePropertiesSequencesView();
-
-                            _logger->log(std::string("Created sequence for project ") + prjPtr->name(), Ms::Log::LogMessageType::Info);
-                        }
-                        else
-                        {
-                            delete sequence;
-
-                            _logger->log(std::string("Error creating sequence for project ") + prjPtr->name(), Ms::Log::LogMessageType::Error);
-                        }
-                    }
-                    else
-                    {
-                        _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
-                    }
+                    _logger->log(std::string("Error creating sequence for project ") + prjPtr->name(), Ms::Log::LogMessageType::Error);
                 }
             }
+            else
+            {
+                _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
+            }
+        }
 
-            delete dlg;
-        }));
+        delete dlg;
+    }));
 
-        dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
-    }
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewProjects::_sequenceImported(Wt::Dbo::ptr<Projects::ProjectSequence> sequence)
@@ -753,60 +756,63 @@ void Views::ViewProjects::_createSequencesTableView()
 //Shots
 void Views::ViewProjects::_createShotRequested()
 {
-    if(_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0)
+    if(_viewSequences->qtvSequences()->table()->selectedIndexes().size() != 1)
     {
-        Views::DlgCreateShot *dlg = new Views::DlgCreateShot();
-        dlg->finished().connect(std::bind([=]()
+        _logger->log("Please select only one sequence.", Ms::Log::LogMessageType::Warning);
+
+        return;
+    }
+
+    Views::DlgCreateShot *dlg = new Views::DlgCreateShot();
+    dlg->finished().connect(std::bind([=]()
+    {
+        if(dlg->result() == Wt::WDialog::Accepted)
         {
-            if(dlg->result() == Wt::WDialog::Accepted)
+            Wt::Dbo::ptr<Projects::ProjectSequence> seqPtr = _viewSequences->qtvSequences()->selectedItems().at(0);
+
+            Projects::ProjectShotId id;
+            id.name = (dlg->shotName());
+            id.sequence = seqPtr;
+
+            if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectShot>(id))
             {
-                for(auto seqPtr : _viewSequences->qtvSequences()->selectedItems())
+                Projects::ProjectShot *shot = new Projects::ProjectShot(dlg->shotName());
+                shot->setSequence(seqPtr);
+                shot->setStatus(dlg->status());
+                shot->setStartDate(dlg->startDate());
+                shot->setEndDate(dlg->endDate());
+                shot->setDurationInFrames(dlg->duration());
+                shot->setFps(dlg->fps());
+                shot->setFrameWidth(dlg->frameWidth());
+                shot->setFrameHeight(dlg->frameHeight());
+                shot->setDescription(dlg->description());
+                shot->setActive(dlg->isActive());
+
+                Wt::Dbo::ptr<Projects::ProjectShot> shotPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectShot>(shot);
+                if(shotPtr.get())
                 {
-                    Projects::ProjectShotId id;
-                    id.name = (dlg->shotName());
-                    id.sequence = seqPtr;
+                    Projects::ProjectsIO::createShotDirectoryStructure(seqPtr->projectName(), seqPtr->name(), shotPtr->name());
+                    _updatePropertiesShotsView();
 
-                    if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectShot>(id))
-                    {
-                        Projects::ProjectShot *shot = new Projects::ProjectShot(dlg->shotName());
-                        shot->setSequence(seqPtr);
-                        shot->setStatus(dlg->status());
-                        shot->setStartDate(dlg->startDate());
-                        shot->setEndDate(dlg->endDate());
-                        shot->setDurationInFrames(dlg->duration());
-                        shot->setFps(dlg->fps());
-                        shot->setFrameWidth(dlg->frameWidth());
-                        shot->setFrameHeight(dlg->frameHeight());
-                        shot->setDescription(dlg->description());
-                        shot->setActive(dlg->isActive());
+                    _logger->log(std::string("Created shot for sequence ") + seqPtr->name(), Ms::Log::LogMessageType::Info);
+                }
+                else
+                {
+                    delete shot;
 
-                        Wt::Dbo::ptr<Projects::ProjectShot> shotPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectShot>(shot);
-                        if(shotPtr.get())
-                        {
-                            Projects::ProjectsIO::createShotDirectoryStructure(seqPtr->projectName(), seqPtr->name(), shotPtr->name());
-                            _updatePropertiesShotsView();
-
-                            _logger->log(std::string("Created shot for sequence ") + seqPtr->name(), Ms::Log::LogMessageType::Info);
-                        }
-                        else
-                        {
-                            delete shot;
-
-                            _logger->log(std::string("error creating shot for sequence ") + seqPtr->name(), Ms::Log::LogMessageType::Error);
-                        }
-                    }
-                    else
-                    {
-                        _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
-                    }
+                    _logger->log(std::string("error creating shot for sequence ") + seqPtr->name(), Ms::Log::LogMessageType::Error);
                 }
             }
+            else
+            {
+                _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
+            }
+        }
 
-            delete dlg;
-        }));
+        delete dlg;
+    }));
 
-        dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
-    }
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewProjects::_shotImported(Wt::Dbo::ptr<Projects::ProjectShot> shot)
@@ -825,57 +831,60 @@ void Views::ViewProjects::_createShotsTableView()
 //Assets
 void Views::ViewProjects::_createAssetRequested()
 {
-    if(_qtvProjects->table()->selectedIndexes().size() > 0)
+    if(_qtvProjects->table()->selectedIndexes().size() != 1)
     {
-        Views::DlgCreateAsset *dlg = new Views::DlgCreateAsset();
-        dlg->finished().connect(std::bind([=]()
+        _logger->log("Please select only one aroject.", Ms::Log::LogMessageType::Warning);
+
+        return;
+    }
+
+    Views::DlgCreateAsset *dlg = new Views::DlgCreateAsset();
+    dlg->finished().connect(std::bind([=]()
+    {
+        if(dlg->result() == Wt::WDialog::Accepted)
         {
-            if(dlg->result() == Wt::WDialog::Accepted)
+            Wt::Dbo::ptr<Projects::Project> prjPtr = _qtvProjects->selectedItems().at(0);
+
+            Projects::ProjectAssetId id;
+            id.name = (dlg->assetName());
+            id.project = prjPtr;
+
+            if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectAsset>(id))
             {
-                for(auto prjPtr : _qtvProjects->selectedItems())
+                Projects::ProjectAsset *asset = new Projects::ProjectAsset(dlg->assetName());
+                asset->setProject(prjPtr);
+                asset->setStatus(dlg->status());
+                asset->setType(dlg->assetType());
+                asset->setStartDate(dlg->startDate());
+                asset->setEndDate(dlg->endDate());
+                asset->setDescription(dlg->description());
+                asset->setActive(dlg->isActive());
+
+                Wt::Dbo::ptr<Projects::ProjectAsset> assetPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectAsset>(asset);
+                if(assetPtr.get())
                 {
-                    Projects::ProjectAssetId id;
-                    id.name = (dlg->assetName());
-                    id.project = prjPtr;
+                    Projects::ProjectsIO::createAssetDirectoryStructure(prjPtr->name(), assetPtr->name());
+                    _updatePropertiesAssetsView();
 
-                    if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectAsset>(id))
-                    {
-                        Projects::ProjectAsset *asset = new Projects::ProjectAsset(dlg->assetName());
-                        asset->setProject(prjPtr);
-                        asset->setStatus(dlg->status());
-                        asset->setType(dlg->assetType());
-                        asset->setStartDate(dlg->startDate());
-                        asset->setEndDate(dlg->endDate());
-                        asset->setDescription(dlg->description());
-                        asset->setActive(dlg->isActive());
+                    _logger->log(std::string("Created asset ") + dlg->assetName(), Ms::Log::LogMessageType::Info);
+                }
+                else
+                {
+                    delete asset;
 
-                        Wt::Dbo::ptr<Projects::ProjectAsset> assetPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectAsset>(asset);
-                        if(assetPtr.get())
-                        {
-                            Projects::ProjectsIO::createAssetDirectoryStructure(prjPtr->name(), assetPtr->name());
-                            _updatePropertiesAssetsView();
-
-                            _logger->log(std::string("Created asset ") + dlg->assetName(), Ms::Log::LogMessageType::Info);
-                        }
-                        else
-                        {
-                            delete asset;
-
-                            _logger->log(std::string("error creating asset ") + dlg->assetName(), Ms::Log::LogMessageType::Error);
-                        }
-                    }
-                    else
-                    {
-                        _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
-                    }
+                    _logger->log(std::string("error creating asset ") + dlg->assetName(), Ms::Log::LogMessageType::Error);
                 }
             }
+            else
+            {
+                _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
+            }
+        }
 
-            delete dlg;
-        }));
+        delete dlg;
+    }));
 
-        dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
-    }
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewProjects::_assetImported(Wt::Dbo::ptr<Projects::ProjectAsset> asset)
@@ -1109,27 +1118,57 @@ void Views::ViewProjects::_addDataRequested()
 {
     if(_stkMain->currentWidget() == _cntProjects)
     {
-        if(_qtvProjects->table()->selectedIndexes().size() > 0)
+        if(_qtvProjects->table()->selectedIndexes().size() != 1)
+        {
+            _logger->log("Please select only one project.", Ms::Log::LogMessageType::Warning);
+
+            return;
+        }
+        else
             _addDataToDbo<Projects::Project>(_qtvProjects->selectedItems());
     }
     else if(_stkMain->currentWidget() == _cntSequences)
     {
-        if(_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0)
+        if(_viewSequences->qtvSequences()->table()->selectedIndexes().size() != 1)
+        {
+            _logger->log("Please select only one sequence.", Ms::Log::LogMessageType::Warning);
+
+            return;
+        }
+        else
             _addDataToDbo<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems());
     }
     else if(_stkMain->currentWidget() == _cntShots)
     {
-        if(_viewShots->qtvShots()->table()->selectedIndexes().size() > 0)
+        if(_viewShots->qtvShots()->table()->selectedIndexes().size() != 1)
+        {
+            _logger->log("Please select only one shot.", Ms::Log::LogMessageType::Warning);
+
+            return;
+        }
+        else
             _addDataToDbo<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems());
     }
     else if(_stkMain->currentWidget() == _cntAssets)
     {
-        if(_viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0)
+        if(_viewAssets->qtvAssets()->table()->selectedIndexes().size() != 1)
+        {
+            _logger->log("Please select only one asset.", Ms::Log::LogMessageType::Warning);
+
+            return;
+        }
+        else
             _addDataToDbo<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems());
     }
     else if(_stkMain->currentWidget() == _cntTasks)
     {
-        if(_viewTasks->qtvTasks()->table()->selectedIndexes().size() > 0)
+        if(_viewTasks->qtvTasks()->table()->selectedIndexes().size() != 1)
+        {
+            _logger->log("Please select only one task.", Ms::Log::LogMessageType::Warning);
+
+            return;
+        }
+        else
             _addDataToDbo<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems());
     }
 }
@@ -1143,27 +1182,57 @@ void Views::ViewProjects::_createTagRequested()
 {
     if(_stkMain->currentWidget() == _cntProjects)
     {
-        if(_qtvProjects->table()->selectedIndexes().size() > 0)
+        if(_qtvProjects->table()->selectedIndexes().size() != 1)
+        {
+            _logger->log("Please select only one project.", Ms::Log::LogMessageType::Warning);
+
+            return;
+        }
+        else
             _addTagToDbo<Projects::Project>(_qtvProjects->selectedItems());
     }
     else if(_stkMain->currentWidget() == _cntSequences)
     {
-        if(_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0)
+        if(_viewSequences->qtvSequences()->table()->selectedIndexes().size() != 1)
+        {
+            _logger->log("Please select only one sequence.", Ms::Log::LogMessageType::Warning);
+
+            return;
+        }
+        else
             _addTagToDbo<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems());
     }
     else if(_stkMain->currentWidget() == _cntShots)
     {
-        if(_viewShots->qtvShots()->table()->selectedIndexes().size() > 0)
+        if(_viewShots->qtvShots()->table()->selectedIndexes().size() != 1)
+        {
+            _logger->log("Please select only one shot.", Ms::Log::LogMessageType::Warning);
+
+            return;
+        }
+        else
             _addTagToDbo<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems());
     }
     else if(_stkMain->currentWidget() == _cntAssets)
     {
-        if(_viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0)
+        if(_viewAssets->qtvAssets()->table()->selectedIndexes().size() != 1)
+        {
+            _logger->log("Please select only one asset.", Ms::Log::LogMessageType::Warning);
+
+            return;
+        }
+        else
             _addTagToDbo<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems());
     }
     else if(_stkMain->currentWidget() == _cntTasks)
     {
-        if(_viewTasks->qtvTasks()->table()->selectedIndexes().size() > 0)
+        if(_viewTasks->qtvTasks()->table()->selectedIndexes().size() != 1)
+        {
+            _logger->log("Please select only one task.", Ms::Log::LogMessageType::Warning);
+
+            return;
+        }
+        else
             _addTagToDbo<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems());
     }
 }
@@ -1315,27 +1384,57 @@ void Views::ViewProjects::_addNoteRequested()
 {
     if(_stkMain->currentWidget() == _cntProjects)
     {
-        if(_qtvProjects->table()->selectedIndexes().size() > 0)
+        if(_qtvProjects->table()->selectedIndexes().size() != 1)
+        {
+            _logger->log("Please select only one project.", Ms::Log::LogMessageType::Warning);
+
+            return;
+        }
+        else
             _addNoteToDbo<Projects::Project>(_qtvProjects->selectedItems());
     }
     else if(_stkMain->currentWidget() == _cntSequences)
     {
-        if(_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0)
+        if(_viewSequences->qtvSequences()->table()->selectedIndexes().size() != 1)
+        {
+            _logger->log("Please select only one sequence.", Ms::Log::LogMessageType::Warning);
+
+            return;
+        }
+        else
             _addNoteToDbo<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems());
     }
     else if(_stkMain->currentWidget() == _cntShots)
     {
-        if(_viewShots->qtvShots()->table()->selectedIndexes().size() > 0)
+        if(_viewShots->qtvShots()->table()->selectedIndexes().size() != 1)
+        {
+            _logger->log("Please select only one shot.", Ms::Log::LogMessageType::Warning);
+
+            return;
+        }
+        else
             _addNoteToDbo<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems());
     }
     else if(_stkMain->currentWidget() == _cntAssets)
     {
-        if(_viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0)
+        if(_viewAssets->qtvAssets()->table()->selectedIndexes().size() != 1)
+        {
+            _logger->log("Please select only one asset.", Ms::Log::LogMessageType::Warning);
+
+            return;
+        }
+        else
             _addNoteToDbo<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems());
     }
     else if(_stkMain->currentWidget() == _cntTasks)
     {
-        if(_viewTasks->qtvTasks()->table()->selectedIndexes().size() > 0)
+        if(_viewTasks->qtvTasks()->table()->selectedIndexes().size() != 1)
+        {
+            _logger->log("Please select only one task.", Ms::Log::LogMessageType::Warning);
+
+            return;
+        }
+        else
             _addNoteToDbo<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems());
     }
 }

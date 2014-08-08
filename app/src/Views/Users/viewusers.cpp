@@ -652,12 +652,24 @@ void Views::ViewUsers::_addDataRequested()
 {
     if(_stkMain->currentWidget() == _qtvUsers)
     {
-        if(_qtvUsers->table()->selectedIndexes().size() > 0)
+        if(_qtvUsers->table()->selectedIndexes().size() != 1)
+        {
+            _logger->log("Please select only one user.", Ms::Log::LogMessageType::Warning);
+
+            return;
+        }
+        else
             _addDataToDbo<Users::User>(_qtvUsers->selectedItems());
     }
     else if(_stkMain->currentWidget() == _qtvGroups)
     {
-        if(_qtvGroups->table()->selectedIndexes().size() > 0)
+        if(_qtvGroups->table()->selectedIndexes().size() != 1)
+        {
+            _logger->log("Please select only one group.", Ms::Log::LogMessageType::Warning);
+
+            return;
+        }
+        else
             _addDataToDbo<Users::Group>(_qtvGroups->selectedItems());
     }
 }
@@ -671,12 +683,24 @@ void Views::ViewUsers::_createTagRequested()
 {
     if(_stkMain->currentWidget() == _qtvUsers)
     {
-        if(_qtvUsers->table()->selectedIndexes().size() > 0)
+        if(_qtvUsers->table()->selectedIndexes().size() != 1)
+        {
+            _logger->log("Please select only one user.", Ms::Log::LogMessageType::Warning);
+
+            return;
+        }
+        else
             _addTagToDbo<Users::User>(_qtvUsers->selectedItems());
     }
     else if(_stkMain->currentWidget() == _qtvGroups)
     {
-        if(_qtvGroups->table()->selectedIndexes().size() > 0)
+        if(_qtvGroups->table()->selectedIndexes().size() != 1)
+        {
+            _logger->log("Please select only one group.", Ms::Log::LogMessageType::Warning);
+
+            return;
+        }
+        else
             _addTagToDbo<Users::Group>(_qtvGroups->selectedItems());
     }
 }
@@ -752,12 +776,24 @@ void Views::ViewUsers::_addNoteRequested()
 {
     if(_stkMain->currentWidget() == _qtvUsers)
     {
-        if(_qtvUsers->table()->selectedIndexes().size() > 0)
+        if(_qtvUsers->table()->selectedIndexes().size() != 1)
+        {
+            _logger->log("Please select only one user.", Ms::Log::LogMessageType::Warning);
+
+            return;
+        }
+        else
             _addNoteToDbo<Users::User>(_qtvUsers->selectedItems());
     }
     else if(_stkMain->currentWidget() == _qtvGroups)
     {
-        if(_qtvGroups->table()->selectedIndexes().size() > 0)
+        if(_qtvGroups->table()->selectedIndexes().size() != 1)
+        {
+            _logger->log("Please select only one group.", Ms::Log::LogMessageType::Warning);
+
+            return;
+        }
+        else
             _addNoteToDbo<Users::Group>(_qtvGroups->selectedItems());
     }
 }
