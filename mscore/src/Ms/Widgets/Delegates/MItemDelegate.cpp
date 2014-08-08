@@ -1,6 +1,10 @@
 #include "MItemDelegate.h"
 
 #include <Wt/WModelIndex>
+#include <Wt/WTextArea>
+
+#include <Wt/WBoostAny>
+#include <Wt/WTextArea>
 
 Ms::Widgets::Delegates::MItemDelegate::MItemDelegate()
 {
@@ -22,8 +26,16 @@ void Ms::Widgets::Delegates::MItemDelegate::setEditRank(int editRank)
 }
 
 Wt::WWidget *Ms::Widgets::Delegates::MItemDelegate::update(Wt::WWidget *widget, const Wt::WModelIndex &index, Wt::WFlags<Wt::ViewItemRenderFlag> flags)
-{
+{   
     Wt::WWidget *wid = Wt::WItemDelegate::update(widget, index, flags);
+//    Wt::WTextArea *txtArea;
+//    if(!widget)
+//        txtArea = new Wt::WTextArea(Wt::asString(index.data(Wt::DisplayRole)));
+//    else
+//        txtArea = dynamic_cast<Wt::WTextArea*>(widget);
+
+//    if(flags & Wt::RenderFocused)
+//        txtArea->setFocus();
 
     boost::any rankData = index.data(Wt::UserRole);
 

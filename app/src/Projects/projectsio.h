@@ -39,14 +39,20 @@ namespace Projects
         //return the path for for the assets directory relative to current directory, but never checks if directory exist or not
         static std::string getRelativeAssetDir(const std::string &prjName, const std::string &assetName);
 
-        //creates the default directory structure for task shotName
+        static bool createProjectTaskDirectoryStructure(const std::string &prjName, u_int64_t taskId);
+        static std::string getAbsoluteProjectTaskDir(const std::string &prjName, u_int64_t taskId);
+        static std::string getRelativeProjectTaskDir(const std::string &prjName, u_int64_t taskId);
+
+        static bool createSequenceTaskDirectoryStructure(const std::string &prjName, const std::string &sequenceName, u_int64_t taskId);
+        static std::string getAbsoluteSequenceTaskDir(const std::string &prjName, const std::string &sequenceName, u_int64_t taskId);
+        static std::string getRelativeSequenceTaskDir(const std::string &prjName, const std::string &sequenceName, u_int64_t taskId);
+
         static bool createAssetTaskDirectoryStructure(const std::string &prjName, const std::string &assetName, u_int64_t taskId);
-        static bool createShotTaskDirectoryStructure(const std::string &prjName, const std::string &seqName, const std::string &shotName, u_int64_t taskId);
-        //return the absolute path for the assets directory, but never checks if directory exist or not
         static std::string getAbsoluteAssetTaskDir(const std::string &prjName, const std::string &assetName, u_int64_t taskId);
-        static std::string getAbsoluteShotTaskDir(const std::string &prjName, const std::string &seqName, const std::string &shotName, u_int64_t taskId);
-        //return the path for for the assets directory relative to current directory, but never checks if directory exist or not
         static std::string getRelativeAssetTaskDir(const std::string &prjName, const std::string &assetName, u_int64_t taskId);
+
+        static bool createShotTaskDirectoryStructure(const std::string &prjName, const std::string &seqName, const std::string &shotName, u_int64_t taskId);
+        static std::string getAbsoluteShotTaskDir(const std::string &prjName, const std::string &seqName, const std::string &shotName, u_int64_t taskId);
         static std::string getRelativeShotTaskDir(const std::string &prjName, const std::string &seqName, const std::string &shotName, u_int64_t taskId);
     };
 }

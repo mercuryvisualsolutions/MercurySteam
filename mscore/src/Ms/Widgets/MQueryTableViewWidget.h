@@ -28,6 +28,7 @@
 #include <Wt/WNavigationBar>
 #include <Wt/Dbo/Dbo>
 #include <Wt/WMemoryResource>
+#include <Wt/WSlider>
 
 #include "../Core/Dbo/MDboManagerBase.h"
 
@@ -55,8 +56,8 @@ namespace Ms
             Wt::WTableView *table() const;
             const std::string tableName() const;
             Wt::WPushButton *createToolButton(const std::string &text, const std::string &iconPath = "", const std::string &toolTip = "");
-            void setRowHeight(const Wt::WLength &height);
-            const Wt::WLength rowHeight() const;
+            void setRowHeight(int height);
+            int rowHeight() const;
             void setHeaderHeight(const Wt::WLength &height);
             const Wt::WLength headerHeight() const;
             void setQuery(Wt::Dbo::Query<Wt::Dbo::ptr<T>> &query) const;
@@ -94,6 +95,7 @@ namespace Ms
             void setIgnoreNumFilterColumns(int numColumns);
             void ignoredNumFilterColumns() const;
             std::vector<Wt::Dbo::ptr<T>> selectedItems() const;
+            std::vector<Wt::Dbo::ptr<T>> items() const;
             bool isImportCSVFeatureEnabled() const;
             void setImportCSVFeatureEnabled(bool enabled);
             bool isExportCSVFeatureEnabled() const;
@@ -111,12 +113,12 @@ namespace Ms
 
             //signals
             Wt::Signal<> &tableSelectionChanged();
-            Wt::Signal<> &updatePropertiesRequested();
+            Wt::Signal<Wt::Dbo::ptr<T>> &itemImported();
 
         private:
             //signals
             Wt::Signal<> _tableSelectionChanged;
-            Wt::Signal<> _updatePropertiesRequested;
+            Wt::Signal<Wt::Dbo::ptr<T>> _itemImported;
 
             //slots
             void _mainTableSelectionChanged();
@@ -134,6 +136,7 @@ namespace Ms
             void _btnAdvancedFilterApplyClicked();
             void _btnAdvancedFilterClearClicked();
             void _popMnuReloadItemTriggered();
+            void _sldRowHeightValueChanged();
 
             //functions
             void _importCSV(const std::string &fileName) const;
@@ -187,6 +190,7 @@ namespace Ms
             Wt::WStandardItemModel *_mdlCmbColumnFilter;
             Wt::WLineEdit *_lnFilter;
             Wt::WTableView *_tblMain;
+            Wt::WSlider *_sldRowHeight;
 
             //Advanced filter
             Wt::WContainerWidget *_cntAdvancedFilter;

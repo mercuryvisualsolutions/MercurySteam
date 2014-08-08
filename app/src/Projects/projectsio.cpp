@@ -127,6 +127,60 @@ std::string Projects::ProjectsIO::getRelativeAssetDir(const std::string &prjName
     return getRelativeProjectDir(prjName) + Ms::IO::dirSeparator() + "assets" + Ms::IO::dirSeparator() + assetName;
 }
 
+bool Projects::ProjectsIO::createProjectTaskDirectoryStructure(const std::string &prjName, u_int64_t taskId)
+{
+    bool result;
+    std::string path = getAbsoluteProjectDir(prjName) + Ms::IO::dirSeparator() + "tasks" + Ms::IO::dirSeparator() + std::to_string(taskId);
+    result =  Ms::IO::createPath(path);
+    result =  Ms::IO::createPath(path + Ms::IO::dirSeparator() + "thumbnails");
+    result =  Ms::IO::createPath(path + Ms::IO::dirSeparator() + "files");
+
+    return result;
+}
+
+std::string Projects::ProjectsIO::getAbsoluteProjectTaskDir(const std::string &prjName, u_int64_t taskId)
+{
+    std::string dir = getAbsoluteProjectDir(prjName) + Ms::IO::dirSeparator() + "tasks" + Ms::IO::dirSeparator() + std::to_string(taskId);
+
+    if(!Ms::IO::dirExists(dir))
+        createProjectTaskDirectoryStructure(prjName, taskId);
+
+    return dir;
+}
+
+std::string Projects::ProjectsIO::getRelativeProjectTaskDir(const std::string &prjName, u_int64_t taskId)
+{
+    getAbsoluteProjectTaskDir(prjName, taskId);
+    return getRelativeProjectDir(prjName) + Ms::IO::dirSeparator() + "tasks" + Ms::IO::dirSeparator() + std::to_string(taskId);
+}
+
+bool Projects::ProjectsIO::createSequenceTaskDirectoryStructure(const std::string &prjName, const std::string &sequenceName, u_int64_t taskId)
+{
+    bool result;
+    std::string path = getAbsoluteSequenceDir(prjName, sequenceName) + Ms::IO::dirSeparator() + "tasks" + Ms::IO::dirSeparator() + std::to_string(taskId);
+    result =  Ms::IO::createPath(path);
+    result =  Ms::IO::createPath(path + Ms::IO::dirSeparator() + "thumbnails");
+    result =  Ms::IO::createPath(path + Ms::IO::dirSeparator() + "files");
+
+    return result;
+}
+
+std::string Projects::ProjectsIO::getAbsoluteSequenceTaskDir(const std::string &prjName, const std::string &sequenceName, u_int64_t taskId)
+{
+    std::string dir = getAbsoluteSequenceDir(prjName, sequenceName) + Ms::IO::dirSeparator() + "tasks" + Ms::IO::dirSeparator() + std::to_string(taskId);
+
+    if(!Ms::IO::dirExists(dir))
+        createSequenceTaskDirectoryStructure(prjName, sequenceName, taskId);
+
+    return dir;
+}
+
+std::string Projects::ProjectsIO::getRelativeSequenceTaskDir(const std::string &prjName, const std::string &sequenceName, u_int64_t taskId)
+{
+    getAbsoluteSequenceTaskDir(prjName, sequenceName, taskId);
+    return getRelativeSequenceDir(prjName, sequenceName) + Ms::IO::dirSeparator() + "tasks" + Ms::IO::dirSeparator() + std::to_string(taskId);
+}
+
 bool Projects::ProjectsIO::createAssetTaskDirectoryStructure(const std::string &prjName, const std::string &assetName, u_int64_t taskId)
 {
     bool result;

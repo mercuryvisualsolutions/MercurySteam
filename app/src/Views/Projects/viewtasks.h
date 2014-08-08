@@ -2,6 +2,7 @@
 #define VIEWTASKS_H
 
 #include "../../Database/dbtables.h"
+#include "../../Log/logger.h"
 
 #include <Ms/Widgets/MQueryTableViewWidget.h>
 #include <Ms/Widgets/MContainerWidget.h>
@@ -15,7 +16,18 @@ namespace Views
     public:
         ViewTasks();
 
-        const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *qtvTasks() const;
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *qtvTasks() const;
+        void updateView(const std::vector<Wt::Dbo::ptr<Projects::Project>> &prjVec,
+                        const std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>> &seqVec,
+                        const std::vector<Wt::Dbo::ptr<Projects::ProjectShot>> &shotVec,
+                        const std::vector<Wt::Dbo::ptr<Projects::ProjectAsset>> &assetVec) const;
+
+        bool isCreateOptionHidden();
+        void setCreateOptionHidden(bool hidden) const;
+//        bool isRemoveOptionHidden();
+//        void setRemoveOptionHidden(bool hidden) const;
+        bool isOpenFilesOptionHidden();
+        void setOpenFilesOptionHidden(bool hidden) const;
 
         //Signals
         Wt::Signal<> &createTaskRequested();
@@ -24,7 +36,13 @@ namespace Views
 
     private:
         //Variables
+        //UI
+        Wt::WPushButton *_btnCreateTask;
+        Wt::WPushButton *_btnRemoveTasks;
+        Wt::WPushButton *_btnOpenFilesView;
+
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *_qtvTasks;
+        Log::Logger *_logger;
         //UI variables
         Wt::WVBoxLayout *_layMain;
 

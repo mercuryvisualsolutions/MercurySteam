@@ -74,6 +74,26 @@ void Projects::ProjectTask::setUser(Wt::Dbo::ptr<Users::User> user)
     _user = user;
 }
 
+Wt::Dbo::ptr<Projects::Project> Projects::ProjectTask::project() const
+{
+    return _project;
+}
+
+void Projects::ProjectTask::setProject(Wt::Dbo::ptr<Projects::Project> project)
+{
+    _project = project;
+}
+
+Wt::Dbo::ptr<Projects::ProjectSequence> Projects::ProjectTask::sequence() const
+{
+    return _sequence;
+}
+
+void Projects::ProjectTask::setSequence(Wt::Dbo::ptr<Projects::ProjectSequence> sequence)
+{
+    _sequence = sequence;
+}
+
 Wt::Dbo::ptr<Projects::ProjectShot> Projects::ProjectTask::shot() const
 {
     return _shot;
@@ -92,26 +112,6 @@ Wt::Dbo::ptr<Projects::ProjectAsset> Projects::ProjectTask::asset() const
 void Projects::ProjectTask::setAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset)
 {
     _asset = asset;
-}
-
-Wt::Dbo::ptr<Projects::ProjectSequence> Projects::ProjectTask::sequence() const
-{
-    return _sequence;
-}
-
-void Projects::ProjectTask::setShot(Wt::Dbo::ptr<Projects::ProjectSequence> sequence)
-{
-    _sequence = sequence;
-}
-
-Wt::Dbo::ptr<Projects::Project> Projects::ProjectTask::project() const
-{
-    return _project;
-}
-
-void Projects::ProjectTask::setShot(Wt::Dbo::ptr<Projects::Project> project)
-{
-    _project = project;
 }
 
 int Projects::ProjectTask::priority() const

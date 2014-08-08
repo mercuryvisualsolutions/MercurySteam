@@ -30,6 +30,7 @@
 #include <Wt/WNavigationBar>
 #include <Wt/Dbo/Dbo>
 #include <Wt/WMemoryResource>
+#include <Wt/WBoostAny>
 
 namespace Ms
 {
@@ -109,13 +110,14 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::setRowHeight(const Wt::WLength &height)
+        void Ms::Widgets::MQueryTableViewWidget<T>::setRowHeight(int height)
         {
+            _sldRowHeight->setValue(height);
             _tblMain->setRowHeight(height);
         }
 
         template<typename T>
-        const Wt::WLength Ms::Widgets::MQueryTableViewWidget<T>::rowHeight() const
+        int Ms::Widgets::MQueryTableViewWidget<T>::rowHeight() const
         {
             return _tblMain->rowHeight();
         }
@@ -430,6 +432,24 @@ namespace Ms
             for(const Wt::WModelIndex &index : _tblMain->selectedIndexes())
             {
                 Wt::Dbo::ptr<T> dboPtr = _model->resultRow(_proxyModel->mapToSource(index).row());
+
+                vec.push_back(dboPtr);
+            }
+
+            return vec;
+        }
+
+        template<typename T>
+        std::vector<Wt::Dbo::ptr<T>> Ms::Widgets::MQueryTableViewWidget<T>::items() const
+        {
+            std::vector<Wt::Dbo::ptr<T>> vec;
+
+            for(int row = 0; row < _proxyModel->rowCount(); ++row)
+            {
+                const Wt::WModelIndex index = _proxyModel->mapToSource(_proxyModel->index(row, 0));
+
+                Wt::Dbo::ptr<T> dboPtr = _model->resultRow(index.row());
+
                 vec.push_back(dboPtr);
             }
 
@@ -552,6 +572,12 @@ namespace Ms
         Wt::Signal<> &Ms::Widgets::MQueryTableViewWidget<T>::tableSelectionChanged()
         {
             return _tableSelectionChanged;
+        }
+
+        template<typename T>
+        Wt::Signal<Wt::Dbo::ptr<T>> &Ms::Widgets::MQueryTableViewWidget<T>::itemImported()
+        {
+            return _itemImported;
         }
 
         //slots
@@ -793,6 +819,12 @@ namespace Ms
         }
 
         template<typename T>
+        void Ms::Widgets::MQueryTableViewWidget<T>::_sldRowHeightValueChanged()
+        {
+            _tblMain->setRowHeight(_sldRowHeight->value());
+        }
+
+        template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::_importCSV(const std::string &fileName) const
         {
             if(!_dboManager->session())
@@ -871,9 +903,16 @@ namespace Ms
                             return;
 
                         std::string sqlCommand = "INSERT INTO " + tableName() + " (" + columnsSql + ") VALUES (" + valuesSql + ")";
+
                         _dboManager->session()->execute(sqlCommand);
 
                         _dboManager->commitTransaction();
+
+                        //_itemImported(dboPtr);//emit the itemImported signal
+                    }
+                    catch(Wt::Dbo::NoUniqueResultException e)
+                    {
+                        std::cerr << "error while importing CSV" << std::endl << e.what() << std::endl;
                     }
                     catch(Wt::Dbo::Exception e)
                     {
@@ -911,11 +950,14 @@ namespace Ms
             {
                 for(const Wt::WModelIndex &index : _tblMain->selectedIndexes())
                 {
-                    //auto dataMap = _model->itemData(index);
-
                     for(int col = 0; col < _proxyModel->columnCount(); ++col)
                     {
-                        data += _model->text(_proxyModel->mapToSource(_proxyModel->index(index.row(), col)));
+                        boost::any indexData = _proxyModel->mapToSource(_proxyModel->index(index.row(), col)).data(Wt::DisplayRole);
+
+                        if(indexData.type() == typeid(bool))//format bool to 0 and 1 to be able to import exported files to database
+                            boost::any_cast<bool>(indexData) ? data += "1" : data += "0";
+                        else
+                            data += Wt::asString(indexData).toUTF8();
 
                         if(col < _proxyModel->columnCount() -1)
                             data +=",";
@@ -930,9 +972,12 @@ namespace Ms
                 {
                     for(int col = 0; col < _proxyModel->columnCount(); ++col)
                     {
-                        //auto obj =_model->index(row, col).data();//<-test code line, remove it
+                        boost::any indexData = _proxyModel->mapToSource(_proxyModel->index(row, col)).data(Wt::DisplayRole);
 
-                        data += _model->text(_proxyModel->mapToSource(_proxyModel->index(row, col)));
+                        if(indexData.type() == typeid(bool))//format bool to 0 and 1 to be able to import exported files to database
+                            boost::any_cast<bool>(indexData) ? data += "1" : data += "0";
+                        else
+                            data += Wt::asString(indexData).toUTF8();
 
                         if(col < _proxyModel->columnCount() -1)
                             data +=",";
@@ -1315,6 +1360,17 @@ namespace Ms
 
             _tbMain = new Wt::WToolBar();
             layTbMain->addWidget(_tbMain, 1);
+
+            _sldRowHeight = new Wt::WSlider(Wt::Horizontal);
+            _sldRowHeight->resize(100, 20);
+            _sldRowHeight->setRange(30,300);
+            _sldRowHeight->setValue(30);
+            _sldRowHeight->setTickInterval(10);
+            _sldRowHeight->setHandleWidth(10);
+            _sldRowHeight->setTickPosition(Wt::WSlider::TicksAbove);
+            _sldRowHeight->valueChanged().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_sldRowHeightValueChanged);
+
+            layTbMain->addWidget(_sldRowHeight);
 
             //advancedFilter
             _createAdvancedFilterView();

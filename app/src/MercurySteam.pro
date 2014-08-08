@@ -80,7 +80,8 @@ SOURCES += main.cpp \
     Views/Projects/viewshots.cpp \
     Views/Projects/viewassets.cpp \
     Views/Projects/viewtasks.cpp \
-    Views/Users/viewprivileges.cpp
+    Views/Users/viewprivileges.cpp \
+    Views/Projects/dlgtaskselectdbo.cpp
 
 HEADERS += \
     Views/Projects/viewprojects.h \
@@ -140,4 +141,5 @@ HEADERS += \
     Views/Projects/viewshots.h \
     Views/Projects/viewassets.h \
     Views/Projects/viewtasks.h \
-    Views/Users/viewprivileges.h
+    Views/Users/viewprivileges.h \
+    Views/Projects/dlgtaskselectdbo.h

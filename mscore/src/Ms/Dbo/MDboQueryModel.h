@@ -24,7 +24,6 @@ namespace Ms
             MDboQueryModel(Wt::WObject *parent = 0);
 
             //functions
-            const std::string text(const Wt::WModelIndex &index, int role = Wt::DisplayRole) const;
             std::string userName();
             void setUserName(const std::string &userName);
 
@@ -35,10 +34,7 @@ namespace Ms
 
         private:
             //functions
-            inline const std::string _boolToDBBool(bool b) const;
-            inline const std::string _wDateToStdString(const Wt::WDate &date) const;
-            inline const std::string _wTimeToStdString(const Wt::WTime &time) const;
-            inline const std::string _wDateTimeToStdString(const Wt::WDateTime &dateTime) const;
+
             //variables
             std::string _userName;
         };

@@ -53,11 +53,11 @@ namespace Views
         bool isAssetsViewShown();
         bool isTasksViewShown();
 
-        Ms::Widgets::MQueryTableViewWidget<Projects::Project> *projectsQueryTableView() const;
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectSequence> *sequencesQueryTableView() const;
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectShot> *shotsQueryTableView() const;
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectAsset> *assetsQueryTableView() const;
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *tasksQueryTableView() const;
+        const Ms::Widgets::MQueryTableViewWidget<Projects::Project> *projectsQueryTableView() const;
+        const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectSequence> *sequencesQueryTableView() const;
+        const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectShot> *shotsQueryTableView() const;
+        const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectAsset> *assetsQueryTableView() const;
+        const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *tasksQueryTableView() const;
 
         //Signals
         Wt::Signal<> &onTabProjectsSelected();
@@ -111,22 +111,22 @@ namespace Views
         //Sequences
         Wt::WVBoxLayout *_laySequences;
         Wt::WContainerWidget *_cntSequences;//container for each sequence view
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectSequence> *_qtvSequences;
+        Views::ViewSequences *_viewSequences;
 
         //shots
         Wt::WVBoxLayout *_layShots;
         Wt::WContainerWidget *_cntShots;//container for shots view
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectShot> *_qtvShots;
+        Views::ViewShots *_viewShots;
 
         //Assets
         Wt::WVBoxLayout *_layAssets;
         Wt::WContainerWidget *_cntAssets;//container for assets view
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectAsset> *_qtvAssets;
+        Views::ViewAssets *_viewAssets;
 
         //Tasks
         Wt::WVBoxLayout *_layTasks;
         Wt::WContainerWidget *_cntTasks;//container for task view
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *_qtvTasks;
+        Views::ViewTasks *_viewTasks;
 
         //Properties
         Wt::WContainerWidget *_cntPropertiesMain;
@@ -141,13 +141,13 @@ namespace Views
         Wt::WMenuItem *_mnuNavBarPropertiesAssetsItem;
         Wt::WMenuItem *_mnuNavBarPropertiesTasksItem;
         Wt::WStackedWidget *_stkProperties;
-        Views::ViewDboData *_viewData;
-        Views::ViewTags *_viewTags;
-        Views::ViewNotes *_viewNotes;
-        Views::ViewSequences *_viewSequences;
-        Views::ViewShots *_viewShots;
-        Views::ViewAssets *_viewAssets;
-        Views::ViewTasks *_viewTasks;
+        Views::ViewDboData *_viewPropertiesData;
+        Views::ViewTags *_viewPropertiesTags;
+        Views::ViewNotes *_viewPropertiesNotes;
+        Views::ViewSequences *_viewPropertiesSequences;
+        Views::ViewShots *_viewPropertiesShots;
+        Views::ViewAssets *_viewPropertiesAssets;
+        Views::ViewTasks *_viewPropertiesTasks;
 
         //slots
         /*******************--Main--********************/
@@ -167,6 +167,7 @@ namespace Views
         void _btnProjectsRemoveClicked();
         void _btnProjectsFilesClicked();
         void _btnProjectsImportThumbnailsClicked();
+        void _projectImported(Wt::Dbo::ptr<Projects::Project> project);
 
         //functions
         void _createProjectsTableView();
@@ -174,9 +175,7 @@ namespace Views
         /*******************--Sequences--********************/
         //slots
         void _createSequenceRequested();
-        void _removeSequencesRequested();
-        void _openSequencesFilesViewRequested();
-        void _importSequencesThumbnailsRequested();
+        void _sequenceImported(Wt::Dbo::ptr<Projects::ProjectSequence> sequence);
 
         //functions
         void _createSequencesTableView();
@@ -184,9 +183,7 @@ namespace Views
         /*******************--Shots--********************/
         //slots
         void _createShotRequested();
-        void _removeShotsRequested();
-        void _openShotsFilesViewRequested();
-        void _importShotsThumbnailsRequested();
+        void _shotImported(Wt::Dbo::ptr<Projects::ProjectShot> shot);
 
         //functions
         void _createShotsTableView();
@@ -194,9 +191,7 @@ namespace Views
         /*******************--Assets--********************/
         //slots
         void _createAssetRequested();
-        void _removeAssetsRequested();
-        void _openAssetsFilesViewRequested();
-        void _importAssetsThumbnailsRequested();
+        void _assetImported(Wt::Dbo::ptr<Projects::ProjectAsset> asset);
 
         //functions
         void _createAssetsTableView();
@@ -204,8 +199,7 @@ namespace Views
         /*******************--Tasks--********************/
         //slots
         void _createTasksRequested();
-        void _removeTasksRequested();
-        void _openTasksFilesViewRequested();
+        void _taskImported(Wt::Dbo::ptr<Projects::ProjectTask> task);
 
         //functions
         void _createTasksTableView();
@@ -238,6 +232,10 @@ namespace Views
         void _updatePropertiesTagsView();
         void _updatePropertiesAssignedTagsView();
         void _updatePropertiesNotesView();
+        void _updatePropertiesSequencesView();
+        void _updatePropertiesShotsView();
+        void _updatePropertiesAssetsView();
+        void _updatePropertiesTasksView();
     };
 }
 

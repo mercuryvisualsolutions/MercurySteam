@@ -2,6 +2,7 @@
 #define VIEWSEQUENCES_H
 
 #include "../../Database/dbtables.h"
+#include "../../Log/logger.h"
 
 #include <Ms/Widgets/MQueryTableViewWidget.h>
 #include <Ms/Widgets/MContainerWidget.h>
@@ -15,7 +16,17 @@ namespace Views
     public:
         ViewSequences();
 
-        const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectSequence> *qtvSequences() const;
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectSequence> *qtvSequences() const;
+        void updateView(const std::vector<Wt::Dbo::ptr<Projects::Project>> &prjVec) const;
+
+        bool isCreateOptionHidden();
+        void setCreateOptionHidden(bool hidden) const;
+        bool isRemoveOptionHidden();
+        void setRemoveOptionHidden(bool hidden) const;
+        bool isImportThumbnailsOptionHidden();
+        void setImportThumbnailsOptionHidden(bool hidden) const;
+        bool isOpenFilesOptionHidden();
+        void setOpenFilesOptionHidden(bool hidden) const;
 
         //Signals
         Wt::Signal<> &createSequenceRequested();
@@ -25,7 +36,14 @@ namespace Views
 
     private:
         //Variables
+        //UI
+        Wt::WPushButton *_btnCreateSequence;
+        Wt::WPushButton *_btnRemoveSequences;
+        Wt::WPushButton *_btnImportThumbnails;
+        Wt::WPushButton *_btnOpenFilesView;
+
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectSequence> *_qtvSequences;
+        Log::Logger *_logger;
         //UI variables
         Wt::WVBoxLayout *_layMain;
 

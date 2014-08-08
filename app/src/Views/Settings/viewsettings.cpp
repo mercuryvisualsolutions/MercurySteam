@@ -652,7 +652,7 @@ void Views::ViewSettings::_btnCreateUserTitleClicked()
         delete dlg;
     }));
 
-    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewSettings::_btnRemoveUserTitlesClicked()

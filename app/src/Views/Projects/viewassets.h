@@ -2,6 +2,7 @@
 #define VIEWASSETS_H
 
 #include "../../Database/dbtables.h"
+#include "../../Log/logger.h"
 
 #include <Ms/Widgets/MQueryTableViewWidget.h>
 #include <Ms/Widgets/MContainerWidget.h>
@@ -15,7 +16,17 @@ namespace Views
     public:
         ViewAssets();
 
-        const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectAsset> *qtvAssets() const;
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectAsset> *qtvAssets() const;
+        void updateView(const std::vector<Wt::Dbo::ptr<Projects::Project>> &prjVec) const;
+
+        bool isCreateOptionHidden();
+        void setCreateOptionHidden(bool hidden) const;
+        bool isRemoveOptionHidden();
+        void setRemoveOptionHidden(bool hidden) const;
+        bool isImportThumbnailsOptionHidden();
+        void setImportThumbnailsOptionHidden(bool hidden) const;
+        bool isOpenFilesOptionHidden();
+        void setOpenFilesOptionHidden(bool hidden) const;
 
         //Signals
         Wt::Signal<> &createAssetRequested();
@@ -25,7 +36,14 @@ namespace Views
 
     private:
         //Variables
+        //UI
+        Wt::WPushButton *_btnCreateAsset;
+        Wt::WPushButton *_btnRemoveAssets;
+        Wt::WPushButton *_btnImportThumbnails;
+        Wt::WPushButton *_btnOpenFilesView;
+
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectAsset> *_qtvAssets;
+        Log::Logger *_logger;
         //UI variables
         Wt::WVBoxLayout *_layMain;
 

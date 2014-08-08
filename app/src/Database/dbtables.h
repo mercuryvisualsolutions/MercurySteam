@@ -756,14 +756,14 @@ namespace Projects
         void setType(Wt::Dbo::ptr<Projects::ProjectTaskType> type);
         Wt::Dbo::ptr<Users::User> user() const;
         void setUser(Wt::Dbo::ptr<Users::User> user);
+        Wt::Dbo::ptr<Projects::Project> project() const;
+        void setProject(Wt::Dbo::ptr<Projects::Project> project);
+        Wt::Dbo::ptr<Projects::ProjectSequence> sequence() const;
+        void setSequence(Wt::Dbo::ptr<Projects::ProjectSequence> sequence);
         Wt::Dbo::ptr<Projects::ProjectShot> shot() const;
         void setShot(Wt::Dbo::ptr<Projects::ProjectShot> shot);
         Wt::Dbo::ptr<Projects::ProjectAsset> asset() const;
         void setAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset);
-        Wt::Dbo::ptr<Projects::ProjectSequence> sequence() const;
-        void setShot(Wt::Dbo::ptr<Projects::ProjectSequence> sequence);
-        Wt::Dbo::ptr<Projects::Project> project() const;
-        void setShot(Wt::Dbo::ptr<Projects::Project> project);
         int priority() const;
         void setPriority(int priority);
         bool isAcceptedByUser();

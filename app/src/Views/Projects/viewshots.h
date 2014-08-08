@@ -2,6 +2,7 @@
 #define VIEWSHOTS_H
 
 #include "../../Database/dbtables.h"
+#include "../../Log/logger.h"
 
 #include <Ms/Widgets/MQueryTableViewWidget.h>
 #include <Ms/Widgets/MContainerWidget.h>
@@ -15,7 +16,17 @@ namespace Views
     public:
         ViewShots();
 
-        const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectShot> *qtvShots() const;
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectShot> *qtvShots() const;
+        void updateView(const std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>> &seqVec) const;
+
+        bool isCreateOptionHidden();
+        void setCreateOptionHidden(bool hidden) const;
+//        bool isRemoveOptionHidden();
+//        void setRemoveOptionHidden(bool hidden) const;
+        bool isImportThumbnailsOptionHidden();
+        void setImportThumbnailsOptionHidden(bool hidden) const;
+        bool isOpenFilesOptionHidden();
+        void setOpenFilesOptionHidden(bool hidden) const;
 
         //Signals
         Wt::Signal<> &createShotRequested();
@@ -25,7 +36,14 @@ namespace Views
 
     private:
         //Variables
+        //UI
+        Wt::WPushButton *_btnCreateShot;
+        Wt::WPushButton *_btnRemoveShots;
+        Wt::WPushButton *_btnImportThumbnails;
+        Wt::WPushButton *_btnOpenFilesView;
+
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectShot> *_qtvShots;
+        Log::Logger *_logger;
         //UI variables
         Wt::WVBoxLayout *_layMain;
 
