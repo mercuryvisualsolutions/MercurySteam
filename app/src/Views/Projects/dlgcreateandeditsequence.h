@@ -1,5 +1,5 @@
-#ifndef DLGCREATESHOT_H
-#define DLGCREATESHOT_H
+#ifndef DLGCREATESEQUENCE_H
+#define DLGCREATESEQUENCE_H
 
 #include <Wt/WDialog>
 #include <Wt/WLabel>
@@ -25,22 +25,36 @@
 
 namespace Views
 {
-    class DlgCreateShot : public Wt::WDialog
+    class DlgCreateAndEditSequence : public Wt::WDialog
     {
     public:
-        DlgCreateShot();
+        DlgCreateAndEditSequence(bool editing = false);
 
         //functions
-        std::string shotName() const;
+        std::string sequenceName() const;
         Wt::WDate startDate() const;
         Wt::WDate endDate() const;
         int duration() const;
         float fps() const;
         int frameWidth() const;
         int frameHeight() const;
+        int priority() const;
         Wt::Dbo::ptr<Projects::ProjectWorkStatus> status() const;
         std::string description() const;
         bool isActive() const;
+
+        bool isEditing();
+
+        bool editedStartDate() const;
+        bool editedEndDate() const;
+        bool editedDuration() const;
+        bool editedFps() const;
+        bool editedFrameWidth() const;
+        bool editedFrameHeight() const;
+        bool editedPriority() const;
+        bool editedStatus() const;
+        bool editedDescription() const;
+        bool editedActive() const;
 
     private:
         //variables
@@ -49,20 +63,23 @@ namespace Views
         Wt::WVBoxLayout *_layLeft;
         Wt::WContainerWidget *_cntRight;
         Wt::WVBoxLayout *_layRight;
-        Wt::WLineEdit *_txtShotName;
+        Wt::WLineEdit *_txtSequenceName;
         Wt::WDateEdit *_datStartDate;
         Wt::WDateEdit *_datEndDate;
         Wt::WSpinBox *_spnDuration;
         Wt::WDoubleSpinBox *_spnFPS;
         Wt::WSpinBox *_spnWidth;
         Wt::WSpinBox *_spnHeight;
+        Wt::WSpinBox *_spnPriority;
         Wt::WComboBox *_cmbStatus;
         Wt::WContainerWidget *_cntCmbStatus;
         Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatus>> *_mdlCmbStatus;
         Wt::WTextArea *_txtDescription;
-        Wt::WCheckBox *_chkActive;
+        Wt::WComboBox *_cmbActive;
         Wt::WPushButton *_btnOk;
         Wt::WPushButton *_btnCancel;
+
+        bool _editing;
 
         //functions
         void _prepareView();
@@ -74,4 +91,4 @@ namespace Views
     };
 }
 
-#endif // DLGCREATESHOT_H
+#endif // DLGCREATESEQUENCE_H

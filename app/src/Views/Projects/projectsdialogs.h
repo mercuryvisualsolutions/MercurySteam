@@ -1,10 +1,10 @@
 #ifndef PROJECTSDIALOGS_H
 #define PROJECTSDIALOGS_H
 
-#include "dlgcreateproject.h"
-#include "dlgcreatesequence.h"
-#include "dlgcreateshot.h"
-#include "dlgcreateasset.h"
-#include "dlgcreatetask.h"
+#include "dlgcreateandeditproject.h"
+#include "dlgcreateandeditsequence.h"
+#include "dlgcreateandeditshot.h"
+#include "dlgcreateandeditasset.h"
+#include "dlgcreateandedittask.h"
 
 #endif // PROJECTSDIALOGS_H

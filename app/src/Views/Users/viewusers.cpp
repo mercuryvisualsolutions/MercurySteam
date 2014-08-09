@@ -243,45 +243,6 @@ void Views::ViewUsers::_addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec)
 }
 
 template<typename T>
-void Views::ViewUsers::_addTagToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec)
-{
-    Views::Dialogs::DlgCreateTag *dlg = new Views::Dialogs::DlgCreateTag();
-    dlg->finished().connect(std::bind([=]()
-    {
-       if(dlg->result() == Wt::WDialog::Accepted)
-       {
-           for(auto &ptr : dboVec)
-           {
-               Database::Tag *tag = new Database::Tag(dlg->tagName(), dlg->tagContent());
-               tag->setType("Custom");
-               tag->setActive(dlg->isActive());
-
-                Wt::Dbo::ptr<Database::Tag> tagPtr = Database::DatabaseManager::instance().createDbo<Database::Tag>(tag);
-
-                if(tagPtr.get())
-                {
-                    Database::DatabaseManager::instance().modifyDbo<T>(ptr)->addTag(tagPtr);
-
-                     _logger->log(std::string("Created tag ") + dlg->tagName(), Ms::Log::LogMessageType::Info);
-                }
-                else
-                {
-                    delete tag;
-
-                    _logger->log(std::string("Error creating tag ") + dlg->tagName(), Ms::Log::LogMessageType::Error);
-                }
-           }
-
-           _updatePropertiesTagsView();
-       }
-
-       delete dlg;
-    }));
-
-    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
-}
-
-template<typename T>
 void Views::ViewUsers::_assignTagToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
     if(dboVec.size() > 0)
@@ -681,28 +642,45 @@ void Views::ViewUsers::_removeDataRequested(const std::vector<Wt::Dbo::ptr<Datab
 
 void Views::ViewUsers::_createTagRequested()
 {
+    std::string tagType = "";
+
     if(_stkMain->currentWidget() == _qtvUsers)
-    {
-        if(_qtvUsers->table()->selectedIndexes().size() != 1)
-        {
-            _logger->log("Please select only one user.", Ms::Log::LogMessageType::Warning);
-
-            return;
-        }
-        else
-            _addTagToDbo<Users::User>(_qtvUsers->selectedItems());
-    }
+        tagType = "User";
     else if(_stkMain->currentWidget() == _qtvGroups)
-    {
-        if(_qtvGroups->table()->selectedIndexes().size() != 1)
-        {
-            _logger->log("Please select only one group.", Ms::Log::LogMessageType::Warning);
+        tagType = "Group";
 
-            return;
-        }
-        else
-            _addTagToDbo<Users::Group>(_qtvGroups->selectedItems());
-    }
+    if(tagType == "")
+        return;
+
+    Views::Dialogs::DlgCreateTag *dlg = new Views::Dialogs::DlgCreateTag();
+    dlg->finished().connect(std::bind([=]()
+    {
+       if(dlg->result() == Wt::WDialog::Accepted)
+       {
+           Database::Tag *tag = new Database::Tag(dlg->tagName(), dlg->tagContent());
+           tag->setType(tagType);
+           tag->setActive(dlg->isActive());
+
+            Wt::Dbo::ptr<Database::Tag> tagPtr = Database::DatabaseManager::instance().createDbo<Database::Tag>(tag);
+
+            if(tagPtr.get())
+            {
+                _updatePropertiesTagsView();
+
+                _logger->log(std::string("Created " + tagType + " tag ") + dlg->tagName(), Ms::Log::LogMessageType::Info);
+            }
+            else
+            {
+                delete tag;
+
+                _logger->log(std::string("Error creating " + tagType + " tag ") + dlg->tagName(), Ms::Log::LogMessageType::Error);
+            }
+       }
+
+       delete dlg;
+    }));
+
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewUsers::_assignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
@@ -1023,27 +1001,9 @@ void Views::ViewUsers::_updatePropertiesTagsView()
     Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query = Database::DatabaseManager::instance().session()->find<Database::Tag>();
 
     if(_stkMain->currentWidget() == _qtvUsers)
-    {
-        if(_qtvUsers->table()->selectedIndexes().size() > 0)
-        {
-            std::string usersSelectSql = "(pt.user_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Users::User>(_qtvUsers->selectedItems()).at(0) + "))";
-
-            query.where("(id IN (SELECT pt.tag_id FROM rel_user_tags pt WHERE " + usersSelectSql + ") OR (Type = 'Global'))");
-        }
-        else
-            query.where("Type = ?").bind("Global");
-    }
+        query.where("(Type IN ('User', 'Global'))");
     else if(_stkMain->currentWidget() == _qtvGroups)
-    {
-        if(_qtvGroups->table()->selectedIndexes().size() > 0)
-        {
-            std::string groupsSelectSql = "pt.group_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Users::Group>(_qtvGroups->selectedItems()).at(0) + ")";
-
-            query.where("(id IN (SELECT pt.tag_id FROM rel_group_tags pt WHERE " + groupsSelectSql + ") OR (Type = 'Global'))");
-        }
-        else
-            query.where("Type = ?").bind("Global");
-    }
+        query.where("(Type IN ('Group', 'Global'))");
 
     int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
 

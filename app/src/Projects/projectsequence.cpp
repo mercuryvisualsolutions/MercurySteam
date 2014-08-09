@@ -200,7 +200,7 @@ void Projects::ProjectSequence::_init()
     _id.name = "New Project Sequence";
     _startDate = Wt::WDate::currentDate();
     _endDate = Wt::WDate::currentDate();
-    _durationInFrames = 1000;
+    _durationInFrames = 0;
     _fps = 24.0f;
     _frameWidth = 1920;
     _frameHeight = 1080;

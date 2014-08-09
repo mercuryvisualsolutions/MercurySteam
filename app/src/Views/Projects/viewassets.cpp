@@ -5,6 +5,7 @@
 #include "../../Projects/projectsio.h"
 #include "../Files/dlgfilesmanager.h"
 #include "../../Log/logmanager.h"
+#include "dlgcreateandeditasset.h"
 
 #include <Wt/WApplication>
 
@@ -99,6 +100,16 @@ void Views::ViewAssets::setCreateOptionHidden(bool hidden) const
     _btnCreateAsset->setHidden(hidden);
 }
 
+bool Views::ViewAssets::isEditOptionHidden()
+{
+    return _btnEditAssets->isHidden();
+}
+
+void Views::ViewAssets::setEditOptionHidden(bool hidden) const
+{
+    _btnEditAssets->setHidden(hidden);
+}
+
 //bool Views::ViewAssets::isRemoveOptionHidden()
 //{
 //    return _btnRemoveAssets->isHidden();
@@ -157,6 +168,53 @@ void Views::ViewAssets::_btnCreateAssetClicked()
 void Views::ViewAssets::_btnRemoveAssetsClicked()
 {
     _removeAssetsRequested(_qtvAssets->selectedItems());
+}
+
+void Views::ViewAssets::_btnEditAssetsClicked()
+{
+    if(_qtvAssets->table()->selectedIndexes().size() == 0)
+    {
+        _logger->log("Please select at least one item.", Ms::Log::LogMessageType::Warning);
+
+        return;
+    }
+
+    Views::DlgCreateAndEditAsset *dlg = new Views::DlgCreateAndEditAsset(true);
+    dlg->finished().connect(std::bind([=]()
+    {
+        if(dlg->result() == Wt::WDialog::Accepted)
+        {
+            for(auto assetPtr : _qtvAssets->selectedItems())
+            {
+                if(dlg->editedStartDate())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectAsset>(assetPtr)->setStartDate(dlg->startDate());
+
+                if(dlg->editedEndDate())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectAsset>(assetPtr)->setEndDate(dlg->endDate());
+
+                if(dlg->editedType())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectAsset>(assetPtr)->setType(dlg->assetType());
+
+                if(dlg->editedPriority())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectAsset>(assetPtr)->setPriority(dlg->priority());
+
+                if(dlg->editedStatus())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectAsset>(assetPtr)->setStatus(dlg->status());
+
+                if(dlg->editedDescription())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectAsset>(assetPtr)->setDescription(dlg->description());
+
+                if(dlg->editedActive())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectAsset>(assetPtr)->setActive(dlg->isActive());
+            }
+
+            _qtvAssets->updateView();
+        }
+
+        delete dlg;
+    }));
+
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewAssets::_btnImportThumbnailsClicked()
@@ -290,6 +348,13 @@ void Views::ViewAssets::_createAssetsTableView()
     {
         _btnImportThumbnails = _qtvAssets->createToolButton("", "icons/Thumbnail.png", "Import Thumbnails");
         _btnImportThumbnails->clicked().connect(this, &Views::ViewAssets::_btnImportThumbnailsClicked);
+    }
+
+    //requires "view" privilege
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
+    {
+        _btnEditAssets = _qtvAssets->createToolButton("", "icons/Edit.png", "Edit Selected Assets");
+        _btnEditAssets->clicked().connect(this, &Views::ViewAssets::_btnEditAssetsClicked);
     }
 
     //requires "CheckIn or CheckOut" privilege

@@ -44,6 +44,7 @@ namespace Ms
             static Wt::WLineEdit *createLineEdit(const std::string &emptyText = "", bool createValidator = true, const std::string &validatorExp = "[A-Za-z0-9 _-]{4,255}", bool validatorIsMandatory = true);
             static Wt::WTextArea *createTextArea(const std::string &emptyText = "", bool createValidator = true, const std::string &validatorExp = "[A-Za-z0-9 _-]{4,255}", bool validatorIsMandatory = true);
             static Wt::WContainerWidget *createField(const std::string &label, Wt::WWidget *widget, bool applyValidationStyle = true);//wraps the given widget in a layout with a label on it's left
+            static Wt::WContainerWidget *createEditField(const std::string &label, Wt::WWidget *widget, bool applyValidationStyle = true);//wraps the given widget in a layout with a label on it's left and a checkbox connected to the widget's enable() and disable() methods
             static Wt::WRegExpValidator *createRegExpValidator(const std::string &exp, bool setMandatory = true);//creates a Wt::WRegExpValidator based on the given expression
             static Wt::WIntValidator *createIntValidator(int min, int max, bool setMandatory = true);
             static Wt::WDoubleValidator *createDoubleValidator(double min, double max, bool setMandatory = true);

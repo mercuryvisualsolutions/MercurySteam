@@ -73,8 +73,6 @@ namespace Views
         template<typename T>
         void _addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec);
         template<typename T>
-        void _addTagToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec);
-        template<typename T>
         void _assignTagToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
         template<typename T>
         void _unAssignTagFromDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
@@ -165,6 +163,7 @@ namespace Views
         //slots
         void _btnProjectsCreateClicked();
         void _btnProjectsRemoveClicked();
+        void _btnProjectsEditClicked();
         void _btnProjectsFilesClicked();
         void _btnProjectsImportThumbnailsClicked();
         void _projectImported(Wt::Dbo::ptr<Projects::Project> project);
@@ -217,7 +216,7 @@ namespace Views
 
         void _addDataRequested();
         void _removeDataRequested(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec);
-        void _createTagRequested();
+        void _createProjectTagRequested();
         void _assignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
         void _unassignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
         void _filterByTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);

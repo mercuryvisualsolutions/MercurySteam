@@ -1,7 +1,6 @@
 #ifndef DLGCREATEASSET_H
 #define DLGCREATEASSET_H
 
-
 #include <Wt/WDialog>
 #include <Wt/WLabel>
 #include <Wt/WPushButton>
@@ -25,19 +24,29 @@
 
 namespace Views
 {
-    class DlgCreateAsset : public Wt::WDialog
+    class DlgCreateAndEditAsset : public Wt::WDialog
     {
     public:
-        DlgCreateAsset();
+        DlgCreateAndEditAsset(bool editing = false);
 
         std::string assetName() const;
         Wt::Dbo::ptr<Projects::ProjectWorkStatus> status() const;
         Wt::Dbo::ptr<Projects::ProjectAssetType> assetType() const;
         Wt::WDate startDate() const;
         Wt::WDate endDate() const;
+        int priority() const;
         std::string description() const;
         bool isActive() const;
 
+        bool isEditing();
+
+        bool editedStartDate() const;
+        bool editedEndDate() const;
+        bool editedPriority() const;
+        bool editedType() const;
+        bool editedStatus() const;
+        bool editedDescription() const;
+        bool editedActive() const;
 
     private:
         //variables
@@ -49,6 +58,7 @@ namespace Views
         Wt::WLineEdit *_txtAssetName;
         Wt::WDateEdit *_datStartDate;
         Wt::WDateEdit *_datEndDate;
+        Wt::WSpinBox *_spnPriority;
         Wt::WComboBox *_cmbStatus;
         Wt::WContainerWidget *_cntCmbStatus;
         Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatus>> *_mdlCmbStatus;
@@ -56,9 +66,11 @@ namespace Views
         Wt::WContainerWidget *_cntCmbType;
         Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectAssetType>> *_mdlCmbType;
         Wt::WTextArea *_txtDescription;
-        Wt::WCheckBox *_chkActive;
+        Wt::WComboBox *_cmbActive;
         Wt::WPushButton *_btnOk;
         Wt::WPushButton *_btnCancel;
+
+        bool _editing;
 
         //functions
         void _prepareView();

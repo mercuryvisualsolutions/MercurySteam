@@ -23,6 +23,8 @@ namespace Views
         void setCreateOptionHidden(bool hidden) const;
         bool isRemoveOptionHidden();
         void setRemoveOptionHidden(bool hidden) const;
+        bool isEditOptionHidden();
+        void setEditOptionHidden(bool hidden) const;
         bool isImportThumbnailsOptionHidden();
         void setImportThumbnailsOptionHidden(bool hidden) const;
         bool isOpenFilesOptionHidden();
@@ -31,6 +33,7 @@ namespace Views
         //Signals
         Wt::Signal<> &createSequenceRequested();
         Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>>> &removeSequencesRequested();
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>>> &editSequencesRequested();
         Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>>> &openfilesViewRequested();
         Wt::Signal<> &importThumbnailsRequested();
 
@@ -39,6 +42,7 @@ namespace Views
         //UI
         Wt::WPushButton *_btnCreateSequence;
         Wt::WPushButton *_btnRemoveSequences;
+        Wt::WPushButton *_btnEditSequences;
         Wt::WPushButton *_btnImportThumbnails;
         Wt::WPushButton *_btnOpenFilesView;
 
@@ -50,12 +54,14 @@ namespace Views
         //Signals
         Wt::Signal<> _createSequenceRequested;
         Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>>> _removeSequencesRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>>> _editSequencesRequested;
         Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>>> _openfilesViewRequested;
         Wt::Signal<> _importThumbnailsRequested;
 
         //Slots
         void _btnCreateSequenceClicked();
         void _btnRemoveSequencesClicked();
+        void _btnEditSequencesClicked();
         void _btnImportThumbnailsClicked();
         void _btnOpenFilesViewClicked();
 

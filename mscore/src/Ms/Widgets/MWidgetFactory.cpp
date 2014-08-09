@@ -128,6 +128,21 @@ Wt::WContainerWidget *Ms::Widgets::MWidgetFactory::createField(const std::string
     return cntField;
 }
 
+Wt::WContainerWidget *Ms::Widgets::MWidgetFactory::createEditField(const std::string &label, Wt::WWidget *widget, bool applyValidationStyle)
+{
+    Wt::WContainerWidget *cnt = createField(label, widget, applyValidationStyle);
+
+    widget->disable();//default edit widget to disabled
+
+    Wt::WCheckBox *chkEnableField = new Wt::WCheckBox();
+    chkEnableField->checked().connect(widget, &Wt::WWidget::enable);
+    chkEnableField->unChecked().connect(widget, &Wt::WWidget::disable);
+
+    cnt->layout()->addWidget(chkEnableField);
+
+    return cnt;
+}
+
 Wt::WRegExpValidator *Ms::Widgets::MWidgetFactory::createRegExpValidator(const std::string &exp, bool setMandatory)
 {
     Wt::WRegExpValidator *validator = new Wt::WRegExpValidator(exp);

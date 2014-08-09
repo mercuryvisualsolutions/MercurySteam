@@ -20,6 +20,16 @@ const Ms::Widgets::MQueryTableViewWidget<Database::Tag> *Views::ViewTags::qtvAss
     return _qtvAssignedTags;
 }
 
+bool Views::ViewTags::isCreateOptionHidden() const
+{
+    return _btnCreateTag->isHidden();
+}
+
+void Views::ViewTags::setCreateOptionHidden(bool hidden)
+{
+    _btnCreateTag->setHidden(hidden);
+}
+
 Wt::Signal<> &Views::ViewTags::createTagRequested()
 {
     return _createTagRequested;
@@ -78,8 +88,8 @@ void Views::ViewTags::_createTagsTableView()
     //requires "create" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
-        Wt::WPushButton *btnCreate = _qtvTags->createToolButton("", "icons/Add.png", "Create A Custom Tag");
-        btnCreate->clicked().connect(this, &Views::ViewTags::_btnCreateTagClicked);
+        _btnCreateTag = _qtvTags->createToolButton("", "icons/Add.png", "Create A Custom Tag");
+        _btnCreateTag->clicked().connect(this, &Views::ViewTags::_btnCreateTagClicked);
 
         Wt::WPushButton *btnAssign = _qtvTags->createToolButton("", "icons/AddTo.png", "Add selected tags to selected items");
         btnAssign->clicked().connect(this, &Views::ViewTags::_btnAssignTagsClicked);

@@ -1,5 +1,5 @@
-#ifndef DLGCREATEPROJECT_H
-#define DLGCREATEPROJECT_H
+#ifndef DLGCREATESHOT_H
+#define DLGCREATESHOT_H
 
 #include <Wt/WDialog>
 #include <Wt/WLabel>
@@ -25,22 +25,36 @@
 
 namespace Views
 {
-    class DlgCreateProject : public Wt::WDialog
+    class DlgCreateAndEditShot : public Wt::WDialog
     {
     public:
-        DlgCreateProject();
+        DlgCreateAndEditShot(bool editing = false);
+
         //functions
-        std::string projectName() const;
+        std::string shotName() const;
         Wt::WDate startDate() const;
         Wt::WDate endDate() const;
         int duration() const;
         float fps() const;
         int frameWidth() const;
         int frameHeight() const;
+        int priority() const;
         Wt::Dbo::ptr<Projects::ProjectWorkStatus> status() const;
-        Wt::Dbo::ptr<Users::User> manager() const;
         std::string description() const;
         bool isActive() const;
+
+        bool isEditing();
+
+        bool editedStartDate() const;
+        bool editedEndDate() const;
+        bool editedDuration() const;
+        bool editedFps() const;
+        bool editedFrameWidth() const;
+        bool editedFrameHeight() const;
+        bool editedPriority() const;
+        bool editedStatus() const;
+        bool editedDescription() const;
+        bool editedActive() const;
 
     private:
         //variables
@@ -49,27 +63,26 @@ namespace Views
         Wt::WVBoxLayout *_layLeft;
         Wt::WContainerWidget *_cntRight;
         Wt::WVBoxLayout *_layRight;
-        Wt::WLineEdit *_txtProjectName;
+        Wt::WLineEdit *_txtShotName;
         Wt::WDateEdit *_datStartDate;
         Wt::WDateEdit *_datEndDate;
         Wt::WSpinBox *_spnDuration;
         Wt::WDoubleSpinBox *_spnFPS;
         Wt::WSpinBox *_spnWidth;
         Wt::WSpinBox *_spnHeight;
+        Wt::WSpinBox *_spnPriority;
         Wt::WComboBox *_cmbStatus;
         Wt::WContainerWidget *_cntCmbStatus;
         Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatus>> *_mdlCmbStatus;
-        Wt::WComboBox *_cmbManager;
-        Wt::WContainerWidget *_cntCmbManager;
-        Wt::Dbo::QueryModel<Wt::Dbo::ptr<Users::User>> *_mdlCmbManager;
         Wt::WTextArea *_txtDescription;
-        Wt::WCheckBox *_chkActive;
+        Wt::WComboBox *_cmbActive;
         Wt::WPushButton *_btnOk;
         Wt::WPushButton *_btnCancel;
 
+        bool _editing;
+
         //functions
-        void _prepareView();        
-        void _createCmbManager();
+        void _prepareView();
         void _createCmbStatus();
         bool _validate();
 
@@ -78,4 +91,4 @@ namespace Views
     };
 }
 
-#endif // DLGCREATEPROJECT_H
+#endif // DLGCREATESHOT_H

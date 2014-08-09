@@ -6,6 +6,7 @@
 #include "../Files/dlgfilesmanager.h"
 #include "../../Log/logmanager.h"
 #include "dlgtaskselectdbo.h"
+#include "dlgcreateandedittask.h"
 
 #include <Wt/WApplication>
 
@@ -184,6 +185,16 @@ void Views::ViewTasks::setCreateOptionHidden(bool hidden) const
     _btnCreateTask->setHidden(hidden);
 }
 
+bool Views::ViewTasks::isEditOptionHidden()
+{
+    return _btnEditTasks->isHidden();
+}
+
+void Views::ViewTasks::setEditOptionHidden(bool hidden) const
+{
+    _btnEditTasks->setHidden(hidden);
+}
+
 //bool Views::ViewTasks::isRemoveOptionHidden()
 //{
 //    return _btnRemoveTasks->isHidden();
@@ -227,6 +238,56 @@ void Views::ViewTasks::_btnCreateTaskClicked()
 void Views::ViewTasks::_btnRemoveTasksClicked()
 {
     _removeTasksRequested(_qtvTasks->selectedItems());
+}
+
+void Views::ViewTasks::_btnEditTasksClicked()
+{
+    if(_qtvTasks->table()->selectedIndexes().size() == 0)
+    {
+        _logger->log("Please select at least one item.", Ms::Log::LogMessageType::Warning);
+
+        return;
+    }
+
+    Views::DlgCreateAndEditTask *dlg = new Views::DlgCreateAndEditTask(true);
+    dlg->finished().connect(std::bind([=]()
+    {
+        if(dlg->result() == Wt::WDialog::Accepted)
+        {
+            for(auto taskPtr : _qtvTasks->selectedItems())
+            {
+                if(dlg->editedStartDate())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTask>(taskPtr)->setStartDate(dlg->startDate());
+
+                if(dlg->editedEndDate())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTask>(taskPtr)->setEndDate(dlg->endDate());
+
+                if(dlg->editedType())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTask>(taskPtr)->setType(dlg->type());
+
+                if(dlg->editedPriority())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTask>(taskPtr)->setPriority(dlg->priority());
+
+                if(dlg->editedStatus())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTask>(taskPtr)->setStatus(dlg->status());
+
+                if(dlg->editedStatus())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTask>(taskPtr)->setUser(dlg->user());
+
+                if(dlg->editedDescription())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTask>(taskPtr)->setDescription(dlg->description());
+
+                if(dlg->editedActive())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTask>(taskPtr)->setActive(dlg->isActive());
+            }
+
+            _qtvTasks->updateView();
+        }
+
+        delete dlg;
+    }));
+
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewTasks::_btnOpenFilesViewClicked()
@@ -327,6 +388,13 @@ void Views::ViewTasks::_createTasksTableView()
     {
         //_btnRemoveTasks = _qtvTasks->createToolButton("", "icons/Remove.png", "Remove Selected Tasks");
         //_btnRemoveTasks->clicked().connect(this, &Views::ViewTasks::_btnRemoveTasksClicked);
+    }
+
+    //requires "remove" privilege
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
+    {
+        _btnEditTasks = _qtvTasks->createToolButton("", "icons/Edit.png", "Edit Selected Tasks");
+        _btnEditTasks->clicked().connect(this, &Views::ViewTasks::_btnEditTasksClicked);
     }
 
     //requires "CheckIn or CheckOut" privilege

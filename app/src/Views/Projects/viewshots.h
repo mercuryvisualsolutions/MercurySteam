@@ -21,8 +21,10 @@ namespace Views
 
         bool isCreateOptionHidden();
         void setCreateOptionHidden(bool hidden) const;
-//        bool isRemoveOptionHidden();
-//        void setRemoveOptionHidden(bool hidden) const;
+        bool isRemoveOptionHidden();
+        void setRemoveOptionHidden(bool hidden) const;
+        bool isEditOptionHidden();
+        void setEditOptionHidden(bool hidden) const;
         bool isImportThumbnailsOptionHidden();
         void setImportThumbnailsOptionHidden(bool hidden) const;
         bool isOpenFilesOptionHidden();
@@ -39,6 +41,7 @@ namespace Views
         //UI
         Wt::WPushButton *_btnCreateShot;
         Wt::WPushButton *_btnRemoveShots;
+        Wt::WPushButton *_btnEditShots;
         Wt::WPushButton *_btnImportThumbnails;
         Wt::WPushButton *_btnOpenFilesView;
 
@@ -56,6 +59,7 @@ namespace Views
         //Slots
         void _btnCreateShotClicked();
         void _btnRemoveShotsClicked();
+        void _btnEditShotsClicked();
         void _btnImportThumbnailsClicked();
         void _btnOpenFilesViewClicked();
 

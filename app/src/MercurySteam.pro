@@ -36,11 +36,6 @@ SOURCES += main.cpp \
     Projects/projectworkstatus.cpp \
     Projects/projectworkstatustype.cpp \
     Projects/projectassettype.cpp \
-    Views/Projects/dlgcreateproject.cpp \
-    Views/Projects/dlgcreatesequence.cpp \
-    Views/Projects/dlgcreateshot.cpp \
-    Views/Projects/dlgcreateasset.cpp \
-    Views/Projects/dlgcreatetask.cpp \
     Views/Users/dlgcreateuser.cpp \
     Views/Users/dlgcreategroup.cpp \
     Views/Settings/dlgcreateassettype.cpp \
@@ -81,7 +76,12 @@ SOURCES += main.cpp \
     Views/Projects/viewassets.cpp \
     Views/Projects/viewtasks.cpp \
     Views/Users/viewprivileges.cpp \
-    Views/Projects/dlgtaskselectdbo.cpp
+    Views/Projects/dlgtaskselectdbo.cpp \
+    Views/Projects/dlgcreateandeditsequence.cpp \
+    Views/Projects/dlgcreateandeditshot.cpp \
+    Views/Projects/dlgcreateandeditasset.cpp \
+    Views/Projects/dlgcreateandeditproject.cpp \
+    Views/Projects/dlgcreateandedittask.cpp
 
 HEADERS += \
     Views/Projects/viewprojects.h \
@@ -95,12 +95,7 @@ HEADERS += \
     Database/projectdbospecialization.h \
     Database/userdbospecialization.h \
     Views/Users/usersdialogs.h \
-    Views/Projects/dlgcreateproject.h \
     Views/Projects/projectsdialogs.h \
-    Views/Projects/dlgcreatesequence.h \
-    Views/Projects/dlgcreateshot.h \
-    Views/Projects/dlgcreateasset.h \
-    Views/Projects/dlgcreatetask.h \
     Views/Users/dlgcreateuser.h \
     Views/Users/dlgcreategroup.h \
     Views/Settings/dlgcreateassettype.h \
@@ -142,4 +137,9 @@ HEADERS += \
     Views/Projects/viewassets.h \
     Views/Projects/viewtasks.h \
     Views/Users/viewprivileges.h \
-    Views/Projects/dlgtaskselectdbo.h
+    Views/Projects/dlgtaskselectdbo.h \
+    Views/Projects/dlgcreateandeditsequence.h \
+    Views/Projects/dlgcreateandeditshot.h \
+    Views/Projects/dlgcreateandeditasset.h \
+    Views/Projects/dlgcreateandeditproject.h \
+    Views/Projects/dlgcreateandedittask.h

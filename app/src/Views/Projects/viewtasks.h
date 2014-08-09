@@ -26,6 +26,8 @@ namespace Views
         void setCreateOptionHidden(bool hidden) const;
 //        bool isRemoveOptionHidden();
 //        void setRemoveOptionHidden(bool hidden) const;
+        bool isEditOptionHidden();
+        void setEditOptionHidden(bool hidden) const;
         bool isOpenFilesOptionHidden();
         void setOpenFilesOptionHidden(bool hidden) const;
 
@@ -39,6 +41,7 @@ namespace Views
         //UI
         Wt::WPushButton *_btnCreateTask;
         Wt::WPushButton *_btnRemoveTasks;
+        Wt::WPushButton *_btnEditTasks;
         Wt::WPushButton *_btnOpenFilesView;
 
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *_qtvTasks;
@@ -54,6 +57,7 @@ namespace Views
         //Slots
         void _btnCreateTaskClicked();
         void _btnRemoveTasksClicked();
+        void _btnEditTasksClicked();
         void _btnOpenFilesViewClicked();
 
         //Functions

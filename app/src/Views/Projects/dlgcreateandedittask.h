@@ -1,7 +1,6 @@
 #ifndef DLGCREATETASK_H
 #define DLGCREATETASK_H
 
-
 #include <Wt/WDialog>
 #include <Wt/WLabel>
 #include <Wt/WPushButton>
@@ -24,18 +23,30 @@
 
 namespace Views
 {
-    class DlgCreateTask : public Wt::WDialog
+    class DlgCreateAndEditTask : public Wt::WDialog
     {
     public:
-        DlgCreateTask();
+        DlgCreateAndEditTask(bool editing = false);
 
         Wt::Dbo::ptr<Projects::ProjectTaskType> type() const;
         Wt::Dbo::ptr<Projects::ProjectWorkStatus> status() const;
         Wt::Dbo::ptr<Users::User> user() const;
         Wt::WDate startDate() const;
         Wt::WDate endDate() const;
+        int priority() const;
         std::string description() const;
         bool isActive() const;
+
+        bool isEditing();
+
+        bool editedStartDate() const;
+        bool editedEndDate() const;
+        bool editedPriority() const;
+        bool editedType() const;
+        bool editedStatus() const;
+        bool editedUser() const;
+        bool editedDescription() const;
+        bool editedActive() const;
 
     private:
         //variables
@@ -46,6 +57,7 @@ namespace Views
         Wt::WVBoxLayout *_layRight;
         Wt::WDateEdit *_datStartDate;
         Wt::WDateEdit *_datEndDate;
+        Wt::WSpinBox *_spnPriority;
         Wt::WComboBox *_cmbStatus;
         Wt::WContainerWidget *_cntCmbStatus;
         Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatus>> *_mdlCmbStatus;
@@ -56,9 +68,11 @@ namespace Views
         Wt::WContainerWidget *_cntCmbType;
         Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectTaskType>> *_mdlCmbType;
         Wt::WTextArea *_txtDescription;
-        Wt::WCheckBox *_chkActive;
+        Wt::WComboBox *_cmbActive;
         Wt::WPushButton *_btnOk;
         Wt::WPushButton *_btnCancel;
+
+        bool _editing;
 
         void _prepareView();
         void _createCmbUser();

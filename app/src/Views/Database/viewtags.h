@@ -17,6 +17,8 @@ namespace Views
 
         const Ms::Widgets::MQueryTableViewWidget<Database::Tag> *qtvTags() const;
         const Ms::Widgets::MQueryTableViewWidget<Database::Tag> *qtvAssignedTags() const;
+        bool isCreateOptionHidden() const;
+        void setCreateOptionHidden(bool hidden);
 
         //Signals
         Wt::Signal<> &createTagRequested();
@@ -36,6 +38,7 @@ namespace Views
         Wt::WVBoxLayout *_layCntTags;
         Ms::Widgets::MContainerWidget *_cntAssignedTags;
         Ms::Widgets::MContainerWidget *_cntAvailableTags;
+        Wt::WPushButton *_btnCreateTag;
 
         //Signals
         Wt::Signal<> _createTagRequested;

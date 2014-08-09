@@ -6,6 +6,7 @@
 #include "../../Projects/projectsio.h"
 #include "../Files/dlgfilesmanager.h"
 #include "../../Log/logmanager.h"
+#include "dlgcreateandeditshot.h"
 
 #include <Wt/WApplication>
 
@@ -23,7 +24,7 @@ Ms::Widgets::MQueryTableViewWidget<Projects::ProjectShot> *Views::ViewShots::qtv
     return _qtvShots;
 }
 
-void Views::ViewShots::updateView(const std::vector<Wt::Dbo::ptr<Projects::ProjectSequence> > &seqVec) const
+void Views::ViewShots::updateView(const std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>> &seqVec) const
 {
     try
     {
@@ -108,6 +109,16 @@ void Views::ViewShots::setCreateOptionHidden(bool hidden) const
     _btnCreateShot->setHidden(hidden);
 }
 
+bool Views::ViewShots::isEditOptionHidden()
+{
+    return _btnEditShots->isHidden();
+}
+
+void Views::ViewShots::setEditOptionHidden(bool hidden) const
+{
+    _btnEditShots->setHidden(hidden);
+}
+
 //bool Views::ViewShots::isRemoveOptionHidden()
 //{
 //    return _btnRemoveShot->isHidden();
@@ -166,6 +177,62 @@ void Views::ViewShots::_btnCreateShotClicked()
 void Views::ViewShots::_btnRemoveShotsClicked()
 {
     _removeShotsRequested(_qtvShots->selectedItems());
+}
+
+void Views::ViewShots::_btnEditShotsClicked()
+{
+    if(_qtvShots->table()->selectedIndexes().size() == 0)
+    {
+        _logger->log("Please select at least one item.", Ms::Log::LogMessageType::Warning);
+
+        return;
+    }
+
+    Views::DlgCreateAndEditShot *dlg = new Views::DlgCreateAndEditShot(true);
+    dlg->finished().connect(std::bind([=]()
+    {
+        if(dlg->result() == Wt::WDialog::Accepted)
+        {
+            for(auto shotPtr : _qtvShots->selectedItems())
+            {
+                if(dlg->editedStartDate())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectShot>(shotPtr)->setStartDate(dlg->startDate());
+
+                if(dlg->editedEndDate())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectShot>(shotPtr)->setEndDate(dlg->endDate());
+
+                if(dlg->editedDuration())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectShot>(shotPtr)->setDurationInFrames(dlg->duration());
+
+                if(dlg->editedFps())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectShot>(shotPtr)->setFps(dlg->fps());
+
+                if(dlg->editedFrameWidth())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectShot>(shotPtr)->setFrameWidth(dlg->frameWidth());
+
+                if(dlg->editedFrameHeight())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectShot>(shotPtr)->setFrameHeight(dlg->frameHeight());
+
+                if(dlg->editedPriority())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectShot>(shotPtr)->setPriority(dlg->priority());
+
+                if(dlg->editedStatus())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectShot>(shotPtr)->setStatus(dlg->status());
+
+                if(dlg->editedDescription())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectShot>(shotPtr)->setDescription(dlg->description());
+
+                if(dlg->editedActive())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectShot>(shotPtr)->setActive(dlg->isActive());
+            }
+
+            _qtvShots->updateView();
+        }
+
+        delete dlg;
+    }));
+
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewShots::_btnImportThumbnailsClicked()
@@ -301,6 +368,13 @@ void Views::ViewShots::_createShotsTableView()
     {
         _btnImportThumbnails = _qtvShots->createToolButton("", "icons/Thumbnail.png", "Import Thumbnails");
         _btnImportThumbnails->clicked().connect(this, &Views::ViewShots::_btnImportThumbnailsClicked);
+    }
+
+    //requires "view" privilege
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
+    {
+        _btnEditShots = _qtvShots->createToolButton("", "icons/Edit.png", "Edit Selected Shots");
+        _btnEditShots->clicked().connect(this, &Views::ViewShots::_btnEditShotsClicked);
     }
 
     //requires "CheckIn or CheckOut" privilege

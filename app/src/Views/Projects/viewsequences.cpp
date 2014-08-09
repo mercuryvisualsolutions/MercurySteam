@@ -5,6 +5,7 @@
 #include "../../Projects/projectsio.h"
 #include "../Files/dlgfilesmanager.h"
 #include "../../Log/logmanager.h"
+#include "dlgcreateandeditsequence.h"
 
 #include <Wt/WApplication>
 
@@ -101,6 +102,16 @@ void Views::ViewSequences::setCreateOptionHidden(bool hidden) const
     _btnCreateSequence->setHidden(hidden);
 }
 
+bool Views::ViewSequences::isEditOptionHidden()
+{
+    return _btnEditSequences->isHidden();
+}
+
+void Views::ViewSequences::setEditOptionHidden(bool hidden) const
+{
+    _btnEditSequences->setHidden(hidden);
+}
+
 //bool Views::ViewSequences::isRemoveOptionHidden()
 //{
 //    return _btnRemoveSequences->isHidden();
@@ -141,6 +152,11 @@ Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>>> &Views::ViewSeq
     return _removeSequencesRequested;
 }
 
+Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>>> &Views::ViewSequences::editSequencesRequested()
+{
+    return _editSequencesRequested;
+}
+
 Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>>> &Views::ViewSequences::openfilesViewRequested()
 {
     return _openfilesViewRequested;
@@ -159,6 +175,62 @@ void Views::ViewSequences::_btnCreateSequenceClicked()
 void Views::ViewSequences::_btnRemoveSequencesClicked()
 {
     _removeSequencesRequested(_qtvSequences->selectedItems());
+}
+
+void Views::ViewSequences::_btnEditSequencesClicked()
+{
+    if(_qtvSequences->table()->selectedIndexes().size() == 0)
+    {
+        _logger->log("Please select at least one item.", Ms::Log::LogMessageType::Warning);
+
+        return;
+    }
+
+    Views::DlgCreateAndEditSequence *dlg = new Views::DlgCreateAndEditSequence(true);
+    dlg->finished().connect(std::bind([=]()
+    {
+        if(dlg->result() == Wt::WDialog::Accepted)
+        {
+            for(auto seqPtr : _qtvSequences->selectedItems())
+            {
+                if(dlg->editedStartDate())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectSequence>(seqPtr)->setStartDate(dlg->startDate());
+
+                if(dlg->editedEndDate())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectSequence>(seqPtr)->setEndDate(dlg->endDate());
+
+                if(dlg->editedDuration())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectSequence>(seqPtr)->setDurationInFrames(dlg->duration());
+
+                if(dlg->editedFps())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectSequence>(seqPtr)->setFps(dlg->fps());
+
+                if(dlg->editedFrameWidth())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectSequence>(seqPtr)->setFrameWidth(dlg->frameWidth());
+
+                if(dlg->editedFrameHeight())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectSequence>(seqPtr)->setFrameHeight(dlg->frameHeight());
+
+                if(dlg->editedPriority())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectSequence>(seqPtr)->setPriority(dlg->priority());
+
+                if(dlg->editedStatus())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectSequence>(seqPtr)->setStatus(dlg->status());
+
+                if(dlg->editedDescription())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectSequence>(seqPtr)->setDescription(dlg->description());
+
+                if(dlg->editedActive())
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectSequence>(seqPtr)->setActive(dlg->isActive());
+            }
+
+            _qtvSequences->updateView();
+        }
+
+        delete dlg;
+    }));
+
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewSequences::_btnImportThumbnailsClicked()
@@ -285,6 +357,13 @@ void Views::ViewSequences::_createSequencesTableView()
     {
         //_btnRemoveSequences = _qtvSequences->createToolButton("", "icons/Remove.png", "Remove Selected Sequences");
         //_btnRemoveSequences->clicked().connect(this, &Views::ViewSequences::_btnRemoveSequencesClicked);
+    }
+
+    //requires "view" privilege
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
+    {
+        _btnEditSequences = _qtvSequences->createToolButton("", "icons/Edit.png", "Edit Selected Sequences");
+        _btnEditSequences->clicked().connect(this, &Views::ViewSequences::_btnEditSequencesClicked);
     }
 
     //requires "view" privilege

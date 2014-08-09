@@ -65,8 +65,6 @@ namespace Views
         template<typename T>
         void _addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec);
         template<typename T>
-        void _addTagToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec);
-        template<typename T>
         void _assignTagToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
         template<typename T>
         void _unAssignTagFromDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
