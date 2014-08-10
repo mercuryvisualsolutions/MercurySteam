@@ -290,15 +290,15 @@ void Views::DlgCreateAndEditSequence::_prepareView()
     else
         _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Frame Height:", _spnHeight));
 
-    _layLeft->addWidget(new Wt::WBreak());
+    _layLeft->addWidget(new Wt::WBreak(), 1);
 
     _spnPriority = Ms::Widgets::MWidgetFactory::createSpinBox(0, INT_MAX, 0);
     if(_editing)
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Priority:", _spnPriority));
+        _layRight->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Priority:", _spnPriority));
     else
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Priority:", _spnPriority));
+        _layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Priority:", _spnPriority));
 
-    _layLeft->addWidget(new Wt::WBreak(), 1);
+    _layRight->addWidget(new Wt::WBreak());
 
     _createCmbStatus();
     if(_editing)

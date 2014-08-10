@@ -204,14 +204,6 @@ void Views::DlgCreateAndEditAsset::_prepareView()
 
     _layLeft->addWidget(new Wt::WBreak());
 
-    _spnPriority = Ms::Widgets::MWidgetFactory::createSpinBox(0, INT_MAX, 0);
-    if(_editing)
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Priority:", _spnPriority));
-    else
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Priority:", _spnPriority));
-
-    _layLeft->addWidget(new Wt::WBreak());
-
     _createCmbType();
     if(_editing)
         _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Type:", _cntCmbType));
@@ -225,6 +217,14 @@ void Views::DlgCreateAndEditAsset::_prepareView()
         _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Status:", _cntCmbStatus));
     else
         _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Status:", _cntCmbStatus));
+
+    _layLeft->addWidget(new Wt::WBreak());
+
+    _spnPriority = Ms::Widgets::MWidgetFactory::createSpinBox(0, INT_MAX, 0);
+    if(_editing)
+        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Priority:", _spnPriority));
+    else
+        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Priority:", _spnPriority));
 
     _layLeft->addWidget(new Wt::WBreak(), 1);
 
