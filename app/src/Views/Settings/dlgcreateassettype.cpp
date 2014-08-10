@@ -15,7 +15,7 @@ std::string Views::DlgCreateAssetType::type() const
 
 bool Views::DlgCreateAssetType::isActive() const
 {
-    return _chkActive->isChecked();
+    return _cmbActive->currentText() == "Yes" ? true : false;
 }
 
 void Views::DlgCreateAssetType::_prepareView()
@@ -34,10 +34,11 @@ void Views::DlgCreateAssetType::_prepareView()
 
     _layMain->addWidget(new Wt::WBreak());
 
-    _chkActive = new Wt::WCheckBox("Active");
-    _chkActive->setChecked(true);
-
-    _layMain->addWidget(_chkActive);
+    _cmbActive = new Wt::WComboBox();
+    _cmbActive->addItem("Yes");
+    _cmbActive->addItem("No");
+    _cmbActive->setCurrentIndex(0);
+    _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", _cmbActive), 1);
 
     _btnOk = new Wt::WPushButton("Ok", this->footer());
     _btnOk->setDefault(true);

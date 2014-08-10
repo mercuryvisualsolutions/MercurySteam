@@ -51,7 +51,7 @@ Wt::Dbo::ptr<Users::UserTitle> Views::DlgCreateUser::title() const
 
 bool Views::DlgCreateUser::isActive() const
 {
-    return _chkActive->isChecked();
+    return _cmbActive->currentText() == "Yes" ? true : false;
 }
 
 void Views::DlgCreateUser::_prepareView()
@@ -122,12 +122,15 @@ void Views::DlgCreateUser::_prepareView()
     _createCmbTitles();
     _layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Title:", _cntCmbTitles));
 
+    _layRight->addWidget(new Wt::WBreak());
+
+    _cmbActive = new Wt::WComboBox();
+    _cmbActive->addItem("Yes");
+    _cmbActive->addItem("No");
+    _cmbActive->setCurrentIndex(0);
+    _layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", _cmbActive));
+
     _layRight->addWidget(new Wt::WBreak(), 1);
-
-    _chkActive = new Wt::WCheckBox("Active");
-    _chkActive->setChecked(true);
-
-    _layRight->addWidget(_chkActive);
 
     _btnOk = new Wt::WPushButton("Ok", this->footer());
     _btnOk->setDefault(true);

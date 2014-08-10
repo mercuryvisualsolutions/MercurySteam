@@ -19,7 +19,7 @@ std::string Views::Dialogs::DlgCreateTag::tagContent() const
 
 bool Views::Dialogs::DlgCreateTag::isActive() const
 {
-    return _chkActive->isChecked();
+    return _cmbActive->currentText() == "Yes" ? true : false;
 }
 
 void Views::Dialogs::DlgCreateTag::_prepareView()
@@ -38,15 +38,16 @@ void Views::Dialogs::DlgCreateTag::_prepareView()
 
     _layMain->addWidget(new Wt::WBreak());
 
-    _txtTagContent = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[A-Za-z0-9 _-]{1,255}", true);
+    _txtTagContent = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[A-Za-z0-9 _-]{1,255}", false);
     _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Content:", _txtTagContent));
 
     _layMain->addWidget(new Wt::WBreak());
 
-    _chkActive = new Wt::WCheckBox("Active");
-    _chkActive->setChecked(true);
-
-    _layMain->addWidget(_chkActive);
+    _cmbActive = new Wt::WComboBox();
+    _cmbActive->addItem("Yes");
+    _cmbActive->addItem("No");
+    _cmbActive->setCurrentIndex(0);
+    _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", _cmbActive), 1);
 
     _btnOk = new Wt::WPushButton("Ok", this->footer());
     _btnOk->setDefault(true);
@@ -58,8 +59,8 @@ void Views::Dialogs::DlgCreateTag::_prepareView()
 
 bool Views::Dialogs::DlgCreateTag::_validate()
 {
-    if(_txtTagName->validate() != Wt::WValidator::Valid &&
-            _txtTagContent->validate() != Wt::WValidator::Valid)
+    if((_txtTagName->validate() != Wt::WValidator::Valid) ||
+            (_txtTagContent->validate() != Wt::WValidator::Valid))
         return false;
 
     return true;

@@ -22,7 +22,7 @@ Wt::Dbo::ptr<Projects::ProjectWorkStatusType> Views::DlgCreateWorkStatus::belong
 
 bool Views::DlgCreateWorkStatus::isActive() const
 {
-    return _chkActive->isChecked();
+    return _cmbActive->currentText() == "Yes" ? true : false;
 }
 
 void Views::DlgCreateWorkStatus::_prepareView()
@@ -44,11 +44,11 @@ void Views::DlgCreateWorkStatus::_prepareView()
     _createCmbType();
     _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Belongs To:", _cntCmbType));
 
-    _chkActive = new Wt::WCheckBox("Active");
-    _chkActive->setChecked(true);
-    _layMain->addWidget(_chkActive);
-
-    _layMain->addWidget(new Wt::WBreak());
+    _cmbActive = new Wt::WComboBox();
+    _cmbActive->addItem("Yes");
+    _cmbActive->addItem("No");
+    _cmbActive->setCurrentIndex(0);
+    _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", _cmbActive), 1);
 
     _btnOk = new Wt::WPushButton("Ok", this->footer());
     _btnOk->setDefault(true);

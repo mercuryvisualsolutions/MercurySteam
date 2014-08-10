@@ -38,7 +38,7 @@ namespace Views
         Wt::WComboBox *_cmbType;
         Wt::WContainerWidget *_cntCmbType;
         Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatusType>> *_mdlCmbType;
-        Wt::WCheckBox *_chkActive;
+        Wt::WComboBox *_cmbActive;
         Wt::WPushButton *_btnOk;
         Wt::WPushButton *_btnCancel;
 

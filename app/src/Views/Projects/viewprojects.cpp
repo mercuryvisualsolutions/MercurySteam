@@ -1170,60 +1170,15 @@ void Views::ViewProjects::_mnuNavBarPropertiesTasksItemTriggered()
 void Views::ViewProjects::_addDataRequested()
 {
     if(_stkMain->currentWidget() == _cntProjects)
-    {
-        if(_qtvProjects->table()->selectedIndexes().size() != 1)
-        {
-            _logger->log("Please select only one project.", Ms::Log::LogMessageType::Warning);
-
-            return;
-        }
-        else
-            _addDataToDbo<Projects::Project>(_qtvProjects->selectedItems());
-    }
+        _addDataToDbo<Projects::Project>(_qtvProjects->selectedItems());
     else if(_stkMain->currentWidget() == _cntSequences)
-    {
-        if(_viewSequences->qtvSequences()->table()->selectedIndexes().size() != 1)
-        {
-            _logger->log("Please select only one sequence.", Ms::Log::LogMessageType::Warning);
-
-            return;
-        }
-        else
-            _addDataToDbo<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems());
-    }
+        _addDataToDbo<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems());
     else if(_stkMain->currentWidget() == _cntShots)
-    {
-        if(_viewShots->qtvShots()->table()->selectedIndexes().size() != 1)
-        {
-            _logger->log("Please select only one shot.", Ms::Log::LogMessageType::Warning);
-
-            return;
-        }
-        else
-            _addDataToDbo<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems());
-    }
+        _addDataToDbo<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems());
     else if(_stkMain->currentWidget() == _cntAssets)
-    {
-        if(_viewAssets->qtvAssets()->table()->selectedIndexes().size() != 1)
-        {
-            _logger->log("Please select only one asset.", Ms::Log::LogMessageType::Warning);
-
-            return;
-        }
-        else
-            _addDataToDbo<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems());
-    }
+        _addDataToDbo<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems());
     else if(_stkMain->currentWidget() == _cntTasks)
-    {
-        if(_viewTasks->qtvTasks()->table()->selectedIndexes().size() != 1)
-        {
-            _logger->log("Please select only one task.", Ms::Log::LogMessageType::Warning);
-
-            return;
-        }
-        else
-            _addDataToDbo<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems());
-    }
+        _addDataToDbo<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems());
 }
 
 void Views::ViewProjects::_removeDataRequested(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec)
@@ -1258,7 +1213,9 @@ void Views::ViewProjects::_createProjectTagRequested()
         if(dlg->result() == Wt::WDialog::Accepted)
         {
             Database::Tag *tag = new Database::Tag(dlg->tagName(), dlg->tagContent());
-            if(!customProjectTag)
+            if(customProjectTag)
+                tag->setType("Local");
+            else
                 tag->setType("Project");
 
             tag->setActive(dlg->isActive());
@@ -1428,60 +1385,15 @@ void Views::ViewProjects::_clearTagsFilterRequested()
 void Views::ViewProjects::_addNoteRequested()
 {
     if(_stkMain->currentWidget() == _cntProjects)
-    {
-        if(_qtvProjects->table()->selectedIndexes().size() != 1)
-        {
-            _logger->log("Please select only one project.", Ms::Log::LogMessageType::Warning);
-
-            return;
-        }
-        else
-            _addNoteToDbo<Projects::Project>(_qtvProjects->selectedItems());
-    }
+        _addNoteToDbo<Projects::Project>(_qtvProjects->selectedItems());
     else if(_stkMain->currentWidget() == _cntSequences)
-    {
-        if(_viewSequences->qtvSequences()->table()->selectedIndexes().size() != 1)
-        {
-            _logger->log("Please select only one sequence.", Ms::Log::LogMessageType::Warning);
-
-            return;
-        }
-        else
-            _addNoteToDbo<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems());
-    }
+         _addNoteToDbo<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems());
     else if(_stkMain->currentWidget() == _cntShots)
-    {
-        if(_viewShots->qtvShots()->table()->selectedIndexes().size() != 1)
-        {
-            _logger->log("Please select only one shot.", Ms::Log::LogMessageType::Warning);
-
-            return;
-        }
-        else
-            _addNoteToDbo<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems());
-    }
+        _addNoteToDbo<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems());
     else if(_stkMain->currentWidget() == _cntAssets)
-    {
-        if(_viewAssets->qtvAssets()->table()->selectedIndexes().size() != 1)
-        {
-            _logger->log("Please select only one asset.", Ms::Log::LogMessageType::Warning);
-
-            return;
-        }
-        else
-            _addNoteToDbo<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems());
-    }
+        _addNoteToDbo<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems());
     else if(_stkMain->currentWidget() == _cntTasks)
-    {
-        if(_viewTasks->qtvTasks()->table()->selectedIndexes().size() != 1)
-        {
-            _logger->log("Please select only one task.", Ms::Log::LogMessageType::Warning);
-
-            return;
-        }
-        else
-            _addNoteToDbo<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems());
-    }
+        _addNoteToDbo<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems());
 }
 
 void Views::ViewProjects::_removeNotesRequested(const std::vector<Wt::Dbo::ptr<Database::Note>> &noteVec)

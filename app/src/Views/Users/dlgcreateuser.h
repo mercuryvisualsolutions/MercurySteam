@@ -55,7 +55,7 @@ namespace Views
         Wt::WComboBox *_cmbTitles;
         Wt::WContainerWidget *_cntCmbTitles;
         Wt::Dbo::QueryModel<Wt::Dbo::ptr<Users::UserTitle>> *_mdlCmbTitles;
-        Wt::WCheckBox *_chkActive;
+        Wt::WComboBox *_cmbActive;
         Wt::WPushButton *_btnOk;
         Wt::WPushButton *_btnCancel;
 
