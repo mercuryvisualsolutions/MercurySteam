@@ -127,12 +127,7 @@ void Views::ViewProjects::updateShotsView()
 
 void Views::ViewProjects::updateAssetsView()
 {
-    std::vector<Wt::Dbo::ptr<Projects::Project>> prjVec;
-
-    if(_qtvProjects->table()->selectedIndexes().size() > 0)
-        prjVec = _qtvProjects->selectedItems();
-
-    _viewAssets->updateView(prjVec);
+    _viewAssets->updateView(_qtvProjects->selectedItems());
 }
 
 void Views::ViewProjects::updateTasksView()
@@ -2018,8 +2013,7 @@ void Views::ViewProjects::_updatePropertiesSequencesView()
 
 void Views::ViewProjects::_updatePropertiesShotsView()
 {
-    _viewPropertiesShots->updateView(_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0 ?
-                               _viewSequences->qtvSequences()->selectedItems() : _viewSequences->qtvSequences()->items());
+    _viewPropertiesShots->updateView(_viewSequences->qtvSequences()->selectedItems());
 }
 
 void Views::ViewProjects::_updatePropertiesAssetsView()
