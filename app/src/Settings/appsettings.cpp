@@ -1,8 +1,5 @@
 #include "appsettings.h"
 
-#include <QDir>
-#include <QSettings>
-
 AppSettings::AppSettings() :
     Ms::Core::MSettingsBase()
 {

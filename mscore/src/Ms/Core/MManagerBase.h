@@ -12,7 +12,7 @@ namespace Ms
 {
     namespace Core
     {
-        class MSCORESHARED_EXPORT MManagerBase
+        class SHARED_LIB_EXPORT MManagerBase
         {
 
         public:

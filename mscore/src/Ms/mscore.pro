@@ -4,13 +4,11 @@
 #
 #-------------------------------------------------
 
-QT       -= gui
+QT       -= core gui
 
 TARGET = mscore
 TEMPLATE = lib
 QMAKE_CXXFLAGS += -std=c++11
-
-DEFINES += MSCORE_LIBRARY
 
 LIBS += -lwthttp -lwt -lwtdbo -lwtdbomysql -lboost_signals -lboost_filesystem -lboost_system -lboost_regex -lboost_date_time
 

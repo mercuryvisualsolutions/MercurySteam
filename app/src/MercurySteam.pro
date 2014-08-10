@@ -2,8 +2,7 @@ TEMPLATE = app
 CONFIG += console
 CONFIG -= app_bundle
 
-QT += core
-QT -= gui
+QT -= core gui
 
 QMAKE_CXXFLAGS += -std=c++11 -Wno-unused-parameter
 
