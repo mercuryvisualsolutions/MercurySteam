@@ -12,8 +12,16 @@
 #include <Wt/WImage>
 #include <Wt/WPainter>
 #include <Wt/WMediaPlayer>
+#include <Wt/WScrollArea>
 
 #include <stack>
+
+#define png_infopp_NULL (png_infopp)NULL
+#define int_p_NULL (int*)NULL
+
+#include <boost/gil/gil_all.hpp>
+#include <boost/gil/extension/io/jpeg_io.hpp>
+#include <boost/gil/extension/io/png_io.hpp>
 
 #include <Ms/IO/IO.h>
 #include <Ms/Widgets/Dialogs/MFilesUploadDialog.h>
@@ -149,20 +157,34 @@ void Views::DlgFilesManager::_btnViewClicked()
         Ms::IO::MFileInfo file(fileUrl);
 
         Wt::WDialog *dlg = new Wt::WDialog("View");
+        Wt::WVBoxLayout *layDlg = new Wt::WVBoxLayout();
+        layDlg->setContentsMargins(0,0,0,0);
+        dlg->contents()->setLayout(layDlg);
+        dlg->contents()->setOverflow(Wt::WContainerWidget::OverflowVisible);
         dlg->contents()->setContentAlignment(Wt::AlignCenter);
-        dlg->setResizable(true);
         dlg->rejectWhenEscapePressed(true);
         dlg->finished().connect(std::bind([=]()
         {
             delete dlg;
         }));
 
-        if(file.extension() == "jpg" || file.extension() == "png" || file.extension() == "gif")//image
+        if(file.extension() == "jpg" || file.extension() == "png")//image
         {
-            Wt::WImage *img = new Wt::WImage(std::string(fileUrl));
-            img->setInline(false);
+            boost::gil::point2<std::ptrdiff_t> dim;
 
-            dlg->contents()->addWidget(img);
+            if(file.extension() == "jpg")
+                dim = boost::gil::jpeg_read_dimensions(AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + file.fullName());
+            if(file.extension() == "png")
+                dim = boost::gil::png_read_dimensions(AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + file.fullName());
+
+            Wt::WImage *img = new Wt::WImage(std::string(fileUrl));
+            img->setWidth(dim.x < 1280 ? dim.x : 1280);
+            img->setHeight(dim.y < 720 ? dim.y : 720);
+
+            dlg->contents()->setWidth(dim.x < 1280 ? dim.x : 1280);
+            dlg->contents()->setHeight(dim.y < 750 ? dim.y + 30 : 750);
+
+            layDlg->addWidget(img, 1);
         }
         else if(file.extension() == "mp3" || file.extension() == "wav")//audio
         {
@@ -174,7 +196,7 @@ void Views::DlgFilesManager::_btnViewClicked()
             else
                 player->addSource(Wt::WMediaPlayer::WAV, Wt::WLink(fileUrl));
 
-            dlg->contents()->addWidget(player);
+            layDlg->addWidget(player);
         }
         else if(file.extension() == "mp4" || file.extension() == "flv")//video
         {
@@ -186,7 +208,7 @@ void Views::DlgFilesManager::_btnViewClicked()
             else
                 player->addSource(Wt::WMediaPlayer::FLV, Wt::WLink(fileUrl));
 
-            dlg->contents()->addWidget(player);
+            layDlg->addWidget(player);
         }
 
         dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Fade, Wt::WAnimation::TimingFunction::EaseInOut));
@@ -467,7 +489,7 @@ void Views::DlgFilesManager::_prepareView()
     this->setCaption("Files Manager");
     this->rejectWhenEscapePressed();
     this->setResizable(true);
-    this->setMinimumSize(800, 600);
+    this->setMinimumSize(1024, 768);
 
     _layMain = new Wt::WVBoxLayout();
     _layMain->setContentsMargins(0,0,0,0);
