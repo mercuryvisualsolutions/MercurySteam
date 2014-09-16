@@ -78,7 +78,11 @@ SOURCES += main.cpp \
     Views/Projects/dlgcreateandeditshot.cpp \
     Views/Projects/dlgcreateandeditasset.cpp \
     Views/Projects/dlgcreateandeditproject.cpp \
-    Views/Projects/dlgcreateandedittask.cpp
+    Views/Projects/dlgcreateandedittask.cpp \
+    Projects/projecttaskpipeline.cpp \
+    Projects/projecttaskpipelineactivity.cpp \
+    Projects/projectprogressshare.cpp \
+    Projects/projectdbo.cpp
 
 HEADERS += \
     Views/Projects/viewprojects.h \

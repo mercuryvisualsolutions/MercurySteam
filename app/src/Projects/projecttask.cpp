@@ -2,56 +2,31 @@
 #include "../Database/databasemanager.h"
 
 Projects::ProjectTask::ProjectTask() :
-    Database::Dbo()
+    ProjectDbo()
 {
     _init();
 }
 
 Projects::ProjectTask *Projects::ProjectTask::modify()
 {
-    Database::Dbo::modify();
+    ProjectDbo::modify();
 
     return this;
 }
 
-Wt::WDate Projects::ProjectTask::startDate() const
+int Projects::ProjectTask::progress() const
 {
-    return _startDate;
+
 }
 
-void Projects::ProjectTask::setStartDate(const Wt::WDate &startDate)
+const Wt::Dbo::ptr<Projects::ProjectProgressShare> Projects::ProjectTask::progressShare() const
 {
-    _startDate = startDate;
+    return _progressShare;
 }
 
-Wt::WDate Projects::ProjectTask::endDate() const
+void Projects::ProjectTask::setProgressShare(Wt::Dbo::ptr<Projects::ProjectProgressShare> progressShare)
 {
-    return _endDate;
-}
-
-void Projects::ProjectTask::setEndDate(const Wt::WDate &endDate)
-{
-    _endDate = endDate;
-}
-
-std::string Projects::ProjectTask::description() const
-{
-    return _description;
-}
-
-void Projects::ProjectTask::setDescription(const std::string &description)
-{
-    _description = description;
-}
-
-Wt::Dbo::ptr<Projects::ProjectWorkStatus> Projects::ProjectTask::status() const
-{
-    return _status;
-}
-
-void Projects::ProjectTask::setStatus(Wt::Dbo::ptr<Projects::ProjectWorkStatus> status)
-{
-    _status = status;
+    _progressShare = progressShare;
 }
 
 Wt::Dbo::ptr<Projects::ProjectTaskType> Projects::ProjectTask::type() const
@@ -104,7 +79,7 @@ void Projects::ProjectTask::setShot(Wt::Dbo::ptr<Projects::ProjectShot> shot)
     _shot = shot;
 }
 
-Wt::Dbo::ptr<Projects::ProjectAsset> Projects::ProjectTask::asset() const
+const Wt::Dbo::ptr<Projects::ProjectAsset> Projects::ProjectTask::asset() const
 {
     return _asset;
 }
@@ -114,14 +89,14 @@ void Projects::ProjectTask::setAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset)
     _asset = asset;
 }
 
-int Projects::ProjectTask::priority() const
+const Wt::Dbo::ptr<Projects::ProjectTaskPipeline> Projects::ProjectTask::pipeline() const
 {
-    return _priority;
+    return _pipeline;
 }
 
-void Projects::ProjectTask::setPriority(int priority)
+void Projects::ProjectTask::setPipeline(Wt::Dbo::ptr<Projects::ProjectTaskPipeline> pipeline)
 {
-    _priority = priority;
+    _pipeline = pipeline;
 }
 
 bool Projects::ProjectTask::isAcceptedByUser()
@@ -139,9 +114,5 @@ void Projects::ProjectTask::_init()
     dboManager_ = &Database::DatabaseManager::instance();
 
     thumbnail_ = "pics/NoPreviewBig.png";
-    _startDate = Wt::WDate::currentDate();
-    _endDate = Wt::WDate::currentDate();
-    _description = "";
-    _priority = 0;
     _acceptedByUser = false;
 }

@@ -16,10 +16,41 @@ void Projects::ProjectsManager::initSessionLogger()
 
 void Projects::ProjectsManager::addDefaults()
 {
+    _addDefaultProjectProgressSHare();
     _addDefaultProjectWorkStatusTypes();
     _addDefaultProjectWorkStatus();
     _addDefaultProjectAssetTypes();
     _addDefaultProjectTaskTypes();
+}
+
+void Projects::ProjectsManager::_addDefaultProjectProgressSHare()
+{
+    std::vector<Projects::ProjectProgressShare*> vec;
+
+    vec.push_back(new Projects::ProjectProgressShare("Very Low", 1));
+    vec.push_back(new Projects::ProjectProgressShare("Low", 2));
+    vec.push_back(new Projects::ProjectProgressShare("Medium", 3));
+    vec.push_back(new Projects::ProjectProgressShare("High", 4));
+    vec.push_back(new Projects::ProjectProgressShare("Very High", 5));
+
+    try
+    {
+        for(std::vector<Projects::ProjectProgressShare*>::size_type i = 0; i < vec.size(); ++i)
+        {
+            if(!Database::DatabaseManager::instance().createDbo<Projects::ProjectProgressShare>(vec.at(i)))
+            {
+                delete vec.at(i);
+            }
+        }
+    }
+    catch(Wt::Dbo::Exception ex)
+    {
+        Log::LogManager::instance().getGlobalLogger()->log(std::string("Error occured while trying to add default project progress share ") + ex.what() , Ms::Log::LogMessageType::Error);
+    }
+    catch(...)
+    {
+        Log::LogManager::instance().getGlobalLogger()->log("Error occured while trying to add default project progress share", Ms::Log::LogMessageType::Error);
+    }
 }
 
 void Projects::ProjectsManager::_addDefaultProjectWorkStatusTypes()

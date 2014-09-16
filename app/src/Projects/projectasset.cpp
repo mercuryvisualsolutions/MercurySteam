@@ -2,7 +2,7 @@
 #include "Database/databasemanager.h"
 
 Projects::ProjectAsset::ProjectAsset() :
-    Database::Dbo()
+    ProjectDbo()
 {
     _init();
 }
@@ -15,7 +15,7 @@ Projects::ProjectAsset::ProjectAsset(const std::string &assetName) :
 
 Projects::ProjectAsset *Projects::ProjectAsset::modify()
 {
-    Database::Dbo::modify();
+    ProjectDbo::modify();
 
     return this;
 }
@@ -91,33 +91,19 @@ bool Projects::ProjectAsset::removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task
     return false;
 }
 
-Wt::WDate Projects::ProjectAsset::startDate() const
+int Projects::ProjectAsset::progress() const
 {
-    return _startDate;
+
 }
 
-void Projects::ProjectAsset::setStartDate(const Wt::WDate &startDate)
+const Wt::Dbo::ptr<Projects::ProjectProgressShare> Projects::ProjectAsset::progressShare() const
 {
-    _startDate = startDate;
+    return _progressShare;
 }
 
-Wt::WDate Projects::ProjectAsset::endDate() const
+void Projects::ProjectAsset::setProgressShare(Wt::Dbo::ptr<Projects::ProjectProgressShare> progressShare)
 {
-    return _startDate;
-}
-
-void Projects::ProjectAsset::setEndDate(const Wt::WDate &endDate)
-{
-    _endDate = endDate;
-}
-
-std::string Projects::ProjectAsset::description() const
-{
-    return _description;
-}
-void Projects::ProjectAsset::setDescription(const std::string &description)
-{
-    _description = description;
+    _progressShare = progressShare;
 }
 
 Wt::Dbo::ptr<Projects::ProjectAssetType> Projects::ProjectAsset::type() const
@@ -128,26 +114,6 @@ Wt::Dbo::ptr<Projects::ProjectAssetType> Projects::ProjectAsset::type() const
 void Projects::ProjectAsset::setType(const Wt::Dbo::ptr<Projects::ProjectAssetType> type)
 {
     _type = type;
-}
-
-Wt::Dbo::ptr<Projects::ProjectWorkStatus> Projects::ProjectAsset::status() const
-{
-    return _status;
-}
-
-void Projects::ProjectAsset::setStatus(const Wt::Dbo::ptr<Projects::ProjectWorkStatus> status)
-{
-    _status = status;
-}
-
-int Projects::ProjectAsset::priority() const
-{
-    return _priority;
-}
-
-void Projects::ProjectAsset::setPriority(int priority)
-{
-    _priority = priority;
 }
 
 bool Projects::ProjectAsset::operator ==(const Projects::ProjectAsset &other) const
@@ -166,8 +132,4 @@ void Projects::ProjectAsset::_init()
 
     thumbnail_ = "pics/NoPreviewBig.png";
     _id.name = "New Project Asset";
-    _startDate = Wt::WDate::currentDate();
-    _endDate = Wt::WDate::currentDate();
-    _description = "";
-    _priority = 0;
 }

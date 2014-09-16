@@ -2,7 +2,7 @@
 #include "Database/databasemanager.h"
 
 Projects::ProjectShot::ProjectShot() :
-    Database::Dbo()
+    ProjectDbo()
 {
     _init();
 }
@@ -15,7 +15,7 @@ Projects::ProjectShot::ProjectShot(const std::string &shotName) :
 
 Projects::ProjectShot *Projects::ProjectShot::modify()
 {
-    Database::Dbo::modify();
+    ProjectDbo::modify();
 
     return this;
 }
@@ -104,26 +104,6 @@ bool Projects::ProjectShot::removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
     return false;
 }
 
-Wt::WDate Projects::ProjectShot::startDate() const
-{
-    return _startDate;
-}
-
-void Projects::ProjectShot::setStartDate(const Wt::WDate &startDate)
-{
-    _startDate = startDate;
-}
-
-Wt::WDate Projects::ProjectShot::endDate() const
-{
-    return _endDate;
-}
-
-void Projects::ProjectShot::setEndDate(const Wt::WDate &endDate)
-{
-    _endDate = endDate;
-}
-
 int Projects::ProjectShot::durationInFrames() const
 {
     return _durationInFrames;
@@ -164,34 +144,19 @@ void Projects::ProjectShot::setFrameHeight(int frameHeight)
     _frameHeight = frameHeight;
 }
 
-std::string Projects::ProjectShot::description() const
+int Projects::ProjectShot::progress() const
 {
-    return _description;
+
 }
 
-void Projects::ProjectShot::setDescription(const std::string &description)
+const Wt::Dbo::ptr<Projects::ProjectProgressShare> Projects::ProjectShot::progressShare() const
 {
-    _description = description;
+    return _progressShare;
 }
 
-Wt::Dbo::ptr<Projects::ProjectWorkStatus> Projects::ProjectShot::status() const
+void Projects::ProjectShot::setProgressShare(Wt::Dbo::ptr<Projects::ProjectProgressShare> progressShare)
 {
-    return _status;
-}
-
-void Projects::ProjectShot::setStatus(const Wt::Dbo::ptr<Projects::ProjectWorkStatus> status)
-{
-    _status = status;
-}
-
-int Projects::ProjectShot::priority() const
-{
-    return _priority;
-}
-
-void Projects::ProjectShot::setPriority(int priority)
-{
-    _priority = priority;
+    _progressShare = progressShare;
 }
 
 bool Projects::ProjectShot::operator ==(const Projects::ProjectShot &other) const
@@ -210,12 +175,8 @@ void Projects::ProjectShot::_init()
 
     thumbnail_ = "pics/NoPreviewBig.png";
     _id.name = "New Project Shot";
-    _startDate = Wt::WDate::currentDate();
-    _endDate = Wt::WDate::currentDate();
     _durationInFrames = 0;
     _fps = 24.0f;
     _frameWidth = 1920;
     _frameHeight = 1080;
-    _description = "";
-    _priority = 0;
 }

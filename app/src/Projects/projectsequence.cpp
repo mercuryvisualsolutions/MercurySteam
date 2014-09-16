@@ -3,7 +3,7 @@
 #include "Database/databasemanager.h"
 
 Projects::ProjectSequence::ProjectSequence() :
-    Database::Dbo()
+    ProjectDbo()
 {
     _init();
 }
@@ -16,7 +16,7 @@ Projects::ProjectSequence::ProjectSequence(const std::string &sequenceName) :
 
 Projects::ProjectSequence *Projects::ProjectSequence::modify()
 {
-    Database::Dbo::modify();
+    ProjectDbo::modify();
 
     return this;
 }
@@ -92,26 +92,6 @@ bool Projects::ProjectSequence::removeShot(Wt::Dbo::ptr<Projects::ProjectShot> s
     return false;
 }
 
-Wt::WDate Projects::ProjectSequence::startDate() const
-{
-    return _startDate;
-}
-
-void Projects::ProjectSequence::setStartDate(const Wt::WDate &startDate)
-{
-    _startDate = startDate;
-}
-
-Wt::WDate Projects::ProjectSequence::endDate() const
-{
-    return _endDate;
-}
-
-void Projects::ProjectSequence::setEndDate(const Wt::WDate &endDate)
-{
-    _endDate = endDate;
-}
-
 int Projects::ProjectSequence::durationInFrames() const
 {
     return _durationInFrames;
@@ -152,33 +132,19 @@ void Projects::ProjectSequence::setFrameHeight(int frameHeight)
     _frameHeight = frameHeight;
 }
 
-std::string Projects::ProjectSequence::description() const
+int Projects::ProjectSequence::progress() const
 {
-    return _description;
-}
-void Projects::ProjectSequence::setDescription(const std::string &description)
-{
-    _description = description;
+
 }
 
-Wt::Dbo::ptr<Projects::ProjectWorkStatus> Projects::ProjectSequence::status() const
+const Wt::Dbo::ptr<Projects::ProjectProgressShare> Projects::ProjectSequence::progressShare() const
 {
-    return _status;
+    return _progressShare;
 }
 
-void Projects::ProjectSequence::setStatus(const Wt::Dbo::ptr<Projects::ProjectWorkStatus> status)
+void Projects::ProjectSequence::setProgressShare(Wt::Dbo::ptr<Projects::ProjectProgressShare> progressShare)
 {
-    _status = status;
-}
-
-int Projects::ProjectSequence::priority() const
-{
-    return _priority;
-}
-
-void Projects::ProjectSequence::setPriority(int priority)
-{
-    _priority = priority;
+    _progressShare = progressShare;
 }
 
 bool Projects::ProjectSequence::operator ==(const Projects::ProjectSequence &other) const
@@ -198,12 +164,8 @@ void Projects::ProjectSequence::_init()
 
     thumbnail_ = "pics/NoPreviewBig.png";
     _id.name = "New Project Sequence";
-    _startDate = Wt::WDate::currentDate();
-    _endDate = Wt::WDate::currentDate();
     _durationInFrames = 0;
     _fps = 24.0f;
     _frameWidth = 1920;
     _frameHeight = 1080;
-    _description = "";
-    _priority = 0;
 }

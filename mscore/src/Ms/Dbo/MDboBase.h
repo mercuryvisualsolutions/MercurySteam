@@ -63,7 +63,7 @@ namespace Ms
 
             //functions
             template<class Action>
-            void persistDefaults_(Action &a);
+            void persist(Action &a);
 
         private:
             //functions

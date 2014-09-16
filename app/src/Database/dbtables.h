@@ -71,7 +71,7 @@ namespace Database
             Wt::Dbo::belongsTo(a, _asset, "Project_Asset");
             Wt::Dbo::belongsTo(a, _task, "Project_Task");
 
-            persistDefaults_<Action>(a);
+            Ms::Dbo::MDboBase::persist<Action>(a);
         }
 
     private:
@@ -135,7 +135,7 @@ namespace Database
             Wt::Dbo::belongsTo(a, _asset, "Project_Asset");
             Wt::Dbo::belongsTo(a, _task, "Project_Task");
 
-            persistDefaults_<Action>(a);
+            Ms::Dbo::MDboBase::persist<Action>(a);
         }
 
     private:
@@ -212,7 +212,7 @@ namespace Database
             Wt::Dbo::hasMany(a, _assetsAssignedTo, Wt::Dbo::ManyToMany, "rel_project_asset_assigned_tags");
             Wt::Dbo::hasMany(a, _tasksAssignedTo, Wt::Dbo::ManyToMany, "rel_project_task_assigned_tags");
 
-            persistDefaults_<Action>(a);
+            Ms::Dbo::MDboBase::persist<Action>(a);
         }
 
     private:
@@ -265,6 +265,13 @@ namespace Database
         //functions
         Dbo *modify() override;
 
+        //DBO functions
+        template<class Action>
+        void persist(Action &a)
+        {
+            Ms::Dbo::MDboBase::persist<Action>(a);
+        }
+
     protected:
         Wt::Dbo::collection<Wt::Dbo::ptr<Database::DboData>> data_;//custom data this group has
         Wt::Dbo::collection<Wt::Dbo::ptr<Database::Note>> notes_;//notes this group has
@@ -311,7 +318,7 @@ namespace Users
             Wt::Dbo::id(a, _name, "Name", 255);
             Wt::Dbo::hasMany(a, _groups, Wt::Dbo::ManyToMany, "rel_group_privileges");//create a ManyToMany relationship to the table "group"
 
-            persistDefaults_<Action>(a);
+            Ms::Dbo::MDboBase::persist<Action>(a);
         }
 
     private:
@@ -351,7 +358,7 @@ namespace Users
             Wt::Dbo::id(a, _name, "Name", 255);
             Wt::Dbo::hasMany(a, _users, Wt::Dbo::ManyToOne, "Title");//create a ManyToMany relationship to the table "user"
 
-            persistDefaults_<Action>(a);
+            Ms::Dbo::MDboBase::persist<Action>(a);
         }
 
     private:
@@ -408,7 +415,7 @@ namespace Users
             Wt::Dbo::hasMany(a, tags_, Wt::Dbo::ManyToMany, "rel_group_tags");//create a ManyToMany relationship to the table "tag"
             Wt::Dbo::hasMany(a, assignedTags_, Wt::Dbo::ManyToMany, "rel_group_assigned_tags");//create a ManyToMany relationship to the table "tag"
 
-            persistDefaults_<Action>(a);
+            Dbo::persist<Action>(a);
         }
 
     private:
@@ -485,7 +492,7 @@ namespace Users
             Wt::Dbo::hasMany(a, tags_, Wt::Dbo::ManyToMany, "rel_user_tags");//create a ManyToMany relationship to the table "tag
             Wt::Dbo::hasMany(a, assignedTags_, Wt::Dbo::ManyToMany, "rel_user_assigned_tags");//create a ManyToMany relationship to the table "tag"
 
-            persistDefaults_<Action>(a);
+            Dbo::persist<Action>(a);
         }
 
     private:
@@ -510,6 +517,201 @@ namespace Users
 namespace Projects
 {
     class ProjectsManager;
+    class ProjectTaskPipelineActivity;
+    class ProjectTaskPipeline;
+
+    class ProjectDbo : public Database::Dbo
+    {
+    public:
+        ProjectDbo();
+
+        ProjectDbo *modify() override;
+
+        virtual Wt::WDate startDate() const;
+        virtual void setStartDate(const Wt::WDate &startDate);
+        virtual Wt::WDate endDate() const;
+        virtual void setEndDate(const Wt::WDate &endDate);
+        virtual std::string description() const;
+        virtual void setDescription(const std::string &description);
+        virtual int progress() const = 0;
+        virtual int priority() const;
+        virtual void setPriority(int priority);
+        virtual Wt::Dbo::ptr<Projects::ProjectWorkStatus> status() const;
+        virtual void setStatus(Wt::Dbo::ptr<Projects::ProjectWorkStatus> status);
+
+        //DBO functions
+        template<class Action>
+        void persist(Action &a)
+        {
+            Wt::Dbo::field(a, _startDate, "Start_Date");
+            Wt::Dbo::field(a, _endDate, "End_Date");
+            Wt::Dbo::field(a, _description, "Description");
+            Wt::Dbo::field(a, _priority, "Priority");
+
+            Dbo::persist<Action>(a);
+        }
+
+    protected:
+        Wt::WDate _startDate;
+        Wt::WDate _endDate;
+        std::string _description;
+        int _priority;
+        Wt::Dbo::ptr<Projects::ProjectWorkStatus> _status;
+
+    private:
+        void _init();
+    };
+
+    class ProjectProgressShare : public Ms::Dbo::MDboBase
+    {
+        friend class Projects::ProjectsManager;
+        friend class Database::DatabaseManager;
+
+    public:
+        ProjectProgressShare();
+        ProjectProgressShare(const std::string &name, int value);
+
+        //variables
+
+        //functions
+        ProjectProgressShare *modify() override;
+        const std::string name() const;
+        void setName(const std::string &name);
+        int value() const;
+        void setValue(int value);
+
+        //operators
+        bool operator ==(const ProjectProgressShare &other) const;
+        bool operator !=(const ProjectProgressShare &other) const;
+
+        //DBO functions
+        template<class Action>
+        void persist(Action &a)
+        {
+            Wt::Dbo::id(a, _name, "Name", 255);
+            Wt::Dbo::field(a, _value, "Value");
+            Wt::Dbo::hasMany(a, _activities, Wt::Dbo::ManyToOne, "Activity_Progress_Share");
+            Wt::Dbo::hasMany(a, _sequences, Wt::Dbo::ManyToOne, "Sequence_Progress_Share");
+            Wt::Dbo::hasMany(a, _shots, Wt::Dbo::ManyToOne, "Shot_Progress_Share");
+            Wt::Dbo::hasMany(a, _assets, Wt::Dbo::ManyToOne, "Asset_Progress_Share");
+            Wt::Dbo::hasMany(a, _tasks, Wt::Dbo::ManyToOne, "Task_Progress_Share");
+
+            Ms::Dbo::MDboBase::persist<Action>(a);
+        }
+
+    private:
+        //variables
+        std::string _name;
+        int _value;
+
+        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTaskPipelineActivity>> _activities;
+        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectSequence>> _sequences;
+        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectShot>> _shots;
+        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectAsset>> _assets;
+        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>> _tasks;
+        //functions
+        void _init();
+
+    };
+
+    class ProjectTaskPipelineActivity : public Ms::Dbo::MDboBase
+    {
+        friend class Projects::ProjectsManager;
+        friend class Database::DatabaseManager;
+
+    public:
+        ProjectTaskPipelineActivity();
+        ProjectTaskPipelineActivity(const std::string &name);
+
+        //variables
+
+        //functions
+        ProjectTaskPipelineActivity *modify() override;
+        const std::string name() const;
+        void setName(const std::string &name);
+        int progress();
+        const Wt::Dbo::ptr<Projects::ProjectProgressShare> progressShare() const;
+        void setProgressShare(Wt::Dbo::ptr<Projects::ProjectProgressShare> progressShare);
+        const Wt::Dbo::ptr<Projects::ProjectTaskPipeline> pipeline() const;
+        void setPipeline(Wt::Dbo::ptr<Projects::ProjectTaskPipeline> pipeline);
+        Wt::Dbo::ptr<Projects::ProjectWorkStatus> status() const;
+        void setStatus(const Wt::Dbo::ptr<Projects::ProjectWorkStatus> status);
+
+        //operators
+        bool operator ==(const ProjectTaskPipelineActivity &other) const;
+        bool operator !=(const ProjectTaskPipelineActivity &other) const;
+
+        //DBO functions
+        template<class Action>
+        void persist(Action &a)
+        {
+            Wt::Dbo::field(a, _name, "Name");
+            Wt::Dbo::field(a, _percentage, "Percentage");
+            Wt::Dbo::belongsTo(a, _progressShare, "Activity_Progress_Share");//create a ManyToOne relationship to the table "project_progress_share"
+            Wt::Dbo::belongsTo(a, _status, "Current");//create a ManyToOne relationship to the table "project_work_status"
+            Wt::Dbo::belongsTo(a, _pipeline, "Task_Pipeline");//create a ManyToOne relationship to the table "project_task_pipeline"
+
+            Ms::Dbo::MDboBase::persist<Action>(a);
+        }
+
+    private:
+        //variables
+        std::string _name;
+        int _percentage;
+        Wt::Dbo::ptr<Projects::ProjectProgressShare> _progressShare;
+        Wt::Dbo::ptr<Projects::ProjectWorkStatus> _status;
+        Wt::Dbo::ptr<Projects::ProjectTaskPipeline> _pipeline;
+
+        //functions
+        void _init();
+    };
+
+    class ProjectTaskPipeline : public Ms::Dbo::MDboBase
+    {
+        friend class Projects::ProjectsManager;
+        friend class Database::DatabaseManager;
+
+    public:
+        ProjectTaskPipeline();
+        ProjectTaskPipeline(const std::string &name);
+
+        //variables
+
+        //functions
+        ProjectTaskPipeline *modify() override;
+        const std::string name() const;
+        void setName(const std::string &name);
+        bool hasTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const;
+        bool addTask(Wt::Dbo::ptr<Projects::ProjectTask> task);
+        bool removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task);
+        bool hasActivity(Wt::Dbo::ptr<Projects::ProjectTaskPipelineActivity> activity) const;
+        bool addActivity(Wt::Dbo::ptr<ProjectTaskPipelineActivity> activity);
+        bool removeActivity(Wt::Dbo::ptr<ProjectTaskPipelineActivity> activity);
+
+        //operators
+        bool operator ==(const ProjectTaskPipeline &other) const;
+        bool operator !=(const ProjectTaskPipeline &other) const;
+
+        //DBO functions
+        template<class Action>
+        void persist(Action &a)
+        {
+            Wt::Dbo::field(a, _name, "Name");
+            Wt::Dbo::hasMany(a, _tasks, Wt::Dbo::ManyToOne, "Task_Pipeline");//create a ManyToOne relationship to the table "project_task"
+            Wt::Dbo::hasMany(a, _activities, Wt::Dbo::ManyToOne, "Task_Pipeline");//create a ManyToOne relationship to the table "project_task_pipeline_activity"
+
+            Ms::Dbo::MDboBase::persist<Action>(a);
+        }
+
+    private:
+        //variables
+        std::string _name;
+        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTaskPipelineActivity>> _activities;
+        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>> _tasks;
+
+        //functions
+        void _init();
+    };
 
     class ProjectWorkStatusType : public Ms::Dbo::MDboBase
     {
@@ -539,7 +741,7 @@ namespace Projects
             Wt::Dbo::id(a, _workStatusType, "Work_Status_Type", 255);
             Wt::Dbo::hasMany(a, _projectWorkStatus, Wt::Dbo::ManyToOne, "Belongs_To");//create a ManyToOne relationship to the table "project_work_status"
 
-            persistDefaults_<Action>(a);
+            Ms::Dbo::MDboBase::persist<Action>(a);
         }
 
     private:
@@ -579,7 +781,7 @@ namespace Projects
             Wt::Dbo::id(a, _type, "Type", 255);
             Wt::Dbo::hasMany(a, _assets, Wt::Dbo::ManyToOne, "Asset");//create a ManyToOne relationship to the table "project_asset_type"
 
-            persistDefaults_<Action>(a);
+            Ms::Dbo::MDboBase::persist<Action>(a);
         }
 
     private:
@@ -630,7 +832,7 @@ namespace Projects
             Wt::Dbo::hasMany(a, _shots, Wt::Dbo::ManyToOne, "Current");//create a ManyToOne relationship to the table "project_shot"
             Wt::Dbo::hasMany(a, _projects, Wt::Dbo::ManyToOne, "Current");//create a ManyToOne relationship to the table "project"
 
-            persistDefaults_<Action>(a);
+            Ms::Dbo::MDboBase::persist<Action>(a);
         }
 
     private:
@@ -647,7 +849,7 @@ namespace Projects
         void _init();
     };
 
-    class ProjectSequence : public Database::Dbo
+    class ProjectSequence : public ProjectDbo
     {
         friend class Projects::ProjectsManager;
         friend class Database::DatabaseManager;
@@ -669,10 +871,6 @@ namespace Projects
         bool hasShot(Wt::Dbo::ptr<Projects::ProjectShot> shot) const;
         bool addShot(Wt::Dbo::ptr<Projects::ProjectShot> shot);
         bool removeShot(Wt::Dbo::ptr<Projects::ProjectShot> shot);
-        Wt::WDate startDate() const;
-        void setStartDate(const Wt::WDate &startDate);
-        Wt::WDate endDate() const;
-        void setEndDate(const Wt::WDate &endDate);
         int durationInFrames() const;
         void setDurationInFrames(int durationInFrames);
         float fps() const;
@@ -681,12 +879,9 @@ namespace Projects
         void setFrameWidth(int frameWidth);
         int frameHeight() const;
         void setFrameHeight(int frameHeight);
-        std::string description() const;
-        void setDescription(const std::string &description);
-        Wt::Dbo::ptr<Projects::ProjectWorkStatus> status() const;
-        void setStatus(const Wt::Dbo::ptr<Projects::ProjectWorkStatus> status);
-        int priority() const;
-        void setPriority(int priority);
+        virtual int progress() const override;
+        const Wt::Dbo::ptr<Projects::ProjectProgressShare> progressShare() const;
+        void setProgressShare(Wt::Dbo::ptr<Projects::ProjectProgressShare> progressShare);
 
         //operators
         bool operator ==(const ProjectSequence &other) const;
@@ -697,14 +892,11 @@ namespace Projects
         void persist(Action &a)
         {
             Wt::Dbo::id(a, _id, "Sequence_", 255);
-            Wt::Dbo::field(a, _startDate, "Start_Date");
-            Wt::Dbo::field(a, _endDate, "End_Date");
             Wt::Dbo::field(a, _durationInFrames, "Duration_In_Frames");
             Wt::Dbo::field(a, _fps, "FPS");
             Wt::Dbo::field(a, _frameWidth, "Frame_Width");
             Wt::Dbo::field(a, _frameHeight, "Frame_Height");
-            Wt::Dbo::field(a, _description, "Description");
-            Wt::Dbo::field(a, _priority, "Priority");
+            Wt::Dbo::belongsTo(a, _progressShare, "Sequence_Progress_Share");//create a ManyToOne relationship to the table "project_progress_share"
             Wt::Dbo::belongsTo(a, _status, "Current");//create a ManyToOne relationship to the table "project_work_status"
             Wt::Dbo::hasMany(a, _shots, Wt::Dbo::ManyToOne, "Shot_Sequence");//create a ManyToOne relationship to the table "project_shot"
             Wt::Dbo::hasMany(a, _tasks, Wt::Dbo::ManyToOne, "Task_Sequence");//create a ManyToOne relationship to the table "project_task"
@@ -713,21 +905,17 @@ namespace Projects
             Wt::Dbo::hasMany(a, tags_, Wt::Dbo::ManyToMany, "rel_project_sequence_tags");
             Wt::Dbo::hasMany(a, assignedTags_, Wt::Dbo::ManyToMany, "rel_project_sequence_assigned_tags");//create a ManyToMany relationship to the table "tag"
 
-            persistDefaults_<Action>(a);
+            ProjectDbo::persist<Action>(a);
         }
 
     private:
         //functions
         ProjectSequenceId _id;
-        Wt::WDate _startDate;
-        Wt::WDate _endDate;
         int _durationInFrames;
         float _fps;
         int _frameWidth;
         int _frameHeight;
-        std::string _description;
-        int _priority;
-        Wt::Dbo::ptr<Projects::ProjectWorkStatus> _status;
+        Wt::Dbo::ptr<Projects::ProjectProgressShare> _progressShare;
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectShot>> _shots;
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>> _tasks;
 
@@ -735,7 +923,7 @@ namespace Projects
         void _init();
     };
 
-    class ProjectTask : public Database::Dbo
+    class ProjectTask : public ProjectDbo
     {
         friend class Projects::ProjectsManager;
         friend class Database::DatabaseManager;
@@ -744,14 +932,9 @@ namespace Projects
         ProjectTask();
 
         //variables
-        Wt::WDate startDate() const;
-        void setStartDate(const Wt::WDate &startDate);
-        Wt::WDate endDate() const;
-        void setEndDate(const Wt::WDate &endDate);
-        std::string description() const;
-        void setDescription(const std::string &description);
-        Wt::Dbo::ptr<Projects::ProjectWorkStatus> status() const;
-        void setStatus(Wt::Dbo::ptr<Projects::ProjectWorkStatus> status);
+        virtual int progress() const override;
+        const Wt::Dbo::ptr<Projects::ProjectProgressShare> progressShare() const;
+        void setProgressShare(Wt::Dbo::ptr<Projects::ProjectProgressShare> progressShare);
         Wt::Dbo::ptr<Projects::ProjectTaskType> type() const;
         void setType(Wt::Dbo::ptr<Projects::ProjectTaskType> type);
         Wt::Dbo::ptr<Users::User> user() const;
@@ -762,10 +945,10 @@ namespace Projects
         void setSequence(Wt::Dbo::ptr<Projects::ProjectSequence> sequence);
         Wt::Dbo::ptr<Projects::ProjectShot> shot() const;
         void setShot(Wt::Dbo::ptr<Projects::ProjectShot> shot);
-        Wt::Dbo::ptr<Projects::ProjectAsset> asset() const;
+        const Wt::Dbo::ptr<Projects::ProjectAsset> asset() const;
         void setAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset);
-        int priority() const;
-        void setPriority(int priority);
+        const Wt::Dbo::ptr<Projects::ProjectTaskPipeline> pipeline() const;
+        void setPipeline(Wt::Dbo::ptr<Projects::ProjectTaskPipeline> pipeline);
         bool isAcceptedByUser();
         void setAcceptedByUser(bool accepted);
 
@@ -776,11 +959,8 @@ namespace Projects
         template<class Action>
         void persist(Action &a)
         {
-            Wt::Dbo::field(a, _startDate, "Start_Date");
-            Wt::Dbo::field(a, _endDate, "End_Date");
-            Wt::Dbo::field(a, _description, "Description");
-            Wt::Dbo::field(a, _priority, "Priority");
             Wt::Dbo::field(a, _acceptedByUser, "Accepted_By_User");
+            Wt::Dbo::belongsTo(a, _progressShare, "Task_Progress_Share");//create a ManyToOne relationship to the table "project_progress_share"
             Wt::Dbo::belongsTo(a, _status, "Current");//create a ManyToOne relationship to the table "project_work_status"
             Wt::Dbo::belongsTo(a, _type, "Task");//create a ManyToOne relationship to the table "project_shot_task_type"
             Wt::Dbo::belongsTo(a, _user, "Task_User");//create a ManyToOne relationship to the table "user"
@@ -788,27 +968,25 @@ namespace Projects
             Wt::Dbo::belongsTo(a, _asset, "Task_Asset");//create a ManyToOne relationship to the table "project_asset"
             Wt::Dbo::belongsTo(a, _sequence, "Task_Sequence");//create a ManyToOne relationship to the table "project_sequence"
             Wt::Dbo::belongsTo(a, _project, "Task_Project");//create a ManyToOne relationship to the table "project"
+            Wt::Dbo::belongsTo(a, _pipeline, "Task_Pipeline");//create a ManyToOne relationship to the table "project_task_pipeline"
             Wt::Dbo::hasMany(a, data_, Wt::Dbo::ManyToOne, "Project_Task");
             Wt::Dbo::hasMany(a, notes_, Wt::Dbo::ManyToOne, "Project_Task");
             Wt::Dbo::hasMany(a, tags_, Wt::Dbo::ManyToMany, "rel_project_task_tags");//create a ManyToMany relationship to the table "tag"
             Wt::Dbo::hasMany(a, assignedTags_, Wt::Dbo::ManyToMany, "rel_project_task_assigned_tags");//create a ManyToMany relationship to the table "tag"
 
-            persistDefaults_<Action>(a);
+            ProjectDbo::persist<Action>(a);
         }
 
     private:
         //variables
-        Wt::WDate _startDate;
-        Wt::WDate _endDate;
-        std::string _description;
-        Wt::Dbo::ptr<Projects::ProjectWorkStatus> _status;
+        Wt::Dbo::ptr<Projects::ProjectProgressShare> _progressShare;
         Wt::Dbo::ptr<Projects::ProjectTaskType> _type;
         Wt::Dbo::ptr<Users::User> _user;
         Wt::Dbo::ptr<Projects::ProjectShot> _shot;
         Wt::Dbo::ptr<Projects::ProjectAsset> _asset;
         Wt::Dbo::ptr<Projects::ProjectSequence> _sequence;
         Wt::Dbo::ptr<Projects::Project> _project;
-        int _priority;
+        Wt::Dbo::ptr<Projects::ProjectTaskPipeline> _pipeline;
         bool _acceptedByUser;
 
         //functions
@@ -843,7 +1021,7 @@ namespace Projects
             Wt::Dbo::id(a, _type, "Type", 255);
             Wt::Dbo::hasMany(a, _tasks, Wt::Dbo::ManyToOne, "Task");//create a ManyToOne relationship to the table "project_shot_task"
 
-            persistDefaults_<Action>(a);
+            Ms::Dbo::MDboBase::persist<Action>(a);
         }
 
     private:
@@ -855,7 +1033,7 @@ namespace Projects
         void _init();
     };
 
-    class ProjectShot : public Database::Dbo
+    class ProjectShot : public ProjectDbo
     {
         friend class Projects::ProjectsManager;
         friend class Database::DatabaseManager;
@@ -879,10 +1057,6 @@ namespace Projects
         bool hasTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const;
         bool addTask(Wt::Dbo::ptr<Projects::ProjectTask> task);
         bool removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task); 
-        Wt::WDate startDate() const;
-        void setStartDate(const Wt::WDate &startDate);
-        Wt::WDate endDate() const;
-        void setEndDate(const Wt::WDate &endDate);
         int durationInFrames() const;
         void setDurationInFrames(int durationInFrames);
         float fps() const;
@@ -891,12 +1065,9 @@ namespace Projects
         void setFrameWidth(int frameWidth);
         int frameHeight() const;
         void setFrameHeight(int frameHeight);
-        std::string description() const;
-        void setDescription(const std::string &description);
-        Wt::Dbo::ptr<Projects::ProjectWorkStatus> status() const;
-        void setStatus(const Wt::Dbo::ptr<Projects::ProjectWorkStatus> status);
-        int priority() const;
-        void setPriority(int priority);
+        virtual int progress() const override;
+        const Wt::Dbo::ptr<Projects::ProjectProgressShare> progressShare() const;
+        void setProgressShare(Wt::Dbo::ptr<Projects::ProjectProgressShare> progressShare);
 
         //operators
         bool operator ==(const ProjectShot &other) const;
@@ -908,14 +1079,11 @@ namespace Projects
         {
 
             Wt::Dbo::id(a, _id, "Shot_", 255);
-            Wt::Dbo::field(a, _startDate, "Start_Date");
-            Wt::Dbo::field(a, _endDate, "End_Date");
             Wt::Dbo::field(a, _durationInFrames, "Duration_In_Frames");
             Wt::Dbo::field(a, _fps, "FPS");
             Wt::Dbo::field(a, _frameWidth, "Frame_Width");
             Wt::Dbo::field(a, _frameHeight, "Frame_Height");
-            Wt::Dbo::field(a, _description, "Description");
-            Wt::Dbo::field(a, _priority, "Priority");
+            Wt::Dbo::belongsTo(a, _progressShare, "Shot_Progress_Share");//create a ManyToOne relationship to the table "project_progress_share"
             Wt::Dbo::belongsTo(a, _status, "Current");//create a ManyToOne relationship to the table "project_work_status"
             Wt::Dbo::hasMany(a, _tasks, Wt::Dbo::ManyToOne, "Task_Shot");//create a ManyToOne relationship to the table "project_task"
             Wt::Dbo::hasMany(a, data_, Wt::Dbo::ManyToOne, "Project_Shot");//create a ManyToOne relationship to the table "data"
@@ -923,28 +1091,24 @@ namespace Projects
             Wt::Dbo::hasMany(a, tags_, Wt::Dbo::ManyToMany, "rel_project_shot_tags");//create a ManyToMany relationship to the table "tag"
             Wt::Dbo::hasMany(a, assignedTags_, Wt::Dbo::ManyToMany, "rel_project_shot_assigned_tags");//create a ManyToMany relationship to the table "tag"
 
-            persistDefaults_<Action>(a);
+            ProjectDbo::persist<Action>(a);
         }
 
     private:
         //variables
         ProjectShotId _id;
-        Wt::WDate _startDate;
-        Wt::WDate _endDate;
         int _durationInFrames;
         float _fps;
         int _frameWidth;
         int _frameHeight;
-        std::string _description;
-        int _priority;
-        Wt::Dbo::ptr<Projects::ProjectWorkStatus> _status;
+        Wt::Dbo::ptr<Projects::ProjectProgressShare> _progressShare;
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>> _tasks;
 
         //functions
         void _init();
     };
 
-    class ProjectAsset : public Database::Dbo
+    class ProjectAsset : public ProjectDbo
     {
         friend class Projects::ProjectsManager;
         friend class Database::DatabaseManager;
@@ -967,18 +1131,11 @@ namespace Projects
         bool hasTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const;
         bool addTask(Wt::Dbo::ptr<Projects::ProjectTask> task);
         bool removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task);
-        Wt::WDate startDate() const;
-        void setStartDate(const Wt::WDate &startDate);
-        Wt::WDate endDate() const;
-        void setEndDate(const Wt::WDate &endDate);
-        std::string description() const;
-        void setDescription(const std::string &description);
+        virtual int progress() const override;
+        const Wt::Dbo::ptr<Projects::ProjectProgressShare> progressShare() const;
+        void setProgressShare(Wt::Dbo::ptr<Projects::ProjectProgressShare> progressShare);
         Wt::Dbo::ptr<Projects::ProjectAssetType> type() const;
         void setType(const Wt::Dbo::ptr<Projects::ProjectAssetType> type);
-        Wt::Dbo::ptr<Projects::ProjectWorkStatus> status() const;
-        void setStatus(const Wt::Dbo::ptr<Projects::ProjectWorkStatus> status);
-        int priority() const;
-        void setPriority(int priority);
 
         //operators
         bool operator ==(const ProjectAsset &other) const;
@@ -989,10 +1146,7 @@ namespace Projects
         void persist(Action &a)
         {
             Wt::Dbo::id(a, _id, "Asset_", 255);
-            Wt::Dbo::field(a, _startDate, "Start_Date");
-            Wt::Dbo::field(a, _endDate, "End_Date");
-            Wt::Dbo::field(a, _description, "Description", 255);
-            Wt::Dbo::field(a, _priority, "Priority");
+            Wt::Dbo::belongsTo(a, _progressShare, "Asset_Progress_Share");//create a ManyToOne relationship to the table "project_progress_share"
             Wt::Dbo::belongsTo(a, _status, "Current");//create a ManyToOne relationship to the table "project_work_status"
             Wt::Dbo::belongsTo(a, _type, "Asset");//create a ManyToOne relationship to the table "project_asset_type"
             Wt::Dbo::hasMany(a, _tasks, Wt::Dbo::ManyToOne, "Task_Asset");//create a ManyToOne relationship to the table "project_task"
@@ -1001,25 +1155,21 @@ namespace Projects
             Wt::Dbo::hasMany(a, tags_, Wt::Dbo::ManyToMany, "rel_project_asset_tags");//create a ManyToMany relationship to the table "tag"
             Wt::Dbo::hasMany(a, assignedTags_, Wt::Dbo::ManyToMany, "rel_project_asset_assigned_tags");//create a ManyToMany relationship to the table "tag"
 
-            persistDefaults_<Action>(a);
+            ProjectDbo::persist<Action>(a);
         }
 
     private:
         //variables
         ProjectAssetId _id;
-        Wt::WDate _startDate;
-        Wt::WDate _endDate;
-        std::string _description;
-        int _priority;
+        Wt::Dbo::ptr<Projects::ProjectProgressShare> _progressShare;
         Wt::Dbo::ptr<Projects::ProjectAssetType> _type;
-        Wt::Dbo::ptr<Projects::ProjectWorkStatus> _status;
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>> _tasks;
 
         //functions
         void _init();
     };
 
-    class Project : public Database::Dbo
+    class Project : public ProjectDbo
     {
         friend class Projects::ProjectsManager;
         friend class Database::DatabaseManager;
@@ -1041,10 +1191,6 @@ namespace Projects
         bool hasAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset) const;
         bool addAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset);
         bool removeAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset);
-        Wt::WDate startDate() const;
-        void setStartDate(const Wt::WDate &startDate);
-        Wt::WDate endDate() const;
-        void setEndDate(const Wt::WDate &endDate);
         int durationInFrames() const;
         void setDurationInFrames(int durationInFrames);
         float fps() const;
@@ -1053,14 +1199,9 @@ namespace Projects
         void setFrameWidth(int frameWidth);
         int frameHeight() const;
         void setFrameHeight(int frameHeight);
-        std::string description() const;
-        void setDescription(const std::string &description);
-        Wt::Dbo::ptr<Projects::ProjectWorkStatus> status() const;
-        void setStatus(const Wt::Dbo::ptr<Projects::ProjectWorkStatus> status);
+        virtual int progress() const override;
         Wt::Dbo::ptr<Users::User> manager() const;
         void setManager(const Wt::Dbo::ptr<Users::User> user);
-        int priority() const;
-        void setPriority(int priority);
 
         //operators
         bool operator ==(const Project &other) const;
@@ -1071,15 +1212,10 @@ namespace Projects
         void persist(Action &a)
         {
             Wt::Dbo::id(a, _name, "Project_Name", 255);
-            Wt::Dbo::field(a, _startDate, "Start_Date");
-            Wt::Dbo::field(a, _endDate, "End_Date");
             Wt::Dbo::field(a, _durationInFrames, "Duration_In_Frames");
             Wt::Dbo::field(a, _fps, "FPS");
             Wt::Dbo::field(a, _frameWidth, "Frame_Width");
             Wt::Dbo::field(a, _frameHeight, "Frame_Height");
-            Wt::Dbo::field(a, _description, "Description");
-            Wt::Dbo::field(a, _progress, "Progress");
-            Wt::Dbo::field(a, _priority, "Priority");
             Wt::Dbo::belongsTo(a, _status, "Current");//create a ManyToOne relationship to the table "project_work_status"
             Wt::Dbo::belongsTo(a, _projectManager, "Project_Manager");//create a ManyToOne relationship to the table "users"
             Wt::Dbo::hasMany(a, _tasks, Wt::Dbo::ManyToOne, "Task_Project");//create a ManyToOne relationship to the table "project_task"
@@ -1090,22 +1226,16 @@ namespace Projects
             Wt::Dbo::hasMany(a, tags_, Wt::Dbo::ManyToMany, "rel_project_tags");//create a ManyToMany relationship to the table "tag"
             Wt::Dbo::hasMany(a, assignedTags_, Wt::Dbo::ManyToMany, "rel_project_assigned_tags");//create a ManyToMany relationship to the table "tag"
 
-            persistDefaults_<Action>(a);
+            ProjectDbo::persist<Action>(a);
         }
 
     private:
         //variables
         std::string _name;
-        Wt::WDate _startDate;
-        Wt::WDate _endDate;
         int _durationInFrames;
         float _fps;
         int _frameWidth;
         int _frameHeight;
-        int _progress;
-        std::string _description;
-        int _priority;
-        Wt::Dbo::ptr<Projects::ProjectWorkStatus> _status;
         Wt::Dbo::ptr<Users::User> _projectManager;
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectSequence>> _sequences;
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectAsset>> _assets;

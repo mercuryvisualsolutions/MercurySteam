@@ -23,7 +23,6 @@ namespace Database
                 "CHANGE COLUMN Frame_Width Frame_Width INT(11) NOT NULL DEFAULT '1920',\n"
                 "CHANGE COLUMN Frame_Height Frame_Height INT(11) NOT NULL DEFAULT '1080',\n"
                 "CHANGE COLUMN Description Description TEXT NOT NULL,\n"
-                "CHANGE COLUMN Progress Progress INT(11) NOT NULL DEFAULT '0',\n"
                 "CHANGE COLUMN View_Rank View_Rank INT(11) NOT NULL DEFAULT '0',\n"
                 "CHANGE COLUMN Edit_Rank Edit_Rank INT(11) NOT NULL DEFAULT '0',\n"
                 "CHANGE COLUMN Remove_Rank Remove_Rank INT(11) NOT NULL DEFAULT '0',\n"

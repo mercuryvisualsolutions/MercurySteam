@@ -2,7 +2,7 @@
 #include "projectsmanager.h"
 
 Projects::Project::Project() :
-    Database::Dbo()
+    ProjectDbo()
 {
     _init();
 }
@@ -15,7 +15,7 @@ Projects::Project::Project(const std::string &projectName) :
 
 Projects::Project *Projects::Project::modify()
 {
-    Database::Dbo::modify();
+    ProjectDbo::modify();
 
     return this;
 }
@@ -106,26 +106,6 @@ bool Projects::Project::removeAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset)
     return false;
 }
 
-Wt::WDate Projects::Project::startDate() const
-{
-    return _startDate;
-}
-
-void Projects::Project::setStartDate(const Wt::WDate &startDate)
-{
-    _startDate = startDate;
-}
-
-Wt::WDate Projects::Project::endDate() const
-{
-    return _endDate;
-}
-
-void Projects::Project::setEndDate(const Wt::WDate &endDate)
-{
-    _endDate = endDate;
-}
-
 int Projects::Project::durationInFrames() const
 {
     return _durationInFrames;
@@ -166,24 +146,9 @@ void Projects::Project::setFrameHeight(int frameHeight)
     _frameHeight = frameHeight;
 }
 
-std::string Projects::Project::description() const
+int Projects::Project::progress() const
 {
-    return _description;
-}
 
-void Projects::Project::setDescription(const std::string &description)
-{
-    _description = description;
-}
-
-Wt::Dbo::ptr<Projects::ProjectWorkStatus> Projects::Project::status() const
-{
-    return _status;
-}
-
-void Projects::Project::setStatus(const Wt::Dbo::ptr<Projects::ProjectWorkStatus> status)
-{
-    _status = status;
 }
 
 Wt::Dbo::ptr<Users::User> Projects::Project::manager() const
@@ -194,16 +159,6 @@ Wt::Dbo::ptr<Users::User> Projects::Project::manager() const
 void Projects::Project::setManager(const Wt::Dbo::ptr<Users::User> user)
 {
     _projectManager = user;
-}
-
-int Projects::Project::priority() const
-{
-    return _priority;
-}
-
-void Projects::Project::setPriority(int priority)
-{
-    _priority = priority;
 }
 
 bool Projects::Project::operator ==(const Projects::Project &other) const
@@ -222,13 +177,8 @@ void Projects::Project::_init()
 
     thumbnail_ = "pics/NoPreviewBig.png";
     _name = "New Project";
-    _startDate = Wt::WDate::currentDate();
-    _endDate = Wt::WDate::currentDate();
     _durationInFrames = 0;
     _fps = 24.0f;
     _frameWidth = 1920;
     _frameHeight = 1080;
-    _progress = 0;
-    _description = "";
-    _priority = 0;
 }

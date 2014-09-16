@@ -9,6 +9,7 @@
 
 namespace Projects
 {
+    class ProjectProgressShare;
     class ProjectWorkStatusType;
     class ProjectAssetType;
     class ProjectWorkStatus;
@@ -24,6 +25,15 @@ namespace Wt
 {
     namespace Dbo
     {
+        //override the default primary id column for the ProjectProgressShare class to use std::string
+        template<>
+        struct dbo_traits<Projects::ProjectProgressShare> : public dbo_default_traits
+        {
+            typedef std::string IdType;
+            static IdType invalidId() { return std::string(); }
+            static const char *surrogateIdField() { return 0; }
+        };
+
         //override the default primary id column for the Project class to use std::string
         template<>
         struct dbo_traits<Projects::Project> : public dbo_default_traits

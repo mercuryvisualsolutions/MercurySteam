@@ -8,7 +8,7 @@ namespace Ms
     namespace Dbo
     {
         template<class Action>
-        void Ms::Dbo::MDboBase::persistDefaults_(Action &a)
+        void Ms::Dbo::MDboBase::persist(Action &a)
         {
             Wt::Dbo::field(a, thumbnail_, "Thumbnail");
             Wt::Dbo::field(a, dateCreated_, "Date_Created");

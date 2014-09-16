@@ -76,41 +76,43 @@ bool Database::DatabaseManager::dbInitialized()
 
 bool Database::DatabaseManager::_createSchema()
 {
-    //general
-    session_->mapClass<Database::DboData>("dbodata");
-    session_->mapClass<Database::Note>("note");
-    session_->mapClass<Database::Tag>("tag");
-
-    //users
-    session_->mapClass<Users::Privilege>("privilege");
-    session_->mapClass<Users::Group>("group");
-    session_->mapClass<Users::UserTitle>("user_title");
-    session_->mapClass<Users::User>("user");
-    //auth info
-    session_->mapClass<Users::AuthInfo>("user_auth_info");
-    session_->mapClass<Users::AuthInfo::AuthIdentityType>("user_auth_identity");
-    session_->mapClass<Users::AuthInfo::AuthTokenType>("user_auth_token");
-    //projects
-    session_->mapClass<Projects::ProjectWorkStatusType>("project_work_status_type");
-    session_->mapClass<Projects::ProjectAssetType>("project_asset_type");
-    session_->mapClass<Projects::ProjectWorkStatus>("project_work_status");
-    session_->mapClass<Projects::ProjectSequence>("project_sequence");
-    session_->mapClass<Projects::ProjectShot>("project_shot");
-    session_->mapClass<Projects::ProjectTaskType>("project_task_type");
-    session_->mapClass<Projects::ProjectTask>("project_task");
-    session_->mapClass<Projects::ProjectAsset>("project_asset");
-    session_->mapClass<Projects::Project>("project");
-
-
     //try to create schema if it doesn't already exist
     try
     {
+        //general
+        session_->mapClass<Database::DboData>("dbodata");
+        session_->mapClass<Database::Note>("note");
+        session_->mapClass<Database::Tag>("tag");
+
+        //users
+        session_->mapClass<Users::Privilege>("privilege");
+        session_->mapClass<Users::Group>("group");
+        session_->mapClass<Users::UserTitle>("user_title");
+        session_->mapClass<Users::User>("user");
+        //auth info
+        session_->mapClass<Users::AuthInfo>("user_auth_info");
+        session_->mapClass<Users::AuthInfo::AuthIdentityType>("user_auth_identity");
+        session_->mapClass<Users::AuthInfo::AuthTokenType>("user_auth_token");
+        //projects
+        session_->mapClass<Projects::ProjectProgressShare>("project_progress_share");
+        session_->mapClass<Projects::ProjectTaskPipelineActivity>("project_task_pipeline_activity");
+        session_->mapClass<Projects::ProjectTaskPipeline>("project_task_pipeline");
+        session_->mapClass<Projects::ProjectWorkStatusType>("project_work_status_type");
+        session_->mapClass<Projects::ProjectAssetType>("project_asset_type");
+        session_->mapClass<Projects::ProjectWorkStatus>("project_work_status");
+        session_->mapClass<Projects::ProjectSequence>("project_sequence");
+        session_->mapClass<Projects::ProjectShot>("project_shot");
+        session_->mapClass<Projects::ProjectTaskType>("project_task_type");
+        session_->mapClass<Projects::ProjectTask>("project_task");
+        session_->mapClass<Projects::ProjectAsset>("project_asset");
+        session_->mapClass<Projects::Project>("project");
+
         Log::LogManager::instance().getGlobalLogger()->log("Creating database tables..", Ms::Log::LogMessageType::Info);
 
         if(!openTransaction())
             return false;
 
-        int numTables = session_->query<int>("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'MercurySteam';");
+        int numTables = session_->query<int>("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '" + AppSettings::instance().databaseSchema() + "';");
 
         if(numTables == 0)
         {
@@ -132,6 +134,12 @@ bool Database::DatabaseManager::_createSchema()
     catch(Wt::Dbo::Exception e)
     {
         Log::LogManager::instance().getGlobalLogger()->log(std::string("Can't Create DB Schema ") + e.what(), Ms::Log::LogMessageType::Fatal);
+
+        return false;
+    }
+    catch(...)
+    {
+        Log::LogManager::instance().getGlobalLogger()->log(std::string("Can't Create DB Schema because of unknown error"), Ms::Log::LogMessageType::Fatal);
 
         return false;
     }
