@@ -6,11 +6,13 @@
 #include <Wt/WDateEdit>
 #include <Wt/WDate>
 
-Ms::Widgets::Delegates::MDateDelegate::MDateDelegate()
+Ms::Widgets::Delegates::MDateDelegate::MDateDelegate() :
+    MItemDelegate()
 {
 }
 
-Ms::Widgets::Delegates::MDateDelegate::MDateDelegate(int editRank)
+Ms::Widgets::Delegates::MDateDelegate::MDateDelegate(int editRank) :
+    MDateDelegate()
 {
     _editRank = editRank;
 }
@@ -28,6 +30,7 @@ void Ms::Widgets::Delegates::MDateDelegate::doCloseEditor(Wt::WWidget *editor, b
 Wt::WWidget *Ms::Widgets::Delegates::MDateDelegate::createEditor(const Wt::WModelIndex &index, Wt::WFlags<Wt::ViewItemRenderFlag> flags) const
 {
     Wt::WContainerWidget *result = new Wt::WContainerWidget();
+    result->setLineHeight(25);
     result->setSelectable(true);
 
     boost::any data = index.data(Wt::EditRole);

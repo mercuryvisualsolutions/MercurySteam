@@ -5,11 +5,13 @@
 #include <Wt/WContainerWidget>
 #include <Wt/WAbstractItemModel>
 
-Ms::Widgets::Delegates::MCheckBoxDelegate::MCheckBoxDelegate()
+Ms::Widgets::Delegates::MCheckBoxDelegate::MCheckBoxDelegate() :
+    MItemDelegate()
 {
 }
 
-Ms::Widgets::Delegates::MCheckBoxDelegate::MCheckBoxDelegate(int editRank)
+Ms::Widgets::Delegates::MCheckBoxDelegate::MCheckBoxDelegate(int editRank) :
+    MCheckBoxDelegate()
 {
     _editRank = editRank;
 }
@@ -73,6 +75,8 @@ Wt::WWidget *Ms::Widgets::Delegates::MCheckBoxDelegate::update(Wt::WWidget *widg
         result = dynamic_cast<Wt::WContainerWidget*>(widget);
         chkEdit = dynamic_cast<Wt::WCheckBox*>(result->widget(0));
     }
+
+    result->setLineHeight(25);
 
     if(flags & Wt::RenderFocused)
         chkEdit->setFocus();

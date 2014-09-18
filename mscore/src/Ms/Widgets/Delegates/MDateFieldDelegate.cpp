@@ -7,11 +7,13 @@
 #include <Wt/WDateValidator>
 #include <Wt/WVBoxLayout>
 
-Ms::Widgets::Delegates::MDateFieldDelegate::MDateFieldDelegate()
+Ms::Widgets::Delegates::MDateFieldDelegate::MDateFieldDelegate() :
+    MItemDelegate()
 {
 }
 
-Ms::Widgets::Delegates::MDateFieldDelegate::MDateFieldDelegate(int editRank)
+Ms::Widgets::Delegates::MDateFieldDelegate::MDateFieldDelegate(int editRank) :
+    MDateFieldDelegate()
 {
     _editRank = editRank;
 }
@@ -29,6 +31,7 @@ void Ms::Widgets::Delegates::MDateFieldDelegate::doCloseEditor(Wt::WWidget *edit
 Wt::WWidget *Ms::Widgets::Delegates::MDateFieldDelegate::createEditor(const Wt::WModelIndex &index, Wt::WFlags<Wt::ViewItemRenderFlag> flags) const
 {
     Wt::WContainerWidget *result = new Wt::WContainerWidget();
+    result->setLineHeight(25);
     result->setSelectable(true);
     result->setLayout(new Wt::WVBoxLayout());
     result->layout()->setContentsMargins(0,0,0,0);

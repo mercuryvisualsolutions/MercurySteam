@@ -175,8 +175,6 @@ void Views::ViewApp::_prepareView()
     setLayout(_layMain);
 
     _layMainH = new Wt::WHBoxLayout();
-    _layMainH->setContentsMargins(0,0,0,0);
-    _layMainH->setSpacing(0);
 
     _cntLeftMenu = new Wt::WContainerWidget();
 
@@ -190,6 +188,7 @@ void Views::ViewApp::_prepareView()
     /*******************--Main Navigation Bar--********************/
 
     _navBarMain = new Wt::WNavigationBar();
+    _navBarMain->setMinimumSize(500, 42);
     _navBarMain->setTitle("MercurySteam", "http://www.mercuryvfx.com");
     //_navBarMain->setResponsive(true);
     _layMain->addWidget(_navBarMain);
@@ -269,6 +268,7 @@ void Views::ViewApp::_prepareView()
 
     /*******************--Main Left Menu--********************/
     _cntMnuSideMain = new Wt::WContainerWidget();
+    _cntMnuSideMain->setMinimumSize(250, 500);
     _cntMnuSideMain->addStyleClass("panel-border-right");
 
     _mnuSideMain = new Wt::WMenu(Wt::Vertical);//main side menu
@@ -334,6 +334,7 @@ void Views::ViewApp::_prepareView()
 
     //Prepare child view
     _stkMainView = new Wt::WStackedWidget();
+    _stkMainView->setMinimumSize(535, 500);
 
     _stkMainView->setTransitionAnimation(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Fade, Wt::WAnimation::TimingFunction::EaseInOut), true);
 
@@ -361,6 +362,8 @@ void Views::ViewApp::_prepareView()
     _cntTxtFooter->addWidget(_txtFooter);
 
     _layMain->addWidget(_cntTxtFooter);
+
+    _layMainH->setResizable(1, true);
 }
 
 void Views::ViewApp::_prepareChildViews(Wt::WStackedWidget *widget)

@@ -5,13 +5,17 @@
 #include <Wt/WAbstractItemModel>
 #include <Wt/WImage>
 
-Ms::Widgets::Delegates::MThumbnailDelegate::MThumbnailDelegate()
+Ms::Widgets::Delegates::MThumbnailDelegate::MThumbnailDelegate() :
+    MItemDelegate()
 {
 }
 
 Ms::Widgets::Delegates::MThumbnailDelegate::MThumbnailDelegate(unsigned int width, unsigned int height, const std::string &defaultImagePath) :
-    _width(width), _height(height), _defaultImagePath(defaultImagePath)
+    MThumbnailDelegate()
 {
+    _width = width;
+    _height = height;
+    _defaultImagePath = defaultImagePath;
 }
 
 unsigned int Ms::Widgets::Delegates::MThumbnailDelegate::width()
@@ -60,6 +64,8 @@ Wt::WWidget *Ms::Widgets::Delegates::MThumbnailDelegate::update(Wt::WWidget *wid
         result = dynamic_cast<Wt::WContainerWidget*>(widget);
         thumbnail = dynamic_cast<Wt::WImage*>(result->widget(0));
     }
+
+    result->setLineHeight(25);
 
     boost::any data = index.data(Wt::EditRole);
     if(!data.empty())

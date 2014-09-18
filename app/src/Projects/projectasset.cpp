@@ -96,16 +96,6 @@ int Projects::ProjectAsset::progress() const
 
 }
 
-const Wt::Dbo::ptr<Projects::ProjectProgressShare> Projects::ProjectAsset::progressShare() const
-{
-    return _progressShare;
-}
-
-void Projects::ProjectAsset::setProgressShare(Wt::Dbo::ptr<Projects::ProjectProgressShare> progressShare)
-{
-    _progressShare = progressShare;
-}
-
 Wt::Dbo::ptr<Projects::ProjectAssetType> Projects::ProjectAsset::type() const
 {
     return _type;

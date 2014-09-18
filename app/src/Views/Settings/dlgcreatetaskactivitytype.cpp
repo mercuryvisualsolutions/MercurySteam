@@ -1,4 +1,4 @@
-#include "dlgcreatetasktype.h"
+#include "dlgcreatetaskactivitytype.h"
 
 #include <Wt/WBreak>
 
@@ -19,7 +19,7 @@ bool Views::DlgCreateTaskActivityType::isActive() const
 
 void Views::DlgCreateTaskActivityType::_prepareView()
 {
-    this->setCaption("Create Task Type");
+    this->setCaption("Create Task Activity Type");
     this->rejectWhenEscapePressed();
 
     _layMain = new Wt::WVBoxLayout();

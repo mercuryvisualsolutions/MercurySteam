@@ -1,82 +1,80 @@
 #include "../Database/dbtables.h"
 #include "Database/databasemanager.h"
 
-Projects::ProjectTaskPipelineActivity::ProjectTaskPipelineActivity() :
+Projects::ProjectTaskActivity::ProjectTaskActivity() :
     Ms::Dbo::MDboBase()
 {
     _init();
 }
 
-Projects::ProjectTaskPipelineActivity::ProjectTaskPipelineActivity(const std::string &name) :
-    ProjectTaskPipelineActivity()
-{
-    _name = name;
-}
-
-Projects::ProjectTaskPipelineActivity *Projects::ProjectTaskPipelineActivity::modify()
+Projects::ProjectTaskActivity *Projects::ProjectTaskActivity::modify()
 {
     Ms::Dbo::MDboBase::modify();
 
     return this;
 }
 
-const std::string Projects::ProjectTaskPipelineActivity::name() const
+int Projects::ProjectTaskActivity::hours() const
 {
-    return _name;
+    return _hours;
 }
 
-void Projects::ProjectTaskPipelineActivity::setName(const std::string &name)
+void Projects::ProjectTaskActivity::setHours(int hours)
 {
-    _name = name;
+    _hours = hours;
 }
 
-int Projects::ProjectTaskPipelineActivity::progress()
+std::string Projects::ProjectTaskActivity::description() const
 {
-
+    return _description;
 }
 
-const Wt::Dbo::ptr<Projects::ProjectProgressShare> Projects::ProjectTaskPipelineActivity::progressShare() const
+void Projects::ProjectTaskActivity::setDescription(const std::string &description)
 {
-    return _progressShare;
+    _description = description;
 }
 
-void Projects::ProjectTaskPipelineActivity::setProgressShare(Wt::Dbo::ptr<Projects::ProjectProgressShare> progressShare)
-{
-    _progressShare = progressShare;
-}
-
-const Wt::Dbo::ptr<Projects::ProjectTaskPipeline> Projects::ProjectTaskPipelineActivity::pipeline() const
-{
-    return _pipeline;
-}
-
-void Projects::ProjectTaskPipelineActivity::setPipeline(Wt::Dbo::ptr<Projects::ProjectTaskPipeline> pipeline)
-{
-    _pipeline = pipeline;
-}
-
-Wt::Dbo::ptr<Projects::ProjectWorkStatus> Projects::ProjectTaskPipelineActivity::status() const
+const Wt::Dbo::ptr<Projects::ProjectWorkStatus> Projects::ProjectTaskActivity::status() const
 {
     return _status;
 }
 
-void Projects::ProjectTaskPipelineActivity::setStatus(const Wt::Dbo::ptr<Projects::ProjectWorkStatus> status)
+void Projects::ProjectTaskActivity::setStatus(const Wt::Dbo::ptr<Projects::ProjectWorkStatus> status)
 {
     _status = status;
 }
 
-bool Projects::ProjectTaskPipelineActivity::operator ==(const Projects::ProjectTaskPipelineActivity &other) const
+const Wt::Dbo::ptr<Projects::ProjectTaskActivityType> Projects::ProjectTaskActivity::type() const
 {
-    return _name == other.name();
+    return _type;
 }
 
-bool Projects::ProjectTaskPipelineActivity::operator !=(const ProjectTaskPipelineActivity &other) const
+void Projects::ProjectTaskActivity::setType(const Wt::Dbo::ptr<Projects::ProjectTaskActivityType> type)
+{
+    _type = type;
+}
+
+const Wt::Dbo::ptr<Projects::ProjectTask> Projects::ProjectTaskActivity::task() const
+{
+    return _task;
+}
+
+void Projects::ProjectTaskActivity::setTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
+{
+    _task = task;
+}
+
+bool Projects::ProjectTaskActivity::operator ==(const Projects::ProjectTaskActivity &other) const
+{
+    return _type.id() == other.type().id();
+}
+
+bool Projects::ProjectTaskActivity::operator !=(const ProjectTaskActivity &other) const
 {
     return !operator==(other);
 }
 
-void Projects::ProjectTaskPipelineActivity::_init()
+void Projects::ProjectTaskActivity::_init()
 {
-    _name = "New Activity";
-    _percentage = 0;
+    _hours = 0;
 }

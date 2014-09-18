@@ -71,11 +71,6 @@ void Views::ViewAssets::updateView(const std::vector<Wt::Dbo::ptr<Projects::Proj
          AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Projects::ProjectAssetType>() :
          Database::DatabaseManager::instance().session()->find<Projects::ProjectAssetType>().where("Active = ?").bind(true),
          "Type", editRank)));
-        _qtvAssets->addColumn(Ms::Widgets::MTableViewColumn("Asset_Progress_Share_Name", "Progress Share", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectProgressShare>(
-         Database::DatabaseManager::instance().session(),
-         AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Projects::ProjectProgressShare>() :
-         Database::DatabaseManager::instance().session()->find<Projects::ProjectProgressShare>().where("Active = ?").bind(true),
-         "Name", editRank)));
         _qtvAssets->addColumn(Ms::Widgets::MTableViewColumn("Start_Date", "Start Date", flags, new Ms::Widgets::Delegates::MDateDelegate(editRank)));
         _qtvAssets->addColumn(Ms::Widgets::MTableViewColumn("End_Date", "End Date", flags, new Ms::Widgets::Delegates::MDateDelegate(editRank)));
         _qtvAssets->addColumn(Ms::Widgets::MTableViewColumn("Current_Status", "Status", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectWorkStatus>(

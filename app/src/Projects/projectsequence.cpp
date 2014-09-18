@@ -137,16 +137,6 @@ int Projects::ProjectSequence::progress() const
 
 }
 
-const Wt::Dbo::ptr<Projects::ProjectProgressShare> Projects::ProjectSequence::progressShare() const
-{
-    return _progressShare;
-}
-
-void Projects::ProjectSequence::setProgressShare(Wt::Dbo::ptr<Projects::ProjectProgressShare> progressShare)
-{
-    _progressShare = progressShare;
-}
-
 bool Projects::ProjectSequence::operator ==(const Projects::ProjectSequence &other) const
 {
     return _id.name == other.name() &&

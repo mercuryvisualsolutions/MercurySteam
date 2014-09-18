@@ -5,5 +5,6 @@
 #include "dlgcreateassettype.h"
 #include "dlgcreateworkstatus.h"
 #include "dlgcreateusertitle.h"
+#include "dlgcreatetaskactivitytype.h"
 
 #endif // SETTINGSDIALOGS_H

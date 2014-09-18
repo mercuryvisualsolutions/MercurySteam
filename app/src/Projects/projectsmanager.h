@@ -31,7 +31,7 @@ namespace Projects
         Log::Logger *_logger;
 
         //functions
-        void _addDefaultProjectProgressSHare();
+        void _addDefaultProjectTaskActivityTypes();
         void _addDefaultProjectWorkStatusTypes();
         void _addDefaultProjectWorkStatus();
         void _addDefaultProjectAssetTypes();

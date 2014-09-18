@@ -948,6 +948,7 @@ namespace Ms
             //data
             if(_tblMain->selectedIndexes().size() > 0)//export selected
             {
+                int row = 0;
                 for(const Wt::WModelIndex &index : _tblMain->selectedIndexes())
                 {
                     for(int col = 0; col < _proxyModel->columnCount(); ++col)
@@ -962,7 +963,7 @@ namespace Ms
                         if(col < _proxyModel->columnCount() -1)
                             data +=",";
                     }
-                    if(index.row() < _tblMain->selectedIndexes().size() - 1)
+                    if(row++ < _tblMain->selectedIndexes().size() - 1)
                         data +="\n";
                 }
             }
@@ -1363,8 +1364,8 @@ namespace Ms
 
             _sldRowHeight = new Wt::WSlider(Wt::Horizontal);
             _sldRowHeight->resize(100, 20);
-            _sldRowHeight->setRange(30,300);
-            _sldRowHeight->setValue(30);
+            _sldRowHeight->setRange(25,300);
+            _sldRowHeight->setValue(25);
             _sldRowHeight->setTickInterval(10);
             _sldRowHeight->setHandleWidth(10);
             _sldRowHeight->setTickPosition(Wt::WSlider::TicksAbove);

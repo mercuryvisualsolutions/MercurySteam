@@ -29,20 +29,15 @@ namespace Views
     public:
         DlgCreateAndEditTaskActivity(bool editing = false);
 
-        std::string assetName() const;
         Wt::Dbo::ptr<Projects::ProjectWorkStatus> status() const;
-        Wt::Dbo::ptr<Projects::ProjectTaskActivityType> assetType() const;
-        Wt::WDate startDate() const;
-        Wt::WDate endDate() const;
-        int priority() const;
+        Wt::Dbo::ptr<Projects::ProjectTaskActivityType> type() const;
+        int hours() const;
         std::string description() const;
         bool isActive() const;
 
         bool isEditing();
 
-        bool editedStartDate() const;
-        bool editedEndDate() const;
-        bool editedPriority() const;
+        bool editedHours() const;
         bool editedType() const;
         bool editedStatus() const;
         bool editedDescription() const;
@@ -55,10 +50,7 @@ namespace Views
         Wt::WVBoxLayout *_layLeft;
         Wt::WContainerWidget *_cntRight;
         Wt::WVBoxLayout *_layRight;
-        Wt::WLineEdit *_txtAssetName;
-        Wt::WDateEdit *_datStartDate;
-        Wt::WDateEdit *_datEndDate;
-        Wt::WSpinBox *_spnPriority;
+        Wt::WSpinBox *_spnHours;
         Wt::WComboBox *_cmbStatus;
         Wt::WContainerWidget *_cntCmbStatus;
         Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatus>> *_mdlCmbStatus;

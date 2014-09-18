@@ -80,9 +80,13 @@ SOURCES += main.cpp \
     Views/Projects/dlgcreateandeditproject.cpp \
     Views/Projects/dlgcreateandedittask.cpp \
     Projects/projecttaskpipeline.cpp \
-    Projects/projecttaskpipelineactivity.cpp \
-    Projects/projectprogressshare.cpp \
-    Projects/projectdbo.cpp
+    Projects/projectdbo.cpp \
+    Projects/projecttaskpipelineactivityitem.cpp \
+    Projects/projecttaskactivitytype.cpp \
+    Projects/projecttaskactivity.cpp \
+    Views/Settings/dlgcreatetaskactivitytype.cpp \
+    Views/Projects/viewtaskactivities.cpp \
+    Views/Projects/dlgcreateandedittaskactivity.cpp
 
 HEADERS += \
     Views/Projects/viewprojects.h \
@@ -143,4 +147,7 @@ HEADERS += \
     Views/Projects/dlgcreateandeditshot.h \
     Views/Projects/dlgcreateandeditasset.h \
     Views/Projects/dlgcreateandeditproject.h \
-    Views/Projects/dlgcreateandedittask.h
+    Views/Projects/dlgcreateandedittask.h \
+    Views/Settings/dlgcreatetaskactivitytype.h \
+    Views/Projects/viewtaskactivities.h \
+    Views/Projects/dlgcreateandedittaskactivity.h

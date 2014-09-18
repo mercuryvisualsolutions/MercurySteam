@@ -8,13 +8,15 @@
 #include <Wt/WLabel>
 #include <Wt/WHBoxLayout>
 
-Ms::Widgets::Delegates::MPasswordFieldDelegate::MPasswordFieldDelegate()
+Ms::Widgets::Delegates::MPasswordFieldDelegate::MPasswordFieldDelegate() :
+    MItemDelegate()
 {
     _validatorExp = "[A-Za-z0-9_-]{6,14}";
     _validatorIsMandatory = true;
 }
 
-Ms::Widgets::Delegates::MPasswordFieldDelegate::MPasswordFieldDelegate(const std::string &validatorExp, bool validatorIsMandatory, int editRank)
+Ms::Widgets::Delegates::MPasswordFieldDelegate::MPasswordFieldDelegate(const std::string &validatorExp, bool validatorIsMandatory, int editRank) :
+    MPasswordFieldDelegate()
 {
     _validatorExp = validatorExp;
     _validatorIsMandatory = validatorIsMandatory;
@@ -34,6 +36,7 @@ void Ms::Widgets::Delegates::MPasswordFieldDelegate::doCloseEditor(Wt::WWidget *
 Wt::WWidget *Ms::Widgets::Delegates::MPasswordFieldDelegate::createEditor(const Wt::WModelIndex &index, Wt::WFlags<Wt::ViewItemRenderFlag> flags) const
 {
     Wt::WContainerWidget *result = new Wt::WContainerWidget();
+    result->setLineHeight(25);
     result->setSelectable(true);
 
     boost::any data = index.data(Wt::EditRole);

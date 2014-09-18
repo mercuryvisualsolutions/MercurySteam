@@ -9,7 +9,7 @@
 
 namespace Projects
 {
-    class ProjectProgressShare;
+    class ProjectTaskActivityType;
     class ProjectWorkStatusType;
     class ProjectAssetType;
     class ProjectWorkStatus;
@@ -25,9 +25,9 @@ namespace Wt
 {
     namespace Dbo
     {
-        //override the default primary id column for the ProjectProgressShare class to use std::string
+        //override the default primary id column for the ProjectActivityType class to use std::string
         template<>
-        struct dbo_traits<Projects::ProjectProgressShare> : public dbo_default_traits
+        struct dbo_traits<Projects::ProjectTaskActivityType> : public dbo_default_traits
         {
             typedef std::string IdType;
             static IdType invalidId() { return std::string(); }

@@ -21,7 +21,6 @@
 #include "../../Database/dbtables.h"
 #include "../../Log/logger.h"
 #include "../../Session/sessionmanager.h"
-#include "settingsdialogs.h"
 
 #include <Ms/Widgets/MQueryTableViewWidget.h>
 #include <Ms/Widgets/MContainerWidget.h>
@@ -40,6 +39,7 @@ namespace Views
         void updateProjectsSettingsView();
         void updateUsersSettingsView();
         void updateGlobalSettingsView();
+        void updateTaskActivityTypeView();
         void updateTaskTypeView();
         void updateAssetTypeView();
         void updateWorkStatusView();
@@ -88,10 +88,19 @@ namespace Views
         Wt::WMenu *_mnuProjectSettings;
         Wt::WContainerWidget *_cntMnuProjectSettings;
         Wt::WVBoxLayout *_layCntMnuProjectSettings;
+        Wt::WMenuItem *_mnuProjectSettingsTaskActivityTypeItem;
         Wt::WMenuItem *_mnuProjectSettingsTaskTypeItem;
         Wt::WMenuItem *_mnuProjectSettingsAssetTypeItem;
         Wt::WMenuItem *_mnuProjectSettingsWorkStatusItem;
         Wt::WStackedWidget *_stkProjectProperties;
+
+        /*******************--TaskActivityType--********************/
+        Wt::WContainerWidget *_cntTaskActivityType;
+        Wt::WVBoxLayout *_layCntTaskActivityType;
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskActivityType> *_qtvProjectTaskActivityType;
+
+        //functions
+        void _createTaskActivityTypeTableView();
 
         /*******************--TaskType--********************/
         Wt::WContainerWidget *_cntTaskType;
@@ -162,9 +171,13 @@ namespace Views
         void _mnuSettingsGlobalItemTriggered();
         void _btnSaveClicked();
         //Projects Main
+        void _mnuProjectSettingsTaskActivityTypeItemTriggered();
         void _mnuProjectSettingsTaskTypeItemTriggered();
         void _mnuProjectSettingsAssetTypeItemTriggered();
         void _mnuProjectSettingsWorkStatusItemTriggered();
+        //TaskActivityType
+        void _btnCreateTaskActivityTypeClicked();
+        void _btnRemoveTaskActivityTypeClicked();
         //TaskType
         void _btnCreateTaskTypeClicked();
         void _btnRemoveTaskTypeClicked();

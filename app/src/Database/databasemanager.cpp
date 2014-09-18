@@ -94,8 +94,9 @@ bool Database::DatabaseManager::_createSchema()
         session_->mapClass<Users::AuthInfo::AuthIdentityType>("user_auth_identity");
         session_->mapClass<Users::AuthInfo::AuthTokenType>("user_auth_token");
         //projects
-        session_->mapClass<Projects::ProjectProgressShare>("project_progress_share");
-        session_->mapClass<Projects::ProjectTaskPipelineActivity>("project_task_pipeline_activity");
+        session_->mapClass<Projects::ProjectTaskActivity>("project_task_activity");
+        session_->mapClass<Projects::ProjectTaskActivityType>("project_task_activity_type");
+        session_->mapClass<Projects::ProjectTaskPipelineActivityItem>("project_task_pipeline_activity_item");
         session_->mapClass<Projects::ProjectTaskPipeline>("project_task_pipeline");
         session_->mapClass<Projects::ProjectWorkStatusType>("project_work_status_type");
         session_->mapClass<Projects::ProjectAssetType>("project_asset_type");

@@ -3,9 +3,9 @@
 #include <Wt/WStandardItemModel>
 #include <Wt/WStandardItem>
 
-Ms::Widgets::Delegates::MComboBoxDelegate::MComboBoxDelegate()
+Ms::Widgets::Delegates::MComboBoxDelegate::MComboBoxDelegate() :
+    MItemDelegate()
 {
-    _editRank = 0;
 }
 
 Ms::Widgets::Delegates::MComboBoxDelegate::MComboBoxDelegate(std::vector<std::string> items, int editRank) :
@@ -28,6 +28,7 @@ std::vector<std::string> Ms::Widgets::Delegates::MComboBoxDelegate::items()
 Wt::WWidget *Ms::Widgets::Delegates::MComboBoxDelegate::createEditor(const Wt::WModelIndex &index, Wt::WFlags<Wt::ViewItemRenderFlag> flags) const
 {
     Wt::WContainerWidget *result = new Wt::WContainerWidget();
+    result->setLineHeight(25);
 
     result->setSelectable(true);
     result->setLayout(new Wt::WVBoxLayout());

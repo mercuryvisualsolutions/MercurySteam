@@ -27,9 +27,14 @@ namespace Ms
 
                 // WAbstractItemDelegate interface
                 virtual Wt::WWidget *update(Wt::WWidget *widget, const Wt::WModelIndex &index, Wt::WFlags<Wt::ViewItemRenderFlag> flags) override;
+                virtual boost::any editState(Wt::WWidget *widget) const;
+                virtual void setEditState(Wt::WWidget *widget, const boost::any &value) const;
+                virtual void setModelData(const boost::any &editState, Wt::WAbstractItemModel *model, const Wt::WModelIndex &index) const;
+                void doCloseEditor(Wt::WWidget *editor, bool save) const;
 
             protected:
                 int _editRank;
+                virtual Wt::WWidget *createEditor(const Wt::WModelIndex &index, Wt::WFlags<Wt::ViewItemRenderFlag> flags) const;
             };
         }
     }

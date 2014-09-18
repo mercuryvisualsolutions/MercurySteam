@@ -8,6 +8,7 @@
 #include "Users/usersmanager.h"
 #include "../../Auth/authmanager.h"
 #include "../Dialogs/dlgcreatetag.h"
+#include "settingsdialogs.h"
 
 #include <Ms/Widgets/Delegates/MDelegates>
 #include <Ms/Widgets/MWidgetFactory.h>
@@ -24,7 +25,7 @@ Views::ViewSettings::ViewSettings() :
 
     //default menu selection
     _mnuSettings->select(_mnuSettingsGeneralItem);
-    _mnuProjectSettings->select(_mnuProjectSettingsTaskTypeItem);
+    _mnuProjectSettings->select(_mnuProjectSettingsTaskActivityTypeItem);
     _mnuUsersSettings->select(_mnuUsersSettingsUserTitlesItem);
     _mnuGlobalSettings->select(_mnuGlobalSettingsTagsItem);
 }
@@ -92,6 +93,49 @@ void Views::ViewSettings::updateGlobalSettingsView()
 {
     if(_stkGlobalProperties->currentWidget() == _qtvTags)
         updateTagsView();
+}
+
+void Views::ViewSettings::updateTaskActivityTypeView()
+{
+    try
+    {
+        if(!Database::DatabaseManager::instance().openTransaction())
+            return;
+
+        Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTaskActivityType>> query;
+
+        int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+
+        if(AppSettings::instance().isLoadInactiveData())
+            query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskActivityType>().where("View_Rank <= ?").bind(viewRank);
+        else
+            query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskActivityType>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
+
+        _qtvProjectTaskActivityType->setQuery(query);
+
+        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+        Wt::WFlags<Wt::ItemFlag> flags;
+        if(canEdit)
+            flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
+        else
+            flags = Wt::ItemIsSelectable;
+
+        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+
+        _qtvProjectTaskActivityType->clearColumns();
+
+        //add columns
+        _qtvProjectTaskActivityType->addColumn(Ms::Widgets::MTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+
+        if(AppSettings::instance().isShowExtraColumns())
+            _qtvProjectTaskActivityType->addBaseColumns(flags, editRank);
+
+        _qtvProjectTaskActivityType->updateView();
+    }
+    catch(...)
+    {
+        std::cerr << "Exception occured while updating task activity type table view" << std::endl;
+    }
 }
 
 void Views::ViewSettings::updateTaskTypeView()
@@ -349,6 +393,12 @@ void Views::ViewSettings::_btnSaveClicked()
     msg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
+void Views::ViewSettings::_mnuProjectSettingsTaskActivityTypeItemTriggered()
+{
+    _stkProjectProperties->setCurrentWidget(_cntTaskActivityType);
+    updateTaskActivityTypeView();
+}
+
 void Views::ViewSettings::_mnuProjectSettingsTaskTypeItemTriggered()
 {
     _stkProjectProperties->setCurrentWidget(_cntTaskType);
@@ -377,6 +427,76 @@ void Views::ViewSettings::_mnuGlobalSettingsTagsItemTriggered()
 {
     _stkGlobalProperties->setCurrentWidget(_cntTags);
     updateTagsView();
+}
+
+//TaskActivityType
+void Views::ViewSettings::_createTaskActivityTypeTableView()
+{
+    _qtvProjectTaskActivityType = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectTaskActivityType>(&Database::DatabaseManager::instance());
+
+    //requires "create" privilege
+    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
+    {
+        Wt::WPushButton *btn = _qtvProjectTaskActivityType->createToolButton("", "icons/Add.png", "Create A New Task Activity Type");
+        btn->clicked().connect(this, &Views::ViewSettings::_btnCreateTaskActivityTypeClicked);
+
+        _qtvProjectTaskActivityType->setImportCSVFeatureEnabled(true);
+    }
+    else
+        _qtvProjectTaskActivityType->setImportCSVFeatureEnabled(false);
+
+    //requires "remove" privilege
+//    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
+//    {
+//        Wt::WPushButton *btn = _qtvProjectTaskActivityType->createToolButton("", "icons/Remove.png", "Remove Selected Task Activity Type");
+//        btn->clicked().connect(this, &Views::ViewSettings::_btnRemoveTaskActivityTypeClicked);
+//    }
+
+    updateTaskActivityTypeView();
+}
+
+void Views::ViewSettings::_btnCreateTaskActivityTypeClicked()
+{
+    Views::DlgCreateTaskActivityType *dlg = new Views::DlgCreateTaskActivityType();
+    dlg->finished().connect(std::bind([=]()
+    {
+        if(dlg->result() == Wt::WDialog::Accepted)
+        {
+            if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectTaskActivityType>(dlg->type()))
+            {
+                Projects::ProjectTaskActivityType *type = new Projects::ProjectTaskActivityType(dlg->type());
+                type->setActive(dlg->isActive());
+
+                Wt::Dbo::ptr<Projects::ProjectTaskActivityType> typePtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectTaskActivityType>(type);
+
+                if(typePtr.get())
+                {
+                    updateTaskActivityTypeView();
+
+                    _logger->log(std::string("Created task activity type ") + dlg->type(), Ms::Log::LogMessageType::Info);
+                }
+                else
+                {
+                    delete type;
+
+                    _logger->log(std::string("Error creating task activity type ") + dlg->type(), Ms::Log::LogMessageType::Error);
+                }
+            }
+            else
+            {
+                _logger->log(std::string("Object already exist"), Ms::Log::LogMessageType::Warning);
+            }
+        }
+
+        delete dlg;
+    }));
+
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
+}
+
+void Views::ViewSettings::_btnRemoveTaskActivityTypeClicked()
+{
+
 }
 
 //TaskType
@@ -434,7 +554,7 @@ void Views::ViewSettings::_btnCreateTaskTypeClicked()
             }
             else
             {
-                _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
+                _logger->log(std::string("Object already exist"), Ms::Log::LogMessageType::Warning);
             }
         }
 
@@ -504,7 +624,7 @@ void Views::ViewSettings::_btnCreateAssetTypeClicked()
             }
             else
             {
-                _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
+                _logger->log(std::string("Object already exist"), Ms::Log::LogMessageType::Warning);
             }
         }
 
@@ -575,7 +695,7 @@ void Views::ViewSettings::_btnCreateWorkStatusClicked()
             }
             else
             {
-                _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
+                _logger->log(std::string("Object already exist"), Ms::Log::LogMessageType::Warning);
             }
         }
 
@@ -645,7 +765,7 @@ void Views::ViewSettings::_btnCreateUserTitleClicked()
             }
             else
             {
-                _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
+                _logger->log(std::string("Object already exist"), Ms::Log::LogMessageType::Warning);
             }
         }
 
@@ -842,6 +962,10 @@ void Views::ViewSettings::_prepareView()
 
     _mnuProjectSettings->addSectionHeader("Types");
 
+    _mnuProjectSettingsTaskActivityTypeItem = new Wt::WMenuItem("Task Activity Type");
+    _mnuProjectSettingsTaskActivityTypeItem->triggered().connect(this, &Views::ViewSettings::_mnuProjectSettingsTaskActivityTypeItemTriggered);
+    _mnuProjectSettings->addItem(_mnuProjectSettingsTaskActivityTypeItem);
+
     _mnuProjectSettingsTaskTypeItem = new Wt::WMenuItem("Task Type");
     _mnuProjectSettingsTaskTypeItem->triggered().connect(this, &Views::ViewSettings::_mnuProjectSettingsTaskTypeItemTriggered);
     _mnuProjectSettings->addItem(_mnuProjectSettingsTaskTypeItem);
@@ -864,6 +988,21 @@ void Views::ViewSettings::_prepareView()
     _stkProjectProperties->setTransitionAnimation(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Fade, Wt::WAnimation::TimingFunction::EaseInOut), true);
     _layCntProjectsSettings->addWidget(_stkProjectProperties, 1);
 
+    /*******************--TaskActivityType--********************/
+    _layCntTaskActivityType = new Wt::WVBoxLayout();
+    _layCntTaskActivityType->setContentsMargins(14,0,0,0);
+    _layCntTaskActivityType->setSpacing(0);
+
+    _cntTaskActivityType = new Wt::WContainerWidget();
+    _cntTaskActivityType->setLayout(_layCntTaskActivityType);
+
+    //add our TaskActivityType view to the project settings view
+    _stkProjectProperties->addWidget(_cntTaskActivityType);
+
+    _createTaskActivityTypeTableView();
+
+    _layCntTaskActivityType->addWidget(_qtvProjectTaskActivityType, 1);
+
     /*******************--TaskType--********************/
     _layCntTaskType = new Wt::WVBoxLayout();
     _layCntTaskType->setContentsMargins(14,0,0,0);
@@ -872,7 +1011,7 @@ void Views::ViewSettings::_prepareView()
     _cntTaskType = new Wt::WContainerWidget();
     _cntTaskType->setLayout(_layCntTaskType);
 
-    //add our TaskType view to the project settings view
+    //add our TaskType view to the project settings viewP
     _stkProjectProperties->addWidget(_cntTaskType);
 
     _createTaskTypeTableView();

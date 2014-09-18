@@ -57,8 +57,8 @@ std::string Ms::Widgets::MPropertiesPanel::currentShownView() const
 
 void Ms::Widgets::MPropertiesPanel::_prepareView()
 {
-    setMaximumSize(534, Wt::WLength::Auto);
-    setMinimumSize(534, Wt::WLength::Auto);
+    setMinimumSize(535, 500);
+    setWidth(535);
 
     setTitle("<b><i>Properties</i></b>");
 

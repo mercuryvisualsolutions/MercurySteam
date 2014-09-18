@@ -19,16 +19,6 @@ int Projects::ProjectTask::progress() const
 
 }
 
-const Wt::Dbo::ptr<Projects::ProjectProgressShare> Projects::ProjectTask::progressShare() const
-{
-    return _progressShare;
-}
-
-void Projects::ProjectTask::setProgressShare(Wt::Dbo::ptr<Projects::ProjectProgressShare> progressShare)
-{
-    _progressShare = progressShare;
-}
-
 Wt::Dbo::ptr<Projects::ProjectTaskType> Projects::ProjectTask::type() const
 {
     return _type;
@@ -37,6 +27,16 @@ Wt::Dbo::ptr<Projects::ProjectTaskType> Projects::ProjectTask::type() const
 void Projects::ProjectTask::setType(Wt::Dbo::ptr<Projects::ProjectTaskType> type)
 {
     _type = type;
+}
+
+Wt::Dbo::ptr<Projects::ProjectWorkStatus> Projects::ProjectTask::status() const
+{
+    return _status;
+}
+
+void Projects::ProjectTask::setStatus(Wt::Dbo::ptr<Projects::ProjectWorkStatus> status)
+{
+    _status = status;
 }
 
 Wt::Dbo::ptr<Users::User> Projects::ProjectTask::user() const
@@ -89,14 +89,42 @@ void Projects::ProjectTask::setAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset)
     _asset = asset;
 }
 
-const Wt::Dbo::ptr<Projects::ProjectTaskPipeline> Projects::ProjectTask::pipeline() const
+bool Projects::ProjectTask::hasActivity(Wt::Dbo::ptr<Projects::ProjectTaskActivity> activity) const
 {
-    return _pipeline;
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
+        {
+            if((*iter).id() == activity.id())
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
-void Projects::ProjectTask::setPipeline(Wt::Dbo::ptr<Projects::ProjectTaskPipeline> pipeline)
+bool Projects::ProjectTask::addActivity(Wt::Dbo::ptr<Projects::ProjectTaskActivity> activity)
 {
-    _pipeline = pipeline;
+    if(!hasActivity(activity))
+    {
+        _activities.insert(activity);
+        return true;
+    }
+
+    return false;
+}
+
+bool Projects::ProjectTask::removeActivity(Wt::Dbo::ptr<Projects::ProjectTaskActivity> activity)
+{
+    if(hasActivity(activity))
+    {
+        _activities.erase(activity);
+        return true;
+    }
+
+    return false;
 }
 
 bool Projects::ProjectTask::isAcceptedByUser()

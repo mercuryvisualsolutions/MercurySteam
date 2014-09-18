@@ -85,11 +85,6 @@ void Views::ViewShots::updateView(const std::vector<Wt::Dbo::ptr<Projects::Proje
          AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>() :
          Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true),
          "Status", editRank)));
-        _qtvShots->addColumn(Ms::Widgets::MTableViewColumn("Shot_Progress_Share_Name", "Progress Share", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectProgressShare>(
-         Database::DatabaseManager::instance().session(),
-         AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Projects::ProjectProgressShare>() :
-         Database::DatabaseManager::instance().session()->find<Projects::ProjectProgressShare>().where("Active = ?").bind(true),
-         "Name", editRank)));
         _qtvShots->addColumn(Ms::Widgets::MTableViewColumn("Description", "Description", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
         _qtvShots->addColumn(Ms::Widgets::MTableViewColumn("Priority", "Priority", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
 

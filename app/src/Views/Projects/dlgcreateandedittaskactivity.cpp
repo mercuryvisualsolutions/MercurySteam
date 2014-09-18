@@ -11,34 +11,19 @@ Views::DlgCreateAndEditTaskActivity::DlgCreateAndEditTaskActivity(bool editing) 
     _prepareView();
 }
 
-std::string Views::DlgCreateAndEditTaskActivity::assetName() const
-{
-    return _txtAssetName->text().toUTF8();
-}
-
 Wt::Dbo::ptr<Projects::ProjectWorkStatus> Views::DlgCreateAndEditTaskActivity::status() const
 {
     return _mdlCmbStatus->resultRow(_cmbStatus->currentIndex());
 }
 
-Wt::Dbo::ptr<Projects::ProjectTaskActivityType> Views::DlgCreateAndEditTaskActivity::assetType() const
+Wt::Dbo::ptr<Projects::ProjectTaskActivityType> Views::DlgCreateAndEditTaskActivity::type() const
 {
     return _mdlCmbType->resultRow(_cmbType->currentIndex());
 }
 
-Wt::WDate Views::DlgCreateAndEditTaskActivity::startDate() const
+int Views::DlgCreateAndEditTaskActivity::hours() const
 {
-    return _datStartDate->date();
-}
-
-Wt::WDate Views::DlgCreateAndEditTaskActivity::endDate() const
-{
-    return _datEndDate->date();
-}
-
-int Views::DlgCreateAndEditTaskActivity::priority() const
-{
-    return _spnPriority->value();
+    return _spnHours->value();
 }
 
 std::string Views::DlgCreateAndEditTaskActivity::description() const
@@ -56,37 +41,11 @@ bool Views::DlgCreateAndEditTaskActivity::isEditing()
     return _editing;
 }
 
-bool Views::DlgCreateAndEditTaskActivity::editedStartDate() const
+bool Views::DlgCreateAndEditTaskActivity::editedHours() const
 {
     if(_editing)
     {
-        if(_datStartDate->isEnabled())
-            return true;
-        else
-            return false;
-    }
-    else
-        return false;
-}
-
-bool Views::DlgCreateAndEditTaskActivity::editedEndDate() const
-{
-    if(_editing)
-    {
-        if(_datEndDate->isEnabled())
-            return true;
-        else
-            return false;
-    }
-    else
-        return false;
-}
-
-bool Views::DlgCreateAndEditTaskActivity::editedPriority() const
-{
-    if(_editing)
-    {
-        if(_spnPriority->isEnabled())
+        if(_spnHours->isEnabled())
             return true;
         else
             return false;
@@ -150,9 +109,9 @@ bool Views::DlgCreateAndEditTaskActivity::editedActive() const
 void Views::DlgCreateAndEditTaskActivity::_prepareView()
 {
     if(!_editing)
-        this->setCaption("Create Asset");
+        this->setCaption("Create Task Activity");
     else
-        this->setCaption("Edit Assets");
+        this->setCaption("Edit Task Activity");
 
     this->rejectWhenEscapePressed();
 
@@ -180,30 +139,6 @@ void Views::DlgCreateAndEditTaskActivity::_prepareView()
 
     _layMain->addWidget(_cntRight);
 
-    if(!_editing)
-    {
-        _txtAssetName = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[A-Za-z0-9 _-]{4,150}");
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Name:", _txtAssetName));
-
-        _layLeft->addWidget(new Wt::WBreak());
-    }
-
-    _datStartDate = Ms::Widgets::MWidgetFactory::createDateEdit();
-    if(_editing)
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Start Date:", _datStartDate));
-    else
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Start Date:", _datStartDate));
-
-    _layLeft->addWidget(new Wt::WBreak());
-
-    _datEndDate = Ms::Widgets::MWidgetFactory::createDateEdit();
-    if(_editing)
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("End Date:", _datEndDate));
-    else
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("End Date:", _datEndDate));
-
-    _layLeft->addWidget(new Wt::WBreak());
-
     _createCmbType();
     if(_editing)
         _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Type:", _cntCmbType));
@@ -220,11 +155,11 @@ void Views::DlgCreateAndEditTaskActivity::_prepareView()
 
     _layLeft->addWidget(new Wt::WBreak());
 
-    _spnPriority = Ms::Widgets::MWidgetFactory::createSpinBox(0, INT_MAX, 0);
+    _spnHours = Ms::Widgets::MWidgetFactory::createSpinBox(0, INT_MAX, 0);
     if(_editing)
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Priority:", _spnPriority));
+        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Hours:", _spnHours));
     else
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Priority:", _spnPriority));
+        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Hours:", _spnHours));
 
     _layLeft->addWidget(new Wt::WBreak(), 1);
 
@@ -331,9 +266,7 @@ bool Views::DlgCreateAndEditTaskActivity::_validate()
 
     if(!_editing)
     {
-        if((_datStartDate->validate() != Wt::WDateValidator::Valid) ||
-                (_datEndDate->validate() != Wt::WDateValidator::Valid) ||
-                (_spnPriority->validate() != Wt::WIntValidator::Valid) ||
+        if((_spnHours->validate() != Wt::WIntValidator::Valid) ||
                 (_cmbType->currentIndex() == -1) ||
                 (_cmbStatus->currentIndex() == -1))
         {
@@ -342,10 +275,7 @@ bool Views::DlgCreateAndEditTaskActivity::_validate()
     }
     else
     {
-        if(((_datStartDate->isEnabled()) && (_datStartDate->validate() != Wt::WValidator::Valid)) ||
-                ((_datEndDate->isEnabled()) && (_datEndDate->validate() != Wt::WValidator::Valid)) ||
-                ((_datEndDate->isEnabled()) && (_spnPriority->validate() != Wt::WIntValidator::Valid)) ||
-                ((_cmbType->isEnabled()) && (_cmbType->currentIndex() == -1)) ||
+        if(((_cmbType->isEnabled()) && (_cmbType->currentIndex() == -1)) ||
                 ((_cmbStatus->isEnabled()) && (_cmbStatus->currentIndex() == -1)))
         {
             result = false;

@@ -7,13 +7,15 @@
 #include <Wt/WLineEdit>
 #include <Wt/WVBoxLayout>
 
-Ms::Widgets::Delegates::MValidatorFieldDelegate::MValidatorFieldDelegate()
+Ms::Widgets::Delegates::MValidatorFieldDelegate::MValidatorFieldDelegate() :
+    MItemDelegate()
 {
     _validatorExp = "[A-Za-z0-9 _-]{4,150}";
     _validatorIsMandatory = true;
 }
 
-Ms::Widgets::Delegates::MValidatorFieldDelegate::MValidatorFieldDelegate(const std::string &validatorExp, bool validatorIsMandatory, int editRank)
+Ms::Widgets::Delegates::MValidatorFieldDelegate::MValidatorFieldDelegate(const std::string &validatorExp, bool validatorIsMandatory, int editRank) :
+    MValidatorFieldDelegate()
 {
     _validatorExp = validatorExp;
     _validatorIsMandatory = validatorIsMandatory;

@@ -6,5 +6,6 @@
 #include "dlgcreateandeditshot.h"
 #include "dlgcreateandeditasset.h"
 #include "dlgcreateandedittask.h"
+#include "dlgcreateandedittaskactivity.h"
 
 #endif // PROJECTSDIALOGS_H

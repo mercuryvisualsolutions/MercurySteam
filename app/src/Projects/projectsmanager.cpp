@@ -16,28 +16,26 @@ void Projects::ProjectsManager::initSessionLogger()
 
 void Projects::ProjectsManager::addDefaults()
 {
-    _addDefaultProjectProgressSHare();
+    _addDefaultProjectTaskActivityTypes();
     _addDefaultProjectWorkStatusTypes();
     _addDefaultProjectWorkStatus();
     _addDefaultProjectAssetTypes();
     _addDefaultProjectTaskTypes();
 }
 
-void Projects::ProjectsManager::_addDefaultProjectProgressSHare()
+void Projects::ProjectsManager::_addDefaultProjectTaskActivityTypes()
 {
-    std::vector<Projects::ProjectProgressShare*> vec;
+    std::vector<Projects::ProjectTaskActivityType*> vec;
 
-    vec.push_back(new Projects::ProjectProgressShare("Very Low", 1));
-    vec.push_back(new Projects::ProjectProgressShare("Low", 2));
-    vec.push_back(new Projects::ProjectProgressShare("Medium", 3));
-    vec.push_back(new Projects::ProjectProgressShare("High", 4));
-    vec.push_back(new Projects::ProjectProgressShare("Very High", 5));
+    vec.push_back(new Projects::ProjectTaskActivityType("2D Automatic Feature Tracking"));
+    vec.push_back(new Projects::ProjectTaskActivityType("2D Manual Feature Tracking"));
+    vec.push_back(new Projects::ProjectTaskActivityType("2D Camera Solve"));
 
     try
     {
-        for(std::vector<Projects::ProjectProgressShare*>::size_type i = 0; i < vec.size(); ++i)
+        for(std::vector<Projects::ProjectTaskActivityType*>::size_type i = 0; i < vec.size(); ++i)
         {
-            if(!Database::DatabaseManager::instance().createDbo<Projects::ProjectProgressShare>(vec.at(i)))
+            if(!Database::DatabaseManager::instance().createDbo<Projects::ProjectTaskActivityType>(vec.at(i)))
             {
                 delete vec.at(i);
             }
@@ -45,11 +43,11 @@ void Projects::ProjectsManager::_addDefaultProjectProgressSHare()
     }
     catch(Wt::Dbo::Exception ex)
     {
-        Log::LogManager::instance().getGlobalLogger()->log(std::string("Error occured while trying to add default project progress share ") + ex.what() , Ms::Log::LogMessageType::Error);
+        Log::LogManager::instance().getGlobalLogger()->log(std::string("Error occured while trying to add default project activity types ") + ex.what() , Ms::Log::LogMessageType::Error);
     }
     catch(...)
     {
-        Log::LogManager::instance().getGlobalLogger()->log("Error occured while trying to add default project progress share", Ms::Log::LogMessageType::Error);
+        Log::LogManager::instance().getGlobalLogger()->log("Error occured while trying to add default project activity types", Ms::Log::LogMessageType::Error);
     }
 }
 

@@ -30,13 +30,13 @@ void Projects::ProjectTaskPipeline::setName(const std::string &name)
     _name = name;
 }
 
-bool Projects::ProjectTaskPipeline::hasTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const
+bool Projects::ProjectTaskPipeline::hasItem(Wt::Dbo::ptr<Projects::ProjectTaskPipelineActivityItem> taskItem) const
 {
     if(dboManager_ && dboManager_->openTransaction())
     {
-        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        for(auto iter = _taskItems.begin(); iter != _taskItems.end(); ++iter)
         {
-            if((*iter).id() == task.id())
+            if((*iter).id() == taskItem.id())
             {
                 return true;
             }
@@ -46,60 +46,22 @@ bool Projects::ProjectTaskPipeline::hasTask(Wt::Dbo::ptr<Projects::ProjectTask> 
     return false;
 }
 
-bool Projects::ProjectTaskPipeline::addTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
+bool Projects::ProjectTaskPipeline::addItem(Wt::Dbo::ptr<Projects::ProjectTaskPipelineActivityItem> taskItem)
 {
-    if(!hasTask(task))
+    if(!hasItem(taskItem))
     {
-        _tasks.insert(task);
+        _taskItems.insert(taskItem);
         return true;
     }
 
     return false;
 }
 
-bool Projects::ProjectTaskPipeline::removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
+bool Projects::ProjectTaskPipeline::removeItem(Wt::Dbo::ptr<Projects::ProjectTaskPipelineActivityItem> taskItem)
 {
-    if(hasTask(task))
+    if(hasItem(taskItem))
     {
-        _tasks.erase(task);
-        return true;
-    }
-
-    return false;
-}
-
-bool Projects::ProjectTaskPipeline::hasActivity(Wt::Dbo::ptr<Projects::ProjectTaskPipelineActivity> activity) const
-{
-    if(dboManager_ && dboManager_->openTransaction())
-    {
-        for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
-        {
-            if((*iter).id() == activity.id())
-            {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-bool Projects::ProjectTaskPipeline::addActivity(Wt::Dbo::ptr<Projects::ProjectTaskPipelineActivity> activity)
-{
-    if(!hasActivity(activity))
-    {
-        _activities.insert(activity);
-        return true;
-    }
-
-    return false;
-}
-
-bool Projects::ProjectTaskPipeline::removeActivity(Wt::Dbo::ptr<Projects::ProjectTaskPipelineActivity> activity)
-{
-    if(hasActivity(activity))
-    {
-        _activities.erase(activity);
+        _taskItems.erase(taskItem);
         return true;
     }
 

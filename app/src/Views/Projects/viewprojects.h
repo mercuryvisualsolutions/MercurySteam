@@ -23,6 +23,7 @@
 #include "viewshots.h"
 #include "viewassets.h"
 #include "viewtasks.h"
+#include "viewtaskactivities.h"
 #include "../Database/viewdbodata.h"
 #include "../Database/viewtags.h"
 #include "../Database/viewnotes.h"
@@ -138,6 +139,7 @@ namespace Views
         Wt::WMenuItem *_mnuNavBarPropertiesShotsItem;
         Wt::WMenuItem *_mnuNavBarPropertiesAssetsItem;
         Wt::WMenuItem *_mnuNavBarPropertiesTasksItem;
+        Wt::WMenuItem *_mnuNavBarPropertiesTaskActivitiesItem;
         Wt::WStackedWidget *_stkProperties;
         Views::ViewDboData *_viewPropertiesData;
         Views::ViewTags *_viewPropertiesTags;
@@ -146,6 +148,7 @@ namespace Views
         Views::ViewShots *_viewPropertiesShots;
         Views::ViewAssets *_viewPropertiesAssets;
         Views::ViewTasks *_viewPropertiesTasks;
+        Views::ViewTaskActivity *_viewPropertiesTaskActivities;
 
         //slots
         /*******************--Main--********************/
@@ -213,6 +216,7 @@ namespace Views
         void _mnuNavBarPropertiesShotsItemTriggered();
         void _mnuNavBarPropertiesAssetsItemTriggered();
         void _mnuNavBarPropertiesTasksItemTriggered();
+        void _mnuNavBarPropertiesTaskActivitiesItemTriggered();
 
         void _addDataRequested();
         void _removeDataRequested(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec);
@@ -223,6 +227,8 @@ namespace Views
         void _clearTagsFilterRequested();
         void _addNoteRequested();
         void _removeNotesRequested(const std::vector<Wt::Dbo::ptr<Database::Note>> &noteVec);
+        void _createTaskActivityRequested();
+        void _removeTaskActivitiesRequested(const std::vector<Wt::Dbo::ptr<Projects::ProjectTaskActivity>> &activityVec);
 
         //functions
         void _createPropertiesView();
@@ -235,6 +241,7 @@ namespace Views
         void _updatePropertiesShotsView();
         void _updatePropertiesAssetsView();
         void _updatePropertiesTasksView();
+        void _updatePropertiesTaskActivitiesView();
     };
 }
 

@@ -9,11 +9,13 @@
 #include <Wt/WLineEdit>
 #include <Wt/WVBoxLayout>
 
-Ms::Widgets::Delegates::MIntFieldDelegate::MIntFieldDelegate()
+Ms::Widgets::Delegates::MIntFieldDelegate::MIntFieldDelegate() :
+    MItemDelegate()
 {
 }
 
-Ms::Widgets::Delegates::MIntFieldDelegate::MIntFieldDelegate(int editRank)
+Ms::Widgets::Delegates::MIntFieldDelegate::MIntFieldDelegate(int editRank) :
+    MIntFieldDelegate()
 {
     _editRank = editRank;
 }
@@ -31,6 +33,7 @@ void Ms::Widgets::Delegates::MIntFieldDelegate::doCloseEditor(Wt::WWidget *edito
 Wt::WWidget *Ms::Widgets::Delegates::MIntFieldDelegate::createEditor(const Wt::WModelIndex &index, Wt::WFlags<Wt::ViewItemRenderFlag> flags) const
 {
     Wt::WContainerWidget *result = new Wt::WContainerWidget();
+    result->setLineHeight(25);
     result->setSelectable(true);
     result->setLayout(new Wt::WVBoxLayout());
     result->layout()->setContentsMargins(0,0,0,0);
