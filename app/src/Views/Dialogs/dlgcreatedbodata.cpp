@@ -48,7 +48,6 @@ void Views::Dialogs::DlgCreateDBOData::_prepareView()
     _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", _cmbActive), 1);
 
     _btnOk = new Wt::WPushButton("Ok", this->footer());
-    _btnOk->setDefault(true);
     _btnOk->clicked().connect(this, &Views::Dialogs::DlgCreateDBOData::_btnOkClicked);
 
     _btnCancel = new Wt::WPushButton("Cancel", this->footer());

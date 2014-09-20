@@ -31,7 +31,7 @@ namespace Views
             //variables
             Wt::WVBoxLayout *_layMain;
             Wt::WLineEdit *_txtTagName;
-            Wt::WLineEdit *_txtTagContent;
+            Wt::WTextArea *_txtTagContent;
             Wt::WComboBox *_cmbActive;
             Wt::WPushButton *_btnOk;
             Wt::WPushButton *_btnCancel;

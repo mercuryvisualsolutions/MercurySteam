@@ -1,5 +1,5 @@
-#ifndef DLGCREATENOTE2_H
-#define DLGCREATENOTE2_H
+#ifndef DLGCREATENOTE_H
+#define DLGCREATENOTE_H
 
 #include <Wt/WDialog>
 #include <Wt/WLabel>
@@ -29,7 +29,7 @@ namespace Views
         private:
             //variables
             Wt::WVBoxLayout *_layMain;
-            Wt::WLineEdit *_txtContent;
+            Wt::WTextArea *_txtContent;
             Wt::WComboBox *_cmbActive;
             Wt::WPushButton *_btnOk;
             Wt::WPushButton *_btnCancel;

@@ -1,5 +1,5 @@
-#ifndef DLGCREATEDBODATA_H
-#define DLGCREATEDBODATA_H
+#ifndef DLGCREATEPIPELINE_H
+#define DLGCREATEPIPELINE_H
 
 #include <Wt/WDialog>
 #include <Wt/WLabel>
@@ -16,22 +16,20 @@ namespace Views
 {
     namespace Dialogs
     {
-        class DlgCreateDBOData : public Wt::WDialog
+        class DlgCreatePipeline : public Wt::WDialog
         {
         public:
-            DlgCreateDBOData();
+            DlgCreatePipeline();
             //functions
 
-            std::string key() const;
-            std::string value() const;
+            std::string name() const;
             bool isActive() const;
 
 
         private:
             //variables
             Wt::WVBoxLayout *_layMain;
-            Wt::WLineEdit *_txtKey;
-            Wt::WLineEdit *_txtValue;
+            Wt::WLineEdit *_txtName;
             Wt::WComboBox *_cmbActive;
             Wt::WPushButton *_btnOk;
             Wt::WPushButton *_btnCancel;
@@ -46,4 +44,4 @@ namespace Views
     }
 }
 
-#endif // DLGCREATEDBODATA_H
+#endif // DLGCREATEPIPELINE_H

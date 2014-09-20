@@ -24,6 +24,7 @@
 #include "viewassets.h"
 #include "viewtasks.h"
 #include "viewtaskactivities.h"
+#include "viewtaskpipeline.h"
 #include "../Database/viewdbodata.h"
 #include "../Database/viewtags.h"
 #include "../Database/viewnotes.h"
@@ -140,6 +141,7 @@ namespace Views
         Wt::WMenuItem *_mnuNavBarPropertiesAssetsItem;
         Wt::WMenuItem *_mnuNavBarPropertiesTasksItem;
         Wt::WMenuItem *_mnuNavBarPropertiesTaskActivitiesItem;
+        Wt::WMenuItem *_mnuNavBarPropertiesTaskPipelinesItem;
         Wt::WStackedWidget *_stkProperties;
         Views::ViewDboData *_viewPropertiesData;
         Views::ViewTags *_viewPropertiesTags;
@@ -149,6 +151,7 @@ namespace Views
         Views::ViewAssets *_viewPropertiesAssets;
         Views::ViewTasks *_viewPropertiesTasks;
         Views::ViewTaskActivity *_viewPropertiesTaskActivities;
+        Views::ViewTaskPipeline *_viewPropertiesTaskPipelines;
 
         //slots
         /*******************--Main--********************/
@@ -217,6 +220,7 @@ namespace Views
         void _mnuNavBarPropertiesAssetsItemTriggered();
         void _mnuNavBarPropertiesTasksItemTriggered();
         void _mnuNavBarPropertiesTaskActivitiesItemTriggered();
+        void _mnuNavBarPropertiesTaskPipelinesItemTriggered();
 
         void _addDataRequested();
         void _removeDataRequested(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec);
@@ -229,6 +233,10 @@ namespace Views
         void _removeNotesRequested(const std::vector<Wt::Dbo::ptr<Database::Note>> &noteVec);
         void _createTaskActivityRequested();
         void _removeTaskActivitiesRequested(const std::vector<Wt::Dbo::ptr<Projects::ProjectTaskActivity>> &activityVec);
+        void _createTaskPipelineRequested();
+        void _removeTaskPipelinesRequested(const std::vector<Wt::Dbo::ptr<Projects::ProjectTaskPipeline>> &pipelineVec);
+        void _createTaskPipelineItemRequested();
+        void _removeTaskPipelineItemsRequested(const std::vector<Wt::Dbo::ptr<Projects::ProjectTaskPipelineActivityItem>> &pipelineItemsVec);
 
         //functions
         void _createPropertiesView();
@@ -242,6 +250,8 @@ namespace Views
         void _updatePropertiesAssetsView();
         void _updatePropertiesTasksView();
         void _updatePropertiesTaskActivitiesView();
+        void _updatePropertiesTaskPipelinesView();
+        void _updatePropertiesTaskPipelineItemsView();
     };
 }
 

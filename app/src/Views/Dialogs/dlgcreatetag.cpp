@@ -38,7 +38,7 @@ void Views::Dialogs::DlgCreateTag::_prepareView()
 
     _layMain->addWidget(new Wt::WBreak());
 
-    _txtTagContent = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[A-Za-z0-9 _-]{1,255}", false);
+    _txtTagContent = Ms::Widgets::MWidgetFactory::createTextArea("", false);
     _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Content:", _txtTagContent));
 
     _layMain->addWidget(new Wt::WBreak());
@@ -50,7 +50,6 @@ void Views::Dialogs::DlgCreateTag::_prepareView()
     _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", _cmbActive), 1);
 
     _btnOk = new Wt::WPushButton("Ok", this->footer());
-    _btnOk->setDefault(true);
     _btnOk->clicked().connect(this, &Views::Dialogs::DlgCreateTag::_btnOkClicked);
 
     _btnCancel = new Wt::WPushButton("Cancel", this->footer());

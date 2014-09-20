@@ -178,6 +178,13 @@ void Views::DlgFilesManager::_btnViewClicked()
                 dim = boost::gil::png_read_dimensions(AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + file.fullName());
 
             Wt::WImage *img = new Wt::WImage(std::string(fileUrl));
+            int width = dim.x <= 1280 ? dim.x : 1280;
+            int height = dim.y;
+            if(dim.x <= 1280)
+            {
+                height = dim.y;
+            }
+
             img->setWidth(dim.x < 1280 ? dim.x : 1280);
             img->setHeight(dim.y < 720 ? dim.y : 720);
 

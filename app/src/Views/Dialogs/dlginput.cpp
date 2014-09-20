@@ -31,7 +31,6 @@ void Views::Dialogs::DlgInput::_prepareView()
     _layMain->addWidget(new Wt::WBreak());
 
     _btnOk = new Wt::WPushButton("Ok", this->footer());
-    _btnOk->setDefault(true);
     _btnOk->clicked().connect(this, &Views::Dialogs::DlgInput::_btnOkClicked);
 
     _btnCancel = new Wt::WPushButton("Cancel", this->footer());
