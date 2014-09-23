@@ -130,14 +130,14 @@ void Views::DlgCreateAndEditTaskActivity::_prepareView()
 
     _layMain->addWidget(_cntLeft);
 
-    _layRight = new Wt::WVBoxLayout();
-    _layRight->setContentsMargins(16,0,0,0);
-    _layRight->setSpacing(1);
+//    _layRight = new Wt::WVBoxLayout();
+//    _layRight->setContentsMargins(16,0,0,0);
+//    _layRight->setSpacing(1);
 
-    _cntRight = new Wt::WContainerWidget();
-    _cntRight->setLayout(_layRight);
+//    _cntRight = new Wt::WContainerWidget();
+//    _cntRight->setLayout(_layRight);
 
-    _layMain->addWidget(_cntRight);
+//    _layMain->addWidget(_cntRight);
 
     _createCmbType();
     if(_editing)
@@ -161,7 +161,7 @@ void Views::DlgCreateAndEditTaskActivity::_prepareView()
     else
         _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Hours:", _spnHours));
 
-    _layLeft->addWidget(new Wt::WBreak(), 1);
+    _layLeft->addWidget(new Wt::WBreak());
 
     _txtDescription = Ms::Widgets::MWidgetFactory::createTextArea("", false);
     if(_editing)
@@ -169,18 +169,18 @@ void Views::DlgCreateAndEditTaskActivity::_prepareView()
     else
         _layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Description:", _txtDescription));
 
-    _layRight->addWidget(new Wt::WBreak());
+    _layLeft->addWidget(new Wt::WBreak());
 
     _cmbActive = new Wt::WComboBox();
     _cmbActive->addItem("Yes");
     _cmbActive->addItem("No");
     _cmbActive->setCurrentIndex(0);
     if(_editing)
-        _layRight->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Active:", _cmbActive));
+        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Active:", _cmbActive));
     else
-        _layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", _cmbActive));
+        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", _cmbActive));
 
-    _layRight->addWidget(new Wt::WBreak(), 1);
+    _layLeft->addWidget(new Wt::WBreak(), 1);
 
     _btnOk = new Wt::WPushButton("Ok", this->footer());
     _btnOk->clicked().connect(this, &Views::DlgCreateAndEditTaskActivity::_btnOkClicked);
@@ -275,7 +275,8 @@ bool Views::DlgCreateAndEditTaskActivity::_validate()
     }
     else
     {
-        if(((_cmbType->isEnabled()) && (_cmbType->currentIndex() == -1)) ||
+        if((_spnHours->isEnabled() && (_spnHours->validate() != Wt::WIntValidator::Valid)) ||
+                ((_cmbType->isEnabled()) && (_cmbType->currentIndex() == -1)) ||
                 ((_cmbStatus->isEnabled()) && (_cmbStatus->currentIndex() == -1)))
         {
             result = false;

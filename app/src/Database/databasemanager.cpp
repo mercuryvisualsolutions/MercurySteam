@@ -96,8 +96,8 @@ bool Database::DatabaseManager::_createSchema()
         //projects
         session_->mapClass<Projects::ProjectTaskActivity>("project_task_activity");
         session_->mapClass<Projects::ProjectTaskActivityType>("project_task_activity_type");
-        session_->mapClass<Projects::ProjectTaskPipelineActivityItem>("project_task_pipeline_activity_item");
-        session_->mapClass<Projects::ProjectTaskPipeline>("project_task_pipeline");
+        session_->mapClass<Projects::ProjectActivityTemplateActivityItem>("project_activity_template_item");
+        session_->mapClass<Projects::ProjectActivityTemplate>("project_activity_template");
         session_->mapClass<Projects::ProjectWorkStatusType>("project_work_status_type");
         session_->mapClass<Projects::ProjectAssetType>("project_asset_type");
         session_->mapClass<Projects::ProjectWorkStatus>("project_work_status");

@@ -87,8 +87,10 @@ SOURCES += main.cpp \
     Views/Settings/dlgcreatetaskactivitytype.cpp \
     Views/Projects/viewtaskactivities.cpp \
     Views/Projects/dlgcreateandedittaskactivity.cpp \
-    Views/Projects/dlgcreatepipeline.cpp \
-    Views/Projects/viewtaskpipeline.cpp
+    Views/Settings/dlgcreateandedittaskpipelineactivityitem.cpp \
+    Views/Projects/dlgselectactivitytemplate.cpp \
+    Views/Settings/dlgcreatetemplate.cpp \
+    Views/Settings/viewactivitytemplate.cpp
 
 HEADERS += \
     Views/Projects/viewprojects.h \
@@ -153,5 +155,7 @@ HEADERS += \
     Views/Settings/dlgcreatetaskactivitytype.h \
     Views/Projects/viewtaskactivities.h \
     Views/Projects/dlgcreateandedittaskactivity.h \
-    Views/Projects/dlgcreatepipeline.h \
-    Views/Projects/viewtaskpipeline.h
+    Views/Settings/dlgcreateandedittaskpipelineactivityitem.h \
+    Views/Projects/dlgselectactivitytemplate.h \
+    Views/Settings/dlgcreatetemplate.h \
+    Views/Settings/viewactivitytemplate.h

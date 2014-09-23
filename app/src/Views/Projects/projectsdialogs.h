@@ -7,5 +7,6 @@
 #include "dlgcreateandeditasset.h"
 #include "dlgcreateandedittask.h"
 #include "dlgcreateandedittaskactivity.h"
+#include "dlgselectactivitytemplate.h"
 
 #endif // PROJECTSDIALOGS_H

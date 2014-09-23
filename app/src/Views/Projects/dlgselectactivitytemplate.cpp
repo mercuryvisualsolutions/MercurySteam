@@ -1,23 +1,23 @@
-#include "dlgcreateandeditasset.h"
+#include "dlgselectactivitytemplate.h"
 
 #include <Wt/WBreak>
 
 #include "../../Database/databasemanager.h"
 #include "../../Settings/appsettings.h"
 
-Views::DlgSelectTaskPipeline::DlgSelectTaskPipeline()
+Views::DlgSelectActivityTemplate::DlgSelectActivityTemplate()
 {
     _prepareView();
 }
 
-Wt::Dbo::ptr<Projects::ProjectTaskPipeline> Views::DlgSelectTaskPipeline::pipeline() const
+Wt::Dbo::ptr<Projects::ProjectActivityTemplate> Views::DlgSelectActivityTemplate::activityTemplate() const
 {
-    return _mdlCmbPipeline->resultRow(_cmbPipeline->currentIndex());
+    return _mdlCmbTemplate->resultRow(_cmbTemplate->currentIndex());
 }
 
-void Views::DlgSelectTaskPipeline::_prepareView()
+void Views::DlgSelectActivityTemplate::_prepareView()
 {
-    this->setCaption("Select Pipeline");
+    this->setCaption("Select Template");
     this->rejectWhenEscapePressed();
 
     _layMain = new Wt::WHBoxLayout();
@@ -35,60 +35,60 @@ void Views::DlgSelectTaskPipeline::_prepareView()
 
     _layMain->addWidget(_cntLeft);
 
-    _createCmbPipeline();
-    _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Pipeline:", _cntCmbPipeline));
+    _createCmbTemplate();
+    _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Template:", _cntCmbTemplate));
 
     _layLeft->addWidget(new Wt::WBreak());
 
     _btnOk = new Wt::WPushButton("Ok", this->footer());
-    _btnOk->clicked().connect(this, &Views::DlgSelectTaskPipeline::_btnOkClicked);
+    _btnOk->clicked().connect(this, &Views::DlgSelectActivityTemplate::_btnOkClicked);
 
     _btnCancel = new Wt::WPushButton("Cancel", this->footer());
     _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
     _btnCancel->setFocus();
 }
 
-void Views::DlgSelectTaskPipeline::_btnOkClicked()
+void Views::DlgSelectActivityTemplate::_btnOkClicked()
 {
     if(_validate())
         this->accept();
 }
 
-void Views::DlgSelectTaskPipeline::_createCmbStatus()
+void Views::DlgSelectActivityTemplate::_createCmbTemplate()
 {
-    _cmbPipeline = new Wt::WComboBox();
-    _cmbPipeline->setMinimumSize(20, 30);
-    _cntCmbPipeline = new Wt::WContainerWidget();
-    _cntCmbPipeline->addWidget(_cmbPipeline);
+    _cmbTemplate = new Wt::WComboBox();
+    _cmbTemplate->setMinimumSize(20, 30);
+    _cntCmbTemplate = new Wt::WContainerWidget();
+    _cntCmbTemplate->addWidget(_cmbTemplate);
 
-    _mdlCmbPipeline = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectTaskPipeline>>();
+    _mdlCmbTemplate = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>>();
 
     if(!Database::DatabaseManager::instance().openTransaction())
         return;
 
-    Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTaskPipeline>> query;
+    Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>> query;
     if(AppSettings::instance().isLoadInactiveData())
-        query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskPipeline>();
+        query = Database::DatabaseManager::instance().session()->find<Projects::ProjectActivityTemplate>();
     else
-        query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskPipeline>().where("Active = ?").bind(true);
+        query = Database::DatabaseManager::instance().session()->find<Projects::ProjectActivityTemplate>().where("Active = ?").bind(true);
 
-    _mdlCmbPipeline->setQuery(query);
+    _mdlCmbTemplate->setQuery(query);
 
     Database::DatabaseManager::instance().commitTransaction();
 
-    _mdlCmbPipeline->reload();
+    _mdlCmbTemplate->reload();
 
-    _mdlCmbPipeline->addColumn("Name", Wt::ItemIsSelectable);
+    _mdlCmbTemplate->addColumn("Name", Wt::ItemIsSelectable);
 
-    _cmbPipeline->setModel(_mdlCmbPipeline);
+    _cmbTemplate->setModel(_mdlCmbTemplate);
 
-    if(_mdlCmbPipeline->rowCount() > 0)
-        _cmbPipeline->setCurrentIndex(0);
+    if(_mdlCmbTemplate->rowCount() > 0)
+        _cmbTemplate->setCurrentIndex(0);
 }
 
-bool Views::DlgSelectTaskPipeline::_validate()
+bool Views::DlgSelectActivityTemplate::_validate()
 {
-    if(_cmbPipeline->currentIndex() == -1)
+    if(_cmbTemplate->currentIndex() == -1)
 	return false;
     
     return true;

@@ -24,10 +24,10 @@
 
 namespace Views
 {
-    class DlgCreateAndEditTaskPipelineActivityItem : public Wt::WDialog
+    class DlgCreateAndEditActivityTemplateActivityItem : public Wt::WDialog
     {
     public:
-        DlgCreateAndEditTaskPipelineActivityItem(bool editing = false);
+        DlgCreateAndEditActivityTemplateActivityItem(bool editing = false);
 
         Wt::Dbo::ptr<Projects::ProjectWorkStatus> status() const;
         Wt::Dbo::ptr<Projects::ProjectTaskActivityType> type() const;
@@ -39,6 +39,7 @@ namespace Views
 
         bool editedType() const;
         bool editedStatus() const;
+        bool editedHours() const;
         bool editedDescription() const;
         bool editedActive() const;
 
@@ -55,6 +56,7 @@ namespace Views
         Wt::WComboBox *_cmbType;
         Wt::WContainerWidget *_cntCmbType;
         Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectTaskActivityType>> *_mdlCmbType;
+        Wt::WSpinBox *_spnHours;
         Wt::WTextArea *_txtDescription;
         Wt::WComboBox *_cmbActive;
         Wt::WPushButton *_btnOk;

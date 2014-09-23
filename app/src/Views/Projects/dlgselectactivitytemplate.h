@@ -1,5 +1,5 @@
-#ifndef DLGSELECTTASKPIPELINE_H
-#define DLGSELECTTASKPIPELINE_H
+#ifndef DLGSELECTTASKTEMPLATE_H
+#define DLGSELECTTASKTEMPLATE_H
 
 #include <Wt/WDialog>
 #include <Wt/WLabel>
@@ -21,28 +21,28 @@
 
 namespace Views
 {
-    class DlgSelectTaskPipeline : public Wt::WDialog
+    class DlgSelectActivityTemplate : public Wt::WDialog
     {
     public:
-        DlgSelectTaskPipeline();
+        DlgSelectActivityTemplate();
 
         std::string assetName() const;
-        Wt::Dbo::ptr<Projects::ProjectTaskPipeline> pipeline() const;
+        Wt::Dbo::ptr<Projects::ProjectActivityTemplate> activityTemplate() const;
 
     private:
         //variables
         Wt::WHBoxLayout *_layMain;
         Wt::WContainerWidget *_cntLeft;
         Wt::WVBoxLayout *_layLeft;
-        Wt::WComboBox *_cmbPipeline;
-        Wt::WContainerWidget *_cntCmbPipeline;
-        Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectTaskPipeline>> *_mdlCmbPipeline;
+        Wt::WComboBox *_cmbTemplate;
+        Wt::WContainerWidget *_cntCmbTemplate;
+        Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>> *_mdlCmbTemplate;
         Wt::WPushButton *_btnOk;
         Wt::WPushButton *_btnCancel;
 
         //functions
         void _prepareView();
-        void _createCmbPipeline();
+        void _createCmbTemplate();
         bool _validate();
 
         //slots
@@ -50,4 +50,4 @@ namespace Views
     };
 }
 
-#endif // DLGSELECTTASKPIPELINE_H
+#endif // DLGSELECTTASKTEMPLATE_H

@@ -272,6 +272,11 @@ void Views::ViewSettings::updateWorkStatusView()
     }
 }
 
+void Views::ViewSettings::updateActivityTemplatesView()
+{
+    _viewActivityTemplates->updateView();
+}
+
 void Views::ViewSettings::updateUserTitlesView()
 {
     try
@@ -415,6 +420,12 @@ void Views::ViewSettings::_mnuProjectSettingsWorkStatusItemTriggered()
 {
     _stkProjectProperties->setCurrentWidget(_cntWorkStatus);
     updateWorkStatusView();
+}
+
+void Views::ViewSettings::_mnuProjectSettingsActivityTemplatesItemTriggered()
+{
+    _stkProjectProperties->setCurrentWidget(_viewActivityTemplates);
+    updateActivityTemplatesView();
 }
 
 void Views::ViewSettings::_mnuUsersSettingsUserTitlesItemTriggered()
@@ -978,6 +989,10 @@ void Views::ViewSettings::_prepareView()
     _mnuProjectSettingsWorkStatusItem->triggered().connect(this, &Views::ViewSettings::_mnuProjectSettingsWorkStatusItemTriggered);
     _mnuProjectSettings->addItem(_mnuProjectSettingsWorkStatusItem);
 
+    _mnuProjectSettingsActivityTemplatesItem = new Wt::WMenuItem("Task Templates");
+    _mnuProjectSettingsActivityTemplatesItem->triggered().connect(this, &Views::ViewSettings::_mnuProjectSettingsActivityTemplatesItemTriggered);
+    _mnuProjectSettings->addItem(_mnuProjectSettingsActivityTemplatesItem);
+
     _layCntMnuProjectSettings->addWidget(_mnuProjectSettings);
 
     //add our project view to the Settings view
@@ -1047,6 +1062,11 @@ void Views::ViewSettings::_prepareView()
     _createWorkStatusTableView();
 
     _layCntWorkStatus->addWidget(_qtvProjectWorkStatus, 1);
+
+    /*******************--Activity Template--********************/
+    _viewActivityTemplates = new Views::ViewActivityTemplates();
+
+    _stkProjectProperties->addWidget(_viewActivityTemplates);
 
     /*******************--Users Main--********************/
     _layCntUsersSettings = new Wt::WHBoxLayout();

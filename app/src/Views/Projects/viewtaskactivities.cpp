@@ -102,6 +102,16 @@ void Views::ViewTaskActivity::setCreateOptionHidden(bool hidden) const
     _btnCreateTaskActivity->setHidden(hidden);
 }
 
+bool Views::ViewTaskActivity::isCreateForTemplateOptionHidden()
+{
+    return _btnCreateTaskActivitiesForTemplate->isHidden();
+}
+
+void Views::ViewTaskActivity::setCreateForTemplateOptionHidden(bool hidden) const
+{
+    _btnCreateTaskActivitiesForTemplate->setHidden(hidden);
+}
+
 bool Views::ViewTaskActivity::isEditOptionHidden()
 {
     return _btnEditTaskActivities->isHidden();
@@ -127,6 +137,11 @@ Wt::Signal<> &Views::ViewTaskActivity::createTaskActivityRequested()
     return _createTaskActivityRequested;
 }
 
+Wt::Signal<> &Views::ViewTaskActivity::createTaskActivitiesForTemplateRequested()
+{
+    return _createTaskActivitiesForTemplateRequested;
+}
+
 Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskActivity>>> &Views::ViewTaskActivity::removeTaskActivitiesRequested()
 {
     return _removeTaskActivitiesRequested;
@@ -135,6 +150,11 @@ Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskActivity>>> &Views::Vie
 void Views::ViewTaskActivity::_btnCreateTaskActivityClicked()
 {
     _createTaskActivityRequested();
+}
+
+void Views::ViewTaskActivity::_btnCreateTaskActivitiesForTemplateClicked()
+{
+    _createTaskActivitiesForTemplateRequested();
 }
 
 void Views::ViewTaskActivity::_btnRemoveTaskActivitiesClicked()
@@ -187,8 +207,11 @@ void Views::ViewTaskActivity::_createTaskActivitysTableView()
     //requires "create" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
-        _btnCreateTaskActivity = _qtvTaskActivities->createToolButton("", "icons/Add.png", "Create A New Task Activity");
+        _btnCreateTaskActivity = _qtvTaskActivities->createToolButton("", "icons/Add.png", "Create A New Activity");
         _btnCreateTaskActivity->clicked().connect(this, &Views::ViewTaskActivity::_btnCreateTaskActivityClicked);
+
+        _btnCreateTaskActivitiesForTemplate = _qtvTaskActivities->createToolButton("", "icons/Template.png", "Create Activities Based On Template");
+        _btnCreateTaskActivitiesForTemplate->clicked().connect(this, &Views::ViewTaskActivity::_btnCreateTaskActivitiesForTemplateClicked);
 
         _qtvTaskActivities->setImportCSVFeatureEnabled(true);
     }

@@ -189,11 +189,6 @@ void Views::ViewProjects::updatePropertiesView()
     {
         _updatePropertiesTaskActivitiesView();
     }
-    else if(_stkProperties->currentWidget() == _viewPropertiesTaskPipelines)
-    {
-        _updatePropertiesTaskPipelinesView();
-        _updatePropertiesTaskPipelineItemsView();
-    }
 }
 
 bool Views::ViewProjects::isProjectsViewShown()
@@ -365,8 +360,7 @@ void Views::ViewProjects::_unAssignTagFromDbo(const std::vector<Wt::Dbo::ptr<T>>
 void Views::ViewProjects::_mnuMainProjectsItemTriggered()
 {
     if((_stkProperties->currentWidget() == _viewPropertiesShots) ||
-            (_stkProperties->currentWidget() == _viewPropertiesTaskActivities) ||
-            (_stkProperties->currentWidget() == _viewPropertiesTaskPipelines))
+            (_stkProperties->currentWidget() == _viewPropertiesTaskActivities))
         _mnuNavBarPropertiesDataItem->select();
 
     _mnuNavBarPropertiesSequencesItem->show();
@@ -374,7 +368,6 @@ void Views::ViewProjects::_mnuMainProjectsItemTriggered()
     _mnuNavBarPropertiesAssetsItem->show();
     _mnuNavBarPropertiesTasksItem->show();
     _mnuNavBarPropertiesTaskActivitiesItem->hide();
-    _mnuNavBarPropertiesTaskPipelinesItem->hide();
 
     _viewPropertiesTags->setCreateOptionHidden(false);
 
@@ -388,8 +381,7 @@ void Views::ViewProjects::_mnuMainSequencesItemTriggered()
 {
     if((_stkProperties->currentWidget() == _viewPropertiesSequences) ||
             (_stkProperties->currentWidget() == _viewPropertiesAssets) ||
-            (_stkProperties->currentWidget() == _viewPropertiesTaskActivities) ||
-            (_stkProperties->currentWidget() == _viewPropertiesTaskPipelines))
+            (_stkProperties->currentWidget() == _viewPropertiesTaskActivities))
     {
         _mnuNavBarPropertiesDataItem->select();
     }
@@ -399,7 +391,6 @@ void Views::ViewProjects::_mnuMainSequencesItemTriggered()
     _mnuNavBarPropertiesAssetsItem->hide();
     _mnuNavBarPropertiesTasksItem->show();
     _mnuNavBarPropertiesTaskActivitiesItem->hide();
-    _mnuNavBarPropertiesTaskPipelinesItem->hide();
 
     _viewPropertiesTags->setCreateOptionHidden(true);
 
@@ -414,8 +405,7 @@ void Views::ViewProjects::_mnuMainShotsItemTriggered()
     if((_stkProperties->currentWidget() == _viewPropertiesSequences) ||
             (_stkProperties->currentWidget() == _viewPropertiesShots) ||
             (_stkProperties->currentWidget() == _viewPropertiesAssets) ||
-            (_stkProperties->currentWidget() == _viewPropertiesTaskActivities) ||
-            (_stkProperties->currentWidget() == _viewPropertiesTaskPipelines))
+            (_stkProperties->currentWidget() == _viewPropertiesTaskActivities))
     {
         _mnuNavBarPropertiesDataItem->select();
     }
@@ -425,7 +415,6 @@ void Views::ViewProjects::_mnuMainShotsItemTriggered()
     _mnuNavBarPropertiesAssetsItem->hide();
     _mnuNavBarPropertiesTasksItem->show();
     _mnuNavBarPropertiesTaskActivitiesItem->hide();
-    _mnuNavBarPropertiesTaskPipelinesItem->hide();
 
     _viewPropertiesTags->setCreateOptionHidden(true);
 
@@ -440,8 +429,7 @@ void Views::ViewProjects::_mnuMainAssetsItemTriggered()
     if((_stkProperties->currentWidget() == _viewPropertiesSequences) ||
             (_stkProperties->currentWidget() == _viewPropertiesShots) ||
             (_stkProperties->currentWidget() == _viewPropertiesAssets) ||
-            (_stkProperties->currentWidget() == _viewPropertiesTaskActivities) ||
-            (_stkProperties->currentWidget() == _viewPropertiesTaskPipelines))
+            (_stkProperties->currentWidget() == _viewPropertiesTaskActivities))
     {
         _mnuNavBarPropertiesDataItem->select();
     }
@@ -451,7 +439,6 @@ void Views::ViewProjects::_mnuMainAssetsItemTriggered()
     _mnuNavBarPropertiesAssetsItem->hide();
     _mnuNavBarPropertiesTasksItem->show();
     _mnuNavBarPropertiesTaskActivitiesItem->hide();
-    _mnuNavBarPropertiesTaskPipelinesItem->hide();
 
     _viewPropertiesTags->setCreateOptionHidden(true);
 
@@ -476,7 +463,6 @@ void Views::ViewProjects::_mnuMainTasksItemTriggered()
     _mnuNavBarPropertiesAssetsItem->hide();
     _mnuNavBarPropertiesTasksItem->hide();
     _mnuNavBarPropertiesTaskActivitiesItem->show();
-    _mnuNavBarPropertiesTaskPipelinesItem->show();
 
     _viewPropertiesTags->setCreateOptionHidden(true);
 
@@ -1200,12 +1186,6 @@ void Views::ViewProjects::_mnuNavBarPropertiesTaskActivitiesItemTriggered()
     _stkProperties->setCurrentWidget(_viewPropertiesTaskActivities);
 }
 
-void Views::ViewProjects::_mnuNavBarPropertiesTaskPipelinesItemTriggered()
-{
-    _updatePropertiesTaskPipelinesView();
-    _stkProperties->setCurrentWidget(_viewPropertiesTaskPipelines);
-}
-
 void Views::ViewProjects::_addDataRequested()
 {
     if(_stkMain->currentWidget() == _cntProjects)
@@ -1484,27 +1464,43 @@ void Views::ViewProjects::_createTaskActivityRequested()
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
+void Views::ViewProjects::_createTaskActivitiesForTemplateRequested()
+{
+    if(_viewTasks->qtvTasks()->table()->selectedIndexes().size() != 1)
+    {
+        _logger->log("Please select only one task.", Ms::Log::LogMessageType::Warning);
+
+        return;
+    }
+
+    Views::DlgSelectActivityTemplate *dlg = new Views::DlgSelectActivityTemplate();
+    dlg->finished().connect(std::bind([=]()
+    {
+        if(dlg->result() == Wt::WDialog::Accepted)
+        {
+            Wt::Dbo::ptr<Projects::ProjectActivityTemplate> templatePtr = dlg->activityTemplate();
+
+            Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = _viewTasks->qtvTasks()->selectedItems().at(0);
+
+            if(templatePtr->createActivitiesForProjectTask(taskPtr))
+            {
+                _updatePropertiesTaskActivitiesView();
+
+                _logger->log(std::string("Created task activities for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
+            }
+            else
+            {
+                _logger->log(std::string("error creating task activities for template ") + templatePtr->name(), Ms::Log::LogMessageType::Error);
+            }
+        }
+
+        delete dlg;
+    }));
+
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
+}
+
 void Views::ViewProjects::_removeTaskActivitiesRequested(const std::vector<Wt::Dbo::ptr<Projects::ProjectTaskActivity>> &activityVec)
-{
-
-}
-
-void Views::ViewProjects::_createTaskPipelineRequested()
-{
-
-}
-
-void Views::ViewProjects::_removeTaskPipelinesRequested(const std::vector<Wt::Dbo::ptr<Projects::ProjectTaskPipeline> > &pipelineVec)
-{
-
-}
-
-void Views::ViewProjects::_createTaskPipelineItemRequested()
-{
-
-}
-
-void Views::ViewProjects::_removeTaskPipelineItemsRequested(const std::vector<Wt::Dbo::ptr<Projects::ProjectTaskPipelineActivityItem> > &pipelineItemsVec)
 {
 
 }
@@ -1554,10 +1550,6 @@ void Views::ViewProjects::_createPropertiesView()
     _mnuNavBarPropertiesTasksItem = new Wt::WMenuItem("Tasks");
     _mnuNavBarPropertiesTasksItem->triggered().connect(this, &Views::ViewProjects::_mnuNavBarPropertiesTasksItemTriggered);
     _mnuNavBarProperties->addItem(_mnuNavBarPropertiesTasksItem);
-
-    _mnuNavBarPropertiesTaskPipelinesItem = new Wt::WMenuItem("Pipelines");
-    _mnuNavBarPropertiesTaskPipelinesItem->triggered().connect(this, &Views::ViewProjects::_mnuNavBarPropertiesTaskPipelinesItemTriggered);
-    _mnuNavBarProperties->addItem(_mnuNavBarPropertiesTaskPipelinesItem);
 
     _mnuNavBarPropertiesTaskActivitiesItem = new Wt::WMenuItem("Activities");
     _mnuNavBarPropertiesTaskActivitiesItem->triggered().connect(this, &Views::ViewProjects::_mnuNavBarPropertiesTaskActivitiesItemTriggered);
@@ -1611,16 +1603,9 @@ void Views::ViewProjects::_createPropertiesView()
 
     _stkProperties->addWidget(_viewPropertiesTasks);
 
-    _viewPropertiesTaskPipelines = new Views::ViewTaskPipeline();
-    _viewPropertiesTaskPipelines->createPipelineRequested().connect(this, &Views::ViewProjects::_createTaskPipelineRequested);
-    _viewPropertiesTaskPipelines->removePipelinesRequested().connect(this, &Views::ViewProjects::_removeTaskPipelinesRequested);
-    _viewPropertiesTaskPipelines->createPipelineRequested().connect(this, &Views::ViewProjects::_createTaskPipelineItemRequested);
-    _viewPropertiesTaskPipelines->removePipelineItemsRequested().connect(this, &Views::ViewProjects::_removeTaskPipelineItemsRequested);
-
-    _stkProperties->addWidget(_viewPropertiesTaskPipelines);
-
     _viewPropertiesTaskActivities = new Views::ViewTaskActivity();
     _viewPropertiesTaskActivities->createTaskActivityRequested().connect(this, &Views::ViewProjects::_createTaskActivityRequested);
+    _viewPropertiesTaskActivities->createTaskActivitiesForTemplateRequested().connect(this, &Views::ViewProjects::_createTaskActivitiesForTemplateRequested);
     _viewPropertiesTaskActivities->removeTaskActivitiesRequested().connect(this, &Views::ViewProjects::_removeTaskActivitiesRequested);
 
     _stkProperties->addWidget(_viewPropertiesTaskActivities);
@@ -2097,16 +2082,6 @@ void Views::ViewProjects::_updatePropertiesTasksView()
 void Views::ViewProjects::_updatePropertiesTaskActivitiesView()
 {
     _viewPropertiesTaskActivities->updateView(_viewTasks->qtvTasks()->selectedItems());
-}
-
-void Views::ViewProjects::_updatePropertiesTaskPipelinesView()
-{
-
-}
-
-void Views::ViewProjects::_updatePropertiesTaskPipelineItemsView()
-{
-
 }
 
 void Views::ViewProjects::_prepareView()

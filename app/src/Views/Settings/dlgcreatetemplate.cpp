@@ -1,25 +1,25 @@
-#include "dlgcreatepipeline.h"
+#include "dlgcreatetemplate.h"
 #include <Wt/WBreak>
 
 
-Views::Dialogs::DlgCreatePipeline::DlgCreatePipeline()
+Views::Dialogs::DlgCreateTemplate::DlgCreateTemplate()
 {
     _prepareView();
 }
 
-std::string Views::Dialogs::DlgCreatePipeline::name() const
+std::string Views::Dialogs::DlgCreateTemplate::name() const
 {
     return _txtName->text().toUTF8();
 }
 
-bool Views::Dialogs::DlgCreatePipeline::isActive() const
+bool Views::Dialogs::DlgCreateTemplate::isActive() const
 {
     return _cmbActive->currentText() == "Yes" ? true : false;
 }
 
-void Views::Dialogs::DlgCreatePipeline::_prepareView()
+void Views::Dialogs::DlgCreateTemplate::_prepareView()
 {
-    this->setCaption("Create Data");
+    this->setCaption("Create Template");
     this->rejectWhenEscapePressed();
 
     _layMain = new Wt::WVBoxLayout();
@@ -29,7 +29,7 @@ void Views::Dialogs::DlgCreatePipeline::_prepareView()
     this->contents()->setLayout(_layMain);
 
     _txtName = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[^$]{0,255}");
-    _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Key:", _txtName));
+    _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Name:", _txtName));
 
     _layMain->addWidget(new Wt::WBreak());
 
@@ -40,13 +40,13 @@ void Views::Dialogs::DlgCreatePipeline::_prepareView()
     _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", _cmbActive), 1);
 
     _btnOk = new Wt::WPushButton("Ok", this->footer());
-    _btnOk->clicked().connect(this, &Views::Dialogs::DlgCreatePipeline::_btnOkClicked);
+    _btnOk->clicked().connect(this, &Views::Dialogs::DlgCreateTemplate::_btnOkClicked);
 
     _btnCancel = new Wt::WPushButton("Cancel", this->footer());
     _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
 }
 
-bool Views::Dialogs::DlgCreatePipeline::_validate()
+bool Views::Dialogs::DlgCreateTemplate::_validate()
 {
     if((_txtName->validate() != Wt::WValidator::Valid))
         return false;
@@ -54,7 +54,7 @@ bool Views::Dialogs::DlgCreatePipeline::_validate()
     return true;
 }
 
-void Views::Dialogs::DlgCreatePipeline::_btnOkClicked()
+void Views::Dialogs::DlgCreateTemplate::_btnOkClicked()
 {
     if(_validate())
         this->accept();

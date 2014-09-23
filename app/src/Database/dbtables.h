@@ -517,7 +517,7 @@ namespace Users
 namespace Projects
 {
     class ProjectsManager;
-    class ProjectTaskPipeline;
+    class ProjectActivityTemplate;
     class ProjectTaskActivity;
 
     class ProjectDbo : public Database::Dbo
@@ -656,75 +656,90 @@ namespace Projects
         void _init();
     };
 
-    class ProjectTaskPipelineActivityItem : public Ms::Dbo::MDboBase
+    class ProjectActivityTemplateActivityItem : public Ms::Dbo::MDboBase
     {
         friend class Projects::ProjectsManager;
         friend class Database::DatabaseManager;
 
     public:
-        ProjectTaskPipelineActivityItem();
-        ~ProjectTaskPipelineActivityItem();
+        ProjectActivityTemplateActivityItem();
+        ~ProjectActivityTemplateActivityItem();
 
         //variables
 
         //functions
-        ProjectTaskPipelineActivityItem *modify() override;
+        ProjectActivityTemplateActivityItem *modify() override;
         const Wt::Dbo::ptr<Projects::ProjectTaskActivityType> type() const;
         void setType(Wt::Dbo::ptr<Projects::ProjectTaskActivityType> type);
         Wt::Dbo::ptr<Projects::ProjectWorkStatus> status() const;
         void setStatus(Wt::Dbo::ptr<Projects::ProjectWorkStatus> status);
+        const Wt::Dbo::ptr<Projects::ProjectActivityTemplate> activityTemplate() const;
+        void setActivityTemplate(Wt::Dbo::ptr<Projects::ProjectActivityTemplate> activityTemplate);
+        std::string description() const;
+        void setDescription(const std::string &description);
+        int hours() const;
+        void setHours(int hours);
 
         //operators
-        bool operator ==(const ProjectTaskPipelineActivityItem &other) const;
-        bool operator !=(const ProjectTaskPipelineActivityItem &other) const;
+        bool operator ==(const ProjectActivityTemplateActivityItem &other) const;
+        bool operator !=(const ProjectActivityTemplateActivityItem &other) const;
 
         //DBO functions
         template<class Action>
         void persist(Action &a)
         {
-            Wt::Dbo::field(a, _name, "Name");
-            Wt::Dbo::belongsTo(a, _pipeline, "Project_Task_Pipeline");//create a ManyToOne relationship to the table "project_pipeline"
+            Wt::Dbo::belongsTo(a, _type, "Project_Task_Activity");
+            Wt::Dbo::belongsTo(a, _status, "Current");//create a ManyToOne relationship to the table "project_work_status"
+            Wt::Dbo::belongsTo(a, _activityTemplate, "Project_Activity_Template");//create a ManyToOne relationship to the table "project_pipeline"
+            Wt::Dbo::field(a, _hours, "Hours");
+            Wt::Dbo::field(a, _description, "Description");
 
             Ms::Dbo::MDboBase::persist<Action>(a);
         }
 
     private:
         //variables
-        std::string _name;
         Wt::Dbo::ptr<Projects::ProjectTaskActivityType> _type;
         Wt::Dbo::ptr<Projects::ProjectWorkStatus> _status;
-        Wt::Dbo::ptr<Projects::ProjectTaskPipeline> _pipeline;
+        Wt::Dbo::ptr<Projects::ProjectActivityTemplate> _activityTemplate;
+        std::string _description;
+        int _hours;
+
+        //functions
+        void _init();
     };
 
-    class ProjectTaskPipeline : public Ms::Dbo::MDboBase
+    class ProjectActivityTemplate : public Ms::Dbo::MDboBase
     {
         friend class Projects::ProjectsManager;
         friend class Database::DatabaseManager;
 
     public:
-        ProjectTaskPipeline();
-        ProjectTaskPipeline(const std::string &name);
+        ProjectActivityTemplate();
+        ProjectActivityTemplate(const std::string &name);
 
         //variables
 
         //functions
-        ProjectTaskPipeline *modify() override;
+        ProjectActivityTemplate *modify() override;
         const std::string name() const;
         void setName(const std::string &name);
-        bool hasItem(Wt::Dbo::ptr<Projects::ProjectTaskPipelineActivityItem> taskItem) const;
-        bool addItem(Wt::Dbo::ptr<Projects::ProjectTaskPipelineActivityItem> taskItem);
-        bool removeItem(Wt::Dbo::ptr<Projects::ProjectTaskPipelineActivityItem> taskItem);
+        bool hasItem(Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem> taskItem) const;
+        bool addItem(Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem> taskItem);
+        bool removeItem(Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem> taskItem);
+        bool createActivitiesForProjectTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const;
+        const Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem>> items() const;
 
         //operators
-        bool operator ==(const ProjectTaskPipeline &other) const;
-        bool operator !=(const ProjectTaskPipeline &other) const;
+        bool operator ==(const ProjectActivityTemplate &other) const;
+        bool operator !=(const ProjectActivityTemplate &other) const;
 
         //DBO functions
         template<class Action>
         void persist(Action &a)
         {
-            Wt::Dbo::field(a, _name, "Name");
-            Wt::Dbo::hasMany(a, _taskItems, Wt::Dbo::ManyToOne, "Project_Task_Pipeline");//create a ManyToOne relationship to the table "project_task"
+            Wt::Dbo::id(a, _name, "Name", 255);
+            Wt::Dbo::hasMany(a, _items, Wt::Dbo::ManyToOne, "Project_Activity_Template");//create a ManyToOne relationship to the table "project_task"
 
             Ms::Dbo::MDboBase::persist<Action>(a);
         }
@@ -732,7 +747,7 @@ namespace Projects
     private:
         //variables
         std::string _name;
-        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTaskPipelineActivityItem>> _taskItems;
+        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem>> _items;
 
         //functions
         void _init();
@@ -989,7 +1004,6 @@ namespace Projects
             Wt::Dbo::belongsTo(a, _asset, "Task_Asset");//create a ManyToOne relationship to the table "project_asset"
             Wt::Dbo::belongsTo(a, _sequence, "Task_Sequence");//create a ManyToOne relationship to the table "project_sequence"
             Wt::Dbo::belongsTo(a, _project, "Task_Project");//create a ManyToOne relationship to the table "project"
-            Wt::Dbo::belongsTo(a, _pipeline, "Task_Pipeline");//create a ManyToOne relationship to the table "project_task_pipeline"
             Wt::Dbo::hasMany(a, _activities, Wt::Dbo::ManyToOne, "Project_Task");
             Wt::Dbo::hasMany(a, data_, Wt::Dbo::ManyToOne, "Project_Task");
             Wt::Dbo::hasMany(a, notes_, Wt::Dbo::ManyToOne, "Project_Task");
@@ -1008,7 +1022,6 @@ namespace Projects
         Wt::Dbo::ptr<Projects::ProjectAsset> _asset;
         Wt::Dbo::ptr<Projects::ProjectSequence> _sequence;
         Wt::Dbo::ptr<Projects::Project> _project;
-        Wt::Dbo::ptr<Projects::ProjectTaskPipeline> _pipeline;
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTaskActivity>> _activities;
         bool _acceptedByUser;
 

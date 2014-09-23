@@ -2,6 +2,7 @@
 #define VIEWTASKPIPELINE_H
 
 #include "../../Database/dbtables.h"
+#include "../../Log/logger.h"
 
 #include <Ms/Widgets/MQueryTableViewWidget.h>
 #include <Ms/Widgets/MContainerWidget.h>
@@ -10,55 +11,64 @@
 
 namespace Views
 {
-    class ViewTaskPipeline : public Wt::WContainerWidget
+    class ViewActivityTemplates : public Wt::WContainerWidget
     {
     public:
-        ViewTaskPipeline();
+        ViewActivityTemplates();
 
-        const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskPipeline> *qtvPipelines() const;
-        const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskPipelineActivityItem> *qtvPipelineItems() const;
-        bool isCreatePipelineOptionHidden() const;
-        void setCreatePipelineOptionHidden(bool hidden);
-        bool isCreatePipelineItemOptionHidden() const;
-        void setCreatePipelineItemOptionHidden(bool hidden);
+        const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectActivityTemplate> *qtvTemplates() const;
+        const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectActivityTemplateActivityItem> *qtvTemplateItems() const;
+        void updateView();
+        void updateActivityTemplatesView();
+        void updateActivityTemplateItemsView();
+        bool isCreateTemplateOptionHidden() const;
+        void setCreateTemplateOptionHidden(bool hidden);
+        bool isCreateTemplateItemOptionHidden() const;
+        void setCreateTemplateItemOptionHidden(bool hidden);
+        bool isEditTemplateItemOptionHidden() const;
+        void setEditTemplateItemOptionHidden(bool hidden);
 
         //Signals
-        Wt::Signal<> &createPipelineRequested();
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskPipeline>>> &removePipelinesRequested();
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskPipeline>>> &createPipelineItemRequested();
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskPipelineActivityItem>>> &removePipelineItemsRequested();
+        Wt::Signal<> &createTemplateRequested();
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>>> &removeTemplatesRequested();
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>>> &createTemplateItemRequested();
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem>>> &removeTemplateItemsRequested();
 
     private:
         //Variables
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskPipeline> *_qtvPipelines;
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskPipelineActivityItem> *_qtvPipelineItems;
+        Log::Logger *_logger;
+
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectActivityTemplate> *_qtvTemplates;
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectActivityTemplateActivityItem> *_qtvTemplateItems;
 
         //UI variables
         Wt::WVBoxLayout *_layMain;
-        Wt::WContainerWidget *_cntPipelinesAndItems;
-        Wt::WVBoxLayout *_layCntPipelinesAndItems;
-        Ms::Widgets::MContainerWidget *_cntPipeline;
-        Ms::Widgets::MContainerWidget *_cntPipelineItems;
-        Wt::WPushButton *_btnCreatePipeline;
-        Wt::WPushButton *_btnRemovePipeline;
-        Wt::WPushButton *_btnCreatePipelineItem;
-        Wt::WPushButton *_btnRemovePipelineItem;
+        Wt::WContainerWidget *_cntTemplatesAndItems;
+        Wt::WVBoxLayout *_layCntTemplatesAndItems;
+        Ms::Widgets::MContainerWidget *_cntTemplate;
+        Ms::Widgets::MContainerWidget *_cntTemplateItems;
+        Wt::WPushButton *_btnCreateTemplate;
+        Wt::WPushButton *_btnRemoveTemplate;
+        Wt::WPushButton *_btnCreateTemplateItem;
+        Wt::WPushButton *_btnEditTemplateItem;
+        Wt::WPushButton *_btnRemoveTemplateItem;
 
         //Signals
-        Wt::Signal<> _createPipelineRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskPipeline>>> _removePipelinesRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskPipeline>>> _createPipelineItemRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskPipelineActivityItem>>> _removePipelineItemsRequested;
+        Wt::Signal<> _createTemplateRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>>> _removeTemplatesRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>>> _createTemplateItemRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem>>> _removeTemplateItemsRequested;
 
         //Slots
-        void _btnCreatePipelineClicked();
-        void _btnRemovePipelinesClicked();
-        void _btnCreatePipelineItemClicked();
-        void _btnRemovePipelineItemsClicked();
+        void _btnCreateTemplateClicked();
+        void _btnRemoveTemplatesClicked();
+        void _btnCreateTemplateItemClicked();
+        void _btnRemoveTemplateItemsClicked();
+        void _btnEditTemplateItemsClicked();
 
         //Functions
-        void _createPipelinesTableView();
-        void _createPipelineItemsTableView();
+        void _createTemplatesTableView();
+        void _createTemplateItemsTableView();
         void _prepareView();
     };
 }

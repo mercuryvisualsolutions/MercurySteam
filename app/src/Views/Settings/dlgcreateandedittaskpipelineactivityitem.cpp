@@ -5,51 +5,43 @@
 #include "../../Database/databasemanager.h"
 #include "../../Settings/appsettings.h"
 
-Views::DlgCreateAndEditTaskPipelineActivityItem::DlgCreateAndEditTaskPipelineActivityItem(bool editing) :
+Views::DlgCreateAndEditActivityTemplateActivityItem::DlgCreateAndEditActivityTemplateActivityItem(bool editing) :
     _editing(editing)
 {
     _prepareView();
 }
 
-Wt::Dbo::ptr<Projects::ProjectWorkStatus> Views::DlgCreateAndEditTaskPipelineActivityItem::status() const
+Wt::Dbo::ptr<Projects::ProjectWorkStatus> Views::DlgCreateAndEditActivityTemplateActivityItem::status() const
 {
     return _mdlCmbStatus->resultRow(_cmbStatus->currentIndex());
 }
 
-Wt::Dbo::ptr<Projects::ProjectTaskActivityType> Views::DlgCreateAndEditTaskPipelineActivityItem::type() const
+Wt::Dbo::ptr<Projects::ProjectTaskActivityType> Views::DlgCreateAndEditActivityTemplateActivityItem::type() const
 {
     return _mdlCmbType->resultRow(_cmbType->currentIndex());
 }
 
-std::string Views::DlgCreateAndEditTaskPipelineActivityItem::description() const
+int Views::DlgCreateAndEditActivityTemplateActivityItem::hours() const
+{
+    return _spnHours->value();
+}
+
+std::string Views::DlgCreateAndEditActivityTemplateActivityItem::description() const
 {
     return _txtDescription->text().toUTF8();
 }
 
-bool Views::DlgCreateAndEditTaskPipelineActivityItem::isActive() const
+bool Views::DlgCreateAndEditActivityTemplateActivityItem::isActive() const
 {
     return _cmbActive->currentText() == "Yes" ? true : false;
 }
 
-bool Views::DlgCreateAndEditTaskPipelineActivityItem::isEditing()
+bool Views::DlgCreateAndEditActivityTemplateActivityItem::isEditing()
 {
     return _editing;
 }
 
-bool Views::DlgCreateAndEditTaskPipelineActivityItem::editedHours() const
-{
-    if(_editing)
-    {
-        if(_spnHours->isEnabled())
-            return true;
-        else
-            return false;
-    }
-    else
-        return false;
-}
-
-bool Views::DlgCreateAndEditTaskPipelineActivityItem::editedType() const
+bool Views::DlgCreateAndEditActivityTemplateActivityItem::editedType() const
 {
     if(_editing)
     {
@@ -62,7 +54,7 @@ bool Views::DlgCreateAndEditTaskPipelineActivityItem::editedType() const
         return false;
 }
 
-bool Views::DlgCreateAndEditTaskPipelineActivityItem::editedStatus() const
+bool Views::DlgCreateAndEditActivityTemplateActivityItem::editedStatus() const
 {
     if(_editing)
     {
@@ -75,7 +67,20 @@ bool Views::DlgCreateAndEditTaskPipelineActivityItem::editedStatus() const
         return false;
 }
 
-bool Views::DlgCreateAndEditTaskPipelineActivityItem::editedDescription() const
+bool Views::DlgCreateAndEditActivityTemplateActivityItem::editedHours() const
+{
+    if(_editing)
+    {
+        if(_spnHours->isEnabled())
+            return true;
+        else
+            return false;
+    }
+    else
+        return false;
+}
+
+bool Views::DlgCreateAndEditActivityTemplateActivityItem::editedDescription() const
 {
     if(_editing)
     {
@@ -88,7 +93,7 @@ bool Views::DlgCreateAndEditTaskPipelineActivityItem::editedDescription() const
         return false;
 }
 
-bool Views::DlgCreateAndEditTaskPipelineActivityItem::editedActive() const
+bool Views::DlgCreateAndEditActivityTemplateActivityItem::editedActive() const
 {
     if(_editing)
     {
@@ -101,12 +106,12 @@ bool Views::DlgCreateAndEditTaskPipelineActivityItem::editedActive() const
         return false;
 }
 
-void Views::DlgCreateAndEditTaskPipelineActivityItem::_prepareView()
+void Views::DlgCreateAndEditActivityTemplateActivityItem::_prepareView()
 {
     if(!_editing)
-        this->setCaption("Create Task Pipeline Activity Item");
+        this->setCaption("Create Activity Template Item");
     else
-        this->setCaption("Edit Task Pipeline Activities");
+        this->setCaption("Edit Activity Template Items");
 
     this->rejectWhenEscapePressed();
 
@@ -125,14 +130,14 @@ void Views::DlgCreateAndEditTaskPipelineActivityItem::_prepareView()
 
     _layMain->addWidget(_cntLeft);
 
-    _layRight = new Wt::WVBoxLayout();
-    _layRight->setContentsMargins(16,0,0,0);
-    _layRight->setSpacing(1);
+//    _layRight = new Wt::WVBoxLayout();
+//    _layRight->setContentsMargins(16,0,0,0);
+//    _layRight->setSpacing(1);
 
-    _cntRight = new Wt::WContainerWidget();
-    _cntRight->setLayout(_layRight);
+//    _cntRight = new Wt::WContainerWidget();
+//    _cntRight->setLayout(_layRight);
 
-    _layMain->addWidget(_cntRight);
+//    _layMain->addWidget(_cntRight);
 
     _createCmbType();
     if(_editing)
@@ -150,40 +155,46 @@ void Views::DlgCreateAndEditTaskPipelineActivityItem::_prepareView()
 
     _layLeft->addWidget(new Wt::WBreak());
 
+    _spnHours = Ms::Widgets::MWidgetFactory::createSpinBox(0, INT_MAX, 0);
+    if(_editing)
+        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Hours:", _spnHours));
+    else
+        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Hours:", _spnHours));
+
     _txtDescription = Ms::Widgets::MWidgetFactory::createTextArea("", false);
     if(_editing)
-        _layRight->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Description:", _txtDescription));
+        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Description:", _txtDescription));
     else
-        _layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Description:", _txtDescription));
+        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Description:", _txtDescription));
 
-    _layRight->addWidget(new Wt::WBreak());
+    _layLeft->addWidget(new Wt::WBreak());
 
     _cmbActive = new Wt::WComboBox();
     _cmbActive->addItem("Yes");
     _cmbActive->addItem("No");
     _cmbActive->setCurrentIndex(0);
     if(_editing)
-        _layRight->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Active:", _cmbActive));
+        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Active:", _cmbActive));
     else
-        _layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", _cmbActive));
+        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", _cmbActive));
 
-    _layRight->addWidget(new Wt::WBreak(), 1);
+    _layLeft->addWidget(new Wt::WBreak(), 1);
 
     _btnOk = new Wt::WPushButton("Ok", this->footer());
-    _btnOk->clicked().connect(this, &Views::DlgCreateAndEditTaskPipelineActivityItem::_btnOkClicked);
+    _btnOk->clicked().connect(this, &Views::DlgCreateAndEditActivityTemplateActivityItem::_btnOkClicked);
 
     _btnCancel = new Wt::WPushButton("Cancel", this->footer());
     _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
     _btnCancel->setFocus();
 }
 
-void Views::DlgCreateAndEditTaskPipelineActivityItem::_btnOkClicked()
+void Views::DlgCreateAndEditActivityTemplateActivityItem::_btnOkClicked()
 {
     if(_validate())
         this->accept();
 }
 
-void Views::DlgCreateAndEditTaskPipelineActivityItem::_createCmbType()
+void Views::DlgCreateAndEditActivityTemplateActivityItem::_createCmbType()
 {
     _cmbType = new Wt::WComboBox();
     _cmbType->setMinimumSize(20, 30);
@@ -215,7 +226,7 @@ void Views::DlgCreateAndEditTaskPipelineActivityItem::_createCmbType()
         _cmbType->setCurrentIndex(0);
 }
 
-void Views::DlgCreateAndEditTaskPipelineActivityItem::_createCmbStatus()
+void Views::DlgCreateAndEditActivityTemplateActivityItem::_createCmbStatus()
 {
     _cmbStatus = new Wt::WComboBox();
     _cmbStatus->setMinimumSize(20, 30);
@@ -247,13 +258,14 @@ void Views::DlgCreateAndEditTaskPipelineActivityItem::_createCmbStatus()
         _cmbStatus->setCurrentIndex(0);
 }
 
-bool Views::DlgCreateAndEditTaskPipelineActivityItem::_validate()
+bool Views::DlgCreateAndEditActivityTemplateActivityItem::_validate()
 {
     bool result = true;
 
     if(!_editing)
     {
-        if((_cmbType->currentIndex() == -1) ||
+        if((_spnHours->validate() != Wt::WIntValidator::Valid) ||
+                (_cmbType->currentIndex() == -1) ||
                 (_cmbStatus->currentIndex() == -1))
         {
             result = false;
@@ -261,7 +273,8 @@ bool Views::DlgCreateAndEditTaskPipelineActivityItem::_validate()
     }
     else
     {
-        if(((_cmbType->isEnabled()) && (_cmbType->currentIndex() == -1)) ||
+        if((_spnHours->isEnabled() && (_spnHours->validate() != Wt::WIntValidator::Valid)) ||
+                ((_cmbType->isEnabled()) && (_cmbType->currentIndex() == -1)) ||
                 ((_cmbStatus->isEnabled()) && (_cmbStatus->currentIndex() == -1)))
         {
             result = false;

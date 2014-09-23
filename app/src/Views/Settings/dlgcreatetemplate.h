@@ -16,10 +16,10 @@ namespace Views
 {
     namespace Dialogs
     {
-        class DlgCreatePipeline : public Wt::WDialog
+        class DlgCreateTemplate : public Wt::WDialog
         {
         public:
-            DlgCreatePipeline();
+            DlgCreateTemplate();
             //functions
 
             std::string name() const;

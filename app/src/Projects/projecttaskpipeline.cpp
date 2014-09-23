@@ -1,40 +1,40 @@
 #include "../Database/dbtables.h"
 #include "Database/databasemanager.h"
 
-Projects::ProjectTaskPipeline::ProjectTaskPipeline() :
+Projects::ProjectActivityTemplate::ProjectActivityTemplate() :
     Ms::Dbo::MDboBase()
 {
     _init();
 }
 
-Projects::ProjectTaskPipeline::ProjectTaskPipeline(const std::string &name) :
-    ProjectTaskPipeline()
+Projects::ProjectActivityTemplate::ProjectActivityTemplate(const std::string &name) :
+    ProjectActivityTemplate()
 {
     _name = name;
 }
 
-Projects::ProjectTaskPipeline *Projects::ProjectTaskPipeline::modify()
+Projects::ProjectActivityTemplate *Projects::ProjectActivityTemplate::modify()
 {
     Ms::Dbo::MDboBase::modify();
 
     return this;
 }
 
-const std::string Projects::ProjectTaskPipeline::name() const
+const std::string Projects::ProjectActivityTemplate::name() const
 {
     return _name;
 }
 
-void Projects::ProjectTaskPipeline::setName(const std::string &name)
+void Projects::ProjectActivityTemplate::setName(const std::string &name)
 {
     _name = name;
 }
 
-bool Projects::ProjectTaskPipeline::hasItem(Wt::Dbo::ptr<Projects::ProjectTaskPipelineActivityItem> taskItem) const
+bool Projects::ProjectActivityTemplate::hasItem(Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem> taskItem) const
 {
     if(dboManager_ && dboManager_->openTransaction())
     {
-        for(auto iter = _taskItems.begin(); iter != _taskItems.end(); ++iter)
+        for(auto iter = _items.begin(); iter != _items.end(); ++iter)
         {
             if((*iter).id() == taskItem.id())
             {
@@ -46,39 +46,72 @@ bool Projects::ProjectTaskPipeline::hasItem(Wt::Dbo::ptr<Projects::ProjectTaskPi
     return false;
 }
 
-bool Projects::ProjectTaskPipeline::addItem(Wt::Dbo::ptr<Projects::ProjectTaskPipelineActivityItem> taskItem)
+bool Projects::ProjectActivityTemplate::addItem(Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem> taskItem)
 {
     if(!hasItem(taskItem))
     {
-        _taskItems.insert(taskItem);
+        _items.insert(taskItem);
         return true;
     }
 
     return false;
 }
 
-bool Projects::ProjectTaskPipeline::removeItem(Wt::Dbo::ptr<Projects::ProjectTaskPipelineActivityItem> taskItem)
+bool Projects::ProjectActivityTemplate::removeItem(Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem> taskItem)
 {
     if(hasItem(taskItem))
     {
-        _taskItems.erase(taskItem);
+        _items.erase(taskItem);
         return true;
     }
 
     return false;
 }
 
-bool Projects::ProjectTaskPipeline::operator ==(const Projects::ProjectTaskPipeline &other) const
+bool Projects::ProjectActivityTemplate::createActivitiesForProjectTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const
+{
+    if(!Database::DatabaseManager::instance().openTransaction())
+        return false;
+
+    std::vector<Projects::ProjectTaskActivity*> activitiesVec;
+
+    for(auto iter = _items.begin(); iter != _items.end(); ++iter)
+    {
+        Projects::ProjectTaskActivity *activity = new Projects::ProjectTaskActivity();
+        activity->setTask(task);
+        activity->setStatus((*iter)->status());
+        activity->setType((*iter)->type());
+        activity->setHours((*iter)->hours());
+        activity->setDescription((*iter)->description());
+
+        activitiesVec.push_back(activity);
+    }
+
+    for(auto activity : activitiesVec)
+    {
+        if(!Database::DatabaseManager::instance().createDbo<Projects::ProjectTaskActivity>(activity))
+            delete activity;
+    }
+
+    return true;
+}
+
+const Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem> > Projects::ProjectActivityTemplate::items() const
+{
+    return _items;
+}
+
+bool Projects::ProjectActivityTemplate::operator ==(const Projects::ProjectActivityTemplate &other) const
 {
     return _name == other.name();
 }
 
-bool Projects::ProjectTaskPipeline::operator !=(const ProjectTaskPipeline &other) const
+bool Projects::ProjectActivityTemplate::operator !=(const ProjectActivityTemplate &other) const
 {
     return !operator ==(other);
 }
 
-void Projects::ProjectTaskPipeline::_init()
+void Projects::ProjectActivityTemplate::_init()
 {
-    _name = "New Pipeline";
+    _name = "New Template";
 }
