@@ -24,8 +24,10 @@ namespace Views
 
         bool isCreateOptionHidden();
         void setCreateOptionHidden(bool hidden) const;
-//        bool isRemoveOptionHidden();
-//        void setRemoveOptionHidden(bool hidden) const;
+        bool isCreateForTemplateOptionHidden();
+        void setCreateForTemplateOptionHidden(bool hidden) const;
+        bool isRemoveOptionHidden();
+        void setRemoveOptionHidden(bool hidden) const;
         bool isEditOptionHidden();
         void setEditOptionHidden(bool hidden) const;
         bool isOpenFilesOptionHidden();
@@ -33,6 +35,7 @@ namespace Views
 
         //Signals
         Wt::Signal<> &createTaskRequested();
+        Wt::Signal<> &createTasksForTemplateRequested();
         Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTask>>> &removeTasksRequested();
         Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTask>>> &openfilesViewRequested();
 
@@ -40,6 +43,7 @@ namespace Views
         //Variables
         //UI
         Wt::WPushButton *_btnCreateTask;
+        Wt::WPushButton *_btnCreateTasksForTemplate;
         Wt::WPushButton *_btnRemoveTasks;
         Wt::WPushButton *_btnEditTasks;
         Wt::WPushButton *_btnOpenFilesView;
@@ -51,11 +55,13 @@ namespace Views
 
         //Signals
         Wt::Signal<> _createTaskRequested;
+        Wt::Signal<> _createTasksForTemplateRequested;
         Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTask>>> _removeTasksRequested;
         Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTask>>> _openfilesViewRequested;
 
         //Slots
         void _btnCreateTaskClicked();
+        void _btnCreateTasksForTemplateClicked();
         void _btnRemoveTasksClicked();
         void _btnEditTasksClicked();
         void _btnOpenFilesViewClicked();

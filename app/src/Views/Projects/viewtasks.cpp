@@ -185,6 +185,16 @@ void Views::ViewTasks::setCreateOptionHidden(bool hidden) const
     _btnCreateTask->setHidden(hidden);
 }
 
+bool Views::ViewTasks::isCreateForTemplateOptionHidden()
+{
+    return _btnCreateTasksForTemplate->isHidden();
+}
+
+void Views::ViewTasks::setCreateForTemplateOptionHidden(bool hidden) const
+{
+    _btnCreateTasksForTemplate->setHidden(hidden);
+}
+
 bool Views::ViewTasks::isEditOptionHidden()
 {
     return _btnEditTasks->isHidden();
@@ -220,6 +230,11 @@ Wt::Signal<> &Views::ViewTasks::createTaskRequested()
     return _createTaskRequested;
 }
 
+Wt::Signal<> &Views::ViewTasks::createTasksForTemplateRequested()
+{
+    return _createTasksForTemplateRequested;
+}
+
 Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTask>>> &Views::ViewTasks::removeTasksRequested()
 {
     return _removeTasksRequested;
@@ -233,6 +248,11 @@ Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTask>>> &Views::ViewTasks::
 void Views::ViewTasks::_btnCreateTaskClicked()
 {
     _createTaskRequested();
+}
+
+void Views::ViewTasks::_btnCreateTasksForTemplateClicked()
+{
+    _createTasksForTemplateRequested();
 }
 
 void Views::ViewTasks::_btnRemoveTasksClicked()
@@ -377,6 +397,9 @@ void Views::ViewTasks::_createTasksTableView()
     {
         _btnCreateTask = _qtvTasks->createToolButton("", "icons/Add.png", "Create A New Task");
         _btnCreateTask->clicked().connect(this, &Views::ViewTasks::_btnCreateTaskClicked);
+
+        _btnCreateTasksForTemplate = _qtvTasks->createToolButton("", "icons/Template.png", "Create Tasks Based On Template");
+        _btnCreateTasksForTemplate->clicked().connect(this, &Views::ViewTasks::_btnCreateTasksForTemplateClicked);
 
         _qtvTasks->setImportCSVFeatureEnabled(true);
     }

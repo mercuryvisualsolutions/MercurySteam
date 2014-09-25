@@ -1,107 +1,107 @@
-#include "viewactivitytemplate.h"
+#include "viewtasktemplate.h"
 #include "../../Auth/authmanager.h"
 #include "../../Settings/appsettings.h"
 #include "../../Database/databasemanager.h"
 #include "../../Log/logmanager.h"
 #include "dlgcreatetemplate.h"
-#include "dlgcreateandeditactivitytemplateitem.h"
+#include "dlgcreateandedittasktemplateitem.h"
 
 #include <Ms/Widgets/MWidgetFactory.h>
 
 #include <Wt/WApplication>
 
-Views::ViewActivityTemplates::ViewActivityTemplates()
+Views::ViewTaskTemplates::ViewTaskTemplates()
 {
     _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
 
     _prepareView();
 }
 
-const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectActivityTemplate> *Views::ViewActivityTemplates::qtvTemplates() const
+const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskTemplate> *Views::ViewTaskTemplates::qtvTemplates() const
 {
     return _qtvTemplates;
 }
 
-const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectActivityTemplateActivityItem> *Views::ViewActivityTemplates::qtvTemplateItems() const
+const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskTemplateTaskItem> *Views::ViewTaskTemplates::qtvTemplateItems() const
 {
     return _qtvTemplateItems;
 }
 
-bool Views::ViewActivityTemplates::isCreateTemplateOptionHidden() const
+bool Views::ViewTaskTemplates::isCreateTemplateOptionHidden() const
 {
     return _btnCreateTemplate->isHidden();
 }
 
-void Views::ViewActivityTemplates::setCreateTemplateOptionHidden(bool hidden)
+void Views::ViewTaskTemplates::setCreateTemplateOptionHidden(bool hidden)
 {
     _btnCreateTemplate->setHidden(hidden);
 }
 
-bool Views::ViewActivityTemplates::isCreateTemplateItemOptionHidden() const
+bool Views::ViewTaskTemplates::isCreateTemplateItemOptionHidden() const
 {
     return _btnCreateTemplateItem->isHidden();
 }
 
-void Views::ViewActivityTemplates::setCreateTemplateItemOptionHidden(bool hidden)
+void Views::ViewTaskTemplates::setCreateTemplateItemOptionHidden(bool hidden)
 {
     _btnCreateTemplateItem->setHidden(hidden);
 }
 
-bool Views::ViewActivityTemplates::isEditTemplateItemOptionHidden() const
+bool Views::ViewTaskTemplates::isEditTemplateItemOptionHidden() const
 {
     return _btnEditTemplateItem->isHidden();
 }
 
-void Views::ViewActivityTemplates::setEditTemplateItemOptionHidden(bool hidden)
+void Views::ViewTaskTemplates::setEditTemplateItemOptionHidden(bool hidden)
 {
     _btnEditTemplateItem->setHidden(hidden);
 }
 
-Wt::Signal<> &Views::ViewActivityTemplates::createTemplateRequested()
+Wt::Signal<> &Views::ViewTaskTemplates::createTemplateRequested()
 {
     return _createTemplateRequested;
 }
 
-Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>>> &Views::ViewActivityTemplates::removeTemplatesRequested()
+Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskTemplate>>> &Views::ViewTaskTemplates::removeTemplatesRequested()
 {
     return _removeTemplatesRequested;
 }
 
-Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem>>>  &Views::ViewActivityTemplates::removeTemplateItemsRequested()
+Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskTemplateTaskItem>>>  &Views::ViewTaskTemplates::removeTemplateItemsRequested()
 {
     return _removeTemplateItemsRequested;
 }
 
-Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>>> &Views::ViewActivityTemplates::createTemplateItemRequested()
+Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskTemplate>>> &Views::ViewTaskTemplates::createTemplateItemRequested()
 {
     return _createTemplateItemRequested;
 }
 
-void Views::ViewActivityTemplates::_btnCreateTemplateClicked()
+void Views::ViewTaskTemplates::_btnCreateTemplateClicked()
 {
     Views::Dialogs::DlgCreateTemplate *dlg = new Views::Dialogs::DlgCreateTemplate();
     dlg->finished().connect(std::bind([=]()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
-            if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectActivityTemplate>(dlg->name()))
+            if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectTaskTemplate>(dlg->name()))
             {
-                Projects::ProjectActivityTemplate *activityTemplate = new Projects::ProjectActivityTemplate(dlg->name());
-                activityTemplate->setActive(dlg->isActive());
+                Projects::ProjectTaskTemplate *taskTemplate = new Projects::ProjectTaskTemplate(dlg->name());
+                taskTemplate->setActive(dlg->isActive());
 
-                if(Database::DatabaseManager::instance().createDbo<Projects::ProjectActivityTemplate>(activityTemplate))
+                if(Database::DatabaseManager::instance().createDbo<Projects::ProjectTaskTemplate>(taskTemplate))
                 {
-                    updateActivityTemplatesView();
+                    updateTaskTemplatesView();
 
                     _createTemplateRequested();
 
-                    _logger->log(std::string("Created project activity template ") + dlg->name(), Ms::Log::LogMessageType::Info);
+                    _logger->log(std::string("Created project task template ") + dlg->name(), Ms::Log::LogMessageType::Info);
                 }
                 else
                 {
-                    delete activityTemplate;
+                    delete taskTemplate;
 
-                    _logger->log(std::string("Error creating project activity template ") + dlg->name(), Ms::Log::LogMessageType::Error);
+                    _logger->log(std::string("Error creating project task template ") + dlg->name(), Ms::Log::LogMessageType::Error);
                 }
             }
             else
@@ -116,12 +116,12 @@ void Views::ViewActivityTemplates::_btnCreateTemplateClicked()
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
-void Views::ViewActivityTemplates::_btnRemoveTemplatesClicked()
+void Views::ViewTaskTemplates::_btnRemoveTemplatesClicked()
 {
     _removeTemplatesRequested(_qtvTemplates->selectedItems());
 }
 
-void Views::ViewActivityTemplates::_btnCreateTemplateItemClicked()
+void Views::ViewTaskTemplates::_btnCreateTemplateItemClicked()
 {
     if(_qtvTemplates->table()->selectedIndexes().size() != 1)
     {
@@ -130,36 +130,36 @@ void Views::ViewActivityTemplates::_btnCreateTemplateItemClicked()
         return;
     }
 
-    Views::DlgCreateAndEditActivityTemplateItem *dlg = new Views::DlgCreateAndEditActivityTemplateItem();
+    Views::DlgCreateAndEditTaskTemplateItem *dlg = new Views::DlgCreateAndEditTaskTemplateItem();
     dlg->finished().connect(std::bind([=]()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
-            Wt::Dbo::ptr<Projects::ProjectActivityTemplate> templatePtr = _qtvTemplates->selectedItems().at(0);
+            Wt::Dbo::ptr<Projects::ProjectTaskTemplate> templatePtr = _qtvTemplates->selectedItems().at(0);
 
-            Projects::ProjectActivityTemplateActivityItem *templateItem = new Projects::ProjectActivityTemplateActivityItem();
+            Projects::ProjectTaskTemplateTaskItem *templateItem = new Projects::ProjectTaskTemplateTaskItem();
             templateItem->setType(dlg->type());
             templateItem->setStatus(dlg->status());
             templateItem->setDescription(dlg->description());
-            templateItem->setActivityTemplate(templatePtr);
+            templateItem->setTaskTemplate(templatePtr);
             templateItem->setActive(dlg->isActive());
 
-            Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem> templateItemPtr =
-                    Database::DatabaseManager::instance().createDbo<Projects::ProjectActivityTemplateActivityItem>(templateItem);
+            Wt::Dbo::ptr<Projects::ProjectTaskTemplateTaskItem> templateItemPtr =
+                    Database::DatabaseManager::instance().createDbo<Projects::ProjectTaskTemplateTaskItem>(templateItem);
 
             if(templateItemPtr.get())
             {
-                updateActivityTemplateItemsView();
+                updateTaskTemplateItemsView();
 
                 _createTemplateItemRequested(_qtvTemplates->selectedItems());
 
-                _logger->log(std::string("Created item for activity template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
+                _logger->log(std::string("Created item for task template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
             }
             else
             {
                 delete templateItem;
 
-                _logger->log(std::string("Error creating item for activity template ") + templatePtr->name(), Ms::Log::LogMessageType::Error);
+                _logger->log(std::string("Error creating item for task template ") + templatePtr->name(), Ms::Log::LogMessageType::Error);
             }
         }
 
@@ -169,12 +169,12 @@ void Views::ViewActivityTemplates::_btnCreateTemplateItemClicked()
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
-void Views::ViewActivityTemplates::_btnRemoveTemplateItemsClicked()
+void Views::ViewTaskTemplates::_btnRemoveTemplateItemsClicked()
 {
     _removeTemplateItemsRequested(_qtvTemplateItems->selectedItems());
 }
 
-void Views::ViewActivityTemplates::_btnEditTemplateItemsClicked()
+void Views::ViewTaskTemplates::_btnEditTemplateItemsClicked()
 {
     if(_qtvTemplateItems->table()->selectedIndexes().size() == 0)
     {
@@ -183,7 +183,7 @@ void Views::ViewActivityTemplates::_btnEditTemplateItemsClicked()
         return;
     }
 
-    Views::DlgCreateAndEditActivityTemplateItem *dlg = new Views::DlgCreateAndEditActivityTemplateItem(true);
+    Views::DlgCreateAndEditTaskTemplateItem *dlg = new Views::DlgCreateAndEditTaskTemplateItem(true);
     dlg->finished().connect(std::bind([=]()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
@@ -191,22 +191,19 @@ void Views::ViewActivityTemplates::_btnEditTemplateItemsClicked()
             for(auto itemPtr : _qtvTemplateItems->selectedItems())
             {
                 if(dlg->editedType())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectActivityTemplateActivityItem>(itemPtr)->setType(dlg->type());
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTaskTemplateTaskItem>(itemPtr)->setType(dlg->type());
 
                 if(dlg->editedStatus())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectActivityTemplateActivityItem>(itemPtr)->setStatus(dlg->status());
-
-                if(dlg->editedHours())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectActivityTemplateActivityItem>(itemPtr)->setHours(dlg->hours());
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTaskTemplateTaskItem>(itemPtr)->setStatus(dlg->status());
 
                 if(dlg->editedDescription())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectActivityTemplateActivityItem>(itemPtr)->setDescription(dlg->description());
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTaskTemplateTaskItem>(itemPtr)->setDescription(dlg->description());
 
                 if(dlg->editedActive())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectActivityTemplateActivityItem>(itemPtr)->setActive(dlg->isActive());
+                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTaskTemplateTaskItem>(itemPtr)->setActive(dlg->isActive());
             }
 
-            updateActivityTemplateItemsView();
+            updateTaskTemplateItemsView();
         }
 
         delete dlg;
@@ -215,27 +212,27 @@ void Views::ViewActivityTemplates::_btnEditTemplateItemsClicked()
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
-void Views::ViewActivityTemplates::updateView()
+void Views::ViewTaskTemplates::updateView()
 {
-    updateActivityTemplatesView();
-    updateActivityTemplateItemsView();
+    updateTaskTemplatesView();
+    updateTaskTemplateItemsView();
 }
 
-void Views::ViewActivityTemplates::updateActivityTemplatesView()
+void Views::ViewTaskTemplates::updateTaskTemplatesView()
 {
     try
     {
         if(!Database::DatabaseManager::instance().openTransaction())
             return;
 
-        Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>> query;
+        Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTaskTemplate>> query;
 
         int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
 
         if(AppSettings::instance().isLoadInactiveData())
-            query = Database::DatabaseManager::instance().session()->find<Projects::ProjectActivityTemplate>().where("View_Rank <= ?").bind(viewRank);
+            query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskTemplate>().where("View_Rank <= ?").bind(viewRank);
         else
-            query = Database::DatabaseManager::instance().session()->find<Projects::ProjectActivityTemplate>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
+            query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskTemplate>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
 
         _qtvTemplates->setQuery(query);
 
@@ -264,21 +261,21 @@ void Views::ViewActivityTemplates::updateActivityTemplatesView()
     }
 }
 
-void Views::ViewActivityTemplates::updateActivityTemplateItemsView()
+void Views::ViewTaskTemplates::updateTaskTemplateItemsView()
 {
     try
     {
         if(!Database::DatabaseManager::instance().openTransaction())
             return;
 
-        Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem>> query = Database::DatabaseManager::instance().session()->find<Projects::ProjectActivityTemplateActivityItem>();
+        Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTaskTemplateTaskItem>> query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskTemplateTaskItem>();
 
         if(_qtvTemplates->table()->selectedIndexes().size() > 0)
         {
-            std::vector<std::string> templateIdValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectActivityTemplate>(_qtvTemplates->selectedItems());
+            std::vector<std::string> templateIdValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectTaskTemplate>(_qtvTemplates->selectedItems());
 
             //generate the where clause
-            query.where("Project_Activity_Template_Name IN (" + templateIdValues.at(0) + ")");
+            query.where("Project_Task_Template_Name IN (" + templateIdValues.at(0) + ")");
 
             //only load active data if selected in settings
             if(!AppSettings::instance().isLoadInactiveData())
@@ -306,19 +303,17 @@ void Views::ViewActivityTemplates::updateActivityTemplateItemsView()
         //add columns
         _qtvTemplateItems->addColumn(Ms::Widgets::MTableViewColumn("id", "Id", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
-        _qtvTemplateItems->addColumn(Ms::Widgets::MTableViewColumn("Project_Task_Activity_Type", "Type", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectTaskActivityType>(
+        _qtvTemplateItems->addColumn(Ms::Widgets::MTableViewColumn("Project_Task_Type", "Type", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectTaskType>(
          Database::DatabaseManager::instance().session(),
-         AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskActivityType>() :
-         Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskActivityType>().where("Active = ?").bind(true),
+         AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskType>() :
+         Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskType>().where("Active = ?").bind(true),
          "Type", editRank)));
 
         _qtvTemplateItems->addColumn(Ms::Widgets::MTableViewColumn("Current_Status", "Status", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectWorkStatus>(
         Database::DatabaseManager::instance().session(),AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>() :
          Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true), "Status", editRank)));
 
-        _qtvTemplateItems->addColumn(Ms::Widgets::MTableViewColumn("Project_Activity_Template_Name", "Template Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-
-        _qtvTemplateItems->addColumn(Ms::Widgets::MTableViewColumn("Hours", "Hours", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
+        _qtvTemplateItems->addColumn(Ms::Widgets::MTableViewColumn("Project_Task_Template_Name", "Template Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
         _qtvTemplateItems->addColumn(Ms::Widgets::MTableViewColumn("Description", "Description", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
 
@@ -333,54 +328,54 @@ void Views::ViewActivityTemplates::updateActivityTemplateItemsView()
     }
 }
 
-void Views::ViewActivityTemplates::_createTemplatesTableView()
+void Views::ViewTaskTemplates::_createTemplatesTableView()
 {
-    _qtvTemplates = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectActivityTemplate>(&Database::DatabaseManager::instance());
-    _qtvTemplates->table()->selectionChanged().connect(this, &Views::ViewActivityTemplates::updateActivityTemplateItemsView);
+    _qtvTemplates = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectTaskTemplate>(&Database::DatabaseManager::instance());
+    _qtvTemplates->table()->selectionChanged().connect(this, &Views::ViewTaskTemplates::updateTaskTemplateItemsView);
 
     //requires "create" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         _btnCreateTemplate = _qtvTemplates->createToolButton("", "icons/Add.png", "Create Template");
-        _btnCreateTemplate->clicked().connect(this, &Views::ViewActivityTemplates::_btnCreateTemplateClicked);
+        _btnCreateTemplate->clicked().connect(this, &Views::ViewTaskTemplates::_btnCreateTemplateClicked);
     }
 
     //requires "remove" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
     {
         //_btnRemoveTemplates = _qtvTemplates->createToolButton("", "icons/Remove.png", "Remove Selected Templates");
-        //_btnRemoveTemplates->clicked().connect(this, &Views::ViewActivityTemplates::_btnRemoveTemplatesClicked);
+        //_btnRemoveTemplates->clicked().connect(this, &Views::ViewTaskTemplates::_btnRemoveTemplatesClicked);
     }
 }
 
-void Views::ViewActivityTemplates::_createTemplateItemsTableView()
+void Views::ViewTaskTemplates::_createTemplateItemsTableView()
 {
-    _qtvTemplateItems = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectActivityTemplateActivityItem>(&Database::DatabaseManager::instance());
+    _qtvTemplateItems = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectTaskTemplateTaskItem>(&Database::DatabaseManager::instance());
     _qtvTemplateItems->setImportCSVFeatureEnabled(false);
 
     //requires "create" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
     {
         _btnCreateTemplateItem = _qtvTemplateItems->createToolButton("", "icons/Add.png", "Create New Template Item");
-        _btnCreateTemplateItem->clicked().connect(this, &Views::ViewActivityTemplates::_btnCreateTemplateItemClicked);
+        _btnCreateTemplateItem->clicked().connect(this, &Views::ViewTaskTemplates::_btnCreateTemplateItemClicked);
     }
 
     //requires "edit" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
     {
         _btnEditTemplateItem = _qtvTemplateItems->createToolButton("", "icons/Edit.png", "Edit Selected Items");
-        _btnEditTemplateItem->clicked().connect(this, &Views::ViewActivityTemplates::_btnEditTemplateItemsClicked);
+        _btnEditTemplateItem->clicked().connect(this, &Views::ViewTaskTemplates::_btnEditTemplateItemsClicked);
     }
 
     //requires "remove" privilege
     if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
     {
         //_btnRemoveTemplateItems = _qtvTemplateItems->createToolButton("", "icons/Remove.png", "Remove Selected Items From Selected Templates");
-        //_btnRemoveTemplateItems->clicked().connect(this, &Views::ViewActivityTemplates::_btnRemoveTemplateItemsClicked);
+        //_btnRemoveTemplateItems->clicked().connect(this, &Views::ViewTaskTemplates::_btnRemoveTemplateItemsClicked);
     }
 }
 
-void Views::ViewActivityTemplates::_prepareView()
+void Views::ViewTaskTemplates::_prepareView()
 {
     _layMain = new Wt::WVBoxLayout();
     _layMain->setContentsMargins(0,0,0,0);

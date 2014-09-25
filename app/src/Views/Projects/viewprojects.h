@@ -203,6 +203,7 @@ namespace Views
         /*******************--Tasks--********************/
         //slots
         void _createTasksRequested();
+        void _createTasksForTemplateRequested();
         void _taskImported(Wt::Dbo::ptr<Projects::ProjectTask> task);
 
         //functions

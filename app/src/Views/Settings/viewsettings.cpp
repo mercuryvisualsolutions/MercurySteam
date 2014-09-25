@@ -75,7 +75,13 @@ void Views::ViewSettings::updateGeneralSettingsView()
 
 void Views::ViewSettings::updateProjectsSettingsView()
 {
-    if(_stkProjectProperties->currentWidget() == _qtvProjectAssetType)
+    if(_stkProjectProperties->currentWidget() == _qtvProjectTaskActivityType)
+        updateTaskActivityTypeView();
+    else if(_stkProjectProperties->currentWidget() == _viewTaskTemplates)
+        updateTaskTemplatesView();
+    else if(_stkProjectProperties->currentWidget() == _viewActivityTemplates)
+        updateActivityTemplatesView();
+    else if(_stkProjectProperties->currentWidget() == _qtvProjectAssetType)
         updateAssetTypeView();
     else if(_stkProjectProperties->currentWidget() == _qtvProjectTaskType)
         updateTaskTypeView();
@@ -272,6 +278,11 @@ void Views::ViewSettings::updateWorkStatusView()
     }
 }
 
+void Views::ViewSettings::updateTaskTemplatesView()
+{
+    _viewTaskTemplates->updateView();
+}
+
 void Views::ViewSettings::updateActivityTemplatesView()
 {
     _viewActivityTemplates->updateView();
@@ -420,6 +431,12 @@ void Views::ViewSettings::_mnuProjectSettingsWorkStatusItemTriggered()
 {
     _stkProjectProperties->setCurrentWidget(_cntWorkStatus);
     updateWorkStatusView();
+}
+
+void Views::ViewSettings::_mnuProjectSettingsTaskTemplatesItemTriggered()
+{
+    _stkProjectProperties->setCurrentWidget(_viewTaskTemplates);
+    updateTaskTemplatesView();
 }
 
 void Views::ViewSettings::_mnuProjectSettingsActivityTemplatesItemTriggered()
@@ -989,7 +1006,11 @@ void Views::ViewSettings::_prepareView()
     _mnuProjectSettingsWorkStatusItem->triggered().connect(this, &Views::ViewSettings::_mnuProjectSettingsWorkStatusItemTriggered);
     _mnuProjectSettings->addItem(_mnuProjectSettingsWorkStatusItem);
 
-    _mnuProjectSettingsActivityTemplatesItem = new Wt::WMenuItem("Task Templates");
+    _mnuProjectSettingsTaskTemplatesItem = new Wt::WMenuItem("Task Templates");
+    _mnuProjectSettingsTaskTemplatesItem->triggered().connect(this, &Views::ViewSettings::_mnuProjectSettingsTaskTemplatesItemTriggered);
+    _mnuProjectSettings->addItem(_mnuProjectSettingsTaskTemplatesItem);
+
+    _mnuProjectSettingsActivityTemplatesItem = new Wt::WMenuItem("Activity Templates");
     _mnuProjectSettingsActivityTemplatesItem->triggered().connect(this, &Views::ViewSettings::_mnuProjectSettingsActivityTemplatesItemTriggered);
     _mnuProjectSettings->addItem(_mnuProjectSettingsActivityTemplatesItem);
 
@@ -1062,6 +1083,11 @@ void Views::ViewSettings::_prepareView()
     _createWorkStatusTableView();
 
     _layCntWorkStatus->addWidget(_qtvProjectWorkStatus, 1);
+
+    /*******************--Task Template--********************/
+    _viewTaskTemplates = new Views::ViewTaskTemplates();
+
+    _stkProjectProperties->addWidget(_viewTaskTemplates);
 
     /*******************--Activity Template--********************/
     _viewActivityTemplates = new Views::ViewActivityTemplates();

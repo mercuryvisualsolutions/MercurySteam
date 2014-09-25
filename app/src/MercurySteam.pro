@@ -79,18 +79,23 @@ SOURCES += main.cpp \
     Views/Projects/dlgcreateandeditasset.cpp \
     Views/Projects/dlgcreateandeditproject.cpp \
     Views/Projects/dlgcreateandedittask.cpp \
-    Projects/projecttaskpipeline.cpp \
     Projects/projectdbo.cpp \
-    Projects/projecttaskpipelineactivityitem.cpp \
     Projects/projecttaskactivitytype.cpp \
     Projects/projecttaskactivity.cpp \
     Views/Settings/dlgcreatetaskactivitytype.cpp \
     Views/Projects/viewtaskactivities.cpp \
     Views/Projects/dlgcreateandedittaskactivity.cpp \
-    Views/Settings/dlgcreateandedittaskpipelineactivityitem.cpp \
     Views/Projects/dlgselectactivitytemplate.cpp \
     Views/Settings/dlgcreatetemplate.cpp \
-    Views/Settings/viewactivitytemplate.cpp
+    Views/Settings/viewactivitytemplate.cpp \
+    Views/Settings/dlgcreateandeditactivitytemplateitem.cpp \
+    Views/Settings/dlgcreateandedittasktemplateitem.cpp \
+    Views/Projects/dlgselecttasktemplate.cpp \
+    Views/Settings/viewtasktemplate.cpp \
+    Projects/projectactivitytemplate.cpp \
+    Projects/projectactivitytemplateactivityitem.cpp \
+    Projects/projecttasktemplatetaskitem.cpp \
+    Projects/projecttasktemplate.cpp
 
 HEADERS += \
     Views/Projects/viewprojects.h \
@@ -155,7 +160,10 @@ HEADERS += \
     Views/Settings/dlgcreatetaskactivitytype.h \
     Views/Projects/viewtaskactivities.h \
     Views/Projects/dlgcreateandedittaskactivity.h \
-    Views/Settings/dlgcreateandedittaskpipelineactivityitem.h \
     Views/Projects/dlgselectactivitytemplate.h \
     Views/Settings/dlgcreatetemplate.h \
-    Views/Settings/viewactivitytemplate.h
+    Views/Settings/viewactivitytemplate.h \
+    Views/Settings/dlgcreateandeditactivitytemplateitem.h \
+    Views/Settings/dlgcreateandedittasktemplateitem.h \
+    Views/Projects/dlgselecttasktemplate.h \
+    Views/Settings/viewtasktemplate.h

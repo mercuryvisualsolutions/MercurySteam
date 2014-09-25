@@ -1,5 +1,5 @@
-#ifndef VIEWACTIVITYTEMPLATE_H
-#define VIEWACTIVITYTEMPLATE_H
+#ifndef VIEWTASKTEMPLATE_H
+#define VIEWTASKTEMPLATE_H
 
 #include "../../Database/dbtables.h"
 #include "../../Log/logger.h"
@@ -11,16 +11,16 @@
 
 namespace Views
 {
-    class ViewActivityTemplates : public Wt::WContainerWidget
+    class ViewTaskTemplates : public Wt::WContainerWidget
     {
     public:
-        ViewActivityTemplates();
+        ViewTaskTemplates();
 
-        const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectActivityTemplate> *qtvTemplates() const;
-        const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectActivityTemplateActivityItem> *qtvTemplateItems() const;
+        const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskTemplate> *qtvTemplates() const;
+        const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskTemplateTaskItem> *qtvTemplateItems() const;
         void updateView();
-        void updateActivityTemplatesView();
-        void updateActivityTemplateItemsView();
+        void updateTaskTemplatesView();
+        void updateTaskTemplateItemsView();
         bool isCreateTemplateOptionHidden() const;
         void setCreateTemplateOptionHidden(bool hidden);
         bool isCreateTemplateItemOptionHidden() const;
@@ -30,16 +30,16 @@ namespace Views
 
         //Signals
         Wt::Signal<> &createTemplateRequested();
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>>> &removeTemplatesRequested();
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>>> &createTemplateItemRequested();
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem>>> &removeTemplateItemsRequested();
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskTemplate>>> &removeTemplatesRequested();
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskTemplate>>> &createTemplateItemRequested();
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskTemplateTaskItem>>> &removeTemplateItemsRequested();
 
     private:
         //Variables
         Log::Logger *_logger;
 
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectActivityTemplate> *_qtvTemplates;
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectActivityTemplateActivityItem> *_qtvTemplateItems;
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskTemplate> *_qtvTemplates;
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskTemplateTaskItem> *_qtvTemplateItems;
 
         //UI variables
         Wt::WVBoxLayout *_layMain;
@@ -55,9 +55,9 @@ namespace Views
 
         //Signals
         Wt::Signal<> _createTemplateRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>>> _removeTemplatesRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>>> _createTemplateItemRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem>>> _removeTemplateItemsRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskTemplate>>> _removeTemplatesRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskTemplate>>> _createTemplateItemRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskTemplateTaskItem>>> _removeTemplateItemsRequested;
 
         //Slots
         void _btnCreateTemplateClicked();
@@ -73,4 +73,4 @@ namespace Views
     };
 }
 
-#endif // VIEWACTIVITYTEMPLATE_H
+#endif // VIEWTASKTEMPLATE_H

@@ -965,17 +965,16 @@ void Views::ViewProjects::_createAssetsTableView()
 //Tasks
 void Views::ViewProjects::_createTasksRequested()
 {
-    Views::DlgCreateAndEditTask *dlg = new Views::DlgCreateAndEditTask();
-    dlg->finished().connect(std::bind([=]()
+    if((_stkMain->currentWidget() == _cntProjects && _qtvProjects->table()->selectedIndexes().size() > 0) ||
+            (_stkMain->currentWidget() == _cntSequences && _viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0) ||
+            (_stkMain->currentWidget() == _cntShots && _viewShots->qtvShots()->table()->selectedIndexes().size() > 0) ||
+            (_stkMain->currentWidget() == _cntAssets && _viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0))
     {
-        if(dlg->result() == Wt::WDialog::Accepted)
+        Views::DlgCreateAndEditTask *dlg = new Views::DlgCreateAndEditTask();
+        dlg->finished().connect(std::bind([=]()
         {
-            if(_stkMain->currentWidget() == _cntProjects ||
-                    _stkMain->currentWidget() == _cntSequences ||
-                    _stkMain->currentWidget() == _cntShots ||
-                    _stkMain->currentWidget() == _cntAssets)
+            if(dlg->result() == Wt::WDialog::Accepted)
             {
-
                 if(_stkMain->currentWidget() == _cntProjects)
                 {
                     for(auto &prjPtr : _qtvProjects->selectedItems())
@@ -1105,12 +1104,92 @@ void Views::ViewProjects::_createTasksRequested()
                     updateTasksView();
                 }
             }
-        }
 
-        delete dlg;
-    }));
+            delete dlg;
+        }));
 
-    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
+        dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
+    }
+    else
+    {
+        _logger->log(std::string("Please select at least one item"), Ms::Log::LogMessageType::Warning);
+    }
+}
+
+void Views::ViewProjects::_createTasksForTemplateRequested()
+{
+    if((_stkMain->currentWidget() == _cntProjects && _qtvProjects->table()->selectedIndexes().size() > 0) ||
+            (_stkMain->currentWidget() == _cntSequences && _viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0) ||
+            (_stkMain->currentWidget() == _cntShots && _viewShots->qtvShots()->table()->selectedIndexes().size() > 0) ||
+            (_stkMain->currentWidget() == _cntAssets && _viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0))
+    {
+        Views::DlgSelectTaskTemplate *dlg = new Views::DlgSelectTaskTemplate();
+        dlg->finished().connect(std::bind([=]()
+        {
+            if(dlg->result() == Wt::WDialog::Accepted)
+            {
+                Wt::Dbo::ptr<Projects::ProjectTaskTemplate> templatePtr = dlg->taskTemplate();
+
+                if(_stkMain->currentWidget() == _cntProjects ||
+                        _stkMain->currentWidget() == _cntSequences ||
+                        _stkMain->currentWidget() == _cntShots ||
+                        _stkMain->currentWidget() == _cntAssets)
+                {
+                    if(_stkMain->currentWidget() == _cntProjects)
+                    {
+                        for(auto &prjPtr : _qtvProjects->selectedItems())
+                        {
+                            if(templatePtr->createTasksForProject(prjPtr))
+                                _logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
+                            else
+                                _logger->log(std::string("error creating tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Error);
+                        }
+                    }
+                    else if(_stkMain->currentWidget() == _cntSequences)
+                    {
+                        for(auto &seqPtr : _viewSequences->qtvSequences()->selectedItems())
+                        {
+                            if(templatePtr->createTasksForProjectSequence(seqPtr))
+                                _logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
+                            else
+                                _logger->log(std::string("error creating tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Error);
+                        }
+                    }
+                    else if(_stkMain->currentWidget() == _cntShots)
+                    {
+                        for(auto &shotPtr : _viewShots->qtvShots()->selectedItems())
+                        {
+                            if(templatePtr->createTasksForProjectShot(shotPtr))
+                                _logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
+                            else
+                                _logger->log(std::string("error creating tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Error);
+                        }
+                    }
+                    else if(_stkMain->currentWidget() == _cntAssets)
+                    {
+                        //add tasks for selected assets
+                        for(auto &assetPtr : _viewAssets->qtvAssets()->selectedItems())
+                        {
+                            if(templatePtr->createTasksForProjectAsset(assetPtr))
+                                _logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
+                            else
+                                _logger->log(std::string("error creating tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Error);
+                        }
+                    }
+
+                    _updatePropertiesTasksView();
+                }
+            }
+
+            delete dlg;
+        }));
+
+        dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
+    }
+    else
+    {
+        _logger->log(std::string("Please select at least one item"), Ms::Log::LogMessageType::Warning);
+    }
 }
 
 void Views::ViewProjects::_taskImported(Wt::Dbo::ptr<Projects::ProjectTask> task)
@@ -1600,6 +1679,7 @@ void Views::ViewProjects::_createPropertiesView()
 
     _viewPropertiesTasks = new Views::ViewTasks();
     _viewPropertiesTasks->createTaskRequested().connect(this, &Views::ViewProjects::_createTasksRequested);
+    _viewPropertiesTasks->createTasksForTemplateRequested().connect(this, &Views::ViewProjects::_createTasksForTemplateRequested);
 
     _stkProperties->addWidget(_viewPropertiesTasks);
 
@@ -2045,7 +2125,7 @@ void Views::ViewProjects::_updatePropertiesShotsView()
 
 void Views::ViewProjects::_updatePropertiesAssetsView()
 {
-    _viewPropertiesTaskActivities->updateView(_viewTasks->qtvTasks()->selectedItems());
+    _viewPropertiesAssets->updateView(_qtvProjects->selectedItems());
 }
 
 void Views::ViewProjects::_updatePropertiesTasksView()

@@ -1,5 +1,5 @@
-#ifndef DLGCREATEPIPELINE_H
-#define DLGCREATEPIPELINE_H
+#ifndef DLGCREATETEMPLATE_H
+#define DLGCREATETEMPLATE_H
 
 #include <Wt/WDialog>
 #include <Wt/WLabel>
@@ -44,4 +44,4 @@ namespace Views
     }
 }
 
-#endif // DLGCREATEPIPELINE_H
+#endif // DLGCREATETEMPLATE_H

@@ -32,8 +32,6 @@ namespace Views
         Wt::Signal<> &createTaskActivityRequested();
         Wt::Signal<> &createTaskActivitiesForTemplateRequested();
         Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskActivity>>> &removeTaskActivitiesRequested();
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskActivity>>> &openfilesViewRequested();
-        Wt::Signal<> &importThumbnailsRequested();
 
     private:
         //Variables
@@ -42,8 +40,6 @@ namespace Views
         Wt::WPushButton *_btnCreateTaskActivitiesForTemplate;
         Wt::WPushButton *_btnRemoveTaskActivities;
         Wt::WPushButton *_btnEditTaskActivities;
-        Wt::WPushButton *_btnImportThumbnails;
-        Wt::WPushButton *_btnOpenFilesView;
 
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskActivity> *_qtvTaskActivities;
         Log::Logger *_logger;
@@ -55,15 +51,12 @@ namespace Views
         Wt::Signal<> _createTaskActivitiesForTemplateRequested;
         Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskActivity>>> _removeTaskActivitiesRequested;
         Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskActivity>>> _openfilesViewRequested;
-        Wt::Signal<> _importThumbnailsRequested;
 
         //Slots
         void _btnCreateTaskActivityClicked();
         void _btnCreateTaskActivitiesForTemplateClicked();
         void _btnRemoveTaskActivitiesClicked();
         void _btnEditTaskActivitiesClicked();
-        void _btnImportThumbnailsClicked();
-        void _btnOpenFilesViewClicked();
 
         //Functions
         void _createTaskActivitysTableView();

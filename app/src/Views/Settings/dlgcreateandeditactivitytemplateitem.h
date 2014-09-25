@@ -1,5 +1,5 @@
-#ifndef DLGCREATEANDEDITTASKPIPELINEACTIVITYITEM_H
-#define DLGCREATEANDEDITTASKPIPELINEACTIVITYITEM_H
+#ifndef DLGCREATEANDEDITACTIVITYTEMPLATEITEM_H
+#define DLGCREATEANDEDITACTIVITYTEMPLATEITEM_H
 
 #include <Wt/WDialog>
 #include <Wt/WLabel>
@@ -24,10 +24,10 @@
 
 namespace Views
 {
-    class DlgCreateAndEditActivityTemplateActivityItem : public Wt::WDialog
+    class DlgCreateAndEditActivityTemplateItem : public Wt::WDialog
     {
     public:
-        DlgCreateAndEditActivityTemplateActivityItem(bool editing = false);
+        DlgCreateAndEditActivityTemplateItem(bool editing = false);
 
         Wt::Dbo::ptr<Projects::ProjectWorkStatus> status() const;
         Wt::Dbo::ptr<Projects::ProjectTaskActivityType> type() const;
@@ -75,4 +75,4 @@ namespace Views
     };
 }
 
-#endif // DLGCREATEANDEDITTASKPIPELINEACTIVITYITEM_H
+#endif // DLGCREATEANDEDITACTIVITYTEMPLATEITEM_H

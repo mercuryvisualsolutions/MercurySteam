@@ -21,6 +21,7 @@
 #include "../../Database/dbtables.h"
 #include "../../Log/logger.h"
 #include "../../Session/sessionmanager.h"
+#include "viewtasktemplate.h"
 #include "viewactivitytemplate.h"
 
 #include <Ms/Widgets/MQueryTableViewWidget.h>
@@ -44,6 +45,7 @@ namespace Views
         void updateTaskTypeView();
         void updateAssetTypeView();
         void updateWorkStatusView();
+        void updateTaskTemplatesView();
         void updateActivityTemplatesView();
         void updateUserTitlesView();
         void updateTagsView();
@@ -94,6 +96,7 @@ namespace Views
         Wt::WMenuItem *_mnuProjectSettingsTaskTypeItem;
         Wt::WMenuItem *_mnuProjectSettingsAssetTypeItem;
         Wt::WMenuItem *_mnuProjectSettingsWorkStatusItem;
+        Wt::WMenuItem *_mnuProjectSettingsTaskTemplatesItem;
         Wt::WMenuItem *_mnuProjectSettingsActivityTemplatesItem;
         Wt::WStackedWidget *_stkProjectProperties;
 
@@ -130,6 +133,9 @@ namespace Views
         void _createWorkStatusTableView();
 
         /*******************--Task Template--********************/
+        Views::ViewTaskTemplates *_viewTaskTemplates;
+
+        /*******************--Activity Template--********************/
         Views::ViewActivityTemplates *_viewActivityTemplates;
 
         /*******************--Users Main--********************/
@@ -181,6 +187,7 @@ namespace Views
         void _mnuProjectSettingsTaskTypeItemTriggered();
         void _mnuProjectSettingsAssetTypeItemTriggered();
         void _mnuProjectSettingsWorkStatusItemTriggered();
+        void _mnuProjectSettingsTaskTemplatesItemTriggered();
         void _mnuProjectSettingsActivityTemplatesItemTriggered();
         //TaskActivityType
         void _btnCreateTaskActivityTypeClicked();

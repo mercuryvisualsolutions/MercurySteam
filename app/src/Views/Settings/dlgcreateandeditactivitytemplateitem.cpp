@@ -1,47 +1,47 @@
-#include "dlgcreateandedittaskpipelineactivityitem.h"
+#include "dlgcreateandeditactivitytemplateitem.h"
 
 #include <Wt/WBreak>
 
 #include "../../Database/databasemanager.h"
 #include "../../Settings/appsettings.h"
 
-Views::DlgCreateAndEditActivityTemplateActivityItem::DlgCreateAndEditActivityTemplateActivityItem(bool editing) :
+Views::DlgCreateAndEditActivityTemplateItem::DlgCreateAndEditActivityTemplateItem(bool editing) :
     _editing(editing)
 {
     _prepareView();
 }
 
-Wt::Dbo::ptr<Projects::ProjectWorkStatus> Views::DlgCreateAndEditActivityTemplateActivityItem::status() const
+Wt::Dbo::ptr<Projects::ProjectWorkStatus> Views::DlgCreateAndEditActivityTemplateItem::status() const
 {
     return _mdlCmbStatus->resultRow(_cmbStatus->currentIndex());
 }
 
-Wt::Dbo::ptr<Projects::ProjectTaskActivityType> Views::DlgCreateAndEditActivityTemplateActivityItem::type() const
+Wt::Dbo::ptr<Projects::ProjectTaskActivityType> Views::DlgCreateAndEditActivityTemplateItem::type() const
 {
     return _mdlCmbType->resultRow(_cmbType->currentIndex());
 }
 
-int Views::DlgCreateAndEditActivityTemplateActivityItem::hours() const
+int Views::DlgCreateAndEditActivityTemplateItem::hours() const
 {
     return _spnHours->value();
 }
 
-std::string Views::DlgCreateAndEditActivityTemplateActivityItem::description() const
+std::string Views::DlgCreateAndEditActivityTemplateItem::description() const
 {
     return _txtDescription->text().toUTF8();
 }
 
-bool Views::DlgCreateAndEditActivityTemplateActivityItem::isActive() const
+bool Views::DlgCreateAndEditActivityTemplateItem::isActive() const
 {
     return _cmbActive->currentText() == "Yes" ? true : false;
 }
 
-bool Views::DlgCreateAndEditActivityTemplateActivityItem::isEditing()
+bool Views::DlgCreateAndEditActivityTemplateItem::isEditing()
 {
     return _editing;
 }
 
-bool Views::DlgCreateAndEditActivityTemplateActivityItem::editedType() const
+bool Views::DlgCreateAndEditActivityTemplateItem::editedType() const
 {
     if(_editing)
     {
@@ -54,7 +54,7 @@ bool Views::DlgCreateAndEditActivityTemplateActivityItem::editedType() const
         return false;
 }
 
-bool Views::DlgCreateAndEditActivityTemplateActivityItem::editedStatus() const
+bool Views::DlgCreateAndEditActivityTemplateItem::editedStatus() const
 {
     if(_editing)
     {
@@ -67,7 +67,7 @@ bool Views::DlgCreateAndEditActivityTemplateActivityItem::editedStatus() const
         return false;
 }
 
-bool Views::DlgCreateAndEditActivityTemplateActivityItem::editedHours() const
+bool Views::DlgCreateAndEditActivityTemplateItem::editedHours() const
 {
     if(_editing)
     {
@@ -80,7 +80,7 @@ bool Views::DlgCreateAndEditActivityTemplateActivityItem::editedHours() const
         return false;
 }
 
-bool Views::DlgCreateAndEditActivityTemplateActivityItem::editedDescription() const
+bool Views::DlgCreateAndEditActivityTemplateItem::editedDescription() const
 {
     if(_editing)
     {
@@ -93,7 +93,7 @@ bool Views::DlgCreateAndEditActivityTemplateActivityItem::editedDescription() co
         return false;
 }
 
-bool Views::DlgCreateAndEditActivityTemplateActivityItem::editedActive() const
+bool Views::DlgCreateAndEditActivityTemplateItem::editedActive() const
 {
     if(_editing)
     {
@@ -106,7 +106,7 @@ bool Views::DlgCreateAndEditActivityTemplateActivityItem::editedActive() const
         return false;
 }
 
-void Views::DlgCreateAndEditActivityTemplateActivityItem::_prepareView()
+void Views::DlgCreateAndEditActivityTemplateItem::_prepareView()
 {
     if(!_editing)
         this->setCaption("Create Activity Template Item");
@@ -181,20 +181,20 @@ void Views::DlgCreateAndEditActivityTemplateActivityItem::_prepareView()
     _layLeft->addWidget(new Wt::WBreak(), 1);
 
     _btnOk = new Wt::WPushButton("Ok", this->footer());
-    _btnOk->clicked().connect(this, &Views::DlgCreateAndEditActivityTemplateActivityItem::_btnOkClicked);
+    _btnOk->clicked().connect(this, &Views::DlgCreateAndEditActivityTemplateItem::_btnOkClicked);
 
     _btnCancel = new Wt::WPushButton("Cancel", this->footer());
     _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
     _btnCancel->setFocus();
 }
 
-void Views::DlgCreateAndEditActivityTemplateActivityItem::_btnOkClicked()
+void Views::DlgCreateAndEditActivityTemplateItem::_btnOkClicked()
 {
     if(_validate())
         this->accept();
 }
 
-void Views::DlgCreateAndEditActivityTemplateActivityItem::_createCmbType()
+void Views::DlgCreateAndEditActivityTemplateItem::_createCmbType()
 {
     _cmbType = new Wt::WComboBox();
     _cmbType->setMinimumSize(20, 30);
@@ -226,7 +226,7 @@ void Views::DlgCreateAndEditActivityTemplateActivityItem::_createCmbType()
         _cmbType->setCurrentIndex(0);
 }
 
-void Views::DlgCreateAndEditActivityTemplateActivityItem::_createCmbStatus()
+void Views::DlgCreateAndEditActivityTemplateItem::_createCmbStatus()
 {
     _cmbStatus = new Wt::WComboBox();
     _cmbStatus->setMinimumSize(20, 30);
@@ -258,7 +258,7 @@ void Views::DlgCreateAndEditActivityTemplateActivityItem::_createCmbStatus()
         _cmbStatus->setCurrentIndex(0);
 }
 
-bool Views::DlgCreateAndEditActivityTemplateActivityItem::_validate()
+bool Views::DlgCreateAndEditActivityTemplateItem::_validate()
 {
     bool result = true;
 

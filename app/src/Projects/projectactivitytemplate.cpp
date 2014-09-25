@@ -77,6 +77,9 @@ bool Projects::ProjectActivityTemplate::createActivitiesForProjectTask(Wt::Dbo::
 
     for(auto iter = _items.begin(); iter != _items.end(); ++iter)
     {
+        if(!(*iter)->active())
+            continue;
+
         Projects::ProjectTaskActivity *activity = new Projects::ProjectTaskActivity();
         activity->setTask(task);
         activity->setStatus((*iter)->status());

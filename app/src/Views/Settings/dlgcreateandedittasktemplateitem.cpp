@@ -1,60 +1,42 @@
-#include "dlgcreateandedittaskactivity.h"
+#include "dlgcreateandedittasktemplateitem.h"
 
 #include <Wt/WBreak>
 
 #include "../../Database/databasemanager.h"
 #include "../../Settings/appsettings.h"
 
-Views::DlgCreateAndEditTaskActivity::DlgCreateAndEditTaskActivity(bool editing) :
+Views::DlgCreateAndEditTaskTemplateItem::DlgCreateAndEditTaskTemplateItem(bool editing) :
     _editing(editing)
 {
     _prepareView();
 }
 
-Wt::Dbo::ptr<Projects::ProjectWorkStatus> Views::DlgCreateAndEditTaskActivity::status() const
+Wt::Dbo::ptr<Projects::ProjectWorkStatus> Views::DlgCreateAndEditTaskTemplateItem::status() const
 {
     return _mdlCmbStatus->resultRow(_cmbStatus->currentIndex());
 }
 
-Wt::Dbo::ptr<Projects::ProjectTaskActivityType> Views::DlgCreateAndEditTaskActivity::type() const
+Wt::Dbo::ptr<Projects::ProjectTaskType> Views::DlgCreateAndEditTaskTemplateItem::type() const
 {
     return _mdlCmbType->resultRow(_cmbType->currentIndex());
 }
 
-int Views::DlgCreateAndEditTaskActivity::hours() const
-{
-    return _spnHours->value();
-}
-
-std::string Views::DlgCreateAndEditTaskActivity::description() const
+std::string Views::DlgCreateAndEditTaskTemplateItem::description() const
 {
     return _txtDescription->text().toUTF8();
 }
 
-bool Views::DlgCreateAndEditTaskActivity::isActive() const
+bool Views::DlgCreateAndEditTaskTemplateItem::isActive() const
 {
     return _cmbActive->currentText() == "Yes" ? true : false;
 }
 
-bool Views::DlgCreateAndEditTaskActivity::isEditing()
+bool Views::DlgCreateAndEditTaskTemplateItem::isEditing()
 {
     return _editing;
 }
 
-bool Views::DlgCreateAndEditTaskActivity::editedHours() const
-{
-    if(_editing)
-    {
-        if(_spnHours->isEnabled())
-            return true;
-        else
-            return false;
-    }
-    else
-        return false;
-}
-
-bool Views::DlgCreateAndEditTaskActivity::editedType() const
+bool Views::DlgCreateAndEditTaskTemplateItem::editedType() const
 {
     if(_editing)
     {
@@ -67,7 +49,7 @@ bool Views::DlgCreateAndEditTaskActivity::editedType() const
         return false;
 }
 
-bool Views::DlgCreateAndEditTaskActivity::editedStatus() const
+bool Views::DlgCreateAndEditTaskTemplateItem::editedStatus() const
 {
     if(_editing)
     {
@@ -80,7 +62,7 @@ bool Views::DlgCreateAndEditTaskActivity::editedStatus() const
         return false;
 }
 
-bool Views::DlgCreateAndEditTaskActivity::editedDescription() const
+bool Views::DlgCreateAndEditTaskTemplateItem::editedDescription() const
 {
     if(_editing)
     {
@@ -93,7 +75,7 @@ bool Views::DlgCreateAndEditTaskActivity::editedDescription() const
         return false;
 }
 
-bool Views::DlgCreateAndEditTaskActivity::editedActive() const
+bool Views::DlgCreateAndEditTaskTemplateItem::editedActive() const
 {
     if(_editing)
     {
@@ -106,12 +88,12 @@ bool Views::DlgCreateAndEditTaskActivity::editedActive() const
         return false;
 }
 
-void Views::DlgCreateAndEditTaskActivity::_prepareView()
+void Views::DlgCreateAndEditTaskTemplateItem::_prepareView()
 {
     if(!_editing)
-        this->setCaption("Create Task Activity");
+        this->setCaption("Create Task Template Item");
     else
-        this->setCaption("Edit Task Activity");
+        this->setCaption("Edit Task Template Items");
 
     this->rejectWhenEscapePressed();
 
@@ -155,14 +137,6 @@ void Views::DlgCreateAndEditTaskActivity::_prepareView()
 
     _layLeft->addWidget(new Wt::WBreak());
 
-    _spnHours = Ms::Widgets::MWidgetFactory::createSpinBox(0, INT_MAX, 0);
-    if(_editing)
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Hours:", _spnHours));
-    else
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Hours:", _spnHours));
-
-    _layLeft->addWidget(new Wt::WBreak());
-
     _txtDescription = Ms::Widgets::MWidgetFactory::createTextArea("", false);
     if(_editing)
         _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Description:", _txtDescription));
@@ -183,36 +157,36 @@ void Views::DlgCreateAndEditTaskActivity::_prepareView()
     _layLeft->addWidget(new Wt::WBreak(), 1);
 
     _btnOk = new Wt::WPushButton("Ok", this->footer());
-    _btnOk->clicked().connect(this, &Views::DlgCreateAndEditTaskActivity::_btnOkClicked);
+    _btnOk->clicked().connect(this, &Views::DlgCreateAndEditTaskTemplateItem::_btnOkClicked);
 
     _btnCancel = new Wt::WPushButton("Cancel", this->footer());
     _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
     _btnCancel->setFocus();
 }
 
-void Views::DlgCreateAndEditTaskActivity::_btnOkClicked()
+void Views::DlgCreateAndEditTaskTemplateItem::_btnOkClicked()
 {
     if(_validate())
         this->accept();
 }
 
-void Views::DlgCreateAndEditTaskActivity::_createCmbType()
+void Views::DlgCreateAndEditTaskTemplateItem::_createCmbType()
 {
     _cmbType = new Wt::WComboBox();
     _cmbType->setMinimumSize(20, 30);
     _cntCmbType = new Wt::WContainerWidget();
     _cntCmbType->addWidget(_cmbType);
 
-    _mdlCmbType = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectTaskActivityType>>();
+    _mdlCmbType = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectTaskType>>();
 
     if(!Database::DatabaseManager::instance().openTransaction())
         return;
 
-    Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTaskActivityType>> query;
+    Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTaskType>> query;
     if(AppSettings::instance().isLoadInactiveData())
-        query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskActivityType>();
+        query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskType>();
     else
-        query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskActivityType>().where("Active = ?").bind(true);
+        query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskType>().where("Active = ?").bind(true);
 
     _mdlCmbType->setQuery(query);
 
@@ -228,7 +202,7 @@ void Views::DlgCreateAndEditTaskActivity::_createCmbType()
         _cmbType->setCurrentIndex(0);
 }
 
-void Views::DlgCreateAndEditTaskActivity::_createCmbStatus()
+void Views::DlgCreateAndEditTaskTemplateItem::_createCmbStatus()
 {
     _cmbStatus = new Wt::WComboBox();
     _cmbStatus->setMinimumSize(20, 30);
@@ -260,14 +234,13 @@ void Views::DlgCreateAndEditTaskActivity::_createCmbStatus()
         _cmbStatus->setCurrentIndex(0);
 }
 
-bool Views::DlgCreateAndEditTaskActivity::_validate()
+bool Views::DlgCreateAndEditTaskTemplateItem::_validate()
 {
     bool result = true;
 
     if(!_editing)
     {
-        if((_spnHours->validate() != Wt::WIntValidator::Valid) ||
-                (_cmbType->currentIndex() == -1) ||
+        if((_cmbType->currentIndex() == -1) ||
                 (_cmbStatus->currentIndex() == -1))
         {
             result = false;
@@ -275,8 +248,7 @@ bool Views::DlgCreateAndEditTaskActivity::_validate()
     }
     else
     {
-        if((_spnHours->isEnabled() && (_spnHours->validate() != Wt::WIntValidator::Valid)) ||
-                ((_cmbType->isEnabled()) && (_cmbType->currentIndex() == -1)) ||
+        if(((_cmbType->isEnabled()) && (_cmbType->currentIndex() == -1)) ||
                 ((_cmbStatus->isEnabled()) && (_cmbStatus->currentIndex() == -1)))
         {
             result = false;

@@ -517,6 +517,7 @@ namespace Users
 namespace Projects
 {
     class ProjectsManager;
+    class ProjectTaskTemplate;
     class ProjectActivityTemplate;
     class ProjectTaskActivity;
 
@@ -748,6 +749,102 @@ namespace Projects
         //variables
         std::string _name;
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem>> _items;
+
+        //functions
+        void _init();
+    };
+
+    class ProjectTaskTemplateTaskItem : public Ms::Dbo::MDboBase
+    {
+        friend class Projects::ProjectsManager;
+        friend class Database::DatabaseManager;
+
+    public:
+        ProjectTaskTemplateTaskItem();
+        ~ProjectTaskTemplateTaskItem();
+
+        //variables
+
+        //functions
+        ProjectTaskTemplateTaskItem *modify() override;
+        const Wt::Dbo::ptr<Projects::ProjectTaskType> type() const;
+        void setType(Wt::Dbo::ptr<Projects::ProjectTaskType> type);
+        Wt::Dbo::ptr<Projects::ProjectWorkStatus> status() const;
+        void setStatus(Wt::Dbo::ptr<Projects::ProjectWorkStatus> status);
+        const Wt::Dbo::ptr<Projects::ProjectTaskTemplate> taskTemplate() const;
+        void setTaskTemplate(Wt::Dbo::ptr<Projects::ProjectTaskTemplate> taskTemplate);
+        std::string description() const;
+        void setDescription(const std::string &description);
+
+        //operators
+        bool operator ==(const ProjectTaskTemplateTaskItem &other) const;
+        bool operator !=(const ProjectTaskTemplateTaskItem &other) const;
+
+        //DBO functions
+        template<class Action>
+        void persist(Action &a)
+        {
+            Wt::Dbo::belongsTo(a, _type, "Project_Task");
+            Wt::Dbo::belongsTo(a, _status, "Current");//create a ManyToOne relationship to the table "project_work_status"
+            Wt::Dbo::belongsTo(a, _taskTemplate, "Project_Task_Template");//create a ManyToOne relationship to the table "project_task_template"
+            Wt::Dbo::field(a, _description, "Description");
+
+            Ms::Dbo::MDboBase::persist<Action>(a);
+        }
+
+    private:
+        //variables
+        Wt::Dbo::ptr<Projects::ProjectTaskType> _type;
+        Wt::Dbo::ptr<Projects::ProjectWorkStatus> _status;
+        Wt::Dbo::ptr<Projects::ProjectTaskTemplate> _taskTemplate;
+        std::string _description;
+
+        //functions
+        void _init();
+    };
+
+    class ProjectTaskTemplate : public Ms::Dbo::MDboBase
+    {
+        friend class Projects::ProjectsManager;
+        friend class Database::DatabaseManager;
+
+    public:
+        ProjectTaskTemplate();
+        ProjectTaskTemplate(const std::string &name);
+
+        //variables
+
+        //functions
+        ProjectTaskTemplate *modify() override;
+        const std::string name() const;
+        void setName(const std::string &name);
+        bool hasItem(Wt::Dbo::ptr<Projects::ProjectTaskTemplateTaskItem> taskItem) const;
+        bool addItem(Wt::Dbo::ptr<Projects::ProjectTaskTemplateTaskItem> taskItem);
+        bool removeItem(Wt::Dbo::ptr<Projects::ProjectTaskTemplateTaskItem> taskItem);
+        bool createTasksForProjectAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset) const;
+        bool createTasksForProjectShot(Wt::Dbo::ptr<Projects::ProjectShot> shot) const;
+        bool createTasksForProjectSequence(Wt::Dbo::ptr<Projects::ProjectSequence> sequence) const;
+        bool createTasksForProject(Wt::Dbo::ptr<Projects::Project> project) const;
+        const Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTaskTemplateTaskItem>> items() const;
+
+        //operators
+        bool operator ==(const ProjectTaskTemplate &other) const;
+        bool operator !=(const ProjectTaskTemplate &other) const;
+
+        //DBO functions
+        template<class Action>
+        void persist(Action &a)
+        {
+            Wt::Dbo::id(a, _name, "Name", 255);
+            Wt::Dbo::hasMany(a, _items, Wt::Dbo::ManyToOne, "Project_Task_Template");//create a ManyToOne relationship to the table "project_task_template"
+
+            Ms::Dbo::MDboBase::persist<Action>(a);
+        }
+
+    private:
+        //variables
+        std::string _name;
+        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTaskTemplateTaskItem>> _items;
 
         //functions
         void _init();

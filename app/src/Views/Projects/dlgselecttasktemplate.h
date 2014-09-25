@@ -1,5 +1,5 @@
-#ifndef DLGSELECTACTIVITYTEMPLATE_H
-#define DLGSELECTACTIVITYTEMPLATE_H
+#ifndef DLGSELECTTASKTEMPLATE_H
+#define DLGSELECTTASKTEMPLATE_H
 
 #include <Wt/WDialog>
 #include <Wt/WLabel>
@@ -21,12 +21,12 @@
 
 namespace Views
 {
-    class DlgSelectActivityTemplate : public Wt::WDialog
+    class DlgSelectTaskTemplate : public Wt::WDialog
     {
     public:
-        DlgSelectActivityTemplate();
+        DlgSelectTaskTemplate();
 
-        Wt::Dbo::ptr<Projects::ProjectActivityTemplate> activityTemplate() const;
+        Wt::Dbo::ptr<Projects::ProjectTaskTemplate> taskTemplate() const;
 
     private:
         //variables
@@ -35,7 +35,7 @@ namespace Views
         Wt::WVBoxLayout *_layLeft;
         Wt::WComboBox *_cmbTemplate;
         Wt::WContainerWidget *_cntCmbTemplate;
-        Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>> *_mdlCmbTemplate;
+        Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectTaskTemplate>> *_mdlCmbTemplate;
         Wt::WPushButton *_btnOk;
         Wt::WPushButton *_btnCancel;
 
@@ -49,4 +49,4 @@ namespace Views
     };
 }
 
-#endif // DLGSELECTACTIVITYTEMPLATE_H
+#endif // DLGSELECTTASKTEMPLATE_H
