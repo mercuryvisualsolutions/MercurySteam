@@ -535,6 +535,8 @@ namespace Projects
         virtual std::string description() const;
         virtual void setDescription(const std::string &description);
         virtual int progress() const = 0;
+        virtual int totalHours() const = 0;
+        virtual int doneHours() const = 0;
         virtual int priority() const;
         virtual void setPriority(int priority);
         virtual Wt::Dbo::ptr<Projects::ProjectWorkStatus> status() const;
@@ -998,6 +1000,15 @@ namespace Projects
         //variables
 
         //functions
+        virtual int progress() const override;
+        virtual int totalHours() const override;
+        virtual int doneHours() const override;
+
+        int totalShots();
+        int doneShots();
+        int totalTasks();
+        int doneTasks();
+
         ProjectSequence *modify() override;
         const ProjectSequenceId id() const;
         std::string name() const;
@@ -1016,7 +1027,6 @@ namespace Projects
         void setFrameWidth(int frameWidth);
         int frameHeight() const;
         void setFrameHeight(int frameHeight);
-        virtual int progress() const override;
 
         //operators
         bool operator ==(const ProjectSequence &other) const;
@@ -1066,6 +1076,9 @@ namespace Projects
 
         //variables
         virtual int progress() const override;
+        virtual int totalHours() const override;
+        virtual int doneHours() const override;
+
         Wt::Dbo::ptr<Projects::ProjectTaskType> type() const;
         void setType(Wt::Dbo::ptr<Projects::ProjectTaskType> type);
         Wt::Dbo::ptr<Projects::ProjectWorkStatus> status() const;
@@ -1178,6 +1191,13 @@ namespace Projects
         //variables
 
         //functions
+        virtual int progress() const override;
+        virtual int totalHours() const override;
+        virtual int doneHours() const override;
+
+        int totalTasks();
+        int doneTasks();
+
         ProjectShot *modify() override;
         const ProjectShotId id() const;
         std::string name() const;
@@ -1198,7 +1218,6 @@ namespace Projects
         void setFrameWidth(int frameWidth);
         int frameHeight() const;
         void setFrameHeight(int frameHeight);
-        virtual int progress() const override;
 
         //operators
         bool operator ==(const ProjectShot &other) const;
@@ -1250,6 +1269,13 @@ namespace Projects
 
 
         //functions
+        virtual int progress() const override;
+        virtual int totalHours() const override;
+        virtual int doneHours() const override;
+
+        int totalTasks();
+        int doneTasks();
+
         ProjectAsset *modify() override;
         const ProjectAssetId id() const;
         const std::string name() const;
@@ -1260,7 +1286,6 @@ namespace Projects
         bool hasTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const;
         bool addTask(Wt::Dbo::ptr<Projects::ProjectTask> task);
         bool removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task);
-        virtual int progress() const override;
         Wt::Dbo::ptr<Projects::ProjectAssetType> type() const;
         void setType(const Wt::Dbo::ptr<Projects::ProjectAssetType> type);
 
@@ -1307,6 +1332,17 @@ namespace Projects
 
 
         //functions
+        virtual int progress() const override;
+        virtual int totalHours() const override;
+        virtual int doneHours() const override;
+
+        int totalAssets();
+        int doneAssets();
+        int totalSequences();
+        int doneSequences();
+        int totalTasks();
+        int doneTasks();
+
         Project *modify() override;
         std::string name() const;
         void setName(const std::string &name);
@@ -1324,7 +1360,6 @@ namespace Projects
         void setFrameWidth(int frameWidth);
         int frameHeight() const;
         void setFrameHeight(int frameHeight);
-        virtual int progress() const override;
         Wt::Dbo::ptr<Users::User> manager() const;
         void setManager(const Wt::Dbo::ptr<Users::User> user);
 

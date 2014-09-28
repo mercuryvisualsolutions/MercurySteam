@@ -134,7 +134,146 @@ void Projects::ProjectSequence::setFrameHeight(int frameHeight)
 
 int Projects::ProjectSequence::progress() const
 {
+    int dHours = doneHours();
+    int tHours = totalHours();
 
+    return tHours > 0 ? dHours / tHours : 0;
+}
+
+int Projects::ProjectSequence::totalHours() const
+{
+    int totalHours = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _shots.begin(); iter != _shots.end(); ++iter)//count shots hours
+        {
+            if(!(*iter)->active())
+                continue;
+
+            totalHours += (*iter)->totalHours();
+        }
+
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)//count tasks hours
+        {
+            if(!(*iter)->active())
+                continue;
+
+            totalHours += (*iter)->totalHours();
+        }
+    }
+
+    return totalHours;
+}
+
+int Projects::ProjectSequence::doneHours() const
+{
+    int finishedHours = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _shots.begin(); iter != _shots.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            if((*iter)->status()->workStatusType()->workStatusType() == "Done")//finished task
+            {
+                finishedHours += (*iter)->doneHours();
+            }
+        }
+
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            if((*iter)->status()->workStatusType()->workStatusType() == "Done")//finished task
+            {
+                finishedHours += (*iter)->doneHours();
+            }
+        }
+    }
+
+    return finishedHours;
+}
+
+int Projects::ProjectSequence::totalShots()
+{
+    int totalShots = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            totalShots++;
+        }
+    }
+
+    return totalShots;
+}
+
+int Projects::ProjectSequence::doneShots()
+{
+    int doneShots = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            if((*iter)->status()->workStatusType()->workStatusType() == "Done")
+            {
+                doneShots++;
+            }
+        }
+    }
+
+    return doneShots;
+}
+
+int Projects::ProjectSequence::totalTasks()
+{
+    int totalTasks = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            totalTasks++;
+        }
+    }
+
+    return totalTasks;
+}
+
+int Projects::ProjectSequence::doneTasks()
+{
+    int doneTasks = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            if((*iter)->status()->workStatusType()->workStatusType() == "Done")
+            {
+                doneTasks++;
+            }
+        }
+    }
+
+    return doneTasks;
 }
 
 bool Projects::ProjectSequence::operator ==(const Projects::ProjectSequence &other) const

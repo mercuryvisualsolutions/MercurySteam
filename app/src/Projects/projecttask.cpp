@@ -16,7 +16,49 @@ Projects::ProjectTask *Projects::ProjectTask::modify()
 
 int Projects::ProjectTask::progress() const
 {
+    int dHours = doneHours();
+    int tHours = totalHours();
 
+    return tHours > 0 ? dHours / tHours : 0;
+}
+
+int Projects::ProjectTask::totalHours() const
+{
+    int totalHours = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            totalHours += (*iter)->hours();
+        }
+    }
+
+    return totalHours;
+}
+
+int Projects::ProjectTask::doneHours() const
+{
+    int finishedHours = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            if((*iter)->status()->workStatusType()->workStatusType() == "Done")//finished task
+            {
+                finishedHours += (*iter)->hours();
+            }
+        }
+    }
+
+    return finishedHours;
 }
 
 Wt::Dbo::ptr<Projects::ProjectTaskType> Projects::ProjectTask::type() const

@@ -93,7 +93,88 @@ bool Projects::ProjectAsset::removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task
 
 int Projects::ProjectAsset::progress() const
 {
+    int dHours = doneHours();
+    int tHours = totalHours();
 
+    return tHours > 0 ? dHours / tHours : 0;
+}
+
+int Projects::ProjectAsset::totalHours() const
+{
+    int totalHours = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            totalHours += (*iter)->totalHours();
+        }
+    }
+
+    return totalHours;
+}
+
+int Projects::ProjectAsset::doneHours() const
+{
+    int finishedHours = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            if((*iter)->status()->workStatusType()->workStatusType() == "Done")//finished task
+            {
+                finishedHours += (*iter)->doneHours();
+            }
+        }
+    }
+
+    return finishedHours;
+}
+
+int Projects::ProjectAsset::totalTasks()
+{
+    int totalTasks = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            totalTasks++;
+        }
+    }
+
+    return totalTasks;
+}
+
+int Projects::ProjectAsset::doneTasks()
+{
+    int doneTasks = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            if((*iter)->status()->workStatusType()->workStatusType() == "Done")
+            {
+                doneTasks++;
+            }
+        }
+    }
+
+    return doneTasks;
 }
 
 Wt::Dbo::ptr<Projects::ProjectAssetType> Projects::ProjectAsset::type() const

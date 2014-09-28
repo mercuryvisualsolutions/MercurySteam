@@ -148,7 +148,204 @@ void Projects::Project::setFrameHeight(int frameHeight)
 
 int Projects::Project::progress() const
 {
+    int dHours = doneHours();
+    int tHours = totalHours();
 
+    return tHours > 0 ? dHours / tHours : 0;
+}
+
+int Projects::Project::totalHours() const
+{
+    int totalHours = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)//count sequences hours
+        {
+            if(!(*iter)->active())
+                continue;
+
+            totalHours += (*iter)->totalHours();
+        }
+
+        for(auto iter = _assets.begin(); iter != _assets.end(); ++iter)//count assets hours
+        {
+            if(!(*iter)->active())
+                continue;
+
+            totalHours += (*iter)->totalHours();
+        }
+
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)//count tasks hours
+        {
+            if(!(*iter)->active())
+                continue;
+
+            totalHours += (*iter)->totalHours();
+        }
+    }
+
+    return totalHours;
+}
+
+int Projects::Project::doneHours() const
+{
+    int finishedHours = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            if((*iter)->status()->workStatusType()->workStatusType() == "Done")//finished sequence
+            {
+                finishedHours += (*iter)->doneHours();
+            }
+        }
+
+        for(auto iter = _assets.begin(); iter != _assets.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            if((*iter)->status()->workStatusType()->workStatusType() == "Done")//finished asset
+            {
+                finishedHours += (*iter)->doneHours();
+            }
+        }
+
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            if((*iter)->status()->workStatusType()->workStatusType() == "Done")//finished task
+            {
+                finishedHours += (*iter)->doneHours();
+            }
+        }
+    }
+
+    return finishedHours;
+}
+
+int Projects::Project::totalAssets()
+{
+    int totalAssets = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _assets.begin(); iter != _assets.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            totalAssets++;
+        }
+    }
+
+    return totalAssets;
+}
+
+int Projects::Project::doneAssets()
+{
+    int doneAssets = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _assets.begin(); iter != _assets.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            if((*iter)->status()->workStatusType()->workStatusType() == "Done")
+            {
+                doneAssets++;
+            }
+        }
+    }
+
+    return doneAssets;
+}
+
+int Projects::Project::totalSequences()
+{
+    int totalSequences = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            totalSequences++;
+        }
+    }
+
+    return totalSequences;
+}
+
+int Projects::Project::doneSequences()
+{
+    int doneSequences = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            if((*iter)->status()->workStatusType()->workStatusType() == "Done")
+            {
+                doneSequences++;
+            }
+        }
+    }
+
+    return doneSequences;
+}
+
+int Projects::Project::totalTasks()
+{
+    int totalTasks = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            totalTasks++;
+        }
+    }
+
+    return totalTasks;
+}
+
+int Projects::Project::doneTasks()
+{
+    int doneTasks = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            if((*iter)->status()->workStatusType()->workStatusType() == "Done")
+            {
+                doneTasks++;
+            }
+        }
+    }
+
+    return doneTasks;
 }
 
 Wt::Dbo::ptr<Users::User> Projects::Project::manager() const

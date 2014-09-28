@@ -146,7 +146,88 @@ void Projects::ProjectShot::setFrameHeight(int frameHeight)
 
 int Projects::ProjectShot::progress() const
 {
+    int dHours = doneHours();
+    int tHours = totalHours();
 
+    return tHours > 0 ? dHours / tHours : 0;
+}
+
+int Projects::ProjectShot::totalHours() const
+{
+    int totalHours = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            totalHours += (*iter)->totalHours();
+        }
+    }
+
+    return totalHours;
+}
+
+int Projects::ProjectShot::doneHours() const
+{
+    int finishedHours = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            if((*iter)->status()->workStatusType()->workStatusType() == "Done")//finished task
+            {
+                finishedHours += (*iter)->doneHours();
+            }
+        }
+    }
+
+    return finishedHours;
+}
+
+int Projects::ProjectShot::totalTasks()
+{
+    int totalTasks = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            totalTasks++;
+        }
+    }
+
+    return totalTasks;
+}
+
+int Projects::ProjectShot::doneTasks()
+{
+    int doneTasks = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            if((*iter)->status()->workStatusType()->workStatusType() == "Done")
+            {
+                doneTasks++;
+            }
+        }
+    }
+
+    return doneTasks;
 }
 
 bool Projects::ProjectShot::operator ==(const Projects::ProjectShot &other) const
