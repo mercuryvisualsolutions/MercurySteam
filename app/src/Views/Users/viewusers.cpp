@@ -12,7 +12,7 @@
 
 #include <Ms/Widgets/Delegates/MDelegates>
 #include <Ms/Widgets/Dialogs/MFilesUploadDialog.h>
-#include <Ms/Widgets/MTableViewColumn.h>
+#include <Ms/Widgets/MQueryTableViewColumn.h>
 #include <Ms/Widgets/MWidgetFactory.h>
 
 #include <iostream>
@@ -70,26 +70,26 @@ void Views::ViewUsers::updateUsersView()
     _qtvUsers->clearColumns();
 
     //add columns
-    _qtvUsers->addColumn(Ms::Widgets::MTableViewColumn("Thumbnail", "Thumbnail", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MThumbnailDelegate(100, 64, "pics/NoPreview.png"), false, true, 100));
-    _qtvUsers->addColumn(Ms::Widgets::MTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-    _qtvUsers->addColumn(Ms::Widgets::MTableViewColumn("Group_Name", "Group", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Users::Group>(
+    _qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Thumbnail", "Thumbnail", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MThumbnailDelegate(100, 64, "pics/NoPreview.png"), false, true, 100));
+    _qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Group_Name", "Group", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Users::Group>(
      Database::DatabaseManager::instance().session() ,
      AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Users::Group>() :
      Database::DatabaseManager::instance().session()->find<Users::Group>().where("Active = ?").bind(true),
      "Name", editRank), true));
-    _qtvUsers->addColumn(Ms::Widgets::MTableViewColumn("Title_Name", "Title", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Users::UserTitle>(
+    _qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Title_Name", "Title", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Users::UserTitle>(
      Database::DatabaseManager::instance().session(),
      AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Users::UserTitle>() :
      Database::DatabaseManager::instance().session()->find<Users::UserTitle>().where("Active = ?").bind(true),
      "Name", editRank)));
-    _qtvUsers->addColumn(Ms::Widgets::MTableViewColumn("Email_Address", "Email", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
-    _qtvUsers->addColumn(Ms::Widgets::MTableViewColumn("Phone_Number", "Phone Number", flags, new Ms::Widgets::Delegates::MValidatorFieldDelegate("[0-9]{1,255}", true, editRank)));
-    _qtvUsers->addColumn(Ms::Widgets::MTableViewColumn("Id_Number", "Id Number", flags, new Ms::Widgets::Delegates::MValidatorFieldDelegate("[0-9]{1,255}", true, editRank)));
-    _qtvUsers->addColumn(Ms::Widgets::MTableViewColumn("Address", "Address", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
+    _qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Email_Address", "Email", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
+    _qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Phone_Number", "Phone Number", flags, new Ms::Widgets::Delegates::MValidatorFieldDelegate("[0-9]{1,255}", true, editRank)));
+    _qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Id_Number", "Id Number", flags, new Ms::Widgets::Delegates::MValidatorFieldDelegate("[0-9]{1,255}", true, editRank)));
+    _qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Address", "Address", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
 
     if(AppSettings::instance().isShowExtraColumns())
     {
-        _qtvUsers->addColumn(Ms::Widgets::MTableViewColumn("Create_Rank", "Create Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
+        _qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Create_Rank", "Create Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
 
         _qtvUsers->addBaseColumns(flags, editRank);
     }
@@ -125,8 +125,8 @@ void Views::ViewUsers::updateGroupsView()
     _qtvGroups->clearColumns();
 
     //add columns
-    _qtvGroups->addColumn(Ms::Widgets::MTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-    _qtvGroups->addColumn(Ms::Widgets::MTableViewColumn("Rank", "Rank", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvGroups->addColumn(Ms::Widgets::MQueryTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvGroups->addColumn(Ms::Widgets::MQueryTableViewColumn("Rank", "Rank", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
     if(AppSettings::instance().isShowExtraColumns())
         _qtvGroups->addBaseColumns(flags, editRank);
@@ -925,8 +925,8 @@ void Views::ViewUsers::_updatePropertiesDataView()
     _qtvPropertiesData->clearColumns();
 
     //add columns
-    _qtvPropertiesData->addColumn(Ms::Widgets::MTableViewColumn("DBOKey", "Key", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-    _qtvPropertiesData->addColumn(Ms::Widgets::MTableViewColumn("DBOValue", "Value", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("DBOKey", "Key", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("DBOValue", "Value", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Database::DboData>> query = Database::DatabaseManager::instance().session()->find<Database::DboData>();
 
@@ -940,7 +940,7 @@ void Views::ViewUsers::_updatePropertiesDataView()
             query.where("User_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Users::User>(_qtvUsers->selectedItems()).at(0) + ")");
         }
 
-        _qtvPropertiesData->addColumn(Ms::Widgets::MTableViewColumn("User_Name", "User Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("User_Name", "User Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     }
     else if(_stkMain->currentWidget() == _qtvGroups)
     {
@@ -951,7 +951,7 @@ void Views::ViewUsers::_updatePropertiesDataView()
             query.where("Group_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Users::Group>(_qtvGroups->selectedItems()).at(0) + ")");
         }
 
-        _qtvPropertiesData->addColumn(Ms::Widgets::MTableViewColumn("Group_Name", "Group Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("Group_Name", "Group Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     }
 
     if(update)
@@ -993,10 +993,10 @@ void Views::ViewUsers::_updatePropertiesTagsView()
     _qtvPropertiesTags->clearColumns();
 
     //add columns
-    _qtvPropertiesTags->addColumn(Ms::Widgets::MTableViewColumn("id", "ID", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-    _qtvPropertiesTags->addColumn(Ms::Widgets::MTableViewColumn("Name", "Name", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-    _qtvPropertiesTags->addColumn(Ms::Widgets::MTableViewColumn("Content", "Content", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-    _qtvPropertiesTags->addColumn(Ms::Widgets::MTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesTags->addColumn(Ms::Widgets::MQueryTableViewColumn("id", "ID", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Name", "Name", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Content", "Content", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query = Database::DatabaseManager::instance().session()->find<Database::Tag>();
 
@@ -1039,10 +1039,10 @@ void Views::ViewUsers::_updatePropertiesAssignedTagsView()
     _qtvPropertiesAssignedTags->clearColumns();
 
     //add columns
-    _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MTableViewColumn("id", "ID", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-    _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MTableViewColumn("Name", "Name", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-    _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MTableViewColumn("Content", "Content", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-    _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MQueryTableViewColumn("id", "ID", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Name", "Name", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Content", "Content", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query = Database::DatabaseManager::instance().session()->find<Database::Tag>();
 
@@ -1110,8 +1110,8 @@ void Views::ViewUsers::_updatePropertiesNotesView()
     _qtvPropertiesNotes->clearColumns();
 
     //add columns
-    _qtvPropertiesNotes->addColumn(Ms::Widgets::MTableViewColumn("id", "Id", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-    _qtvPropertiesNotes->addColumn(Ms::Widgets::MTableViewColumn("Content", "Content", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("id", "Id", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Content", "Content", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Database::Note>> query = Database::DatabaseManager::instance().session()->find<Database::Note>();
 
@@ -1125,7 +1125,7 @@ void Views::ViewUsers::_updatePropertiesNotesView()
             query.where("User_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Users::User>(_qtvUsers->selectedItems()).at(0) + ")");
         }
 
-        _qtvPropertiesNotes->addColumn(Ms::Widgets::MTableViewColumn("User_Name", "User Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("User_Name", "User Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     }
     else if(_stkMain->currentWidget() == _qtvGroups)
     {
@@ -1136,7 +1136,7 @@ void Views::ViewUsers::_updatePropertiesNotesView()
             query.where("Group_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Users::Group>(_qtvGroups->selectedItems()).at(0) + ")");
         }
 
-        _qtvPropertiesNotes->addColumn(Ms::Widgets::MTableViewColumn("Group_Name", "Group Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Group_Name", "Group Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     }
 
     if(update)
@@ -1180,12 +1180,12 @@ void Views::ViewUsers::_updatePropertiesPrivilegesView()
     _qtvGroupsPrivileges->clearColumns();
 
     //add columns
-    _qtvGroupsPrivileges->addColumn(Ms::Widgets::MTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), true));
+    _qtvGroupsPrivileges->addColumn(Ms::Widgets::MQueryTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), true));
 
     if(AppSettings::instance().isShowExtraColumns())
         _qtvGroupsPrivileges->addBaseColumns(Wt::ItemIsSelectable, 0);
 
-    _qtvGroupsPrivileges->removeColumn(Ms::Widgets::MTableViewColumn("Active"));
+    _qtvGroupsPrivileges->removeColumn(Ms::Widgets::MQueryTableViewColumn("Active"));
 
     _qtvGroupsPrivileges->updateView();
 }
@@ -1213,12 +1213,12 @@ void Views::ViewUsers::_updatePropertiesAssignedPrivilegesView()
     _qtvPropertiesGroupsAssignedPrivileges->clearColumns();
 
     //add columns
-    _qtvPropertiesGroupsAssignedPrivileges->addColumn(Ms::Widgets::MTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), true));
+    _qtvPropertiesGroupsAssignedPrivileges->addColumn(Ms::Widgets::MQueryTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), true));
 
     if(AppSettings::instance().isShowExtraColumns())
         _qtvPropertiesGroupsAssignedPrivileges->addBaseColumns(Wt::ItemIsSelectable, 0);
 
-    _qtvPropertiesGroupsAssignedPrivileges->removeColumn(Ms::Widgets::MTableViewColumn("Active"));
+    _qtvPropertiesGroupsAssignedPrivileges->removeColumn(Ms::Widgets::MQueryTableViewColumn("Active"));
 
     _qtvPropertiesGroupsAssignedPrivileges->updateView();
 }

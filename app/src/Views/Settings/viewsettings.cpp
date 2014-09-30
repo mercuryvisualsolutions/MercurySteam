@@ -131,7 +131,7 @@ void Views::ViewSettings::updateTaskActivityTypeView()
         _qtvProjectTaskActivityType->clearColumns();
 
         //add columns
-        _qtvProjectTaskActivityType->addColumn(Ms::Widgets::MTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvProjectTaskActivityType->addColumn(Ms::Widgets::MQueryTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
         if(AppSettings::instance().isShowExtraColumns())
             _qtvProjectTaskActivityType->addBaseColumns(flags, editRank);
@@ -174,7 +174,7 @@ void Views::ViewSettings::updateTaskTypeView()
         _qtvProjectTaskType->clearColumns();
 
         //add columns
-        _qtvProjectTaskType->addColumn(Ms::Widgets::MTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvProjectTaskType->addColumn(Ms::Widgets::MQueryTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
         if(AppSettings::instance().isShowExtraColumns())
             _qtvProjectTaskType->addBaseColumns(flags, editRank);
@@ -217,7 +217,7 @@ void Views::ViewSettings::updateAssetTypeView()
         _qtvProjectAssetType->clearColumns();
 
         //add columns
-        _qtvProjectAssetType->addColumn(Ms::Widgets::MTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvProjectAssetType->addColumn(Ms::Widgets::MQueryTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
         if(AppSettings::instance().isShowExtraColumns())
             _qtvProjectAssetType->addBaseColumns(flags, editRank);
@@ -260,8 +260,8 @@ void Views::ViewSettings::updateWorkStatusView()
         _qtvProjectWorkStatus->clearColumns();
 
         //add columns
-        _qtvProjectWorkStatus->addColumn(Ms::Widgets::MTableViewColumn("Status", "Status", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-        _qtvProjectWorkStatus->addColumn(Ms::Widgets::MTableViewColumn("Belongs_To_Work_Status_Type", "Belongs To Work Status Type",
+        _qtvProjectWorkStatus->addColumn(Ms::Widgets::MQueryTableViewColumn("Status", "Status", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvProjectWorkStatus->addColumn(Ms::Widgets::MQueryTableViewColumn("Belongs_To_Work_Status_Type", "Belongs To Work Status Type",
         flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectWorkStatusType>(Database::DatabaseManager::instance().session(),
          AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatusType>() :
          Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatusType>().where("Active = ?").bind(true),
@@ -318,7 +318,7 @@ void Views::ViewSettings::updateUserTitlesView()
         _qtvUserTitle->clearColumns();
 
         //add columns
-        _qtvUserTitle->addColumn(Ms::Widgets::MTableViewColumn("Name", "Title", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvUserTitle->addColumn(Ms::Widgets::MQueryTableViewColumn("Name", "Title", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
         if(AppSettings::instance().isShowExtraColumns())
             _qtvUserTitle->addBaseColumns(flags, editRank);
@@ -361,9 +361,9 @@ void Views::ViewSettings::updateTagsView()
         _qtvTags->clearColumns();
 
         //add columns
-        _qtvTags->addColumn(Ms::Widgets::MTableViewColumn("id", "ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-        _qtvTags->addColumn(Ms::Widgets::MTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-        _qtvTags->addColumn(Ms::Widgets::MTableViewColumn("Content", "Content", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvTags->addColumn(Ms::Widgets::MQueryTableViewColumn("id", "ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Content", "Content", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
         if(AppSettings::instance().isShowExtraColumns())
             _qtvTags->addBaseColumns(flags, editRank);

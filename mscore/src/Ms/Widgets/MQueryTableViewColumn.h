@@ -12,27 +12,27 @@ namespace Ms
 {
     namespace Widgets
     {
-        class MTableViewColumn
+        class MQueryTableViewColumn
         {
         public:
-            MTableViewColumn();
+            MQueryTableViewColumn();
 
-            MTableViewColumn(const std::string &dbFieldName);
+            MQueryTableViewColumn(const std::string &dbFieldName);
 
-            MTableViewColumn(const std::string &dbFieldName, const std::string &displayName);
+            MQueryTableViewColumn(const std::string &dbFieldName, const std::string &displayName);
 
-            MTableViewColumn(const std::string &dbFieldName, const std::string &displayName, Wt::WFlags<Wt::ItemFlag> flags);
+            MQueryTableViewColumn(const std::string &dbFieldName, const std::string &displayName, Wt::WFlags<Wt::ItemFlag> flags);
 
-            MTableViewColumn(const std::string &dbFieldName, const std::string &displayName, Wt::WFlags<Wt::ItemFlag> flags,
+            MQueryTableViewColumn(const std::string &dbFieldName, const std::string &displayName, Wt::WFlags<Wt::ItemFlag> flags,
                             Ms::Widgets::Delegates::MItemDelegate *delegate);
 
-            MTableViewColumn(const std::string &dbFieldName, const std::string &displayName, Wt::WFlags<Wt::ItemFlag> flags,
+            MQueryTableViewColumn(const std::string &dbFieldName, const std::string &displayName, Wt::WFlags<Wt::ItemFlag> flags,
                             Ms::Widgets::Delegates::MItemDelegate *delegate, bool isMandatory);
 
-            MTableViewColumn(const std::string &dbFieldName, const std::string &displayName, Wt::WFlags<Wt::ItemFlag> flags,
+            MQueryTableViewColumn(const std::string &dbFieldName, const std::string &displayName, Wt::WFlags<Wt::ItemFlag> flags,
                             Ms::Widgets::Delegates::MItemDelegate *delegate, bool isMandatory, bool isIgnored);
 
-            MTableViewColumn(const std::string &dbFieldName, const std::string &displayName, Wt::WFlags<Wt::ItemFlag> flags,
+            MQueryTableViewColumn(const std::string &dbFieldName, const std::string &displayName, Wt::WFlags<Wt::ItemFlag> flags,
                             Ms::Widgets::Delegates::MItemDelegate *delegate, bool isMandatory, bool isIgnored, int width);
 
             //functions
@@ -52,7 +52,7 @@ namespace Ms
             void setIgnored(bool ignored);
 
             //operators
-            bool operator ==(const Ms::Widgets::MTableViewColumn &other) const;
+            bool operator ==(const Ms::Widgets::MQueryTableViewColumn &other) const;
 
 
         private:

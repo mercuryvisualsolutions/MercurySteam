@@ -16,7 +16,6 @@ SOURCES += \
     Core/MManagerBase.cpp \
     Core/MSettingsBase.cpp \
     Widgets/MWidgetFactory.cpp \
-    Widgets/MTableViewColumn.cpp \
     Widgets/Delegates/MCheckBoxDelegate.cpp \
     Widgets/Delegates/MDateDelegate.cpp \
     Widgets/Delegates/MDateFieldDelegate.cpp \
@@ -41,7 +40,11 @@ SOURCES += \
     Exceptions/MNullPointerException.cpp \
     Widgets/MPropertiesPanel.cpp \
     Dbo/MdboBase.cpp \
-    Widgets/MContainerWidget.cpp
+    Widgets/MContainerWidget.cpp \
+    Widgets/MTableViewWidget.cpp \
+    Widgets/MQueryTableViewColumn.cpp \
+    Core/MItemModel.cpp \
+    Core/MTableViewColumn.cpp
 
 HEADERS +=\
     Mscore_global.h \
@@ -55,7 +58,6 @@ HEADERS +=\
     Widgets/MWidgetFactory.h \
     Widgets/MQueryTableViewWidget.h \
     Widgets/MQueryTableViewWidget_impl.h \
-    Widgets/MTableViewColumn.h \
     Widgets/Delegates/MCheckBoxDelegate.h \
     Widgets/Delegates/MDateDelegate.h \
     Widgets/Delegates/MDateFieldDelegate.h \
@@ -87,9 +89,13 @@ HEADERS +=\
     Widgets/MPropertiesPanel.h \
     Dbo/MDboBase.h \
     Dbo/MDboBase_impl.h \
-    Widgets/MContainerWidget.h
+    Widgets/MContainerWidget.h \
+    Widgets/MTableViewWidget.h \
+    Widgets/MQueryTableViewColumn.h \
+    Core/MItemModel.h \
+    Core/MTableViewColumn.h
 
 unix {
-    target.path = /usr/lib
+    target.path = /usr/lib64
     INSTALLS += target
 }

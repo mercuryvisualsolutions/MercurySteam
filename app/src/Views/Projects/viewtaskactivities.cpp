@@ -63,23 +63,23 @@ void Views::ViewTaskActivity::updateView(const std::vector<Wt::Dbo::ptr<Projects
         _qtvTaskActivities->clearColumns();
 
         //add columns
-        _qtvTaskActivities->addColumn(Ms::Widgets::MTableViewColumn("id", "Id", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvTaskActivities->addColumn(Ms::Widgets::MQueryTableViewColumn("id", "Id", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
-        _qtvTaskActivities->addColumn(Ms::Widgets::MTableViewColumn("Project_Task_Activity_Type", "Type", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectTaskActivityType>(
+        _qtvTaskActivities->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Task_Activity_Type", "Type", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectTaskActivityType>(
          Database::DatabaseManager::instance().session(),
          AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskActivityType>() :
          Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskActivityType>().where("Active = ?").bind(true),
          "Type", editRank)));
 
-        _qtvTaskActivities->addColumn(Ms::Widgets::MTableViewColumn("Current_Status", "Status", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectWorkStatus>(
+        _qtvTaskActivities->addColumn(Ms::Widgets::MQueryTableViewColumn("Current_Status", "Status", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectWorkStatus>(
         Database::DatabaseManager::instance().session(),AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>() :
          Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true), "Status", editRank)));
 
-        _qtvTaskActivities->addColumn(Ms::Widgets::MTableViewColumn("Hours", "Hours", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
+        _qtvTaskActivities->addColumn(Ms::Widgets::MQueryTableViewColumn("Hours", "Hours", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
 
-        _qtvTaskActivities->addColumn(Ms::Widgets::MTableViewColumn("Project_Task_id", "Task Id", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvTaskActivities->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Task_id", "Task Id", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
-        _qtvTaskActivities->addColumn(Ms::Widgets::MTableViewColumn("Description", "Description", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
+        _qtvTaskActivities->addColumn(Ms::Widgets::MQueryTableViewColumn("Description", "Description", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
 
         if(AppSettings::instance().isShowExtraColumns())
             _qtvTaskActivities->addBaseColumns(flags, editRank);

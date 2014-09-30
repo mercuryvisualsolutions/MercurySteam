@@ -1,7 +1,7 @@
 #ifndef MQUERYTABLEVIEWWIDGET_IMPL_H
 #define MQUERYTABLEVIEWWIDGET_IMPL_H
 
-#include "MTableViewColumn.h"
+#include "MQueryTableViewColumn.h"
 #include "../Dbo/MDboQueryModel.h"
 #include "../IO/IO.h"
 #include "../IO/MStreamedFileResource.h"
@@ -341,15 +341,15 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::addColumn(const Ms::Widgets::MTableViewColumn &column) const
+        void Ms::Widgets::MQueryTableViewWidget<T>::addColumn(const Ms::Widgets::MQueryTableViewColumn &column) const
         {
             _columns.push_back(column);
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::removeColumn(const Ms::Widgets::MTableViewColumn &column) const
+        void Ms::Widgets::MQueryTableViewWidget<T>::removeColumn(const Ms::Widgets::MQueryTableViewColumn &column) const
         {
-            for(std::vector<Ms::Widgets::MTableViewColumn>::iterator iter = _columns.begin(); iter != _columns.end(); ++iter)
+            for(std::vector<Ms::Widgets::MQueryTableViewColumn>::iterator iter = _columns.begin(); iter != _columns.end(); ++iter)
             {
                 if((*iter) == column)
                 {
@@ -369,7 +369,7 @@ namespace Ms
         template<typename T>
         bool Ms::Widgets::MQueryTableViewWidget<T>::dbColumnExist(const std::string &dbColumnName) const//searches for real column DB name
         {
-            return std::find_if(_columns.begin(), _columns.end(), [dbColumnName](const Ms::Widgets::MTableViewColumn &col){
+            return std::find_if(_columns.begin(), _columns.end(), [dbColumnName](const Ms::Widgets::MQueryTableViewColumn &col){
                 return col.dbFieldName() == dbColumnName;
             }) != _columns.end();
         }
@@ -377,7 +377,7 @@ namespace Ms
         template<typename T>
         bool Ms::Widgets::MQueryTableViewWidget<T>::columnExist(const std::string &columnDisplayName) const//searches for column display name
         {
-            return std::find_if(_columns.begin(), _columns.end(), [columnDisplayName](const Ms::Widgets::MTableViewColumn &col){
+            return std::find_if(_columns.begin(), _columns.end(), [columnDisplayName](const Ms::Widgets::MQueryTableViewColumn &col){
                 return col.displayName() == columnDisplayName;
             }) != _columns.end();
         }
@@ -385,7 +385,7 @@ namespace Ms
         template<typename T>
         bool Ms::Widgets::MQueryTableViewWidget<T>::columnIsIgnored(const std::string &columnDisplayName) const
         {
-            auto iter = std::find_if(_columns.begin(), _columns.end(), [columnDisplayName](const Ms::Widgets::MTableViewColumn &col){
+            auto iter = std::find_if(_columns.begin(), _columns.end(), [columnDisplayName](const Ms::Widgets::MQueryTableViewColumn &col){
                 return col.displayName() == columnDisplayName;
             });
 
@@ -395,7 +395,7 @@ namespace Ms
         template<typename T>
         std::string Ms::Widgets::MQueryTableViewWidget<T>::columnName(const std::string &columnDisplayName) const
         {
-            auto iter = std::find_if(_columns.begin(), _columns.end(), [columnDisplayName](const Ms::Widgets::MTableViewColumn &col){
+            auto iter = std::find_if(_columns.begin(), _columns.end(), [columnDisplayName](const Ms::Widgets::MQueryTableViewColumn &col){
                 return col.displayName() == columnDisplayName;
             });
 
@@ -405,7 +405,7 @@ namespace Ms
         template<typename T>
         std::string Ms::Widgets::MQueryTableViewWidget<T>::columnDisplayName(const std::string &dboName) const
         {
-            auto iter = std::find_if(_columns.begin(), _columns.end(), [dboName](const Ms::Widgets::MTableViewColumn &col){
+            auto iter = std::find_if(_columns.begin(), _columns.end(), [dboName](const Ms::Widgets::MQueryTableViewColumn &col){
                 return col.dbFieldName() == dboName;
             });
 
@@ -557,14 +557,14 @@ namespace Ms
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::addBaseColumns(Wt::WFlags<Wt::ItemFlag> flags, int editRank) const
         {
-            addColumn(Ms::Widgets::MTableViewColumn("View_Rank", "View Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false, true));
-            addColumn(Ms::Widgets::MTableViewColumn("Edit_Rank", "Edit Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false, true));
-            addColumn(Ms::Widgets::MTableViewColumn("Remove_Rank", "Remove Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false, true));
-            addColumn(Ms::Widgets::MTableViewColumn("Date_Created", "Date Created", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
-            addColumn(Ms::Widgets::MTableViewColumn("Created_By", "Created By", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
-            addColumn(Ms::Widgets::MTableViewColumn("Last_Modified_Date", "Last Modified Date", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
-            addColumn(Ms::Widgets::MTableViewColumn("Last_Modified_By", "Last Modified By", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
-            addColumn(Ms::Widgets::MTableViewColumn("Active", "Active", Wt::ItemIsSelectable | Wt::ItemIsUserCheckable, new Ms::Widgets::Delegates::MCheckBoxDelegate(editRank)));
+            addColumn(Ms::Widgets::MQueryTableViewColumn("View_Rank", "View Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false, true));
+            addColumn(Ms::Widgets::MQueryTableViewColumn("Edit_Rank", "Edit Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false, true));
+            addColumn(Ms::Widgets::MQueryTableViewColumn("Remove_Rank", "Remove Rank", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false, true));
+            addColumn(Ms::Widgets::MQueryTableViewColumn("Date_Created", "Date Created", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
+            addColumn(Ms::Widgets::MQueryTableViewColumn("Created_By", "Created By", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
+            addColumn(Ms::Widgets::MQueryTableViewColumn("Last_Modified_Date", "Last Modified Date", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
+            addColumn(Ms::Widgets::MQueryTableViewColumn("Last_Modified_By", "Last Modified By", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
+            addColumn(Ms::Widgets::MQueryTableViewColumn("Active", "Active", Wt::ItemIsSelectable | Wt::ItemIsUserCheckable, new Ms::Widgets::Delegates::MCheckBoxDelegate(editRank)));
         }
 
         //Signals

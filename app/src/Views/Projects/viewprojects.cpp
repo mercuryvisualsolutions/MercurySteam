@@ -13,7 +13,7 @@
 #include "../../Widgets/Delegates/workstatusquerycomboboxdelegate.h"
 #include "../Dialogs/dlgcreatetag.h"
 
-#include <Ms/Widgets/MTableViewColumn.h>
+#include <Ms/Widgets/MQueryTableViewColumn.h>
 #include <Ms/Widgets/Delegates/MDelegates>
 
 #include <iostream>
@@ -82,26 +82,26 @@ void Views::ViewProjects::updateProjectsView()
         _qtvProjects->clearColumns();
 
         //add columns
-        _qtvProjects->addColumn(Ms::Widgets::MTableViewColumn("Thumbnail", "Thumbnail", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MThumbnailDelegate(256, 160, "pics/NoPreviewBig.png"), false, true, 256));
-        _qtvProjects->addColumn(Ms::Widgets::MTableViewColumn("Project_Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-        _qtvProjects->addColumn(Ms::Widgets::MTableViewColumn("Start_Date", "Start Date", flags, new Ms::Widgets::Delegates::MDateDelegate(editRank)));
-        _qtvProjects->addColumn(Ms::Widgets::MTableViewColumn("End_Date", "End Date", flags, new Ms::Widgets::Delegates::MDateDelegate(editRank)));
-        _qtvProjects->addColumn(Ms::Widgets::MTableViewColumn("Duration_In_Frames", "Duration In Frames", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
-        _qtvProjects->addColumn(Ms::Widgets::MTableViewColumn("FPS", "FPS", flags, new Ms::Widgets::Delegates::MFloatFieldDelegate(editRank)));
-        _qtvProjects->addColumn(Ms::Widgets::MTableViewColumn("Frame_Width", "Frame Width", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
-        _qtvProjects->addColumn(Ms::Widgets::MTableViewColumn("Frame_Height", "Frame Height", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
-        _qtvProjects->addColumn(Ms::Widgets::MTableViewColumn("Current_Status", "Status", flags, new Widgets::Delegates::WorkStatusQueryComboBoxDelegate<Projects::ProjectWorkStatus>(
+        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Thumbnail", "Thumbnail", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MThumbnailDelegate(256, 160, "pics/NoPreviewBig.png"), false, true, 256));
+        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Start_Date", "Start Date", flags, new Ms::Widgets::Delegates::MDateDelegate(editRank)));
+        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("End_Date", "End Date", flags, new Ms::Widgets::Delegates::MDateDelegate(editRank)));
+        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Duration_In_Frames", "Duration In Frames", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
+        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("FPS", "FPS", flags, new Ms::Widgets::Delegates::MFloatFieldDelegate(editRank)));
+        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Frame_Width", "Frame Width", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
+        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Frame_Height", "Frame Height", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
+        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Current_Status", "Status", flags, new Widgets::Delegates::WorkStatusQueryComboBoxDelegate<Projects::ProjectWorkStatus>(
          Database::DatabaseManager::instance().session(),
          AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>() :
          Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true),
          "Status", editRank)));
-        _qtvProjects->addColumn(Ms::Widgets::MTableViewColumn("Project_Manager_Name", "Manager", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Users::User>(
+        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Manager_Name", "Manager", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Users::User>(
          Database::DatabaseManager::instance().session(),
          AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Users::User>() :
          Database::DatabaseManager::instance().session()->find<Users::User>().where("Active = ?").bind(true),
          "Name", editRank)));
-        _qtvProjects->addColumn(Ms::Widgets::MTableViewColumn("Description", "Description", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
-        _qtvProjects->addColumn(Ms::Widgets::MTableViewColumn("Priority", "Priority", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
+        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Description", "Description", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
+        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Priority", "Priority", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
 
         if(AppSettings::instance().isShowExtraColumns())
             _qtvProjects->addBaseColumns(flags, editRank);
@@ -1714,8 +1714,8 @@ void Views::ViewProjects::_updatePropertiesDataView()
     _qtvPropertiesData->clearColumns();
 
     //add columns
-    _qtvPropertiesData->addColumn(Ms::Widgets::MTableViewColumn("DBOKey", "Key", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-    _qtvPropertiesData->addColumn(Ms::Widgets::MTableViewColumn("DBOValue", "Value", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("DBOKey", "Key", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("DBOValue", "Value", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Database::DboData>> query = Database::DatabaseManager::instance().session()->find<Database::DboData>();
 
@@ -1729,7 +1729,7 @@ void Views::ViewProjects::_updatePropertiesDataView()
             query.where("Project_Project_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Projects::Project>(_qtvProjects->selectedItems()).at(0) + ")");
         }
 
-        _qtvPropertiesData->addColumn(Ms::Widgets::MTableViewColumn("Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     }
     else if(_stkMain->currentWidget() == _cntSequences)
     {
@@ -1743,8 +1743,8 @@ void Views::ViewProjects::_updatePropertiesDataView()
                         " AND Project_Sequence_Sequence_Project_Project_Name IN (" + idValues.at(1) + ")");
         }
 
-        _qtvPropertiesData->addColumn(Ms::Widgets::MTableViewColumn("Project_Sequence_Sequence_Name", "Sequence Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-        _qtvPropertiesData->addColumn(Ms::Widgets::MTableViewColumn("Project_Sequence_Sequence_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Sequence_Sequence_Name", "Sequence Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Sequence_Sequence_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     }
     else if(_stkMain->currentWidget() == _cntShots)
     {
@@ -1759,9 +1759,9 @@ void Views::ViewProjects::_updatePropertiesDataView()
                         " AND Project_Shot_Shot_Sequence_Sequence_Project_Project_Name IN (" + idValues.at(2) + ")");
         }
 
-        _qtvPropertiesData->addColumn(Ms::Widgets::MTableViewColumn("Project_Shot_Shot_Name", "Shot Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-        _qtvPropertiesData->addColumn(Ms::Widgets::MTableViewColumn("Project_Shot_Shot_Sequence_Sequence_Name", "Sequence Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-        _qtvPropertiesData->addColumn(Ms::Widgets::MTableViewColumn("Project_Shot_Shot_Sequence_Sequence_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Shot_Shot_Name", "Shot Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Shot_Shot_Sequence_Sequence_Name", "Sequence Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Shot_Shot_Sequence_Sequence_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     }
     else if(_stkMain->currentWidget() == _cntAssets)
     {
@@ -1775,8 +1775,8 @@ void Views::ViewProjects::_updatePropertiesDataView()
                         " AND Project_Asset_Asset_Project_Project_Name IN (" + idValues.at(1) + ")");
         }
 
-        _qtvPropertiesData->addColumn(Ms::Widgets::MTableViewColumn("Project_Asset_Asset_Name", "Asset Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-        _qtvPropertiesData->addColumn(Ms::Widgets::MTableViewColumn("Project_Asset_Asset_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Asset_Asset_Name", "Asset Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Asset_Asset_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     }
     else if(_stkMain->currentWidget() == _cntTasks)
     {
@@ -1787,7 +1787,7 @@ void Views::ViewProjects::_updatePropertiesDataView()
             query.where("Project_Task_id IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems()).at(0) + ")");
         }
 
-        _qtvPropertiesData->addColumn(Ms::Widgets::MTableViewColumn("Project_Task_id", "Task ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Task_id", "Task ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     }
 
     if(update)
@@ -1831,10 +1831,10 @@ void Views::ViewProjects::_updatePropertiesTagsView()
             _qtvPropertiesTags->clearColumns();
 
             //add columns
-            _qtvPropertiesTags->addColumn(Ms::Widgets::MTableViewColumn("id", "ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-            _qtvPropertiesTags->addColumn(Ms::Widgets::MTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-            _qtvPropertiesTags->addColumn(Ms::Widgets::MTableViewColumn("Content", "Content", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-            _qtvPropertiesTags->addColumn(Ms::Widgets::MTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+            _qtvPropertiesTags->addColumn(Ms::Widgets::MQueryTableViewColumn("id", "ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+            _qtvPropertiesTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+            _qtvPropertiesTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Content", "Content", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+            _qtvPropertiesTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
             Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query = Database::DatabaseManager::instance().session()->find<Database::Tag>();
 
@@ -1900,10 +1900,10 @@ void Views::ViewProjects::_updatePropertiesAssignedTagsView()
         _qtvPropertiesAssignedTags->clearColumns();
 
         //add columns
-        _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MTableViewColumn("id", "ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-        _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-        _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MTableViewColumn("Content", "Content", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-        _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MQueryTableViewColumn("id", "ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Content", "Content", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
         Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query = Database::DatabaseManager::instance().session()->find<Database::Tag>();
 
@@ -2017,8 +2017,8 @@ void Views::ViewProjects::_updatePropertiesNotesView()
     _qtvPropertiesNotes->clearColumns();
 
     //add columns
-    _qtvPropertiesNotes->addColumn(Ms::Widgets::MTableViewColumn("id", "Id", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-    _qtvPropertiesNotes->addColumn(Ms::Widgets::MTableViewColumn("Content", "Content", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("id", "Id", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+    _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Content", "Content", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Database::Note>> query = Database::DatabaseManager::instance().session()->find<Database::Note>();
 
@@ -2032,7 +2032,7 @@ void Views::ViewProjects::_updatePropertiesNotesView()
             query.where("Project_Project_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Projects::Project>(_qtvProjects->selectedItems()).at(0) + ")");
         }
 
-        _qtvPropertiesNotes->addColumn(Ms::Widgets::MTableViewColumn("Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     }
     else if(_stkMain->currentWidget() == _cntSequences)
     {
@@ -2046,8 +2046,8 @@ void Views::ViewProjects::_updatePropertiesNotesView()
                         " AND Project_Sequence_Sequence_Project_Project_Name IN (" + idValues.at(1) + ")");
         }
 
-        _qtvPropertiesNotes->addColumn(Ms::Widgets::MTableViewColumn("Project_Sequence_Sequence_Name", "Sequence Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-        _qtvPropertiesNotes->addColumn(Ms::Widgets::MTableViewColumn("Project_Sequence_Sequence_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Sequence_Sequence_Name", "Sequence Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Sequence_Sequence_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     }
     else if(_stkMain->currentWidget() == _cntShots)
     {
@@ -2062,9 +2062,9 @@ void Views::ViewProjects::_updatePropertiesNotesView()
                         " AND Project_Shot_Shot_Sequence_Sequence_Project_Project_Name IN (" + idValues.at(2) + ")");
         }
 
-        _qtvPropertiesNotes->addColumn(Ms::Widgets::MTableViewColumn("Project_Shot_Shot_Name", "Shot Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-        _qtvPropertiesNotes->addColumn(Ms::Widgets::MTableViewColumn("Project_Shot_Shot_Sequence_Sequence_Name", "Sequence Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-        _qtvPropertiesNotes->addColumn(Ms::Widgets::MTableViewColumn("Project_Shot_Shot_Sequence_Sequence_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Shot_Shot_Name", "Shot Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Shot_Shot_Sequence_Sequence_Name", "Sequence Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Shot_Shot_Sequence_Sequence_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     }
     else if(_stkMain->currentWidget() == _cntAssets)
     {
@@ -2078,8 +2078,8 @@ void Views::ViewProjects::_updatePropertiesNotesView()
                         " AND Project_Asset_Asset_Project_Project_Name IN (" + idValues.at(1) + ")");
         }
 
-        _qtvPropertiesNotes->addColumn(Ms::Widgets::MTableViewColumn("Project_Asset_Asset_Name", "Asset Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-        _qtvPropertiesNotes->addColumn(Ms::Widgets::MTableViewColumn("Project_Asset_Asset_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Asset_Asset_Name", "Asset Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Asset_Asset_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     }
     else if(_stkMain->currentWidget() == _cntTasks)
     {
@@ -2090,7 +2090,7 @@ void Views::ViewProjects::_updatePropertiesNotesView()
             query.where("Project_Task_id IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems()).at(0) + ")");
         }
 
-        _qtvPropertiesNotes->addColumn(Ms::Widgets::MTableViewColumn("Project_Task_id", "Task ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Task_id", "Task ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     }
 
     if(update)

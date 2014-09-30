@@ -1,7 +1,7 @@
 #ifndef QUERYTABLEVIEWWIDGET_H
 #define QUERYTABLEVIEWWIDGET_H
 
-#include "MTableViewColumn.h"
+#include "MQueryTableViewColumn.h"
 #include "../Dbo/MDboQueryModel.h"
 #include "../IO/IO.h"
 #include "../IO/MStreamedFileResource.h"
@@ -84,8 +84,8 @@ namespace Ms
             void selectAll() const;
             void selectNone() const;
             void inverseSelection() const;
-            void addColumn(const Ms::Widgets::MTableViewColumn &column) const;
-            void removeColumn(const Ms::Widgets::MTableViewColumn &column) const;
+            void addColumn(const Ms::Widgets::MQueryTableViewColumn &column) const;
+            void removeColumn(const Ms::Widgets::MQueryTableViewColumn &column) const;
             void clearColumns() const;
             bool dbColumnExist(const std::string &dbColumnName) const;
             bool columnExist(const std::string &columnDisplayName) const;
@@ -153,7 +153,7 @@ namespace Ms
             void _prepareView();
 
             //variables
-            mutable std::vector<Ms::Widgets::MTableViewColumn> _columns;
+            mutable std::vector<Ms::Widgets::MQueryTableViewColumn> _columns;
             mutable Wt::Dbo::Query<Wt::Dbo::ptr<T>> _query;
             mutable Wt::Dbo::Query<Wt::Dbo::ptr<T>> _queryFilter;
             mutable std::vector<typename Wt::Dbo::dbo_traits<T>::IdType> _selection;//for saving/loading selection in view
