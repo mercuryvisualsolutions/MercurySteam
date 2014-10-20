@@ -157,8 +157,8 @@ namespace Ms
             mutable Wt::Dbo::Query<Wt::Dbo::ptr<T>> _query;
             mutable Wt::Dbo::Query<Wt::Dbo::ptr<T>> _queryFilter;
             mutable std::vector<typename Wt::Dbo::dbo_traits<T>::IdType> _selection;//for saving/loading selection in view
-            int _defaultFilterColumnIndex;
             Ms::Core::Dbo::MDboManagerBase *_dboManager;
+            int _defaultFilterColumnIndex;
             Wt::WString _filterRegExpression;
             int _ignoreNumFilterColumns;//numbers of columns to ignore when filtering
             bool _advancedFilterActive;

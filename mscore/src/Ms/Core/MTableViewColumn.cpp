@@ -1,28 +1,28 @@
 #include "MTableViewColumn.h"
 
 Ms::Core::MTableViewColumn::MTableViewColumn() :
-    _columnName("New Column"), _width(150), _flags(Wt::ItemIsSelectable), _isMandatory(false), _isIgnored(false)
+    _name("New Column"), _width(150), _flags(Wt::ItemIsSelectable), _isMandatory(false), _isIgnored(false)
 {
 }
 
-Ms::Core::MTableViewColumn::MTableViewColumn(const std::string &columnName, int width, Wt::WFlags<Wt::ItemFlag> flags, bool isMandatory, bool isIgnored) :
+Ms::Core::MTableViewColumn::MTableViewColumn(const std::string &name, int width, Wt::WFlags<Wt::ItemFlag> flags, bool isMandatory, bool isIgnored) :
     MTableViewColumn()
 {
-    _columnName = columnName;
+    _name = name;
     _width = width;
     _flags = flags;
     _isMandatory = isMandatory;
     _isIgnored = isIgnored;
 }
 
-std::string Ms::Core::MTableViewColumn::columnName() const
+std::string Ms::Core::MTableViewColumn::name() const
 {
-    return _columnName;
+    return _name;
 }
 
-void Ms::Core::MTableViewColumn::setColumnName(std::string &columnName)
+void Ms::Core::MTableViewColumn::setName(std::string &name)
 {
-    _columnName = columnName;
+    _name = name;
 }
 
 int Ms::Core::MTableViewColumn::width() const
@@ -77,5 +77,5 @@ void Ms::Core::MTableViewColumn::setIgnored(bool isIgnored)
 
 bool Ms::Core::MTableViewColumn::operator=(const Ms::Core::MTableViewColumn &other) const
 {
-    return _columnName == other.columnName();
+    return _name == other.name();
 }

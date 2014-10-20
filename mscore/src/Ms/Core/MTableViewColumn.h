@@ -16,10 +16,10 @@ namespace Ms
         {
         public:
             MTableViewColumn();
-            MTableViewColumn(const std::string &columnName, int width = 150, Wt::WFlags<Wt::ItemFlag> flags = Wt::ItemIsSelectable, bool isMandatory = false, bool isIgnored = false);
+            MTableViewColumn(const std::string &name, int width = 150, Wt::WFlags<Wt::ItemFlag> flags = Wt::ItemIsSelectable, bool isMandatory = false, bool isIgnored = false);
 
-            std::string columnName() const;
-            void setColumnName(std::string &columnName);
+            std::string name() const;
+            void setName(std::string &name);
             int width() const;
             void setWidth(int width);
             Wt::WFlags<Wt::ItemFlag> flags() const;
@@ -35,7 +35,7 @@ namespace Ms
 
 
         protected:
-            std::string _columnName;
+            std::string _name;
             int _width;
             Wt::WFlags<Wt::ItemFlag> _flags;
             bool _isMandatory;
