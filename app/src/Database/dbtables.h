@@ -1336,12 +1336,12 @@ namespace Projects
         virtual int totalHours() const override;
         virtual int doneHours() const override;
 
-        int totalAssets();
-        int doneAssets();
-        int totalSequences();
-        int doneSequences();
-        int totalTasks();
-        int doneTasks();
+        int totalAssets() const;
+        int doneAssets() const;
+        int totalSequences() const;
+        int doneSequences() const;
+        int totalTasks() const;
+        int doneTasks() const;
 
         Project *modify() override;
         std::string name() const;

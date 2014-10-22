@@ -42,10 +42,18 @@ namespace Ms
             virtual void exportCSV();
 
             virtual bool columnExists(const std::string &name) const;
-            virtual void addColumn(const Core::MTableViewColumn &column) const;
+            virtual void addColumn(const Ms::Core::MTableViewColumn &column) const;
             virtual void removeColumn(const std::string &name) const;
 
             virtual void clear();
+
+            virtual Wt::WString filterRegExpression() const;
+            virtual void setFilterRegExpression(const Wt::WString &exp);
+
+            virtual bool isImportCSVFeatureEnabled() const;
+            virtual void setImportCSVFeatureEnabled(bool enabled);
+            virtual bool isExportCSVFeatureEnabled() const;
+            virtual void setExportCSVFeatureEnabled(bool enabled);
 
 
         protected:
@@ -75,8 +83,12 @@ namespace Ms
             int _ignoreNumFilterColumns;//numbers of columns to ignore when filtering
             mutable std::map<std::string,Ms::Core::MTableViewColumn> _columns;
 
+            bool _importCSVFeatureEnabled;
+            bool _exportCSVFeatureEnabled;
+
             //functions
             virtual std::string tableName() const;
+            void setTableName(const std::string &name);
             virtual void createMainTable();
 
             virtual void refilter() const;
@@ -95,6 +107,8 @@ namespace Ms
 
         private:
             void prepareView();
+
+            std::string _tableName;
 
         };
     }

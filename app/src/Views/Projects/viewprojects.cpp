@@ -189,6 +189,10 @@ void Views::ViewProjects::updatePropertiesView()
     {
         _updatePropertiesTaskActivitiesView();
     }
+    else if(_stkProperties->currentWidget() == _viewPropertiesStatistics)
+    {
+        _updatePropertiesStatisticsView();
+    }
 }
 
 bool Views::ViewProjects::isProjectsViewShown()
@@ -1265,6 +1269,12 @@ void Views::ViewProjects::_mnuNavBarPropertiesTaskActivitiesItemTriggered()
     _stkProperties->setCurrentWidget(_viewPropertiesTaskActivities);
 }
 
+void Views::ViewProjects::_mnuNavBarPropertiesStatisticsItemTriggered()
+{
+    _updatePropertiesStatisticsView();
+    _stkProperties->setCurrentWidget(_viewPropertiesStatistics);
+}
+
 void Views::ViewProjects::_addDataRequested()
 {
     if(_stkMain->currentWidget() == _cntProjects)
@@ -1634,16 +1644,22 @@ void Views::ViewProjects::_createPropertiesView()
     _mnuNavBarPropertiesTaskActivitiesItem->triggered().connect(this, &Views::ViewProjects::_mnuNavBarPropertiesTaskActivitiesItemTriggered);
     _mnuNavBarProperties->addItem(_mnuNavBarPropertiesTaskActivitiesItem);
 
+    _mnuNavBarPropertiesStatisticsItem = new Wt::WMenuItem("Statistics");
+    _mnuNavBarPropertiesStatisticsItem->triggered().connect(this, &Views::ViewProjects::_mnuNavBarPropertiesStatisticsItemTriggered);
+    _mnuNavBarProperties->addItem(_mnuNavBarPropertiesStatisticsItem);
+
     _stkProperties = new Wt::WStackedWidget();
 
     _layCntPropertiesMain->addWidget(_stkProperties, 1);
 
+    //Data
     _viewPropertiesData = new Views::ViewDboData();
     _viewPropertiesData->addDataRequested().connect(this, &Views::ViewProjects::_addDataRequested);
     _viewPropertiesData->removeDataRequested().connect(this, &Views::ViewProjects::_removeDataRequested);
 
     _stkProperties->addWidget(_viewPropertiesData);
 
+    //Tags
     _viewPropertiesTags = new Views::ViewTags();
     _viewPropertiesTags->createTagRequested().connect(this, &Views::ViewProjects::_createProjectTagRequested);
     _viewPropertiesTags->assignTagsRequested().connect(this, &Views::ViewProjects::_assignTagsRequested);
@@ -1653,42 +1669,54 @@ void Views::ViewProjects::_createPropertiesView()
 
     _stkProperties->addWidget(_viewPropertiesTags);
 
+    //Notes
     _viewPropertiesNotes = new Views::ViewNotes();
     _viewPropertiesNotes->addNoteRequested().connect(this, &Views::ViewProjects::_addNoteRequested);
     _viewPropertiesNotes->removeNotesRequested().connect(this, &Views::ViewProjects::_removeNotesRequested);
 
     _stkProperties->addWidget(_viewPropertiesNotes);
 
+    //Sequences
     _viewPropertiesSequences = new Views::ViewSequences();
     _viewPropertiesSequences->createSequenceRequested().connect(this, &Views::ViewProjects::_createSequenceRequested);
     _qtvProjects->table()->selectionChanged().connect(this, &Views::ViewProjects::updateSequencesView);
 
     _stkProperties->addWidget(_viewPropertiesSequences);
 
+    //Shots
     _viewPropertiesShots = new Views::ViewShots();
     _viewPropertiesShots->createShotRequested().connect(this, &Views::ViewProjects::_createShotRequested);
     _viewSequences->qtvSequences()->table()->selectionChanged().connect(this, &Views::ViewProjects::updateShotsView);
 
     _stkProperties->addWidget(_viewPropertiesShots);
 
+    //Assets
     _viewPropertiesAssets = new Views::ViewAssets();
     _viewPropertiesAssets->createAssetRequested().connect(this, &Views::ViewProjects::_createAssetRequested);
     _qtvProjects->table()->selectionChanged().connect(this, &Views::ViewProjects::updateAssetsView);
 
     _stkProperties->addWidget(_viewPropertiesAssets);
 
+    //Tasks
     _viewPropertiesTasks = new Views::ViewTasks();
     _viewPropertiesTasks->createTaskRequested().connect(this, &Views::ViewProjects::_createTasksRequested);
     _viewPropertiesTasks->createTasksForTemplateRequested().connect(this, &Views::ViewProjects::_createTasksForTemplateRequested);
 
     _stkProperties->addWidget(_viewPropertiesTasks);
 
+    //TaskActivities
     _viewPropertiesTaskActivities = new Views::ViewTaskActivity();
     _viewPropertiesTaskActivities->createTaskActivityRequested().connect(this, &Views::ViewProjects::_createTaskActivityRequested);
     _viewPropertiesTaskActivities->createTaskActivitiesForTemplateRequested().connect(this, &Views::ViewProjects::_createTaskActivitiesForTemplateRequested);
     _viewPropertiesTaskActivities->removeTaskActivitiesRequested().connect(this, &Views::ViewProjects::_removeTaskActivitiesRequested);
 
     _stkProperties->addWidget(_viewPropertiesTaskActivities);
+
+    //Statistics
+    _viewPropertiesStatistics = new Ms::Widgets::MTableViewWidget();
+    _viewPropertiesStatistics->setImportCSVFeatureEnabled(false);
+    _stkProperties->addWidget(_viewPropertiesStatistics);
+
 
     _mnuNavBarPropertiesDataItem->select();//default selected item
 
@@ -2162,6 +2190,98 @@ void Views::ViewProjects::_updatePropertiesTasksView()
 void Views::ViewProjects::_updatePropertiesTaskActivitiesView()
 {
     _viewPropertiesTaskActivities->updateView(_viewTasks->qtvTasks()->selectedItems());
+}
+
+void Views::ViewProjects::_updatePropertiesStatisticsView()
+{
+    if(!Database::DatabaseManager::instance().openTransaction())
+        return;
+
+    _viewPropertiesStatistics->clear();
+
+    if(_stkMain->currentWidget() == _cntProjects)
+    {
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Project Name"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Progress"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Hours"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Hours"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Sequences"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Sequences"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Assets"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Assets"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Tasks"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Tasks"));
+
+        Wt::WStandardItemModel *model = const_cast<Wt::WStandardItemModel*>(dynamic_cast<const Wt::WStandardItemModel*>(_viewPropertiesStatistics->model()));
+
+        for(Wt::Dbo::ptr<Projects::Project> &project : _qtvProjects->selectedItems())
+        {
+            std::vector<Wt::WStandardItem*> items;
+
+            items.push_back(new Wt::WStandardItem(project->name()));
+            items.push_back(new Wt::WStandardItem(std::to_string(project->progress()).c_str()));
+            items.push_back(new Wt::WStandardItem(std::to_string(project->totalHours()).c_str()));
+            items.push_back(new Wt::WStandardItem(std::to_string(project->doneHours()).c_str()));
+            items.push_back(new Wt::WStandardItem(std::to_string(project->totalSequences()).c_str()));
+            items.push_back(new Wt::WStandardItem(std::to_string(project->doneSequences()).c_str()));
+            items.push_back(new Wt::WStandardItem(std::to_string(project->totalAssets()).c_str()));
+            items.push_back(new Wt::WStandardItem(std::to_string(project->doneAssets()).c_str()));
+            items.push_back(new Wt::WStandardItem(std::to_string(project->totalTasks()).c_str()));
+            items.push_back(new Wt::WStandardItem(std::to_string(project->doneTasks()).c_str()));
+
+            model->appendRow(items);
+        }
+    }
+    else if(_stkMain->currentWidget() == _cntSequences)
+    {
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Project Name"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Sequence Name"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Progress"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Hours"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Hours"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Shots"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Finished Shots"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Tasks"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Finished Tasks"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Activities"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Finished Activities"));
+    }
+    else if(_stkMain->currentWidget() == _cntShots)
+    {
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Project Name"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Sequence Name"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Shot Name"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Progress"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Hours"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Hours"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Tasks"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Finished Tasks"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Activities"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Finished Activities"));
+    }
+    else if(_stkMain->currentWidget() == _cntAssets)
+    {
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Project Name"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Asset Name"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Progress"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Hours"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Hours"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Tasks"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Finished Tasks"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Activities"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Finished Activities"));
+    }
+    else if(_stkMain->currentWidget() == _cntTasks)
+    {
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Project Name"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Task Id"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Progress"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Hours"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Hours"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Activities"));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Finished Activities"));
+    }
+
 }
 
 void Views::ViewProjects::_prepareView()

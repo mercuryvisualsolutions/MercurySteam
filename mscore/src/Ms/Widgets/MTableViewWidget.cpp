@@ -8,6 +8,9 @@
 
 Ms::Widgets::MTableViewWidget::MTableViewWidget()
 {
+    _tableName = "table";
+    _filterRegExpression = "[^$]{0,255}";
+
     prepareView();
 }
 
@@ -196,6 +199,7 @@ void Ms::Widgets::MTableViewWidget::addColumn(const Ms::Core::MTableViewColumn &
      {
         _columns[column.name()] = column;
 
+        _model->insertColumns(_columns.size() - 1, 1);
         _model->setHeaderData(_columns.size() - 1, Wt::Orientation::Horizontal, column.name());
         _table->setItemDelegateForColumn(_columns.size() - 1, column.delegate());
      }
@@ -226,9 +230,48 @@ void Ms::Widgets::MTableViewWidget::clear()
     _model->clear();
 }
 
+Wt::WString Ms::Widgets::MTableViewWidget::filterRegExpression() const
+{
+    return _filterRegExpression;
+}
+
+void Ms::Widgets::MTableViewWidget::setFilterRegExpression(const Wt::WString &exp)
+{
+    _filterRegExpression = exp;
+}
+
+bool Ms::Widgets::MTableViewWidget::isImportCSVFeatureEnabled() const
+{
+    return _importCSVFeatureEnabled;
+}
+
+void Ms::Widgets::MTableViewWidget::setImportCSVFeatureEnabled(bool enabled)
+{
+    _importCSVFeatureEnabled = enabled;
+
+    _popMnuIOImportCSVItem->setHidden(!enabled);
+}
+
+bool Ms::Widgets::MTableViewWidget::isExportCSVFeatureEnabled() const
+{
+    return _exportCSVFeatureEnabled;
+}
+
+void Ms::Widgets::MTableViewWidget::setExportCSVFeatureEnabled(bool enabled)
+{
+    _exportCSVFeatureEnabled = enabled;
+
+    _popMnuIOExportCSVItem->setHidden(!enabled);
+}
+
 std::string Ms::Widgets::MTableViewWidget::tableName() const
 {
-    return "table";
+    return _tableName;
+}
+
+void Ms::Widgets::MTableViewWidget::setTableName(const std::string &name)
+{
+    _tableName = name;
 }
 
 void Ms::Widgets::MTableViewWidget::createMainTable()
@@ -247,6 +290,8 @@ void Ms::Widgets::MTableViewWidget::createMainTable()
     _proxyModel->setFilterRole(Wt::DisplayRole);
     _proxyModel->setFilterRegExp(_filterRegExpression);
     _proxyModel->setSourceModel(_model);
+
+    _table->setModel(_proxyModel);
 }
 
 void Ms::Widgets::MTableViewWidget::refilter() const

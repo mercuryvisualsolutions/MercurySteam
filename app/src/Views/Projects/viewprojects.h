@@ -31,6 +31,7 @@
 
 #include <Ms/Widgets/MWidgetFactory.h>
 #include <Ms/Widgets/MQueryTableViewWidget.h>
+#include <Ms/Widgets/MTableViewWidget.h>
 #include <Ms/Widgets/MContainerWidget.h>
 
 namespace Views
@@ -142,6 +143,7 @@ namespace Views
         Wt::WMenuItem *_mnuNavBarPropertiesTasksItem;
         Wt::WMenuItem *_mnuNavBarPropertiesTaskActivitiesItem;
         Wt::WMenuItem *_mnuNavBarPropertiesActivityTemplatesItem;
+        Wt::WMenuItem *_mnuNavBarPropertiesStatisticsItem;
         Wt::WStackedWidget *_stkProperties;
         Views::ViewDboData *_viewPropertiesData;
         Views::ViewTags *_viewPropertiesTags;
@@ -151,6 +153,7 @@ namespace Views
         Views::ViewAssets *_viewPropertiesAssets;
         Views::ViewTasks *_viewPropertiesTasks;
         Views::ViewTaskActivity *_viewPropertiesTaskActivities;
+        Ms::Widgets::MTableViewWidget *_viewPropertiesStatistics;
 
         //slots
         /*******************--Main--********************/
@@ -220,6 +223,7 @@ namespace Views
         void _mnuNavBarPropertiesAssetsItemTriggered();
         void _mnuNavBarPropertiesTasksItemTriggered();
         void _mnuNavBarPropertiesTaskActivitiesItemTriggered();
+        void _mnuNavBarPropertiesStatisticsItemTriggered();
 
         void _addDataRequested();
         void _removeDataRequested(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec);
@@ -246,6 +250,7 @@ namespace Views
         void _updatePropertiesAssetsView();
         void _updatePropertiesTasksView();
         void _updatePropertiesTaskActivitiesView();
+        void _updatePropertiesStatisticsView();
     };
 }
 

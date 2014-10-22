@@ -231,7 +231,7 @@ int Projects::Project::doneHours() const
     return finishedHours;
 }
 
-int Projects::Project::totalAssets()
+int Projects::Project::totalAssets() const
 {
     int totalAssets = 0;
 
@@ -249,7 +249,7 @@ int Projects::Project::totalAssets()
     return totalAssets;
 }
 
-int Projects::Project::doneAssets()
+int Projects::Project::doneAssets() const
 {
     int doneAssets = 0;
 
@@ -270,7 +270,7 @@ int Projects::Project::doneAssets()
     return doneAssets;
 }
 
-int Projects::Project::totalSequences()
+int Projects::Project::totalSequences() const
 {
     int totalSequences = 0;
 
@@ -288,7 +288,7 @@ int Projects::Project::totalSequences()
     return totalSequences;
 }
 
-int Projects::Project::doneSequences()
+int Projects::Project::doneSequences() const
 {
     int doneSequences = 0;
 
@@ -309,7 +309,7 @@ int Projects::Project::doneSequences()
     return doneSequences;
 }
 
-int Projects::Project::totalTasks()
+int Projects::Project::totalTasks() const
 {
     int totalTasks = 0;
 
@@ -327,7 +327,7 @@ int Projects::Project::totalTasks()
     return totalTasks;
 }
 
-int Projects::Project::doneTasks()
+int Projects::Project::doneTasks() const
 {
     int doneTasks = 0;
 

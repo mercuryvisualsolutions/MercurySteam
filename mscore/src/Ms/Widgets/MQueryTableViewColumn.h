@@ -1,5 +1,5 @@
-#ifndef MTABLEVIEWCOLUMN_H
-#define MTABLEVIEWCOLUMN_H
+#ifndef MQUERYTABLEVIEWCOLUMN_H
+#define MQUERYTABLEVIEWCOLUMN_H
 
 #include <iostream>
 
@@ -67,4 +67,4 @@ namespace Ms
     }
 }
 
-#endif // MTABLEVIEWCOLUMN_H
+#endif // MQUERYTABLEVIEWCOLUMN_H

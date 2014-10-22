@@ -16,7 +16,8 @@ namespace Ms
         {
         public:
             MTableViewColumn();
-            MTableViewColumn(const std::string &name, int width = 150, Wt::WFlags<Wt::ItemFlag> flags = Wt::ItemIsSelectable, bool isMandatory = false, bool isIgnored = false);
+            MTableViewColumn(const std::string &name, Ms::Widgets::Delegates::MItemDelegate *delegate = new Ms::Widgets::Delegates::MItemDelegate(), int width = 150,
+                             Wt::WFlags<Wt::ItemFlag> flags = Wt::ItemIsSelectable, bool isMandatory = false, bool isIgnored = false);
 
             std::string name() const;
             void setName(std::string &name);

@@ -5,10 +5,11 @@ Ms::Core::MTableViewColumn::MTableViewColumn() :
 {
 }
 
-Ms::Core::MTableViewColumn::MTableViewColumn(const std::string &name, int width, Wt::WFlags<Wt::ItemFlag> flags, bool isMandatory, bool isIgnored) :
+Ms::Core::MTableViewColumn::MTableViewColumn(const std::string &name, Widgets::Delegates::MItemDelegate *delegate, int width, Wt::WFlags<Wt::ItemFlag> flags, bool isMandatory, bool isIgnored) :
     MTableViewColumn()
 {
     _name = name;
+    _delegate = delegate;
     _width = width;
     _flags = flags;
     _isMandatory = isMandatory;

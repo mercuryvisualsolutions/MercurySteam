@@ -1095,8 +1095,8 @@ namespace Ms
             _tblAdvancedFilter = new Wt::WTableView();
             _tblAdvancedFilter->setColumnResizeEnabled(true);
             _tblAdvancedFilter->setAlternatingRowColors(true);
-            _tblAdvancedFilter->setRowHeight(30);
-            _tblAdvancedFilter->setHeaderHeight(30);
+            _tblAdvancedFilter->setRowHeight(25);
+            _tblAdvancedFilter->setHeaderHeight(25);
             _tblAdvancedFilter->setSelectionMode(Wt::ExtendedSelection);
 
             _layCntAdvancedFilter->addWidget(_tblAdvancedFilter, 1);
