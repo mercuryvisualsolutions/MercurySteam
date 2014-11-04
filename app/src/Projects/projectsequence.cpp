@@ -137,7 +137,7 @@ int Projects::ProjectSequence::progress() const
     int dHours = doneHours();
     int tHours = totalHours();
 
-    return tHours > 0 ? dHours / tHours : 0;
+    return tHours > 0 ? static_cast<float>(static_cast<float>(dHours) / static_cast<float>(tHours)) * 100.0f : 0;
 }
 
 int Projects::ProjectSequence::totalHours() const
@@ -171,40 +171,34 @@ int Projects::ProjectSequence::doneHours() const
     int finishedHours = 0;
 
     if(dboManager_ && dboManager_->openTransaction())
-    {
-        for(auto iter = _shots.begin(); iter != _shots.end(); ++iter)
+    {        
+        for(auto iter = _shots.begin(); iter != _shots.end(); ++iter)//shots tasks hours
         {
             if(!(*iter)->active())
                 continue;
 
-            if((*iter)->status()->workStatusType()->workStatusType() == "Done")//finished task
-            {
-                finishedHours += (*iter)->doneHours();
-            }
+            finishedHours += (*iter)->doneHours();
         }
 
-        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)//sequences tasks hours
         {
             if(!(*iter)->active())
                 continue;
 
-            if((*iter)->status()->workStatusType()->workStatusType() == "Done")//finished task
-            {
-                finishedHours += (*iter)->doneHours();
-            }
+            finishedHours += (*iter)->doneHours();
         }
     }
 
     return finishedHours;
 }
 
-int Projects::ProjectSequence::totalShots()
+int Projects::ProjectSequence::totalShots() const
 {
     int totalShots = 0;
 
     if(dboManager_ && dboManager_->openTransaction())
     {
-        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        for(auto iter = _shots.begin(); iter != _shots.end(); ++iter)
         {
             if(!(*iter)->active())
                 continue;
@@ -216,13 +210,13 @@ int Projects::ProjectSequence::totalShots()
     return totalShots;
 }
 
-int Projects::ProjectSequence::doneShots()
+int Projects::ProjectSequence::doneShots() const
 {
     int doneShots = 0;
 
     if(dboManager_ && dboManager_->openTransaction())
     {
-        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        for(auto iter = _shots.begin(); iter != _shots.end(); ++iter)
         {
             if(!(*iter)->active())
                 continue;
@@ -237,7 +231,7 @@ int Projects::ProjectSequence::doneShots()
     return doneShots;
 }
 
-int Projects::ProjectSequence::totalTasks()
+int Projects::ProjectSequence::totalTasks() const
 {
     int totalTasks = 0;
 
@@ -250,12 +244,20 @@ int Projects::ProjectSequence::totalTasks()
 
             totalTasks++;
         }
+
+        for(auto iter = _shots.begin(); iter != _shots.end(); ++iter)//count shots tasks
+        {
+            if(!(*iter)->active())
+                continue;
+
+            totalTasks += (*iter)->totalTasks();
+        }
     }
 
     return totalTasks;
 }
 
-int Projects::ProjectSequence::doneTasks()
+int Projects::ProjectSequence::doneTasks() const
 {
     int doneTasks = 0;
 
@@ -271,9 +273,69 @@ int Projects::ProjectSequence::doneTasks()
                 doneTasks++;
             }
         }
+
+        for(auto iter = _shots.begin(); iter != _shots.end(); ++iter)//shots tasks
+        {
+            if(!(*iter)->active())
+                continue;
+
+            doneTasks += (*iter)->doneTasks();
+        }
     }
 
     return doneTasks;
+}
+
+int Projects::ProjectSequence::totalActivities() const
+{
+    int totalActivities = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            totalActivities+= (*iter)->totalActivities();
+        }
+
+        for(auto iter = _shots.begin(); iter != _shots.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            totalActivities += (*iter)->totalActivities();
+        }
+    }
+
+    return totalActivities;
+}
+
+int Projects::ProjectSequence::doneActivities() const
+{
+    int doneActivities = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            doneActivities+= (*iter)->doneActivities();
+        }
+
+        for(auto iter = _shots.begin(); iter != _shots.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            doneActivities += (*iter)->doneActivities();
+        }
+    }
+
+    return doneActivities;
 }
 
 bool Projects::ProjectSequence::operator ==(const Projects::ProjectSequence &other) const

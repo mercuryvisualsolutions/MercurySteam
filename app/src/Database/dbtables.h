@@ -1004,10 +1004,12 @@ namespace Projects
         virtual int totalHours() const override;
         virtual int doneHours() const override;
 
-        int totalShots();
-        int doneShots();
-        int totalTasks();
-        int doneTasks();
+        int totalShots() const;
+        int doneShots() const;
+        int totalTasks() const;
+        int doneTasks() const;
+        int totalActivities() const;
+        int doneActivities() const;
 
         ProjectSequence *modify() override;
         const ProjectSequenceId id() const;
@@ -1098,6 +1100,9 @@ namespace Projects
         bool removeActivity(Wt::Dbo::ptr<ProjectTaskActivity> activity);
         bool isAcceptedByUser();
         void setAcceptedByUser(bool accepted);
+
+        int totalActivities() const;
+        int doneActivities() const;
 
         //functions
         ProjectTask *modify() override;
@@ -1195,8 +1200,10 @@ namespace Projects
         virtual int totalHours() const override;
         virtual int doneHours() const override;
 
-        int totalTasks();
-        int doneTasks();
+        int totalTasks() const;
+        int doneTasks() const;
+        int totalActivities() const;
+        int doneActivities() const;
 
         ProjectShot *modify() override;
         const ProjectShotId id() const;
@@ -1273,8 +1280,10 @@ namespace Projects
         virtual int totalHours() const override;
         virtual int doneHours() const override;
 
-        int totalTasks();
-        int doneTasks();
+        int totalTasks() const;
+        int doneTasks() const;
+        int totalActivities() const;
+        int doneActivities() const;
 
         ProjectAsset *modify() override;
         const ProjectAssetId id() const;
@@ -1340,8 +1349,12 @@ namespace Projects
         int doneAssets() const;
         int totalSequences() const;
         int doneSequences() const;
+        int totalShots() const;
+        int doneShots() const;
         int totalTasks() const;
         int doneTasks() const;
+        int totalActivities() const;
+        int doneActivities() const;
 
         Project *modify() override;
         std::string name() const;

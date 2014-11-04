@@ -149,7 +149,7 @@ int Projects::ProjectShot::progress() const
     int dHours = doneHours();
     int tHours = totalHours();
 
-    return tHours > 0 ? dHours / tHours : 0;
+    return tHours > 0 ? static_cast<float>(static_cast<float>(dHours) / static_cast<float>(tHours)) * 100.0f : 0;
 }
 
 int Projects::ProjectShot::totalHours() const
@@ -181,17 +181,14 @@ int Projects::ProjectShot::doneHours() const
             if(!(*iter)->active())
                 continue;
 
-            if((*iter)->status()->workStatusType()->workStatusType() == "Done")//finished task
-            {
-                finishedHours += (*iter)->doneHours();
-            }
+            finishedHours += (*iter)->doneHours();
         }
     }
 
     return finishedHours;
 }
 
-int Projects::ProjectShot::totalTasks()
+int Projects::ProjectShot::totalTasks() const
 {
     int totalTasks = 0;
 
@@ -209,7 +206,7 @@ int Projects::ProjectShot::totalTasks()
     return totalTasks;
 }
 
-int Projects::ProjectShot::doneTasks()
+int Projects::ProjectShot::doneTasks() const
 {
     int doneTasks = 0;
 
@@ -228,6 +225,42 @@ int Projects::ProjectShot::doneTasks()
     }
 
     return doneTasks;
+}
+
+int Projects::ProjectShot::totalActivities() const
+{
+    int totalActivities = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            totalActivities+= (*iter)->totalActivities();
+        }
+    }
+
+    return totalActivities;
+}
+
+int Projects::ProjectShot::doneActivities() const
+{
+    int doneActivities = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            doneActivities+= (*iter)->doneActivities();
+        }
+    }
+
+    return doneActivities;
 }
 
 bool Projects::ProjectShot::operator ==(const Projects::ProjectShot &other) const

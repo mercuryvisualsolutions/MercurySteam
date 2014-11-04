@@ -19,7 +19,7 @@ int Projects::ProjectTask::progress() const
     int dHours = doneHours();
     int tHours = totalHours();
 
-    return tHours > 0 ? dHours / tHours : 0;
+    return tHours > 0 ? static_cast<float>(static_cast<float>(dHours) / static_cast<float>(tHours)) * 100.0f : 0;
 }
 
 int Projects::ProjectTask::totalHours() const
@@ -52,9 +52,7 @@ int Projects::ProjectTask::doneHours() const
                 continue;
 
             if((*iter)->status()->workStatusType()->workStatusType() == "Done")//finished task
-            {
                 finishedHours += (*iter)->hours();
-            }
         }
     }
 
@@ -177,6 +175,30 @@ bool Projects::ProjectTask::isAcceptedByUser()
 void Projects::ProjectTask::setAcceptedByUser(bool accepted)
 {
     _acceptedByUser = accepted;
+}
+
+int Projects::ProjectTask::totalActivities() const
+{
+    return _activities.size();
+}
+
+int Projects::ProjectTask::doneActivities() const
+{
+    int doneActivities = 0;
+
+    if(dboManager_ && dboManager_->openTransaction())
+    {
+        for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
+        {
+            if(!(*iter)->active())
+                continue;
+
+            if((*iter)->status()->workStatusType()->workStatusType() == "Done")
+                doneActivities++;
+        }
+    }
+
+    return doneActivities;
 }
 
 void Projects::ProjectTask::_init()
