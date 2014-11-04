@@ -10,6 +10,9 @@ Ms::Widgets::MTableViewWidget::MTableViewWidget()
 {
     _tableName = "table";
     _filterRegExpression = "[^$]{0,255}";
+    _ignoreNumFilterColumns = 0;
+    _importCSVFeatureEnabled = true;
+    _exportCSVFeatureEnabled = true;
 
     prepareView();
 }
@@ -198,6 +201,7 @@ void Ms::Widgets::MTableViewWidget::addColumn(const Ms::Core::MTableViewColumn &
      if(!columnExists(column.name()))
      {
         _columns[column.name()] = column;
+        _cmbFilterColumn->addItem(column.name());
 
         _model->insertColumns(_columns.size() - 1, 1);
         _model->setHeaderData(_columns.size() - 1, Wt::Orientation::Horizontal, column.name());
@@ -217,6 +221,7 @@ void Ms::Widgets::MTableViewWidget::removeColumn(const std::string &name) const
             if(header == name)
             {
                 _model->removeColumn(i);
+                _cmbFilterColumn->removeItem(i);
 
                 break;
             }
@@ -228,6 +233,8 @@ void Ms::Widgets::MTableViewWidget::clear()
 {
     _columns.clear();
     _model->clear();
+
+    _cmbFilterColumn->clear();
 }
 
 Wt::WString Ms::Widgets::MTableViewWidget::filterRegExpression() const
@@ -238,6 +245,7 @@ Wt::WString Ms::Widgets::MTableViewWidget::filterRegExpression() const
 void Ms::Widgets::MTableViewWidget::setFilterRegExpression(const Wt::WString &exp)
 {
     _filterRegExpression = exp;
+    _proxyModel->setFilterRegExp(exp);
 }
 
 bool Ms::Widgets::MTableViewWidget::isImportCSVFeatureEnabled() const
@@ -307,7 +315,7 @@ std::string Ms::Widgets::MTableViewWidget::generateCSVData() const
     //headers
     for(auto iter = _columns.begin(); iter != _columns.end(); ++iter)
     {
-        data += (*iter).second.name();
+        data += (*iter).first;
 
         if(i++ < _columns.size() -1)
             data +=",";
