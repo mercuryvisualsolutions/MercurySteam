@@ -117,7 +117,6 @@ void Views::ViewPrivileges::_prepareView()
     _layCntPrivileges->addWidget(_cntAssignedPrivileges);
 
     Wt::WVBoxLayout *_layCntAssignedPrivileges = dynamic_cast<Wt::WVBoxLayout*>(_cntAssignedPrivileges->layout());
-    _layCntAssignedPrivileges->setContentsMargins(0,14,0,0);
 
     _createAssignedPrivilegesTableView();
     _layCntAssignedPrivileges->addWidget(_qtvAssignedPrivileges, 1);
@@ -129,7 +128,6 @@ void Views::ViewPrivileges::_prepareView()
     _layCntPrivileges->addWidget(_cntAvailablePrivileges);
 
      Wt::WVBoxLayout *_layCntAvailablePrivileges = dynamic_cast<Wt::WVBoxLayout*>(_cntAvailablePrivileges->layout());
-    _layCntAvailablePrivileges->setContentsMargins(0,14,0,0);
 
     //Privileges Table View
     _createPrivilegesTableView();

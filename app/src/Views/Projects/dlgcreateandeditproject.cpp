@@ -240,6 +240,7 @@ void Views::DlgCreateAndEditProject::_prepareView()
 
     _cntLeft = new Wt::WContainerWidget();
     _cntLeft->setLayout(_layLeft);
+    _cntLeft->setStyleClass("form-horizontal");
 
     _layMain->addWidget(_cntLeft);
 
@@ -249,6 +250,7 @@ void Views::DlgCreateAndEditProject::_prepareView()
 
     _cntRight = new Wt::WContainerWidget();
     _cntRight->setLayout(_layRight);
+    _cntRight->setStyleClass("form-horizontal");
 
     _layMain->addWidget(_cntRight);
 

@@ -1027,27 +1027,13 @@ namespace Ms
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::_createAdvancedFilterView()
         {
-            _cntAdvancedFilter = new Wt::WContainerWidget();
+            _cntAdvancedFilter = new Ms::Widgets::MContainerWidget();
+            _cntAdvancedFilter->setTitle("<b><i>Advanced Filter</i></b>");
             _cntAdvancedFilter->setMinimumSize(Wt::WLength::Auto, 300);
             _cntAdvancedFilter->setMaximumSize(Wt::WLength::Auto, 300);
 
-            _layCntAdvancedFilter = new Wt::WVBoxLayout();
-            _layCntAdvancedFilter->setContentsMargins(0,10,0,10);
-            _layCntAdvancedFilter->setSpacing(0);
-
-            _cntAdvancedFilter->setLayout(_layCntAdvancedFilter);
-
-            _txtAdvancedFilterTitle = new Wt::WText("<b><i>Advanced Filter</i></b>");
-            _txtAdvancedFilterTitle->setStyleClass("title-bar-text");
-
-            _cntTxtAdvancedFilterTitle = new Wt::WContainerWidget();
-            _cntTxtAdvancedFilterTitle->setStyleClass("title-bar");
-            _cntTxtAdvancedFilterTitle->setContentAlignment(Wt::AlignCenter);
-            _cntTxtAdvancedFilterTitle->setMinimumSize(Wt::WLength::Auto, 25);
-
-            _layCntAdvancedFilter->addWidget(_cntTxtAdvancedFilterTitle);
-
-            _cntTxtAdvancedFilterTitle->addWidget(_txtAdvancedFilterTitle);
+            _layCntAdvancedFilter = dynamic_cast<Wt::WVBoxLayout*>(_cntAdvancedFilter->layout());
+            _layCntAdvancedFilter->setContentsMargins(14,0,14,14);
 
             _cntTbAdvancedFilter = new Wt::WContainerWidget();
 
@@ -1253,7 +1239,7 @@ namespace Ms
             layMain->setSpacing(0);
 
             setLayout(layMain);
-            setStyleClass("container-box");
+            //setStyleClass("container-box");
 
             Wt::WContainerWidget *cntMainView = new Wt::WContainerWidget();
 
@@ -1272,6 +1258,7 @@ namespace Ms
 
             Wt::WContainerWidget *cntTbGlobal = new Wt::WContainerWidget();
             cntTbGlobal->setLayout(layCntTbGlobal);
+            cntTbGlobal->setStyleClass("form-inline");
 
             layCntMainView->addWidget(cntTbGlobal);
 
@@ -1322,13 +1309,17 @@ namespace Ms
             _popMnuReloadItem->triggered().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_popMnuReloadItemTriggered);
 
             _cmbColumnFilter = new Wt::WComboBox();
+            _cmbColumnFilter->setMinimumSize(220, 30);
+            _cmbColumnFilter->setMaximumSize(220, 30);
             _cmbColumnFilter->changed().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_cmbColumnFilterChanged);
             _mdlCmbColumnFilter = new Wt::WStandardItemModel();
             _cmbColumnFilter->setModel(_mdlCmbColumnFilter);
             layCntTbGlobal->addWidget(_cmbColumnFilter);
 
             _lnFilter = new Wt::WLineEdit();
-            _lnFilter->setEmptyText("Search");
+            _lnFilter->setMinimumSize(220, 30);
+            _lnFilter->setMaximumSize(220, 30);
+            _lnFilter->setEmptyText("Filter");
             _lnFilter->keyWentUp().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_lnFilterKeyWentUp);
 
             layCntTbGlobal-> addWidget(_lnFilter);

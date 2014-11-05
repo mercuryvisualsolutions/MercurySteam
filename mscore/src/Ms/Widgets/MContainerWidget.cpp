@@ -51,7 +51,7 @@ void Ms::Widgets::MContainerWidget::_prepareView()
     _layMain->addWidget(_cntTxtViewTitle);
 
     _txtViewTitle = new Wt::WText("<b><i>New View</i></b>");
-    _txtViewTitle->setStyleClass("title-bar-text");
+    //_txtViewTitle->setStyleClass("title-bar-text");
 
     _cntTxtViewTitle->addWidget(_txtViewTitle);
 }

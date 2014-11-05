@@ -114,9 +114,15 @@ void Views::ViewApp::_toggleLeftMenuView()
 void Views::ViewApp::_togglePropertiesPanel()
 {
     if(_mnuMainLeftViewShowPropertiesPanel->isChecked())
+    {
         _propertiesPanel->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::SlideInFromRight, Wt::WAnimation::TimingFunction::EaseInOut));
+        _layMainH->setResizable(1, true);
+    }
     else
+    {
         _propertiesPanel->animateHide(Wt::WAnimation(Wt::WAnimation::AnimationEffect::SlideInFromRight, Wt::WAnimation::TimingFunction::EaseInOut));
+        _layMainH->setResizable(1, false);
+    }
 }
 
 void Views::ViewApp::_toggleLogPanel()
@@ -287,7 +293,7 @@ void Views::ViewApp::_prepareView()
         cntProjectMnuItem->setLayout(new Wt::WHBoxLayout());
 
         _mnuSideMainProjectsItem = new Wt::WMenuItem("Projects");//projects menu item
-        _mnuSideMainProjectsItem->setStyleClass("side-menu-item");
+        //_mnuSideMainProjectsItem->setStyleClass("side-menu-item");
         _mnuSideMainProjectsItem->triggered().connect(this, &Views::ViewApp::_mnuSideMainProjectsItemTriggered);
         _mnuSideMain->addItem(_mnuSideMainProjectsItem);
 
@@ -296,7 +302,7 @@ void Views::ViewApp::_prepareView()
         //_mnuSideMain->addSectionHeader("Security");
 
         _mnuSideMainUsersAndGroupsItem = new Wt::WMenuItem("Users And Groups");//Users menu item
-        _mnuSideMainUsersAndGroupsItem->setStyleClass("side-menu-item");
+        //_mnuSideMainUsersAndGroupsItem->setStyleClass("side-menu-item");
         _mnuSideMainUsersAndGroupsItem->triggered().connect(this, &Views::ViewApp::_mnuSideMainUsersAndGroupsItemTriggered);
         _mnuSideMain->addItem(_mnuSideMainUsersAndGroupsItem);
 
@@ -317,7 +323,7 @@ void Views::ViewApp::_prepareView()
         //_mnuSideMain->addSectionHeader("Settings");
 
         _mnuSideMainSettingsItem = new Wt::WMenuItem("Settings");//settings menu item
-        _mnuSideMainSettingsItem->setStyleClass("side-menu-item");
+        //_mnuSideMainSettingsItem->setStyleClass("side-menu-item");
         _mnuSideMainSettingsItem->triggered().connect(this, &Views::ViewApp::_mnuSideMainSettingsItemTriggered);
         _mnuSideMain->addItem(_mnuSideMainSettingsItem);
     }
@@ -325,7 +331,7 @@ void Views::ViewApp::_prepareView()
     //_mnuSideMain->addSectionHeader("My Steam");
 
     _mnuSideMainMyDashboardItem = new Wt::WMenuItem("My Dashboard");//my tasks menu item
-    _mnuSideMainMyDashboardItem->setStyleClass("side-menu-item");
+    //_mnuSideMainMyDashboardItem->setStyleClass("side-menu-item");
     _mnuSideMainMyDashboardItem->triggered().connect(this, &Views::ViewApp::_mnuSideMainMyDashboardItemTriggered);
     _mnuSideMain->addItem(_mnuSideMainMyDashboardItem);
 
@@ -355,10 +361,10 @@ void Views::ViewApp::_prepareView()
     /*******************--Footer--********************/
     _cntTxtFooter = new Wt::WContainerWidget();
     _cntTxtFooter->setContentAlignment(Wt::AlignCenter);
-    _cntTxtFooter->setStyleClass("footer");
+    //_cntTxtFooter->setStyleClass("footer");
 
     _txtFooter = new Wt::WText("MercurySteam (c) Mercury Visual Solutions.");//footer text
-    _txtFooter->setStyleClass("black-text");
+    //_txtFooter->setStyleClass("black-text");
     _cntTxtFooter->addWidget(_txtFooter);
 
     _layMain->addWidget(_cntTxtFooter);

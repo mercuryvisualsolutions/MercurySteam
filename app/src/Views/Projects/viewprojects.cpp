@@ -1215,6 +1215,7 @@ void Views::ViewProjects::_createTasksTableView()
 {
     _viewTasks = new Views::ViewTasks();
     _viewTasks->setCreateOptionHidden(true);
+    _viewTasks->setCreateForTemplateOptionHidden(true);
     _viewTasks->qtvTasks()->tableSelectionChanged().connect(this, &Views::ViewProjects::updatePropertiesView);
     _viewTasks->qtvTasks()->itemImported().connect(this, &Views::ViewProjects::_taskImported);
 }
@@ -2373,7 +2374,7 @@ void Views::ViewProjects::_prepareView()
     setTitle("<b><i>Projects</i></b>");
 
     Wt::WVBoxLayout *_layMain = dynamic_cast<Wt::WVBoxLayout*>(layout());
-    _layMain->setContentsMargins(14,14,14,14);
+    _layMain->setContentsMargins(14,0,14,14);
 
     _navBarMain= new Wt::WNavigationBar();
 

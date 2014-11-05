@@ -43,7 +43,7 @@ Wt::WApplication *createApplication(const Wt::WEnvironment &env)
     const std::string *themePtr = env.getParameter("theme");
     std::string theme;
     if (!themePtr)
-        theme = "bootstrap2";
+        theme = "bootstrap3";
     else
         theme = *themePtr;
 
@@ -88,6 +88,7 @@ Wt::WApplication *createApplication(const Wt::WEnvironment &env)
     //js required files
     app->require("resources/themes/bootstrap/js/bootstrap.js");
     app->require("resources/themes/bootstrap/js/bootstrap.min.js");
+    app->require("resources/themes/bootstrap/js/npm.js");
 
     //handle internalPathChange
     //app->setInternalPath("/auth", true);

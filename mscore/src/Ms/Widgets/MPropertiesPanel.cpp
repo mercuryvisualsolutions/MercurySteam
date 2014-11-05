@@ -63,7 +63,7 @@ void Ms::Widgets::MPropertiesPanel::_prepareView()
     setTitle("<b><i>Properties</i></b>");
 
     Wt::WVBoxLayout *_layMain = dynamic_cast<Wt::WVBoxLayout*>(layout());
-    _layMain->setContentsMargins(14,14,14,14);
+    _layMain->setContentsMargins(14,0,14,14);
 
     _stkMain = new Wt::WStackedWidget();
 

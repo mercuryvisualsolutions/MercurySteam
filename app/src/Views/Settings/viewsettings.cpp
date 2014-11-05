@@ -883,7 +883,7 @@ void Views::ViewSettings::_prepareView()
     setTitle("<b><i>Settings</i></b>");
 
     Wt::WVBoxLayout *_layMain = dynamic_cast<Wt::WVBoxLayout*>(layout());
-    _layMain->setContentsMargins(14,14,14,14);
+    _layMain->setContentsMargins(14,0,14,14);
 
     _navBarSettings = new Wt::WNavigationBar();
 
@@ -979,7 +979,7 @@ void Views::ViewSettings::_prepareView()
     _layCntMnuProjectSettings->setSpacing(0);
 
     _cntMnuProjectSettings = new Wt::WContainerWidget();
-    _cntMnuProjectSettings->setStyleClass("panel-border-right");
+    //_cntMnuProjectSettings->setStyleClass("panel-border-right");
     _cntMnuProjectSettings->setLayout(_layCntMnuProjectSettings);
 
     _layCntProjectsSettings->addWidget(_cntMnuProjectSettings);
@@ -1107,7 +1107,7 @@ void Views::ViewSettings::_prepareView()
     _layCntMnuUsersSettings->setSpacing(0);
 
     _cntMnuUsersSettings = new Wt::WContainerWidget();
-    _cntMnuUsersSettings->setStyleClass("panel-border-right");
+    //_cntMnuUsersSettings->setStyleClass("panel-border-right");
     _cntMnuUsersSettings->setLayout(_layCntMnuUsersSettings);
 
     _layCntUsersSettings->addWidget(_cntMnuUsersSettings);
@@ -1160,7 +1160,7 @@ void Views::ViewSettings::_prepareView()
     _layCntMnuGlobalSettings->setSpacing(0);
 
     _cntMnuGlobalSettings = new Wt::WContainerWidget();
-    _cntMnuGlobalSettings->setStyleClass("panel-border-right");
+    //_cntMnuGlobalSettings->setStyleClass("panel-border-right");
     _cntMnuGlobalSettings->setLayout(_layCntMnuGlobalSettings);
 
     _layCntGlobalSettings->addWidget(_cntMnuGlobalSettings);

@@ -444,7 +444,7 @@ void Ms::Widgets::MTableViewWidget::prepareView()
     layMain->setSpacing(0);
 
     setLayout(layMain);
-    setStyleClass("container-box");
+    //setStyleClass("container-box");
 
     Wt::WContainerWidget *cntMainView = new Wt::WContainerWidget();
 
@@ -463,6 +463,7 @@ void Ms::Widgets::MTableViewWidget::prepareView()
 
     Wt::WContainerWidget *cntTbGlobal = new Wt::WContainerWidget();
     cntTbGlobal->setLayout(layCntTbGlobal);
+    cntTbGlobal->setStyleClass("form-inline");
 
     layCntMainView->addWidget(cntTbGlobal);
 
@@ -501,13 +502,17 @@ void Ms::Widgets::MTableViewWidget::prepareView()
     _popMnuIOExportCSVItem->triggered().connect(this, &Ms::Widgets::MTableViewWidget::popMnuIOExportCSVItemTriggered);
 
     _cmbFilterColumn = new Wt::WComboBox();
+    _cmbFilterColumn->setMinimumSize(220, 30);
+    _cmbFilterColumn->setMaximumSize(220, 30);
     _cmbFilterColumn->changed().connect(this, &Ms::Widgets::MTableViewWidget::cmbFilterColumnChanged);
     _mdlCmbFilterColumn = new Wt::WStandardItemModel();
     _cmbFilterColumn->setModel(_mdlCmbFilterColumn);
     layCntTbGlobal->addWidget(_cmbFilterColumn);
 
     _lnFilter = new Wt::WLineEdit();
-    _lnFilter->setEmptyText("Search");
+    _lnFilter->setMinimumSize(220, 30);
+    _lnFilter->setMaximumSize(220, 30);
+    _lnFilter->setEmptyText("Filter");
     _lnFilter->keyWentUp().connect(this, &Ms::Widgets::MTableViewWidget::lnFilterKeyWentUp);
 
     layCntTbGlobal-> addWidget(_lnFilter);

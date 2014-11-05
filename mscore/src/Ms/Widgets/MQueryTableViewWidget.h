@@ -31,6 +31,7 @@
 #include <Wt/WSlider>
 
 #include "../Core/Dbo/MDboManagerBase.h"
+#include "MContainerWidget.h"
 
 namespace Ms
 {
@@ -193,10 +194,8 @@ namespace Ms
             Wt::WSlider *_sldRowHeight;
 
             //Advanced filter
-            Wt::WContainerWidget *_cntAdvancedFilter;
+            Ms::Widgets::MContainerWidget *_cntAdvancedFilter;
             Wt::WVBoxLayout *_layCntAdvancedFilter;
-            Wt::WText *_txtAdvancedFilterTitle;
-            Wt::WContainerWidget *_cntTxtAdvancedFilterTitle;
             Wt::WToolBar *_tbAdvancedFilter;
             Wt::WContainerWidget *_cntTbAdvancedFilter;
             Wt::WVBoxLayout *_layCntTbAdvancedFilter;

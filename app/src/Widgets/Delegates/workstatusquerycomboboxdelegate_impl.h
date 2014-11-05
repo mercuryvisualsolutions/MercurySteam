@@ -22,8 +22,8 @@ namespace Widgets
         template<typename T>
         Wt::WWidget *Widgets::Delegates::WorkStatusQueryComboBoxDelegate<T>::update(Wt::WWidget *widget, const Wt::WModelIndex &index, Wt::WFlags<Wt::ViewItemRenderFlag> flags)
         {
-            if(widget)
-                widget->setStyleClass("work-status-in-progress");
+//            if(widget)
+//                widget->setStyleClass("work-status-in-progress");
 
             return Ms::Widgets::Delegates::MItemDelegate::update(widget, index, flags);
         }

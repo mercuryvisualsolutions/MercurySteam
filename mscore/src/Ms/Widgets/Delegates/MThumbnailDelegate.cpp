@@ -4,6 +4,7 @@
 #include <Wt/WContainerWidget>
 #include <Wt/WAbstractItemModel>
 #include <Wt/WImage>
+#include <Wt/WVBoxLayout>
 
 Ms::Widgets::Delegates::MThumbnailDelegate::MThumbnailDelegate() :
     MItemDelegate()
@@ -55,9 +56,10 @@ Wt::WWidget *Ms::Widgets::Delegates::MThumbnailDelegate::update(Wt::WWidget *wid
     if(!widget)
     {
         result = new Wt::WContainerWidget();
+        result->setLayout(new Wt::WVBoxLayout());
         thumbnail = new Wt::WImage();
         thumbnail->setAlternateText(_defaultImagePath);
-        result->addWidget(thumbnail);
+        result->layout()->addWidget(thumbnail);
     }
     else
     {

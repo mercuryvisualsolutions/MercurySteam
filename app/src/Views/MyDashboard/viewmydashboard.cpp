@@ -9,6 +9,7 @@
 #include "../../Projects/projectsio.h"
 #include "../../Projects/projectsmanager.h"
 #include "../../Log/logmanager.h"
+#include "../Projects/dlgtaskselectdbo.h"
 
 #include <Ms/Widgets/Delegates/MDelegates>
 #include <Ms/IO/IO.h>
@@ -129,38 +130,77 @@ void Views::ViewMyDashboard::_createTasksTableView()
 void Views::ViewMyDashboard::_btnTasksFilesClicked()
 {
     if(_qtvTasks->table()->selectedIndexes().size() != 1)
-        return;
-
-    if(!Database::DatabaseManager::instance().openTransaction())
-        return;
-
-    Wt::Dbo::ptr<Projects::ProjectTask> taskPtr =  _qtvTasks->model()->resultRow(_qtvTasks->proxyModel()->mapToSource(
-                                                               *_qtvTasks->table()->selectedIndexes().begin()).row());
-
-    if((!taskPtr->asset()) && (!taskPtr->shot()))
-        return;
-
-    std::string path = "";
-
-    if(taskPtr->asset())
-        path = Projects::ProjectsIO::getAbsoluteAssetTaskDir(taskPtr->asset()->projectName(), taskPtr->asset()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
-    else if(taskPtr->shot())
-        path = Projects::ProjectsIO::getAbsoluteShotTaskDir(taskPtr->shot()->projectName(), taskPtr->shot()->sequenceName(), taskPtr->shot()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
-
-    DlgFilesManager *dlg = new DlgFilesManager(path);
-    dlg->finished().connect(std::bind([=]()
     {
-        delete dlg;
+        _logger->log("Please select only one item.", Ms::Log::LogMessageType::Warning);
+
+        return;
+    }
+
+    Views::DlgTaskSelectDbo *dlgSelectDbo = new Views::DlgTaskSelectDbo();
+
+    dlgSelectDbo->finished().connect(std::bind([=]()
+    {
+        if(dlgSelectDbo->result() == Wt::WDialog::Accepted)
+        {
+            if(Database::DatabaseManager::instance().openTransaction())
+            {
+                Wt::Dbo::ptr<Projects::ProjectTask> taskPtr =  _qtvTasks->selectedItems().at(0);
+
+                std::string path = "";
+
+                if(dlgSelectDbo->type() == "Project")
+                {
+                    if(taskPtr->project().get())
+                        path = Projects::ProjectsIO::getRelativeProjectTaskDir(taskPtr->project()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
+                    else
+                        _logger->log("Task does not belong to a project.", Ms::Log::LogMessageType::Warning);
+                }
+                else if(dlgSelectDbo->type() == "Sequence")
+                {
+                    if(taskPtr->sequence().get())
+                        path = Projects::ProjectsIO::getRelativeSequenceTaskDir(taskPtr->sequence()->projectName(), taskPtr->sequence()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
+                    else
+                        _logger->log("Task does not belong to a sequence.", Ms::Log::LogMessageType::Warning);
+                }
+                else if(dlgSelectDbo->type() == "Shot")
+                {
+                    if(taskPtr->shot().get())
+                        path = Projects::ProjectsIO::getRelativeShotTaskDir(taskPtr->shot()->projectName(), taskPtr->shot()->sequenceName(), taskPtr->shot()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
+                    else
+                        _logger->log("Task does not belong to a shot.", Ms::Log::LogMessageType::Warning);
+                }
+                else if(dlgSelectDbo->type() == "Asset")
+                {
+                    if(taskPtr->asset().get())
+                        path = Projects::ProjectsIO::getRelativeAssetTaskDir(taskPtr->asset()->projectName(), taskPtr->asset()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
+                    else
+                        _logger->log("Task does not belong to an asset.", Ms::Log::LogMessageType::Warning);
+                }
+
+                if(path != "")
+                {
+                    DlgFilesManager *dlgFiles = new DlgFilesManager(path);
+                    dlgFiles->finished().connect(std::bind([=]()
+                    {
+                        delete dlgFiles;
+                    }));
+
+                    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
+                        dlgFiles->setCreateDisabled(true);
+                    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In"))
+                        dlgFiles->setCheckInDisabled(true);
+                    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
+                        dlgFiles->setCheckOutDisabled(true);
+
+                    dlgFiles->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
+                }
+            }
+        }
+
+        delete dlgSelectDbo;
     }));
 
-    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
-        dlg->setCreateDisabled(true);
-    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In"))
-        dlg->setCheckInDisabled(true);
-    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
-        dlg->setCheckOutDisabled(true);
-
-    dlg->show();
+    dlgSelectDbo->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewMyDashboard::_mnuNavBarMainMyTasksItemTriggered()
@@ -183,7 +223,7 @@ void Views::ViewMyDashboard::_prepareView()
     setTitle("<b><i>My Dashboard</i></b>");
 
     Wt::WVBoxLayout *_layMain = dynamic_cast<Wt::WVBoxLayout*>(layout());
-    _layMain->setContentsMargins(14,14,14,14);
+    _layMain->setContentsMargins(14,0,14,14);
 
     _navBarMain = new Wt::WNavigationBar();
 

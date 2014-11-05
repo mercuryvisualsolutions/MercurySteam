@@ -1255,7 +1255,7 @@ void Views::ViewUsers::_prepareView()
     setTitle("<b><i>Users And Groups</i></b>");
 
     Wt::WVBoxLayout* _layMain = dynamic_cast<Wt::WVBoxLayout*>(layout());
-    _layMain->setContentsMargins(14,14,14,14);
+    _layMain->setContentsMargins(14,0,14,14);
 
     _navBarMain = new Wt::WNavigationBar();
 

@@ -139,7 +139,6 @@ void Views::ViewTags::_prepareView()
     _layCntTags->addWidget(_cntAssignedTags);
 
     Wt::WVBoxLayout *_layCntAssignedTags = dynamic_cast<Wt::WVBoxLayout*>(_cntAssignedTags->layout());
-    _layCntAssignedTags->setContentsMargins(0,14,0,0);
 
     _createAssignedTagsTableView();
     _layCntAssignedTags->addWidget(_qtvAssignedTags, 1);
@@ -151,7 +150,6 @@ void Views::ViewTags::_prepareView()
     _layCntTags->addWidget(_cntAvailableTags);
 
      Wt::WVBoxLayout *_layCntAvailableTags = dynamic_cast<Wt::WVBoxLayout*>(_cntAvailableTags->layout());
-    _layCntAvailableTags->setContentsMargins(0,14,0,0);
 
     //Tags Table View
     _createTagsTableView();
