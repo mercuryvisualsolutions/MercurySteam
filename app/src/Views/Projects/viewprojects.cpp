@@ -1679,6 +1679,7 @@ void Views::ViewProjects::_createPropertiesView()
 
     //Sequences
     _viewPropertiesSequences = new Views::ViewSequences();
+    _viewPropertiesSequences->qtvSequences()->setRowHeight(25);
     _viewPropertiesSequences->createSequenceRequested().connect(this, &Views::ViewProjects::_createSequenceRequested);
     _qtvProjects->table()->selectionChanged().connect(this, &Views::ViewProjects::updateSequencesView);
 
@@ -1686,6 +1687,7 @@ void Views::ViewProjects::_createPropertiesView()
 
     //Shots
     _viewPropertiesShots = new Views::ViewShots();
+    _viewPropertiesShots->qtvShots()->setRowHeight(25);
     _viewPropertiesShots->createShotRequested().connect(this, &Views::ViewProjects::_createShotRequested);
     _viewSequences->qtvSequences()->table()->selectionChanged().connect(this, &Views::ViewProjects::updateShotsView);
 
@@ -1693,6 +1695,7 @@ void Views::ViewProjects::_createPropertiesView()
 
     //Assets
     _viewPropertiesAssets = new Views::ViewAssets();
+    _viewPropertiesAssets->qtvAssets()->setRowHeight(25);
     _viewPropertiesAssets->createAssetRequested().connect(this, &Views::ViewProjects::_createAssetRequested);
     _qtvProjects->table()->selectionChanged().connect(this, &Views::ViewProjects::updateAssetsView);
 

@@ -86,14 +86,15 @@ void Ms::Widgets::MLogWidget::_checkMaxLogMessages()
 void Ms::Widgets::MLogWidget::_prepareView()
 {
     _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(14,14,14,14);
+    _layMain->setContentsMargins(4,4,4,4);
     _layMain->setSpacing(0);
 
     setLayout(_layMain);
     setLineHeight(15);
+    setMinimumSize(Wt::WLength::Auto, 100);
 
     _layCntTbMain = new Wt::WVBoxLayout();
-    _layCntTbMain->setContentsMargins(0,0,0,14);
+    _layCntTbMain->setContentsMargins(0,0,0,4);
     _layCntTbMain->setSpacing(0);
 
     _cntTbMain = new Wt::WContainerWidget();
@@ -119,8 +120,6 @@ void Ms::Widgets::MLogWidget::_prepareView()
     _scrLog = new Wt::WScrollArea();
     _scrLog->setScrollBarPolicy(Wt::WScrollArea::ScrollBarAsNeeded);
     _scrLog->setWidget(_cntLogArea);
-    _scrLog->setMinimumSize(Wt::WLength::Auto, 200);
-    _scrLog->setMaximumSize(Wt::WLength::Auto, 200);
 
     _layMain->addWidget(_scrLog, 1);
 }

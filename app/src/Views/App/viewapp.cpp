@@ -21,6 +21,10 @@ Views::ViewApp::ViewApp()
     _prepareView();
 
     _mnuSideMain->select(_mnuSideMainProjectsItem);//default start to the main projects page
+
+    //hide log view by default
+    _viwLog->hide();
+    _layCntChildViewsAndPropertiesAndLog->setResizable(0, false);
 }
 
 void Views::ViewApp::showAuthView()
@@ -116,21 +120,27 @@ void Views::ViewApp::_togglePropertiesPanel()
     if(_mnuMainLeftViewShowPropertiesPanel->isChecked())
     {
         _propertiesPanel->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::SlideInFromRight, Wt::WAnimation::TimingFunction::EaseInOut));
-        _layMainH->setResizable(2, true);
+        _layCntChildViewsAndProperties->setResizable(0, true);
     }
     else
     {
         _propertiesPanel->animateHide(Wt::WAnimation(Wt::WAnimation::AnimationEffect::SlideInFromRight, Wt::WAnimation::TimingFunction::EaseInOut));
-        _layMainH->setResizable(2, false);
+        _layCntChildViewsAndProperties->setResizable(0, false);
     }
 }
 
 void Views::ViewApp::_toggleLogPanel()
 {
     if(_mnuMainLeftViewShowLogPanel->isChecked())
+    {
         _viwLog->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::SlideInFromBottom, Wt::WAnimation::TimingFunction::EaseInOut));
+        _layCntChildViewsAndPropertiesAndLog->setResizable(0, true);
+    }
     else
+    {
         _viwLog->animateHide(Wt::WAnimation(Wt::WAnimation::AnimationEffect::SlideInFromBottom, Wt::WAnimation::TimingFunction::EaseInOut));
+        _layCntChildViewsAndPropertiesAndLog->setResizable(0, false);
+    }
 }
 
 void Views::ViewApp::_mnuMainRightCurrentUserSignOutTriggered()
@@ -242,7 +252,7 @@ void Views::ViewApp::_prepareView()
 
     _mnuMainLeftViewShowLogPanel = new Wt::WMenuItem("Log - Shift+L");
     _mnuMainLeftViewShowLogPanel->setCheckable(true);
-    _mnuMainLeftViewShowLogPanel->setChecked(true);
+    _mnuMainLeftViewShowLogPanel->setChecked(false);
     _mnuMainLeftViewShowLogPanel->triggered().connect(this, &Views::ViewApp::_toggleLogPanel);
 
     _mnuMainLeftViewPanelsSub->addItem(_mnuMainLeftViewShowLogPanel);//add "Show log panel" item to mnuMainViewSub
@@ -351,17 +361,39 @@ void Views::ViewApp::_prepareView()
 
     _prepareChildViews(_stkMainView);
 
-    _layMainH->addWidget(_stkMainView, 1);
+    _layCntChildViewsAndPropertiesAndLog = new Wt::WVBoxLayout();
+    _layCntChildViewsAndPropertiesAndLog->setContentsMargins(0,0,0,0);
+    _layCntChildViewsAndPropertiesAndLog->setSpacing(6);
+
+    _cntChildViewsAndPropertiesAndLog = new Wt::WContainerWidget();
+    _cntChildViewsAndPropertiesAndLog->setLayout(_layCntChildViewsAndPropertiesAndLog);
+
+    _layCntChildViewsAndProperties = new Wt::WHBoxLayout();
+    _layCntChildViewsAndProperties->setContentsMargins(0,0,0,0);
+    _layCntChildViewsAndProperties->setSpacing(6);
+
+    _cntChildViewsAndProperties = new Wt::WContainerWidget();
+    _cntChildViewsAndProperties->setLayout(_layCntChildViewsAndProperties);
+
+    _layCntChildViewsAndProperties->addWidget(_stkMainView, 1);
+    _layCntChildViewsAndProperties->setResizable(0);
+
+    _layCntChildViewsAndPropertiesAndLog->addWidget(_cntChildViewsAndProperties, 1);
+
+    _layCntChildViewsAndPropertiesAndLog->setResizable(0);
+
+    _layMainH->addWidget(_cntChildViewsAndPropertiesAndLog, 1);
 
     /**************Properties View********************/
-    _layMainH->addWidget(_propertiesPanel);
+    _layCntChildViewsAndProperties->addWidget(_propertiesPanel);
 
     _cntPropertiesEmpty = new Wt::WContainerWidget();
     _propertiesPanel->addPropertiesView("NoProperties", _cntPropertiesEmpty);
 
     /**************Log Panel********************/
     _viwLog = new ViewLog();
-    _layMain->addWidget(_viwLog);
+
+    _layCntChildViewsAndPropertiesAndLog->addWidget(_viwLog);
 
     /*******************--Footer--********************/
     _cntTxtFooter = new Wt::WContainerWidget();
@@ -373,8 +405,6 @@ void Views::ViewApp::_prepareView()
     _cntTxtFooter->addWidget(_txtFooter);
 
     _layMain->addWidget(_cntTxtFooter);
-
-    _layMainH->setResizable(2, true);
 }
 
 void Views::ViewApp::_prepareChildViews(Wt::WStackedWidget *widget)

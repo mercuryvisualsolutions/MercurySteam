@@ -84,6 +84,11 @@ class ViewApp : public Wt::WContainerWidget
         Wt::WMenuItem *_mnuSideMainSettingsItem;//settings menu item
 
         /*******************--Child View (Projects, Accounts, Reports..etc)--********************/
+        Wt::WContainerWidget *_cntChildViewsAndProperties;
+        Wt::WHBoxLayout *_layCntChildViewsAndProperties;
+        Wt::WContainerWidget *_cntChildViewsAndPropertiesAndLog;
+        Wt::WVBoxLayout *_layCntChildViewsAndPropertiesAndLog;
+
         Wt::WStackedWidget *_stkMainView;
 
         /*******************--Child Views--********************/

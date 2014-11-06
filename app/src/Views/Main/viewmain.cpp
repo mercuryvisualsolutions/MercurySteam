@@ -80,6 +80,13 @@ void Views::ViewMain::_prepareView()
     _authWidget = new Wt::Auth::AuthWidget(Auth::AuthManager::instance().authService(), Database::DatabaseManager::instance().users(), Auth::AuthManager::instance().login());
     _authWidget->model()->addPasswordAuth(Auth::AuthManager::instance().passwordService());
     _authWidget->model()->addOAuth(Auth::AuthManager::instance().oAuthService());
+    _authWidget->setMinimumSize(400, 400);
+
+    for(auto wid : _authWidget->children())
+    {
+        wid->setStyleClass("form-inline");
+    }
+
     //_authWidget->setRegistrationEnabled(true);
 
     _authWidget->processEnvironment();

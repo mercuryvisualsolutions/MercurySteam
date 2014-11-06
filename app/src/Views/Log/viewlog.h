@@ -9,7 +9,6 @@
 #include <Wt/WPushButton>
 #include <Wt/WContainerWidget>
 #include <Wt/WAnimation>
-#include <Wt/WPanel>
 #include <Wt/WScrollArea>
 
 #include <vector>
@@ -28,7 +27,6 @@ namespace Views
         //variables
         //Wt's
         Wt::WVBoxLayout *_layMain;
-        Wt::WPanel *_panLog;
 
         //functions
         void _prepareView();

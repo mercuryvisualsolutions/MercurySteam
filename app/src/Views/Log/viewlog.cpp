@@ -21,16 +21,5 @@ void Views::ViewLog::_prepareView()
 
     setLayout(_layMain);
 
-    _panLog = new Wt::WPanel();
-    _panLog->setTitleBar(true);
-    _panLog->setTitle("Log");
-    _panLog->setCollapsible(true);
-
-    //Wt::WAnimation panLogAnimation(Wt::WAnimation::SlideInFromTop, Wt::WAnimation::EaseOut, 100);
-    //_panLog->setAnimation(panLogAnimation);
-    _panLog->setCollapsed(true);
-    _panLog->setLineHeight(15);
-    _layMain->addWidget(_panLog, 1);
-
-    _panLog->setCentralWidget(Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId())->logWidget());
+    _layMain->addWidget(Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId())->logWidget());
 }

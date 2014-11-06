@@ -11,6 +11,7 @@
 #include <Wt/Dbo/Dbo>
 #include <Wt/WTableView>
 #include <Wt/Dbo/QueryModel>
+#include <Wt/WServer>
 
 #include "Settings/appsettings.h"
 #include "Database/databasemanager.h"
@@ -90,6 +91,10 @@ Wt::WApplication *createApplication(const Wt::WEnvironment &env)
     app->require("resources/themes/bootstrap/js/bootstrap.min.js");
     app->require("resources/themes/bootstrap/js/npm.js");
 
+    //add resources to style WAuthWidget
+    app->messageResourceBundle().use("docroot/resources/xml/auth_strings");
+    app->messageResourceBundle().use("docroot/resources/xml/bootstrap_theme");
+
     //handle internalPathChange
     //app->setInternalPath("/auth", true);
 
@@ -145,5 +150,27 @@ int main(int argc, char *argv[])
     Database::DatabaseManager::instance().initDatabase();
 
     //run the application
-    return Wt::WRun(argc, argv, &createApplication);
+    try
+    {
+        Wt::WServer server(argv[0]);
+
+        server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
+        server.addEntryPoint(Wt::Application, createApplication);
+
+        if (server.start())
+        {
+              Wt::WServer::waitForShutdown();
+              server.stop();
+        }
+    }
+    catch (Wt::WServer::Exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
+    catch (std::exception &e)
+    {
+        std::cerr << "exception: " << e.what() << std::endl;
+    }
+
+    return 0;
 }
