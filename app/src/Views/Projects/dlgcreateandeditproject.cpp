@@ -236,21 +236,19 @@ void Views::DlgCreateAndEditProject::_prepareView()
 
     _layLeft = new Wt::WVBoxLayout();
     _layLeft->setContentsMargins(0,0,0,0);
-    _layLeft->setSpacing(0);
+    _layLeft->setSpacing(2);
 
     _cntLeft = new Wt::WContainerWidget();
     _cntLeft->setLayout(_layLeft);
-    _cntLeft->setStyleClass("form-horizontal");
 
     _layMain->addWidget(_cntLeft);
 
     _layRight = new Wt::WVBoxLayout();
     _layRight->setContentsMargins(16,0,0,0);
-    _layRight->setSpacing(1);
+    _layRight->setSpacing(2);
 
     _cntRight = new Wt::WContainerWidget();
     _cntRight->setLayout(_layRight);
-    _cntRight->setStyleClass("form-horizontal");
 
     _layMain->addWidget(_cntRight);
 

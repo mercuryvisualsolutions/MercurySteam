@@ -161,6 +161,8 @@ void Views::DlgCreateAndEditActivityTemplateItem::_prepareView()
     else
         _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Hours:", _spnHours));
 
+    _layLeft->addWidget(new Wt::WBreak());
+
     _txtDescription = Ms::Widgets::MWidgetFactory::createTextArea("", false);
     if(_editing)
         _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Description:", _txtDescription));

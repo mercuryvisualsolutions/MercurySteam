@@ -32,7 +32,7 @@ void Views::DlgCreateWorkStatus::_prepareView()
 
     _layMain = new Wt::WVBoxLayout();
     _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(6);
+    _layMain->setSpacing(2);
 
     this->contents()->setLayout(_layMain);
 
@@ -49,6 +49,8 @@ void Views::DlgCreateWorkStatus::_prepareView()
     _cmbActive->addItem("No");
     _cmbActive->setCurrentIndex(0);
     _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", _cmbActive), 1);
+
+    _layMain->addWidget(new Wt::WBreak(), 1);
 
     _btnOk = new Wt::WPushButton("Ok", this->footer());
     _btnOk->setDefault(true);

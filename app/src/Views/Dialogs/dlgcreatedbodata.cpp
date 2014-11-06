@@ -29,12 +29,14 @@ void Views::Dialogs::DlgCreateDBOData::_prepareView()
 
     _layMain = new Wt::WVBoxLayout();
     _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(6);
+    _layMain->setSpacing(2);
 
     this->contents()->setLayout(_layMain);
 
     _txtKey = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[^$]{0,255}");
     _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Key:", _txtKey));
+
+    _layMain->addWidget(new Wt::WBreak());
 
     _txtValue = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[^$]{0,255}");
     _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Value:", _txtValue));
@@ -46,6 +48,8 @@ void Views::Dialogs::DlgCreateDBOData::_prepareView()
     _cmbActive->addItem("No");
     _cmbActive->setCurrentIndex(0);
     _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", _cmbActive), 1);
+
+    _layMain->addWidget(new Wt::WBreak(), 1);
 
     _btnOk = new Wt::WPushButton("Ok", this->footer());
     _btnOk->clicked().connect(this, &Views::Dialogs::DlgCreateDBOData::_btnOkClicked);

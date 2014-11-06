@@ -29,7 +29,7 @@ void Views::DlgCreateGroup::_prepareView()
 
     _layMain = new Wt::WVBoxLayout();
     _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(6);
+    _layMain->setSpacing(2);
 
     this->contents()->setLayout(_layMain);
 
@@ -38,8 +38,8 @@ void Views::DlgCreateGroup::_prepareView()
 
     _layMain->addWidget(new Wt::WBreak());
 
-    _spnRank = new Wt::WSpinBox();
-    _layMain->addWidget(_spnRank);
+    _spnRank = Ms::Widgets::MWidgetFactory::createSpinBox();
+    _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Rank:", _spnRank));
 
     _layMain->addWidget(new Wt::WBreak());
 

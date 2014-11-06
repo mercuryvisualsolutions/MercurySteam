@@ -61,7 +61,7 @@ void Views::DlgCreateUser::_prepareView()
 
     _layMain = new Wt::WHBoxLayout();
     _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(2);
+    _layMain->setSpacing(0);
 
     this->contents()->setLayout(_layMain);
 
@@ -75,8 +75,8 @@ void Views::DlgCreateUser::_prepareView()
     _layMain->addWidget(_cntLeft);
 
     _layRight = new Wt::WVBoxLayout();
-    _layRight->setContentsMargins(0,0,0,0);
-    _layRight->setSpacing(1);
+    _layRight->setContentsMargins(16,0,0,0);
+    _layRight->setSpacing(2);
 
     _cntRight = new Wt::WContainerWidget();
     _cntRight->setLayout(_layRight);
