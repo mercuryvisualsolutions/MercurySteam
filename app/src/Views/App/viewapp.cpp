@@ -116,12 +116,12 @@ void Views::ViewApp::_togglePropertiesPanel()
     if(_mnuMainLeftViewShowPropertiesPanel->isChecked())
     {
         _propertiesPanel->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::SlideInFromRight, Wt::WAnimation::TimingFunction::EaseInOut));
-        _layMainH->setResizable(1, true);
+        _layMainH->setResizable(2, true);
     }
     else
     {
         _propertiesPanel->animateHide(Wt::WAnimation(Wt::WAnimation::AnimationEffect::SlideInFromRight, Wt::WAnimation::TimingFunction::EaseInOut));
-        _layMainH->setResizable(1, false);
+        _layMainH->setResizable(2, false);
     }
 }
 
@@ -190,6 +190,11 @@ void Views::ViewApp::_prepareView()
 
     _cntLeftMenu->setLayout(_layCntLeftMenu);
     _layMainH->addWidget(_cntLeftMenu);
+
+    Wt::WContainerWidget *cntVLine = new Wt::WContainerWidget();
+    cntVLine->setStyleClass("vertical-line");
+
+    _layMainH->addWidget(cntVLine);
 
     /*******************--Main Navigation Bar--********************/
 
@@ -369,7 +374,7 @@ void Views::ViewApp::_prepareView()
 
     _layMain->addWidget(_cntTxtFooter);
 
-    _layMainH->setResizable(1, true);
+    _layMainH->setResizable(2, true);
 }
 
 void Views::ViewApp::_prepareChildViews(Wt::WStackedWidget *widget)

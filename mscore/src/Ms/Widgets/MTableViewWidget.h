@@ -25,9 +25,9 @@ namespace Ms
             MTableViewWidget();
             ~MTableViewWidget();
 
-            const Wt::WTableView *table() const;
-            const Wt::WAbstractItemModel *model() const;
-            const Wt::WSortFilterProxyModel *proxyModel() const;
+            Wt::WTableView *table() const;
+            Wt::WStandardItemModel *model() const;
+            Wt::WSortFilterProxyModel *proxyModel() const;
 
             const std::map<std::string,Ms::Core::MTableViewColumn> &columns() const;
 
@@ -76,6 +76,10 @@ namespace Ms
             Wt::WToolBar *_tbMain;
             Wt::WToolBar *_tbGlobal;
             Wt::WSlider *_sldRowHeight;
+            //a temp variable that gets signaled when we change the rowHeight of the table
+            //used to fix a bug it Wt where table horizontal scrool bar gets hidden if we change
+            // rowHeight at runtime
+            bool _rowHeightChanged;
 
             //General
             int _defaultFilterColumnIndex;

@@ -147,72 +147,9 @@ void Views::DlgFilesManager::_btnRefreshClicked()
 
 void Views::DlgFilesManager::_btnViewClicked()
 {
-    if(_tblFiles->selectedIndexes().size() > 0)
+    if(_tblFiles->table()->selectedIndexes().size() > 0)
     {
-        Wt::WModelIndex index = *_tblFiles->selectedIndexes().begin();
-
-        std::string dir = (*_trDirs->selectedNodes().begin())->objectName();//only view first selected item
-        std::string fileUrl = dir + Ms::IO::dirSeparator() + _mdlTblFiles->item(index.row())->text().toUTF8();
-
-        Ms::IO::MFileInfo file(fileUrl);
-
-        Wt::WDialog *dlg = new Wt::WDialog("View");
-        Wt::WVBoxLayout *layDlg = new Wt::WVBoxLayout();
-        layDlg->setContentsMargins(0,0,0,0);
-        dlg->contents()->setLayout(layDlg);
-        dlg->contents()->setOverflow(Wt::WContainerWidget::OverflowVisible);
-        dlg->contents()->setContentAlignment(Wt::AlignCenter);
-        dlg->rejectWhenEscapePressed(true);
-        dlg->finished().connect(std::bind([=]()
-        {
-            delete dlg;
-        }));
-
-        if(file.extension() == "jpg" || file.extension() == "png")//image
-        {
-            boost::gil::point2<std::ptrdiff_t> dim;
-
-            if(file.extension() == "jpg")
-                dim = boost::gil::jpeg_read_dimensions(AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + file.fullName());
-            if(file.extension() == "png")
-                dim = boost::gil::png_read_dimensions(AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + file.fullName());
-
-            Wt::WImage *img = new Wt::WImage(std::string(fileUrl));
-
-            img->setWidth(dim.x < 1280 ? dim.x : 1280);
-            img->setHeight(dim.y * static_cast<float>((img->width().value() / dim.x)));
-
-            dlg->contents()->setWidth(dim.x < 1280 ? dim.x : 1280);
-            dlg->contents()->setHeight(dim.y * static_cast<float>((img->width().value() / dim.x)) + 30);
-
-            layDlg->addWidget(img, 1);
-        }
-        else if(file.extension() == "mp3" || file.extension() == "wav")//audio
-        {
-            Wt::WMediaPlayer *player = new Wt::WMediaPlayer(Wt::WMediaPlayer::Audio);
-            player->setTitle(file.name());
-
-            if(file.extension() == "mp3")
-                player->addSource(Wt::WMediaPlayer::MP3, Wt::WLink(fileUrl));
-            else
-                player->addSource(Wt::WMediaPlayer::WAV, Wt::WLink(fileUrl));
-
-            layDlg->addWidget(player);
-        }
-        else if(file.extension() == "mp4" || file.extension() == "flv")//video
-        {
-            Wt::WMediaPlayer *player = new Wt::WMediaPlayer(Wt::WMediaPlayer::Video);
-            player->setTitle(file.name());
-
-            if(file.extension() == "mp4")
-                player->addSource(Wt::WMediaPlayer::M4V, Wt::WLink(fileUrl));
-            else
-                player->addSource(Wt::WMediaPlayer::FLV, Wt::WLink(fileUrl));
-
-            layDlg->addWidget(player);
-        }
-
-        dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Fade, Wt::WAnimation::TimingFunction::EaseInOut));
+        viewItem(*_tblFiles->table()->selectedIndexes().begin());
     }
 }
 
@@ -257,7 +194,11 @@ void Views::DlgFilesManager::_trDirsItemSelectionChanged()
     if(_trDirs->selectedNodes().size() != 1)
         return;
 
-    _mdlTblFiles->clear();
+    _tblFiles->clear();
+
+    _tblFiles->addColumn(Ms::Core::MTableViewColumn("Name"));
+    _tblFiles->addColumn(Ms::Core::MTableViewColumn("Size"));
+    _tblFiles->addColumn(Ms::Core::MTableViewColumn("Last Modified"));
 
     std::string path = AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + (*_trDirs->selectedNodes().begin())->objectName();
 
@@ -265,25 +206,109 @@ void Views::DlgFilesManager::_trDirsItemSelectionChanged()
 
     for(size_t i = 0; i < list.size(); ++i)
     {
+        std::vector<Wt::WStandardItem*> items;
+
         Wt::WStandardItem *item = new Wt::WStandardItem(list.at(i).name());
         item->setIcon("icons/File.png");
-        _mdlTblFiles->setItem(i, 0, item);
+        items.push_back(item);
 
         std::string size = _formatSize(list.at(i).size());
 
-        Wt::WStandardItem *itemSize = new Wt::WStandardItem(size.c_str());
-        _mdlTblFiles->setItem(i, 1, itemSize);
+        items.push_back(new Wt::WStandardItem(size.c_str()));
+        items.push_back(new Wt::WStandardItem(list.at(i).lastModifiedDate().c_str()));
 
-        Wt::WStandardItem *itemLastModified = new Wt::WStandardItem(list.at(i).lastModifiedDate().c_str());
-        _mdlTblFiles->setItem(i, 2, itemLastModified);
+        _tblFiles->model()->appendRow(items);
     }
+}
 
-    if(_mdlTblFiles->rowCount() > 0)
+void Views::DlgFilesManager::tblFilesItemDoubleClicked(Wt::WModelIndex index)
+{
+    viewItem(index);
+}
+
+void Views::DlgFilesManager::viewItem(Wt::WModelIndex index)
+{
+    std::string dir = (*_trDirs->selectedNodes().begin())->objectName();//only view first selected item
+
+    std::string fileUrl = dir + Ms::IO::dirSeparator() + _tblFiles->model()->item(index.row())->text().toUTF8();
+
+    Ms::IO::MFileInfo file(fileUrl);
+
+    Wt::WDialog *dlg = new Wt::WDialog("View");
+    Wt::WVBoxLayout *layDlg = new Wt::WVBoxLayout();
+    layDlg->setContentsMargins(0,0,0,0);
+    dlg->contents()->setLayout(layDlg);
+    dlg->contents()->setOverflow(Wt::WContainerWidget::OverflowVisible);
+    dlg->contents()->setContentAlignment(Wt::AlignCenter);
+    dlg->rejectWhenEscapePressed(true);
+    dlg->finished().connect(std::bind([=]()
     {
-        _mdlTblFiles->setHeaderData(0, Wt::Horizontal, Wt::WString("Name"), Wt::DisplayRole);
-        _mdlTblFiles->setHeaderData(1, Wt::Horizontal, Wt::WString("Size"), Wt::DisplayRole);
-        _mdlTblFiles->setHeaderData(2, Wt::Horizontal, Wt::WString("Last Modified"), Wt::DisplayRole);
+        delete dlg;
+    }));
+
+    if(file.extension() == "jpg" || file.extension() == "png")//image
+    {
+        boost::gil::point2<std::ptrdiff_t> dim;
+
+        if(file.extension() == "jpg")
+            dim = boost::gil::jpeg_read_dimensions(AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + file.fullName());
+        else if(file.extension() == "png")
+            dim = boost::gil::png_read_dimensions(AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + file.fullName());
+
+        Wt::WImage *img = new Wt::WImage(std::string(fileUrl));
+
+        //scale the image to screen
+        float scaleFactor = 1.0f;
+
+        if(dim.y > dim.x)
+        {
+            if(dim.y > 800)
+                scaleFactor = (800.0f / static_cast<float>(dim.y));
+        }
+        else
+        {
+            if(dim.x > 800)
+                scaleFactor = (800.0f / static_cast<float>(dim.x));
+        }
+
+        img->setWidth(dim.x * scaleFactor);
+        img->setHeight(dim.y * scaleFactor);
+
+        dlg->contents()->setWidth((dim.x * scaleFactor) + 50);
+        dlg->contents()->setHeight((dim.y * scaleFactor) + 50);
+
+        layDlg->addWidget(img, 1);
     }
+    else if(file.extension() == "mp3" || file.extension() == "wav")//audio
+    {
+        Wt::WMediaPlayer *player = new Wt::WMediaPlayer(Wt::WMediaPlayer::Audio);
+        player->setTitle(file.name());
+
+        if(file.extension() == "mp3")
+            player->addSource(Wt::WMediaPlayer::MP3, Wt::WLink(fileUrl));
+        else
+            player->addSource(Wt::WMediaPlayer::WAV, Wt::WLink(fileUrl));
+
+        layDlg->addWidget(player);
+
+        player->play();
+    }
+    else if(file.extension() == "mp4" || file.extension() == "flv")//video
+    {
+        Wt::WMediaPlayer *player = new Wt::WMediaPlayer(Wt::WMediaPlayer::Video);
+        player->setTitle(file.name());
+
+        if(file.extension() == "mp4")
+            player->addSource(Wt::WMediaPlayer::M4V, Wt::WLink(fileUrl));
+        else
+            player->addSource(Wt::WMediaPlayer::FLV, Wt::WLink(fileUrl));
+
+        layDlg->addWidget(player);
+
+        player->play();
+    }
+
+    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Fade, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::DlgFilesManager::setRootpath(const std::string &rootPath)
@@ -372,15 +397,13 @@ void Views::DlgFilesManager::_populateDirTree()
 
 void Views::DlgFilesManager::_createFilesTable()
 {
-    _tblFiles = new Wt::WTableView();
-    _tblFiles->setColumnResizeEnabled(true);
-    _tblFiles->setAlternatingRowColors(true);
-    _tblFiles->setRowHeight(24);
-    _tblFiles->setHeaderHeight(24);
-    _tblFiles->setSelectionMode(Wt::ExtendedSelection);
+    _tblFiles = new Ms::Widgets::MTableViewWidget();
+    _tblFiles->setImportCSVFeatureEnabled(false);
+    _tblFiles->table()->doubleClicked().connect(this, &Views::DlgFilesManager::tblFilesItemDoubleClicked);
 
-    _mdlTblFiles = new Wt::WStandardItemModel();
-    _tblFiles->setModel(_mdlTblFiles);
+    _tblFiles->addColumn(Ms::Core::MTableViewColumn("Name"));
+    _tblFiles->addColumn(Ms::Core::MTableViewColumn("Size"));
+    _tblFiles->addColumn(Ms::Core::MTableViewColumn("Last Modified"));
 }
 
 std::string Views::DlgFilesManager::_formatSize(u_int64_t size)
@@ -401,7 +424,7 @@ std::string Views::DlgFilesManager::_formatSize(u_int64_t size)
 
 void Views::DlgFilesManager::_refresh()
 {
-    _mdlTblFiles->clear();
+    _tblFiles->clear();
     _populateDirTree();
 }
 
@@ -429,11 +452,11 @@ std::string Views::DlgFilesManager::_generateDownloadUrl()
     std::string tmpfilePath = _getUniqueTmpFileName() + ".zip";
     std::string command = "zip -j -r \'" + tmpfilePath + "\'";
 
-    if(_tblFiles->selectedIndexes().size() > 0)
+    if(_tblFiles->table()->selectedIndexes().size() > 0)
     {
-        for(const Wt::WModelIndex index : _tblFiles->selectedIndexes())
+        for(const Wt::WModelIndex index : _tblFiles->table()->selectedIndexes())
         {
-            command = command + " \'" + orgDir + Ms::IO::dirSeparator() + _mdlTblFiles->item(index.row())->text().toUTF8() + "\'";
+            command = command + " \'" + orgDir + Ms::IO::dirSeparator() + _tblFiles->model()->item(index.row())->text().toUTF8() + "\'";
         }
     }
     else command = command + " \'" + orgDir + Ms::IO::dirSeparator() + "\'";

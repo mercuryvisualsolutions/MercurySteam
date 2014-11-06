@@ -2215,9 +2215,7 @@ void Views::ViewProjects::_updatePropertiesStatisticsView()
         _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Tasks"));
         _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Tasks"));
         _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Activities"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Activities"));
-
-        Wt::WStandardItemModel *model = const_cast<Wt::WStandardItemModel*>(dynamic_cast<const Wt::WStandardItemModel*>(_viewPropertiesStatistics->model()));
+        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Activities"));      
 
         for(Wt::Dbo::ptr<Projects::Project> &project : _qtvProjects->selectedItems())
         {
@@ -2238,7 +2236,7 @@ void Views::ViewProjects::_updatePropertiesStatisticsView()
             items.push_back(new Wt::WStandardItem(std::to_string(project->totalActivities()).c_str()));
             items.push_back(new Wt::WStandardItem(std::to_string(project->doneActivities()).c_str()));
 
-            model->appendRow(items);
+            _viewPropertiesStatistics->model()->appendRow(items);
         }
     }
     else if(_stkMain->currentWidget() == _cntSequences)
@@ -2254,8 +2252,6 @@ void Views::ViewProjects::_updatePropertiesStatisticsView()
         _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Tasks"));
         _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Activities"));
         _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Activities"));
-
-        Wt::WStandardItemModel *model = const_cast<Wt::WStandardItemModel*>(dynamic_cast<const Wt::WStandardItemModel*>(_viewPropertiesStatistics->model()));
 
         for(Wt::Dbo::ptr<Projects::ProjectSequence> &seq : _viewSequences->qtvSequences()->selectedItems())
         {
@@ -2273,7 +2269,7 @@ void Views::ViewProjects::_updatePropertiesStatisticsView()
             items.push_back(new Wt::WStandardItem(std::to_string(seq->totalActivities()).c_str()));
             items.push_back(new Wt::WStandardItem(std::to_string(seq->doneActivities()).c_str()));
 
-            model->appendRow(items);
+            _viewPropertiesStatistics->model()->appendRow(items);
         }
     }
     else if(_stkMain->currentWidget() == _cntShots)
@@ -2288,8 +2284,6 @@ void Views::ViewProjects::_updatePropertiesStatisticsView()
         _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Tasks"));
         _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Activities"));
         _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Activities"));
-
-        Wt::WStandardItemModel *model = const_cast<Wt::WStandardItemModel*>(dynamic_cast<const Wt::WStandardItemModel*>(_viewPropertiesStatistics->model()));
 
         for(Wt::Dbo::ptr<Projects::ProjectShot> &shot : _viewShots->qtvShots()->selectedItems())
         {
@@ -2306,7 +2300,7 @@ void Views::ViewProjects::_updatePropertiesStatisticsView()
             items.push_back(new Wt::WStandardItem(std::to_string(shot->totalActivities()).c_str()));
             items.push_back(new Wt::WStandardItem(std::to_string(shot->doneActivities()).c_str()));
 
-            model->appendRow(items);
+            _viewPropertiesStatistics->model()->appendRow(items);
         }
     }
     else if(_stkMain->currentWidget() == _cntAssets)
@@ -2320,8 +2314,6 @@ void Views::ViewProjects::_updatePropertiesStatisticsView()
         _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Finished Tasks"));
         _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Activities"));
         _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Finished Activities"));
-
-        Wt::WStandardItemModel *model = const_cast<Wt::WStandardItemModel*>(dynamic_cast<const Wt::WStandardItemModel*>(_viewPropertiesStatistics->model()));
 
         for(Wt::Dbo::ptr<Projects::ProjectAsset> &asset : _viewAssets->qtvAssets()->selectedItems())
         {
@@ -2337,7 +2329,7 @@ void Views::ViewProjects::_updatePropertiesStatisticsView()
             items.push_back(new Wt::WStandardItem(std::to_string(asset->totalActivities()).c_str()));
             items.push_back(new Wt::WStandardItem(std::to_string(asset->doneActivities()).c_str()));
 
-            model->appendRow(items);
+            _viewPropertiesStatistics->model()->appendRow(items);
         }
     }
     else if(_stkMain->currentWidget() == _cntTasks)
@@ -2348,8 +2340,6 @@ void Views::ViewProjects::_updatePropertiesStatisticsView()
         _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Hours"));
         _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Activities"));
         _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Finished Activities"));
-
-        Wt::WStandardItemModel *model = const_cast<Wt::WStandardItemModel*>(dynamic_cast<const Wt::WStandardItemModel*>(_viewPropertiesStatistics->model()));
 
         for(Wt::Dbo::ptr<Projects::ProjectTask> &task : _viewTasks->qtvTasks()->selectedItems())
         {
@@ -2362,7 +2352,7 @@ void Views::ViewProjects::_updatePropertiesStatisticsView()
             items.push_back(new Wt::WStandardItem(std::to_string(task->totalActivities()).c_str()));
             items.push_back(new Wt::WStandardItem(std::to_string(task->doneActivities()).c_str()));
 
-            model->appendRow(items);
+            _viewPropertiesStatistics->model()->appendRow(items);
         }
     }
 

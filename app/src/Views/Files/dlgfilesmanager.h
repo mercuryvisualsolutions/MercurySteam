@@ -16,6 +16,7 @@
 #include <Wt/WToolBar>
 #include <Wt/WFileResource>
 
+#include <Ms/Widgets/MTableViewWidget.h>
 #include <Ms/Widgets/MWidgetFactory.h>
 #include <Ms/IO/MStreamedFileResource.h>
 
@@ -50,8 +51,7 @@ namespace Views
         Wt::WContainerWidget *_cntFiles;
         Wt::WHBoxLayout *_layFiles;
         Wt::WTree *_trDirs;
-        Wt::WTableView *_tblFiles;
-        Wt::WStandardItemModel *_mdlTblFiles;
+        Ms::Widgets::MTableViewWidget *_tblFiles;
         Wt::WPushButton *_btnClose;
 
         //variables
@@ -72,8 +72,10 @@ namespace Views
         void _btnViewClicked();
         void _btnCloseClicked();
         void _trDirsItemSelectionChanged();
+        void tblFilesItemDoubleClicked(Wt::WModelIndex index);
 
         //functions
+        void viewItem(Wt::WModelIndex index);
         void _createDirTree();
         void _populateDirTree();
         void _createFilesTable();

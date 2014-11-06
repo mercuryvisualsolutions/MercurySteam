@@ -47,6 +47,8 @@ namespace Ms
             _customFilterString = "";
             _advancedFilterString = "";
 
+            _rowHeightChanged = false;
+
             //features
             _importCSVFeatureEnabled = true;
             _exportCSVFeatureEnabled = true;
@@ -822,6 +824,22 @@ namespace Ms
         void Ms::Widgets::MQueryTableViewWidget<T>::_sldRowHeightValueChanged()
         {
             _tblMain->setRowHeight(_sldRowHeight->value());
+            //resize the last column of the table to fix a bug in Wt where table horizontal scroll bar gets hidden
+            //when we chage rowHeight at runtime.
+            //////////////////////////////////////////////////////////////////////////////
+            int resizeValue = 0;
+            if(_rowHeightChanged)
+            {
+                resizeValue = 1;
+                _rowHeightChanged = false;
+            }
+            else
+            {
+                resizeValue = -1;
+                _rowHeightChanged = true;
+            }
+            _tblMain->setColumnWidth(_model->columnCount() -1, _tblMain->columnWidth(_model->columnCount() -1).value() + resizeValue);
+            //////////////////////////////////////////////////////////////////////////////
         }
 
         template<typename T>

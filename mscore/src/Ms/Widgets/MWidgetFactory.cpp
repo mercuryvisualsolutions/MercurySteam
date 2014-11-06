@@ -107,7 +107,6 @@ Wt::WContainerWidget *Ms::Widgets::MWidgetFactory::createField(const std::string
     layCntField->setSpacing(4);
 
     Wt::WContainerWidget *cntField = new Wt::WContainerWidget();
-    //cntField->setStyleClass("form-group");
     cntField->setLayout(layCntField);
 
     Wt::WLabel *lblField = new Wt::WLabel(label);
@@ -117,8 +116,6 @@ Wt::WContainerWidget *Ms::Widgets::MWidgetFactory::createField(const std::string
     cntLblField->addWidget(lblField);
     cntLblField->setMinimumSize(120, 30);
     cntLblField->setMaximumSize(120, 200);
-    //cntLblField->setStyleClass("col-sm-2 control-label");
-    //cntLblField->setContentAlignment(Wt::AlignRight);
 
     layCntField->addWidget(cntLblField);
 
@@ -126,10 +123,9 @@ Wt::WContainerWidget *Ms::Widgets::MWidgetFactory::createField(const std::string
     cntWidget->addWidget(widget);
     cntWidget->setMinimumSize(300, 30);
     cntWidget->setMaximumSize(300, 200);
-    //cntWidget->setStyleClass("col-sm-10");
-    //cntWidget->setContentAlignment(Wt::AlignRight);
-//    if(applyValidationStyle)
-//        cntWidget->setStyleClass("control-group");
+
+    if(applyValidationStyle)
+        cntWidget->setStyleClass("control-group");
 
     layCntField->addWidget(cntWidget, 1);
 

@@ -13,6 +13,7 @@ Ms::Widgets::MTableViewWidget::MTableViewWidget()
     _ignoreNumFilterColumns = 0;
     _importCSVFeatureEnabled = true;
     _exportCSVFeatureEnabled = true;
+    _rowHeightChanged = false;
 
     prepareView();
 }
@@ -21,17 +22,17 @@ Ms::Widgets::MTableViewWidget::~MTableViewWidget()
 {
 }
 
-const Wt::WTableView *Ms::Widgets::MTableViewWidget::table() const
+Wt::WTableView *Ms::Widgets::MTableViewWidget::table() const
 {
     return _table;
 }
 
-const Wt::WAbstractItemModel *Ms::Widgets::MTableViewWidget::model() const
+Wt::WStandardItemModel *Ms::Widgets::MTableViewWidget::model() const
 {
     return _model;
 }
 
-const Wt::WSortFilterProxyModel *Ms::Widgets::MTableViewWidget::proxyModel() const
+Wt::WSortFilterProxyModel *Ms::Widgets::MTableViewWidget::proxyModel() const
 {
     return _proxyModel;
 }
@@ -435,6 +436,23 @@ void Ms::Widgets::MTableViewWidget::popMnuIOExportCSVItemTriggered()
 void Ms::Widgets::MTableViewWidget::sldRowHeightValueChanged()
 {
     _table->setRowHeight(_sldRowHeight->value());
+
+    //resize the last column of the table to fix a bug in Wt where table horizontal scroll bar gets hidden
+    //when we chage rowHeight at runtime.
+    //////////////////////////////////////////////////////////////////////////////
+    int resizeValue = 0;
+    if(_rowHeightChanged)
+    {
+        resizeValue = 1;
+        _rowHeightChanged = false;
+    }
+    else
+    {
+        resizeValue = -1;
+        _rowHeightChanged = true;
+    }
+    _table->setColumnWidth(_model->columnCount() -1, _table->columnWidth(_model->columnCount() -1).value() + resizeValue);
+    //////////////////////////////////////////////////////////////////////////////
 }
 
 void Ms::Widgets::MTableViewWidget::prepareView()
@@ -552,7 +570,7 @@ void Ms::Widgets::MTableViewWidget::prepareView()
     _sldRowHeight->setValue(25);
     _sldRowHeight->setTickInterval(10);
     _sldRowHeight->setHandleWidth(10);
-    _sldRowHeight->setTickPosition(Wt::WSlider::TicksAbove);
+    //_sldRowHeight->setTickPosition(Wt::WSlider::TicksAbove);
     _sldRowHeight->valueChanged().connect(this, &Ms::Widgets::MTableViewWidget::sldRowHeightValueChanged);
 
     layTbMain->addWidget(_sldRowHeight);
