@@ -1,7 +1,7 @@
 #include "viewtasktemplate.h"
 #include "../../Auth/authmanager.h"
 #include "../../Settings/appsettings.h"
-#include "../../Database/databasemanager.h"
+#include "../../Database/dbosession.h"
 #include "../../Log/logmanager.h"
 #include "dlgcreatetemplate.h"
 #include "dlgcreateandedittasktemplateitem.h"
@@ -12,9 +12,11 @@
 
 Views::ViewTaskTemplates::ViewTaskTemplates()
 {
-    _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
+    _logger = Session::SessionManager::instance().logger();
 
     _prepareView();
+
+    adjustUIPrivileges();
 }
 
 const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskTemplate> *Views::ViewTaskTemplates::qtvTemplates() const
@@ -29,32 +31,59 @@ const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskTemplateTaskItem> 
 
 bool Views::ViewTaskTemplates::isCreateTemplateOptionHidden() const
 {
-    return _btnCreateTemplate->isHidden();
+    if(_btnCreateTemplate)
+        return _btnCreateTemplate->isHidden();
+
+    return false;
 }
 
 void Views::ViewTaskTemplates::setCreateTemplateOptionHidden(bool hidden)
 {
-    _btnCreateTemplate->setHidden(hidden);
+    if(_btnCreateTemplate)
+        _btnCreateTemplate->setHidden(hidden);
 }
 
 bool Views::ViewTaskTemplates::isCreateTemplateItemOptionHidden() const
 {
-    return _btnCreateTemplateItem->isHidden();
+    if(_btnCreateTemplateItem)
+        return _btnCreateTemplateItem->isHidden();
+
+    return false;
 }
 
 void Views::ViewTaskTemplates::setCreateTemplateItemOptionHidden(bool hidden)
 {
-    _btnCreateTemplateItem->setHidden(hidden);
+    if(_btnCreateTemplateItem)
+        _btnCreateTemplateItem->setHidden(hidden);
 }
 
 bool Views::ViewTaskTemplates::isEditTemplateItemOptionHidden() const
 {
-    return _btnEditTemplateItem->isHidden();
+    if(_btnEditTemplateItem)
+        return _btnEditTemplateItem->isHidden();
+
+    return false;
 }
 
 void Views::ViewTaskTemplates::setEditTemplateItemOptionHidden(bool hidden)
 {
-    _btnEditTemplateItem->setHidden(hidden);
+    if(_btnEditTemplateItem)
+        _btnEditTemplateItem->setHidden(hidden);
+}
+
+void Views::ViewTaskTemplates::adjustUIPrivileges()
+{
+    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
+
+    bool hasEditPriv = user->hasPrivilege("Edit");
+    bool hasCreateDboPriv = user->hasPrivilege("Create DBO");
+
+    _btnCreateTemplate->setHidden(!hasCreateDboPriv);
+    _btnCreateTemplateItem->setHidden(!hasCreateDboPriv);
+    _btnEditTemplateItem->setDisabled(!hasEditPriv);
+
+    _qtvTemplates->setImportCSVFeatureEnabled(hasCreateDboPriv);
+    _qtvTemplateItems->setImportCSVFeatureEnabled(hasCreateDboPriv);
 }
 
 Wt::Signal<> &Views::ViewTaskTemplates::createTemplateRequested()
@@ -84,12 +113,12 @@ void Views::ViewTaskTemplates::_btnCreateTemplateClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
-            if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectTaskTemplate>(dlg->name()))
+            if(!Session::SessionManager::instance().dboSession().dboExists<Projects::ProjectTaskTemplate>(dlg->name()))
             {
                 Projects::ProjectTaskTemplate *taskTemplate = new Projects::ProjectTaskTemplate(dlg->name());
                 taskTemplate->setActive(dlg->isActive());
 
-                if(Database::DatabaseManager::instance().createDbo<Projects::ProjectTaskTemplate>(taskTemplate))
+                if(Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTaskTemplate>(taskTemplate))
                 {
                     updateTaskTemplatesView();
 
@@ -145,7 +174,7 @@ void Views::ViewTaskTemplates::_btnCreateTemplateItemClicked()
             templateItem->setActive(dlg->isActive());
 
             Wt::Dbo::ptr<Projects::ProjectTaskTemplateTaskItem> templateItemPtr =
-                    Database::DatabaseManager::instance().createDbo<Projects::ProjectTaskTemplateTaskItem>(templateItem);
+                    Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTaskTemplateTaskItem>(templateItem);
 
             if(templateItemPtr.get())
             {
@@ -191,16 +220,16 @@ void Views::ViewTaskTemplates::_btnEditTemplateItemsClicked()
             for(auto itemPtr : _qtvTemplateItems->selectedItems())
             {
                 if(dlg->editedType())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTaskTemplateTaskItem>(itemPtr)->setType(dlg->type());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectTaskTemplateTaskItem>(itemPtr)->setType(dlg->type());
 
                 if(dlg->editedStatus())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTaskTemplateTaskItem>(itemPtr)->setStatus(dlg->status());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectTaskTemplateTaskItem>(itemPtr)->setStatus(dlg->status());
 
                 if(dlg->editedDescription())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTaskTemplateTaskItem>(itemPtr)->setDescription(dlg->description());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectTaskTemplateTaskItem>(itemPtr)->setDescription(dlg->description());
 
                 if(dlg->editedActive())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTaskTemplateTaskItem>(itemPtr)->setActive(dlg->isActive());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectTaskTemplateTaskItem>(itemPtr)->setActive(dlg->isActive());
             }
 
             updateTaskTemplateItemsView();
@@ -222,28 +251,29 @@ void Views::ViewTaskTemplates::updateTaskTemplatesView()
 {
     try
     {
-        if(!Database::DatabaseManager::instance().openTransaction())
-            return;
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
         Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTaskTemplate>> query;
 
-        int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+        int viewRank = Session::SessionManager::instance().user()->viewRank();
 
         if(AppSettings::instance().isLoadInactiveData())
-            query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskTemplate>().where("View_Rank <= ?").bind(viewRank);
+            query = Session::SessionManager::instance().dboSession().find<Projects::ProjectTaskTemplate>().where("View_Rank <= ?").bind(viewRank);
         else
-            query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskTemplate>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
+            query = Session::SessionManager::instance().dboSession().find<Projects::ProjectTaskTemplate>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
 
         _qtvTemplates->setQuery(query);
 
-        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+        transaction.commit();
+
+        bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+        int editRank = Session::SessionManager::instance().user()->editRank();
 
         _qtvTemplates->clearColumns();
 
@@ -265,14 +295,13 @@ void Views::ViewTaskTemplates::updateTaskTemplateItemsView()
 {
     try
     {
-        if(!Database::DatabaseManager::instance().openTransaction())
-            return;
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-        Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTaskTemplateTaskItem>> query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskTemplateTaskItem>();
+        Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTaskTemplateTaskItem>> query = Session::SessionManager::instance().dboSession().find<Projects::ProjectTaskTemplateTaskItem>();
 
         if(_qtvTemplates->table()->selectedIndexes().size() > 0)
         {
-            std::vector<std::string> templateIdValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectTaskTemplate>(_qtvTemplates->selectedItems());
+            std::vector<std::string> templateIdValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectTaskTemplate>(_qtvTemplates->selectedItems());
 
             //generate the where clause
             query.where("Project_Task_Template_Name IN (" + templateIdValues.at(0) + ")");
@@ -281,7 +310,7 @@ void Views::ViewTaskTemplates::updateTaskTemplateItemsView()
             if(!AppSettings::instance().isLoadInactiveData())
                 query.where("Active = ?").bind(true);
 
-            int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+            int viewRank = Session::SessionManager::instance().user()->viewRank();
             query.where("View_Rank <= ?").bind(viewRank);
         }
         else
@@ -289,14 +318,16 @@ void Views::ViewTaskTemplates::updateTaskTemplateItemsView()
 
         _qtvTemplateItems->setQuery(query);
 
-        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+        transaction.commit();
+
+        bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+        int editRank = Session::SessionManager::instance().user()->editRank();
 
         _qtvTemplateItems->clearColumns();
 
@@ -304,14 +335,14 @@ void Views::ViewTaskTemplates::updateTaskTemplateItemsView()
         _qtvTemplateItems->addColumn(Ms::Widgets::MQueryTableViewColumn("id", "Id", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
         _qtvTemplateItems->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Task_Type", "Type", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectTaskType>(
-         Database::DatabaseManager::instance().session(),
-         AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskType>() :
-         Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskType>().where("Active = ?").bind(true),
+         &Session::SessionManager::instance().dboSession(),
+         AppSettings::instance().isLoadInactiveData() ? Session::SessionManager::instance().dboSession().find<Projects::ProjectTaskType>() :
+         Session::SessionManager::instance().dboSession().find<Projects::ProjectTaskType>().where("Active = ?").bind(true),
          "Type", editRank)));
 
         _qtvTemplateItems->addColumn(Ms::Widgets::MQueryTableViewColumn("Current_Status", "Status", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectWorkStatus>(
-        Database::DatabaseManager::instance().session(),AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>() :
-         Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true), "Status", editRank)));
+        &Session::SessionManager::instance().dboSession(),AppSettings::instance().isLoadInactiveData() ? Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>() :
+         Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true), "Status", editRank)));
 
         _qtvTemplateItems->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Task_Template_Name", "Template Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
@@ -330,49 +361,28 @@ void Views::ViewTaskTemplates::updateTaskTemplateItemsView()
 
 void Views::ViewTaskTemplates::_createTemplatesTableView()
 {
-    _qtvTemplates = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectTaskTemplate>(&Database::DatabaseManager::instance());
+    _qtvTemplates = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectTaskTemplate>(Session::SessionManager::instance().dboSession());
     _qtvTemplates->table()->selectionChanged().connect(this, &Views::ViewTaskTemplates::updateTaskTemplateItemsView);
 
-    //requires "create" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
-    {
-        _btnCreateTemplate = _qtvTemplates->createToolButton("", "icons/Add.png", "Create Template");
-        _btnCreateTemplate->clicked().connect(this, &Views::ViewTaskTemplates::_btnCreateTemplateClicked);
-    }
+    _btnCreateTemplate = _qtvTemplates->createToolButton("", "icons/Add.png", "Create Template");
+    _btnCreateTemplate->clicked().connect(this, &Views::ViewTaskTemplates::_btnCreateTemplateClicked);
 
-    //requires "remove" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
-    {
-        //_btnRemoveTemplates = _qtvTemplates->createToolButton("", "icons/Remove.png", "Remove Selected Templates");
-        //_btnRemoveTemplates->clicked().connect(this, &Views::ViewTaskTemplates::_btnRemoveTemplatesClicked);
-    }
+    //_btnRemoveTemplates = _qtvTemplates->createToolButton("", "icons/Remove.png", "Remove Selected Templates");
+    //_btnRemoveTemplates->clicked().connect(this, &Views::ViewTaskTemplates::_btnRemoveTemplatesClicked);
 }
 
 void Views::ViewTaskTemplates::_createTemplateItemsTableView()
 {
-    _qtvTemplateItems = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectTaskTemplateTaskItem>(&Database::DatabaseManager::instance());
-    _qtvTemplateItems->setImportCSVFeatureEnabled(false);
+    _qtvTemplateItems = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectTaskTemplateTaskItem>(Session::SessionManager::instance().dboSession());
 
-    //requires "create" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
-    {
-        _btnCreateTemplateItem = _qtvTemplateItems->createToolButton("", "icons/Add.png", "Create New Template Item");
-        _btnCreateTemplateItem->clicked().connect(this, &Views::ViewTaskTemplates::_btnCreateTemplateItemClicked);
-    }
+    _btnCreateTemplateItem = _qtvTemplateItems->createToolButton("", "icons/Add.png", "Create New Template Item");
+    _btnCreateTemplateItem->clicked().connect(this, &Views::ViewTaskTemplates::_btnCreateTemplateItemClicked);
 
-    //requires "edit" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
-    {
-        _btnEditTemplateItem = _qtvTemplateItems->createToolButton("", "icons/Edit.png", "Edit Selected Items");
-        _btnEditTemplateItem->clicked().connect(this, &Views::ViewTaskTemplates::_btnEditTemplateItemsClicked);
-    }
+    _btnEditTemplateItem = _qtvTemplateItems->createToolButton("", "icons/Edit.png", "Edit Selected Items");
+    _btnEditTemplateItem->clicked().connect(this, &Views::ViewTaskTemplates::_btnEditTemplateItemsClicked);
 
-    //requires "remove" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
-    {
-        //_btnRemoveTemplateItems = _qtvTemplateItems->createToolButton("", "icons/Remove.png", "Remove Selected Items From Selected Templates");
-        //_btnRemoveTemplateItems->clicked().connect(this, &Views::ViewTaskTemplates::_btnRemoveTemplateItemsClicked);
-    }
+    //_btnRemoveTemplateItems = _qtvTemplateItems->createToolButton("", "icons/Remove.png", "Remove Selected Items From Selected Templates");
+    //_btnRemoveTemplateItems->clicked().connect(this, &Views::ViewTaskTemplates::_btnRemoveTemplateItemsClicked);
 }
 
 void Views::ViewTaskTemplates::_prepareView()

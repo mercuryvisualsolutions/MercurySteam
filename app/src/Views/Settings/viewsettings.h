@@ -1,6 +1,15 @@
 #ifndef VIEWSETTINGS_H
 #define VIEWSETTINGS_H
 
+#include "../../Database/dbtables.h"
+#include "../../Log/logger.h"
+#include "../../Session/sessionmanager.h"
+#include "viewtasktemplate.h"
+#include "viewactivitytemplate.h"
+
+#include <Ms/Widgets/MQueryTableViewWidget.h>
+#include <Ms/Widgets/MContainerWidget.h>
+
 #include <Wt/WContainerWidget>
 #include <Wt/WVBoxLayout>
 #include <Wt/WHBoxLayout>
@@ -17,15 +26,6 @@
 #include <Wt/Dbo/QueryModel>
 #include <Wt/WStandardItemModel>
 #include <Wt/WSortFilterProxyModel>
-
-#include "../../Database/dbtables.h"
-#include "../../Log/logger.h"
-#include "../../Session/sessionmanager.h"
-#include "viewtasktemplate.h"
-#include "viewactivitytemplate.h"
-
-#include <Ms/Widgets/MQueryTableViewWidget.h>
-#include <Ms/Widgets/MContainerWidget.h>
 
 namespace Views
 {
@@ -50,6 +50,8 @@ namespace Views
         void updateUserTitlesView();
         void updateTagsView();
 
+        void adjustUIPrivileges();
+
         //Signal
         Wt::Signal<> &onTabGeneralSelected();
         Wt::Signal<> &onTabProjectsSelected();
@@ -64,6 +66,7 @@ namespace Views
         Wt::Signal<> _onTabGlobalSelected;
 
         //variables
+        
         Log::Logger *_logger;
         Ms::Widgets::MPropertiesPanel *_propertiesPanel;
 
@@ -104,6 +107,7 @@ namespace Views
         Wt::WContainerWidget *_cntTaskActivityType;
         Wt::WVBoxLayout *_layCntTaskActivityType;
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskActivityType> *_qtvProjectTaskActivityType;
+        Wt::WPushButton *_btnCreateTaskActivityType;
 
         //functions
         void _createTaskActivityTypeTableView();
@@ -112,6 +116,7 @@ namespace Views
         Wt::WContainerWidget *_cntTaskType;
         Wt::WVBoxLayout *_layCntTaskType;
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskType> *_qtvProjectTaskType;
+        Wt::WPushButton *_btnCreateTaskType;
 
         //functions
         void _createTaskTypeTableView();
@@ -120,6 +125,7 @@ namespace Views
         Wt::WContainerWidget *_cntAssetType;
         Wt::WVBoxLayout *_layCntAssetType;
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectAssetType> *_qtvProjectAssetType;
+        Wt::WPushButton *_btnCreateAssetType;
 
         //functions
         void _createAssetTypeTableView();
@@ -128,6 +134,7 @@ namespace Views
         Wt::WContainerWidget *_cntWorkStatus;
         Wt::WVBoxLayout *_layCntWorkStatus;
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectWorkStatus> *_qtvProjectWorkStatus;
+        Wt::WPushButton *_btnCreateWorkStatus;
 
         //functions
         void _createWorkStatusTableView();
@@ -151,6 +158,7 @@ namespace Views
         Wt::WContainerWidget *_cntUserTitles;
         Wt::WVBoxLayout *_layCntUserTitles;
         Ms::Widgets::MQueryTableViewWidget<Users::UserTitle> *_qtvUserTitle;
+        Wt::WPushButton *_btnCreateUserTitle;
 
         //functions
         void _createUsersTitlesTableView();
@@ -168,6 +176,7 @@ namespace Views
         Wt::WContainerWidget *_cntTags;
         Wt::WVBoxLayout *_layCntTags;
         Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvTags;
+        Wt::WPushButton *_btnCreateTag;
 
         /*******************--Properties--********************/
         Wt::WContainerWidget *_cntPropertiesMain;

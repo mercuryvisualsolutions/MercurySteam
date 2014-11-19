@@ -1,6 +1,7 @@
 #ifndef VIEWDBODATA_H
 #define VIEWDBODATA_H
 
+#include "../../Session/sessionmanager.h"
 #include "../../Database/dbtables.h"
 
 #include <Ms/Widgets/MQueryTableViewWidget.h>
@@ -15,7 +16,10 @@ namespace Views
     public:
         ViewDboData();
 
-        const Ms::Widgets::MQueryTableViewWidget<Database::DboData> *qtvData() const;
+        Ms::Widgets::MQueryTableViewWidget<Database::DboData> *qtvData();
+
+        //functions
+        void adjustUIPrivileges();
 
         //Signals
         Wt::Signal<> &addDataRequested();
@@ -24,6 +28,8 @@ namespace Views
     private:
         //Variables
         Ms::Widgets::MQueryTableViewWidget<Database::DboData> *_qtvData;
+        Wt::WPushButton *_btnCreateData;
+        
         //UI variables
         Wt::WVBoxLayout *_layMain;
 
@@ -32,7 +38,7 @@ namespace Views
         Wt::Signal<std::vector<Wt::Dbo::ptr<Database::DboData>>> _removeDataRequested;
 
         //Slots
-        void _btnAddDataClicked();
+        void _btnCreateDataClicked();
         void _btnRemoveDataClicked();
 
         //Functions

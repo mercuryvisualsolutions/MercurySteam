@@ -37,8 +37,9 @@ namespace Ms
     namespace Widgets
     {
         template<typename T>
-        Ms::Widgets::MQueryTableViewWidget<T>::MQueryTableViewWidget(Wt::WContainerWidget *parent) :
-            Wt::WContainerWidget(parent)
+        Ms::Widgets::MQueryTableViewWidget<T>::MQueryTableViewWidget(Ms::Core::Dbo::MDboSession &dboSession, Wt::WContainerWidget *parent) :
+            Wt::WContainerWidget(parent),
+            _dboSession(dboSession)
         {
             _defaultFilterColumnIndex = 0;
             _ignoreNumFilterColumns = 0;
@@ -55,13 +56,8 @@ namespace Ms
             _advancedFilterFeatureEnabled = true;
 
             _prepareView();
-        }
 
-        template<typename T>
-        Ms::Widgets::MQueryTableViewWidget<T>::MQueryTableViewWidget(Ms::Core::Dbo::MDboManagerBase *dboManager, Wt::WContainerWidget *parent) :
-            Ms::Widgets::MQueryTableViewWidget<T>(parent)
-        {
-            setDboManager(dboManager);
+            _setModelUserName(dboSession.userName());
         }
 
         template<typename T>
@@ -93,10 +89,7 @@ namespace Ms
         template<typename T>
         const std::string Ms::Widgets::MQueryTableViewWidget<T>::tableName() const
         {
-            if(!_dboManager)
-                return "";
-
-            return _dboManager->session()->tableName<T>();
+            return _dboSession.tableName<T>();
         }
 
         template<typename T>
@@ -121,7 +114,7 @@ namespace Ms
         template<typename T>
         int Ms::Widgets::MQueryTableViewWidget<T>::rowHeight() const
         {
-            return _tblMain->rowHeight();
+            return _tblMain->rowHeight().value();
         }
 
         template<typename T>
@@ -149,18 +142,17 @@ namespace Ms
         }
 
         template<typename T>
-        const Ms::Core::Dbo::MDboManagerBase *Ms::Widgets::MQueryTableViewWidget<T>::dboManager() const
+        const Ms::Core::Dbo::MDboSession *Ms::Widgets::MQueryTableViewWidget<T>::dboSession() const
         {
-            return _dboManager;
+            return _dboSession;
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::setDboManager(Ms::Core::Dbo::MDboManagerBase *dboManager)
+        void Ms::Widgets::MQueryTableViewWidget<T>::setDboSession(Ms::Core::Dbo::MDboSession &dboSession)
         {
-            _dboManager = dboManager;
+            _dboSession = dboSession;
 
-            if(dboManager)
-                _setModelUserName(dboManager->userName());
+            _setModelUserName(dboSession.userName());
         }
 
         template<typename T>
@@ -250,7 +242,7 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::updateView() const
+        void Ms::Widgets::MQueryTableViewWidget<T>::updateView()
         {
             try
             {
@@ -843,14 +835,8 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_importCSV(const std::string &fileName) const
+        void Ms::Widgets::MQueryTableViewWidget<T>::_importCSV(const std::string &fileName)
         {
-            if(!_dboManager->session())
-            {
-                std::cerr << "Error updating table, DB session is NULL" << std::endl;
-                return;
-            }
-
             Ms::IO::Data::MDataCSV csvData;
             if(!Ms::IO::readCsv(fileName, csvData))
                 return;
@@ -910,21 +896,20 @@ namespace Ms
                         std::to_string(Wt::WDateTime::currentDateTime().time().hour()) + ":" +
                         std::to_string(Wt::WDateTime::currentDateTime().time().minute()) + ":" +
                         std::to_string(Wt::WDateTime::currentDateTime().time().second()) +
-                                                   "','" + _dboManager->userName() + "'";
+                                                   "','" + _dboSession.userName() + "'";
 
                 if(columnsSql != "" && valuesSql != "")//found some columns and values ?
                 {
                     //try to import
                     try
                     {
-                        if(!_dboManager->openTransaction())
-                            return;
+                        Wt::Dbo::Transaction transaction(_dboSession);
 
                         std::string sqlCommand = "INSERT INTO " + tableName() + " (" + columnsSql + ") VALUES (" + valuesSql + ")";
 
-                        _dboManager->session()->execute(sqlCommand);
+                        _dboSession.execute(sqlCommand);
 
-                        _dboManager->commitTransaction();
+                        transaction.commit();
 
                         //_itemImported(dboPtr);//emit the itemImported signal
                     }
@@ -1148,18 +1133,11 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_updateModel() const
+        void Ms::Widgets::MQueryTableViewWidget<T>::_updateModel()
         {
-            if(!_dboManager->session())
-            {
-                std::cerr << "Error updating table, session is NULL" << std::endl;
-                return;
-            }
-
             try
             {
-                if(!_dboManager->openTransaction())
-                    return;
+                Wt::Dbo::Transaction transaction(_dboSession);
 
                 _queryFilter = _query;
 
@@ -1177,7 +1155,7 @@ namespace Ms
 
                 _model->setQuery(_queryFilter);
 
-                _dboManager->commitTransaction();
+                transaction.commit();
 
                 _model->reload();
 

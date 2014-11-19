@@ -108,6 +108,7 @@ class ViewApp : public Wt::WContainerWidget
         Wt::WContainerWidget *_cntTxtFooter;//container for txtFooter
 
         //functions
+        void adjustUIPrivileges();
         //slots
         //app
         void _globalAppKeyWentDown(Wt::WKeyEvent key);
@@ -131,8 +132,8 @@ class ViewApp : public Wt::WContainerWidget
         void _prepareView();
         void _prepareChildViews(Wt::WStackedWidget *widget);
 
-        //auth
-        Wt::Auth::Login *_login;
+        //session handler
+        
     };
 }
 

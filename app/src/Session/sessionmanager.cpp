@@ -1,34 +1,39 @@
 #include "sessionmanager.h"
 
+#include <Wt/Http/Request>
+
+#include <map>
+
 Session::SessionManager::SessionManager()
 {
-    _init();
 }
 
-Session::SessionManager::~SessionManager()
+Database::DboSession &Session::SessionManager::dboSession()
 {
-    //clean properties panels
-    for(auto &pair: _sessionsPropertiesPanels)
-    {
-        delete pair.second;
-        pair.second = nullptr;
-    }
-
-    _sessionsPropertiesPanels.clear();
+    return getCurrentAppInstance()->dboSession();
 }
 
-Ms::Widgets::MPropertiesPanel *Session::SessionManager::getSessionPropertiesPanel(const std::string &sessionId)
+Wt::Auth::Login &Session::SessionManager::login()
 {
-    if(_sessionsPropertiesPanels.find(sessionId) == _sessionsPropertiesPanels.end())
-    {
-        Ms::Widgets::MPropertiesPanel *panel = new Ms::Widgets::MPropertiesPanel();
-
-        _sessionsPropertiesPanels[sessionId] = panel;
-    }
-
-    return _sessionsPropertiesPanels[sessionId];
+    return getCurrentAppInstance()->dboSession().login();
 }
 
-void Session::SessionManager::_init()
+Wt::Dbo::ptr<Users::User> Session::SessionManager::user()
 {
+    return getCurrentAppInstance()->dboSession().user();
+}
+
+Ms::Widgets::MPropertiesPanel *Session::SessionManager::propertiesPanel()
+{
+    return getCurrentAppInstance()->propertiesPanel();
+}
+
+Log::Logger *Session::SessionManager::logger()
+{
+    return getCurrentAppInstance()->logger();
+}
+
+App::MSApplication *Session::SessionManager::getCurrentAppInstance()
+{
+    return dynamic_cast<App::MSApplication*>(Wt::WApplication::instance());
 }

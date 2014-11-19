@@ -1,5 +1,4 @@
 #include "dlgcreateuser.h"
-#include "../../Database/databasemanager.h"
 #include "../../Settings/appsettings.h"
 
 #include <Wt/WBreak>
@@ -149,18 +148,17 @@ void Views::DlgCreateUser::_createCmbGroups()
 
     _mdlCmbGroups = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Users::Group>>();
 
-    if(!Database::DatabaseManager::instance().openTransaction())
-        return;
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Users::Group>> query;
     if(AppSettings::instance().isLoadInactiveData())
-        query = Database::DatabaseManager::instance().session()->find<Users::Group>();
+        query = Session::SessionManager::instance().dboSession().find<Users::Group>();
     else
-        query = Database::DatabaseManager::instance().session()->find<Users::Group>().where("Active = ?").bind(true);
+        query = Session::SessionManager::instance().dboSession().find<Users::Group>().where("Active = ?").bind(true);
 
     _mdlCmbGroups->setQuery(query);
 
-    Database::DatabaseManager::instance().commitTransaction();
+    transaction.commit();
 
     _mdlCmbGroups->reload();
 
@@ -181,18 +179,17 @@ void Views::DlgCreateUser::_createCmbTitles()
 
     _mdlCmbTitles = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Users::UserTitle>>();
 
-    if(!Database::DatabaseManager::instance().openTransaction())
-        return;
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Users::UserTitle>> query;
     if(AppSettings::instance().isLoadInactiveData())
-        query = Database::DatabaseManager::instance().session()->find<Users::UserTitle>();
+        query = Session::SessionManager::instance().dboSession().find<Users::UserTitle>();
     else
-        query = Database::DatabaseManager::instance().session()->find<Users::UserTitle>().where("Active = ?").bind(true);
+        query = Session::SessionManager::instance().dboSession().find<Users::UserTitle>().where("Active = ?").bind(true);
 
     _mdlCmbTitles->setQuery(query);
 
-    Database::DatabaseManager::instance().commitTransaction();
+    transaction.commit();
 
     _mdlCmbTitles->reload();
 

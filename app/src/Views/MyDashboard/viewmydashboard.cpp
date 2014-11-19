@@ -1,13 +1,11 @@
 #include "viewmydashboard.h"
 
 #include "../../Settings/appsettings.h"
-#include "../../Database/databasemanager.h"
+#include "../../Database/dbosession.h"
 #include "../Main/viewmain.h"
 #include "../../Auth/authmanager.h"
-#include "../../Users/usersmanager.h"
 #include "../Files/dlgfilesmanager.h"
 #include "../../Projects/projectsio.h"
-#include "../../Projects/projectsmanager.h"
 #include "../../Log/logmanager.h"
 #include "../Projects/dlgtaskselectdbo.h"
 
@@ -17,12 +15,14 @@
 Views::ViewMyDashboard::ViewMyDashboard() :
     Ms::Widgets::MContainerWidget()
 {
-    _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
-    _propertiesPanel = Session::SessionManager::instance().getSessionPropertiesPanel(Wt::WApplication::instance()->sessionId());
+    _logger = Session::SessionManager::instance().logger();
+    _propertiesPanel = Session::SessionManager::instance().propertiesPanel();
 
     _prepareView();
 
     _mnuNavBarMain->select(_mnuNavBarMainMyTasksItem);
+
+    adjustUIPrivileges();
 }
 
 void Views::ViewMyDashboard::updateView()
@@ -33,25 +33,26 @@ void Views::ViewMyDashboard::updateView()
 
 void Views::ViewMyDashboard::updateTasksView()
 {
-    if(!Auth::AuthManager::instance().login().user().isValid())
+    if(!Session::SessionManager::instance().login().user().isValid())
         return;
 
     try
     {
-        if(!Database::DatabaseManager::instance().openTransaction())
-            return;
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+        int editRank = Session::SessionManager::instance().user()->editRank();
 
-        Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTask>> query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTask>();
+        Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTask>> query = Session::SessionManager::instance().dboSession().find<Projects::ProjectTask>();
 
         //load inactive data if selected from settings
         if(AppSettings::instance().isLoadInactiveData())
-            query.where("Task_User_Name = ?").bind(Auth::AuthManager::instance().login().user().identity(Wt::Auth::Identity::LoginName));
+            query.where("Task_User_Name = ?").bind(Session::SessionManager::instance().login().user().identity(Wt::Auth::Identity::LoginName));
         else
-            query.where("Task_User_Name = ? AND Active = ?").bind(Auth::AuthManager::instance().login().user().identity(Wt::Auth::Identity::LoginName)).bind(true);
+            query.where("Task_User_Name = ? AND Active = ?").bind(Session::SessionManager::instance().login().user().identity(Wt::Auth::Identity::LoginName)).bind(true);
 
         _qtvTasks->setQuery(query);
+
+        transaction.commit();
 
         _qtvTasks->clearColumns();
 
@@ -97,6 +98,19 @@ Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *Views::ViewMyDashboar
     return _qtvTasks;
 }
 
+void Views::ViewMyDashboard::adjustUIPrivileges()
+{
+    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
+
+    bool hasViewFilesPriv = user->hasPrivilege("View Files");
+    bool hasCheckInPriv = user->hasPrivilege("Check In");
+    bool hasCheckOutPriv = user->hasPrivilege("Check Out");
+    bool hasCreateRepoPriv = user->hasPrivilege("Create Repositories");
+
+    bool showTaskFilesButton = hasViewFilesPriv || hasCheckInPriv || hasCheckOutPriv || hasCreateRepoPriv;//if have any of the privileges
+    _btnTaskFiles->setHidden(!showTaskFilesButton);
+}
+
 Wt::Signal<> &Views::ViewMyDashboard::onTabMyTasksSelected()
 {
     return _onTabMyTasksSelected;
@@ -104,7 +118,7 @@ Wt::Signal<> &Views::ViewMyDashboard::onTabMyTasksSelected()
 
 void Views::ViewMyDashboard::_createTasksTableView()
 {
-    _qtvTasks = new Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask>(&Database::DatabaseManager::instance());
+    _qtvTasks = new Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask>(Session::SessionManager::instance().dboSession());
     _qtvTasks->setHeaderHeight(24);
     _qtvTasks->setRowHeight(24);
     _qtvTasks->setSelectionMode(Wt::ExtendedSelection);
@@ -115,14 +129,8 @@ void Views::ViewMyDashboard::_createTasksTableView()
     _qtvTasks->setIgnoreNumFilterColumns(0);
     _qtvTasks->setImportCSVFeatureEnabled(false);
 
-    //requires "CheckIn or CheckOut" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In") ||
-            Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out") ||
-            Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
-    {
-        Wt::WPushButton *btn = _qtvTasks->createToolButton("", "icons/Files.png", "Files Manager");
-        btn->clicked().connect(this, &Views::ViewMyDashboard::_btnTasksFilesClicked);
-    }
+    _btnTaskFiles = _qtvTasks->createToolButton("", "icons/Files.png", "Files Manager");
+    _btnTaskFiles->clicked().connect(this, &Views::ViewMyDashboard::_btnTasksFilesClicked);
 
     updateTasksView();
 }
@@ -142,59 +150,65 @@ void Views::ViewMyDashboard::_btnTasksFilesClicked()
     {
         if(dlgSelectDbo->result() == Wt::WDialog::Accepted)
         {
-            if(Database::DatabaseManager::instance().openTransaction())
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+            Wt::Dbo::ptr<Projects::ProjectTask> taskPtr =  _qtvTasks->selectedItems().at(0);
+
+            std::string path = "";
+
+            if(dlgSelectDbo->type() == "Project")
             {
-                Wt::Dbo::ptr<Projects::ProjectTask> taskPtr =  _qtvTasks->selectedItems().at(0);
-
-                std::string path = "";
-
-                if(dlgSelectDbo->type() == "Project")
-                {
-                    if(taskPtr->project().get())
-                        path = Projects::ProjectsIO::getRelativeProjectTaskDir(taskPtr->project()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
-                    else
-                        _logger->log("Task does not belong to a project.", Ms::Log::LogMessageType::Warning);
-                }
-                else if(dlgSelectDbo->type() == "Sequence")
-                {
-                    if(taskPtr->sequence().get())
-                        path = Projects::ProjectsIO::getRelativeSequenceTaskDir(taskPtr->sequence()->projectName(), taskPtr->sequence()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
-                    else
-                        _logger->log("Task does not belong to a sequence.", Ms::Log::LogMessageType::Warning);
-                }
-                else if(dlgSelectDbo->type() == "Shot")
-                {
-                    if(taskPtr->shot().get())
-                        path = Projects::ProjectsIO::getRelativeShotTaskDir(taskPtr->shot()->projectName(), taskPtr->shot()->sequenceName(), taskPtr->shot()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
-                    else
-                        _logger->log("Task does not belong to a shot.", Ms::Log::LogMessageType::Warning);
-                }
-                else if(dlgSelectDbo->type() == "Asset")
-                {
-                    if(taskPtr->asset().get())
-                        path = Projects::ProjectsIO::getRelativeAssetTaskDir(taskPtr->asset()->projectName(), taskPtr->asset()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
-                    else
-                        _logger->log("Task does not belong to an asset.", Ms::Log::LogMessageType::Warning);
-                }
-
-                if(path != "")
-                {
-                    DlgFilesManager *dlgFiles = new DlgFilesManager(path);
-                    dlgFiles->finished().connect(std::bind([=]()
-                    {
-                        delete dlgFiles;
-                    }));
-
-                    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
-                        dlgFiles->setCreateDisabled(true);
-                    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In"))
-                        dlgFiles->setCheckInDisabled(true);
-                    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
-                        dlgFiles->setCheckOutDisabled(true);
-
-                    dlgFiles->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
-                }
+                if(taskPtr->project().get())
+                    path = Projects::ProjectsIO::getRelativeProjectTaskDir(taskPtr->project()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
+                else
+                    _logger->log("Task does not belong to a project.", Ms::Log::LogMessageType::Warning);
             }
+            else if(dlgSelectDbo->type() == "Sequence")
+            {
+                if(taskPtr->sequence().get())
+                    path = Projects::ProjectsIO::getRelativeSequenceTaskDir(taskPtr->sequence()->projectName(), taskPtr->sequence()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
+                else
+                    _logger->log("Task does not belong to a sequence.", Ms::Log::LogMessageType::Warning);
+            }
+            else if(dlgSelectDbo->type() == "Shot")
+            {
+                if(taskPtr->shot().get())
+                    path = Projects::ProjectsIO::getRelativeShotTaskDir(taskPtr->shot()->projectName(), taskPtr->shot()->sequenceName(), taskPtr->shot()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
+                else
+                    _logger->log("Task does not belong to a shot.", Ms::Log::LogMessageType::Warning);
+            }
+            else if(dlgSelectDbo->type() == "Asset")
+            {
+                if(taskPtr->asset().get())
+                    path = Projects::ProjectsIO::getRelativeAssetTaskDir(taskPtr->asset()->projectName(), taskPtr->asset()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
+                else
+                    _logger->log("Task does not belong to an asset.", Ms::Log::LogMessageType::Warning);
+            }
+
+            if(path != "")
+            {
+                DlgFilesManager *dlgFiles = new DlgFilesManager(path);
+                dlgFiles->finished().connect(std::bind([=]()
+                {
+                    delete dlgFiles;
+                }));
+
+                Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
+
+                bool hasViewFilesPriv = user->hasPrivilege("View Files");
+                bool hasCheckInPriv = user->hasPrivilege("Check In");
+                bool hasCheckOutPriv = user->hasPrivilege("Check Out");
+                bool hasCreateRepoPriv = user->hasPrivilege("Create Repositories");
+
+                dlgFiles->setViewDisabled(!hasViewFilesPriv);
+                dlgFiles->setCreateDisabled(!hasCreateRepoPriv);
+                dlgFiles->setCheckInDisabled(!hasCheckInPriv);
+                dlgFiles->setCheckOutDisabled(!hasCheckOutPriv);
+
+                dlgFiles->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
+            }
+
+            transaction.commit();
         }
 
         delete dlgSelectDbo;

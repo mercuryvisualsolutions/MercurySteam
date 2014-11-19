@@ -1,5 +1,5 @@
 #include "../Database/dbtables.h"
-#include "../Database/databasemanager.h"
+#include "../Session/sessionmanager.h"
 #include "../Log/logmanager.h"
 #include "Users/usersio.h"
 
@@ -38,6 +38,76 @@ void Users::User::setName(const std::string &name)
     _name = name;
 }
 
+std::string Users::User::password() const
+{
+    return _password;
+}
+
+void Users::User::setPassword(const std::string &password)
+{
+    _password = password;
+}
+
+std::string Users::User::passwordMethod() const
+{
+    return _passwordMethod;
+}
+
+void Users::User::setPasswordMethod(const std::string &passwordMethod)
+{
+    _passwordMethod = passwordMethod;
+}
+
+std::string Users::User::passwordSalt() const
+{
+    return _passwordSalt;
+}
+
+void Users::User::setPasswordSalt(const std::string &passwordSalt)
+{
+    _passwordSalt = passwordSalt;
+}
+
+int Users::User::failedLoginAttempts() const
+{
+    return _failedLoginAttempts;
+}
+
+void Users::User::setFailedLoginAttempts(int failedLoginAttempts)
+{
+    _failedLoginAttempts = failedLoginAttempts;
+}
+
+Wt::WDateTime Users::User::lastLoginAttempt() const
+{
+    return _lastLoginAttempt;
+}
+
+void Users::User::setLastLoginAttempt(const Wt::WDateTime &lastLoginAttempt)
+{
+    _lastLoginAttempt = lastLoginAttempt;
+}
+
+std::string Users::User::oAuthId() const
+{
+    return _oAuthId;
+}
+
+void Users::User::setOAuthId(const std::string &oAuthId)
+{
+    _oAuthId = oAuthId;
+}
+
+std::string Users::User::oAuthProvider() const
+{
+    return _oAuthProvider;
+}
+
+void Users::User::setOAuthProvider(const std::string &oAuthProvider)
+{
+    _oAuthProvider = oAuthProvider;
+}
+
 bool Users::User::hasPrivilege(Wt::Dbo::ptr<Users::Privilege> privilege) const
 {
     return _group->hasPrivilege(privilege);
@@ -50,25 +120,35 @@ bool Users::User::hasPrivilege(const char *privilegeName) const
 
 bool Users::User::hasTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const
 {
-    if(dboManager_ && dboManager_->openTransaction())
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+    bool result = false;
+
+    for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
     {
-        for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+        if((*iter).id() == task.id())
         {
-            if((*iter).id() == task.id())
-            {
-                return true;
-            }
+            result = true;
+
+            break;
         }
     }
 
-    return false;
+    transaction.commit();
+
+    return result;
 }
 
 bool Users::User::addTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
 {
     if(!hasTask(task))
     {
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
         _tasks.insert(task);
+
+        transaction.commit();
+
         return true;
     }
 
@@ -79,7 +159,12 @@ bool Users::User::removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
 {
     if(hasTask(task))
     {
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
         _tasks.erase(task);
+
+        transaction.commit();
+
         return true;
     }
 
@@ -124,11 +209,6 @@ std::string Users::User::emailAddress() const
 void Users::User::setEmailAddress(const std::string &emailAddress)
 {
     _emailAddress = emailAddress;
-}
-
-Wt::WDateTime Users::User::lastLogin() const
-{
-    return _lastLogin;
 }
 
 std::string Users::User::address() const
@@ -176,6 +256,11 @@ Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask> > Users::User::tasks()
     return _tasks;
 }
 
+Wt::Dbo::collection<Wt::Dbo::ptr<Database::Token> > Users::User::authTokens() const
+{
+    return _authTokens;
+}
+
 bool Users::User::operator ==(const Users::User &other) const
 {
     return _name == other.name();
@@ -188,10 +273,15 @@ bool Users::User::operator !=(const Users::User &other) const
 
 void Users::User::_init()
 {
-    dboManager_ = &Database::DatabaseManager::instance();
-
     thumbnail_ = "pics/NoPreview.png";
     _name = "New User";
+    _password = "";
+    _passwordMethod = "";
+    _passwordSalt = "";
+    _failedLoginAttempts = 0;
+    _lastLoginAttempt = Wt::WDateTime::currentDateTime();
+    _oAuthId = "";
+    _oAuthProvider = "";
     _idNumber = "";
     _phoneNumber = "";
     _emailAddress = "";

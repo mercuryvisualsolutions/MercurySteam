@@ -1,6 +1,11 @@
 #ifndef DLGSELECTTASKTEMPLATE_H
 #define DLGSELECTTASKTEMPLATE_H
 
+#include "../../Session/sessionmanager.h"
+#include "../../Database/dbtables.h"
+
+#include <Ms/Widgets/MWidgetFactory.h>
+
 #include <Wt/WDialog>
 #include <Wt/WLabel>
 #include <Wt/WPushButton>
@@ -15,10 +20,6 @@
 #include <Wt/Dbo/QueryModel>
 #include <Wt/Dbo/Query>
 
-#include "../../Database/dbtables.h"
-
-#include <Ms/Widgets/MWidgetFactory.h>
-
 namespace Views
 {
     class DlgSelectTaskTemplate : public Wt::WDialog
@@ -30,6 +31,8 @@ namespace Views
 
     private:
         //variables
+        
+        //UI
         Wt::WHBoxLayout *_layMain;
         Wt::WContainerWidget *_cntLeft;
         Wt::WVBoxLayout *_layLeft;

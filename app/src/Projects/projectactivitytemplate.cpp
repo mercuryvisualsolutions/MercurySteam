@@ -1,5 +1,5 @@
 #include "../Database/dbtables.h"
-#include "Database/databasemanager.h"
+#include "../Session/sessionmanager.h"
 
 Projects::ProjectActivityTemplate::ProjectActivityTemplate() :
     Ms::Dbo::MDboBase()
@@ -32,25 +32,35 @@ void Projects::ProjectActivityTemplate::setName(const std::string &name)
 
 bool Projects::ProjectActivityTemplate::hasItem(Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem> taskItem) const
 {
-    if(dboManager_ && dboManager_->openTransaction())
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+    bool result = false;
+
+    for(auto iter = _items.begin(); iter != _items.end(); ++iter)
     {
-        for(auto iter = _items.begin(); iter != _items.end(); ++iter)
+        if((*iter).id() == taskItem.id())
         {
-            if((*iter).id() == taskItem.id())
-            {
-                return true;
-            }
+            result = true;
+
+            break;
         }
     }
 
-    return false;
+    transaction.commit();
+
+    return result;
 }
 
 bool Projects::ProjectActivityTemplate::addItem(Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem> taskItem)
 {
     if(!hasItem(taskItem))
     {
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
         _items.insert(taskItem);
+
+        transaction.commit();
+
         return true;
     }
 
@@ -61,17 +71,21 @@ bool Projects::ProjectActivityTemplate::removeItem(Wt::Dbo::ptr<Projects::Projec
 {
     if(hasItem(taskItem))
     {
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
         _items.erase(taskItem);
+
+        transaction.commit();
+
         return true;
     }
 
     return false;
 }
 
-bool Projects::ProjectActivityTemplate::createActivitiesForProjectTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const
+bool Projects::ProjectActivityTemplate::createActivitiesForProjectTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
 {
-    if(!Database::DatabaseManager::instance().openTransaction())
-        return false;
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     std::vector<Projects::ProjectTaskActivity*> activitiesVec;
 
@@ -92,9 +106,11 @@ bool Projects::ProjectActivityTemplate::createActivitiesForProjectTask(Wt::Dbo::
 
     for(auto activity : activitiesVec)
     {
-        if(!Database::DatabaseManager::instance().createDbo<Projects::ProjectTaskActivity>(activity))
+        if(!Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTaskActivity>(activity))
             delete activity;
     }
+
+    transaction.commit();
 
     return true;
 }

@@ -2,23 +2,35 @@
 
 #include "../../Auth/authmanager.h"
 #include "../../Settings/appsettings.h"
-#include "../../Database/databasemanager.h"
+#include "../../Database/dbosession.h"
 
 #include <Ms/Widgets/MWidgetFactory.h>
 
 Views::ViewPrivileges::ViewPrivileges()
 {
     _prepareView();
+
+    adjustUIPrivileges();
 }
 
-const Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *Views::ViewPrivileges::qtvPrivileges() const
+Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *Views::ViewPrivileges::qtvPrivileges()
 {
     return _qtvPrivileges;
 }
 
-const Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *Views::ViewPrivileges::qtvAssignedPrivileges() const
+Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *Views::ViewPrivileges::qtvAssignedPrivileges()
 {
     return _qtvAssignedPrivileges;
+}
+
+void Views::ViewPrivileges::adjustUIPrivileges()
+{
+    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
+
+    bool hasEditPriv = user->hasPrivilege("Edit");
+
+    _btnAssignPrivileges->setHidden(!hasEditPriv);
+    _btnUnassignPrivileges->setHidden(!hasEditPriv);
 }
 
 Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> &Views::ViewPrivileges::assignPrivilegesRequested()
@@ -63,15 +75,11 @@ void Views::ViewPrivileges::_btnClearPrivilegesFilterClicked()
 
 void Views::ViewPrivileges::_createPrivilegesTableView()
 {
-    _qtvPrivileges = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Users::Privilege>(&Database::DatabaseManager::instance());
+    _qtvPrivileges = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Users::Privilege>(Session::SessionManager::instance().dboSession());
     _qtvPrivileges->setImportCSVFeatureEnabled(false);
 
-    //requires "create" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
-    {
-        Wt::WPushButton *btnAssign = _qtvPrivileges->createToolButton("", "icons/AddTo.png", "Add selected Privileges to selected items");
-        btnAssign->clicked().connect(this, &Views::ViewPrivileges::_btnAssignPrivilegesClicked);
-    }
+    _btnAssignPrivileges = _qtvPrivileges->createToolButton("", "icons/AddTo.png", "Add selected Privileges to selected items");
+    _btnAssignPrivileges->clicked().connect(this, &Views::ViewPrivileges::_btnAssignPrivilegesClicked);
 
     Wt::WPushButton *btnFilter = _qtvPrivileges->createToolButton("", "icons/Filter.png", "Filter active view by selected Privileges");
     btnFilter->clicked().connect(this, &Views::ViewPrivileges::_btnPrivilegesFilterClicked);
@@ -82,15 +90,11 @@ void Views::ViewPrivileges::_createPrivilegesTableView()
 
 void Views::ViewPrivileges::_createAssignedPrivilegesTableView()
 {
-    _qtvAssignedPrivileges = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Users::Privilege>(&Database::DatabaseManager::instance());
+    _qtvAssignedPrivileges = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Users::Privilege>(Session::SessionManager::instance().dboSession());
     _qtvAssignedPrivileges->setImportCSVFeatureEnabled(false);
 
-    //requires "create" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
-    {
-        Wt::WPushButton *btn = _qtvAssignedPrivileges->createToolButton("", "icons/RemoveFrom.png", "Remove selected Privileges from selected items");
-        btn->clicked().connect(this, &Views::ViewPrivileges::_btnUnassignPrivilegesClicked);
-    }
+    _btnUnassignPrivileges = _qtvAssignedPrivileges->createToolButton("", "icons/RemoveFrom.png", "Remove selected Privileges from selected items");
+    _btnUnassignPrivileges->clicked().connect(this, &Views::ViewPrivileges::_btnUnassignPrivilegesClicked);
 }
 
 void Views::ViewPrivileges::_prepareView()
@@ -98,6 +102,7 @@ void Views::ViewPrivileges::_prepareView()
     _layMain = new Wt::WVBoxLayout();
     _layMain->setContentsMargins(0,0,0,0);
     _layMain->setSpacing(0);
+    _layMain->setResizable(0, true);
 
     setLayout(_layMain);
 

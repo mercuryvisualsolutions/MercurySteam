@@ -1,5 +1,6 @@
 #include "viewlog.h"
 #include "../../Log/logmanager.h"
+#include "../../Session/sessionmanager.h"
 
 #include <Wt/WApplication>
 
@@ -10,7 +11,7 @@ Views::ViewLog::ViewLog()
 
 const Ms::Widgets::MLogWidget *Views::ViewLog::logWidget() const
 {
-    return Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId())->logWidget();
+    return Session::SessionManager::instance().logger()->logWidget();
 }
 
 void Views::ViewLog::_prepareView()
@@ -21,5 +22,5 @@ void Views::ViewLog::_prepareView()
 
     setLayout(_layMain);
 
-    _layMain->addWidget(Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId())->logWidget());
+    _layMain->addWidget(Session::SessionManager::instance().logger()->logWidget());
 }

@@ -2,7 +2,7 @@
 
 #include <Wt/WBreak>
 
-#include "../../Database/databasemanager.h"
+#include "../../Database/dbosession.h"
 #include "../../Settings/appsettings.h"
 
 Views::DlgSelectActivityTemplate::DlgSelectActivityTemplate()
@@ -10,7 +10,7 @@ Views::DlgSelectActivityTemplate::DlgSelectActivityTemplate()
     _prepareView();
 }
 
-Wt::Dbo::ptr<Projects::ProjectActivityTemplate> Views::DlgSelectActivityTemplate::activityTemplate() const
+Wt::Dbo::ptr<Projects::ProjectActivityTemplate> Views::DlgSelectActivityTemplate::activityTemplate()
 {
     return _mdlCmbTemplate->resultRow(_cmbTemplate->currentIndex());
 }
@@ -63,18 +63,17 @@ void Views::DlgSelectActivityTemplate::_createCmbTemplate()
 
     _mdlCmbTemplate = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>>();
 
-    if(!Database::DatabaseManager::instance().openTransaction())
-        return;
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>> query;
     if(AppSettings::instance().isLoadInactiveData())
-        query = Database::DatabaseManager::instance().session()->find<Projects::ProjectActivityTemplate>();
+        query = Session::SessionManager::instance().dboSession().find<Projects::ProjectActivityTemplate>();
     else
-        query = Database::DatabaseManager::instance().session()->find<Projects::ProjectActivityTemplate>().where("Active = ?").bind(true);
+        query = Session::SessionManager::instance().dboSession().find<Projects::ProjectActivityTemplate>().where("Active = ?").bind(true);
 
     _mdlCmbTemplate->setQuery(query);
 
-    Database::DatabaseManager::instance().commitTransaction();
+    transaction.commit();
 
     _mdlCmbTemplate->reload();
 

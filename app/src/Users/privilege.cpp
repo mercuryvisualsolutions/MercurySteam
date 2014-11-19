@@ -1,5 +1,5 @@
 #include "../Database/dbtables.h"
-#include "../Database/databasemanager.h"
+#include "../Session/sessionmanager.h"
 #include "../Log/logmanager.h"
 
 Users::Privilege::Privilege() :
@@ -48,7 +48,5 @@ bool Users::Privilege::operator !=(const Users::Privilege &other) const
 
 void Users::Privilege::_init()
 {
-    dboManager_ = &Database::DatabaseManager::instance();
-
     _name = "New Privilege";
 }

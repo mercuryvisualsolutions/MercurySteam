@@ -1,9 +1,7 @@
 #include "dlgcreateworkstatus.h"
+#include "../../Settings/appsettings.h"
 
 #include <Wt/WBreak>
-
-#include "../../Database/databasemanager.h"
-#include "../../Settings/appsettings.h"
 
 Views::DlgCreateWorkStatus::DlgCreateWorkStatus()
 {
@@ -85,18 +83,17 @@ void Views::DlgCreateWorkStatus::_createCmbType()
 
     _mdlCmbType = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatusType>>();
 
-    if(!Database::DatabaseManager::instance().openTransaction())
-        return;
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectWorkStatusType>> query;
     if(AppSettings::instance().isLoadInactiveData())
-        query = Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatusType>();
+        query = Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatusType>();
     else
-        query = Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatusType>().where("Active = ?").bind(true);
+        query = Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatusType>().where("Active = ?").bind(true);
 
     _mdlCmbType->setQuery(query);
 
-    Database::DatabaseManager::instance().commitTransaction();
+    transaction.commit();
 
     _mdlCmbType->reload();
 

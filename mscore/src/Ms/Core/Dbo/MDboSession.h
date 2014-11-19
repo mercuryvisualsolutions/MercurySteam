@@ -1,5 +1,5 @@
-#ifndef MDBOMANAGERBASE_H
-#define MDBOMANAGERBASE_H
+#ifndef MDBOSESSION_H
+#define MDBOSESSION_H
 
 #include "../../Dbo/MDboBase.h"
 #include "../MManagerBase.h"
@@ -13,18 +13,13 @@ namespace Ms
     {
         namespace Dbo
         {
-            class MDboManagerBase : public Ms::Core::MManagerBase
+            class MDboSession : public Wt::Dbo::Session, public Ms::Core::MManagerBase
             {
+            public:
+                MDboSession(Wt::Dbo::SqlConnectionPool &connectionPool);
+                ~MDboSession();
 
             public:
-                MDboManagerBase();
-                ~MDboManagerBase();
-
-                Wt::Dbo::Session *session() const;
-                void setSession(Wt::Dbo::Session *session);//doesn't take ownership of the session object
-                bool openTransaction();
-                bool commitTransaction();
-
                 template<typename T>
                 Wt::Dbo::ptr<T> createDbo(T *dbo);
 
@@ -32,10 +27,10 @@ namespace Ms
                 T* modifyDbo(Wt::Dbo::ptr<T> dboPtr);
 
                 template<typename T>
-                std::vector<std::string> getDboIdFieldsNames();
+                std::vector<std::string> getDboIdFieldsNames() const;
 
                 template<typename T>
-                std::vector<std::string> getDboIdFieldsValues(const typename Wt::Dbo::dbo_traits<T>::IdType &id);
+                std::vector<std::string> getDboIdFieldsValues(const typename Wt::Dbo::dbo_traits<T>::IdType &id) const;
 
                 template<typename T>
                 Wt::Dbo::ptr<T> getDbo(const typename Wt::Dbo::dbo_traits<T>::IdType &id, bool forceReread = false);
@@ -45,8 +40,7 @@ namespace Ms
 
             protected:
                 //variables
-                Wt::Dbo::Session *session_;
-                Wt::Dbo::Transaction *transaction_;
+                Wt::Dbo::SqlConnectionPool &_connectionPool;
 
                 //functions
 
@@ -55,6 +49,6 @@ namespace Ms
     }
 }
 
-#include "MDboManagerBase_impl.h"
+#include "MDboSession_impl.h"
 
-#endif // MDBOMANAGERBASE_H
+#endif // MDBOSESSION_H

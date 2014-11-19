@@ -20,11 +20,11 @@ namespace Ms
             ~MManagerBase();
 
             std::string userName() const;
-            void setUserName(const std::string &userName);
+            void setUserName(const std::string &userName) const;
 
         protected:
             //variables
-            std::string userName_;
+            mutable std::string userName_;
             Ms::Log::MLogger _logger;
 
             //functions

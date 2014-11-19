@@ -31,12 +31,17 @@ namespace Views
         Wt::Auth::AuthWidget *_authWidget;
 
         //functions
+        void loggedIn();
+        void loggedOut();
         void _showAppView();
         void _prepareView();
         void _prepareAppView(Wt::WStackedWidget *widget);
 
         //variables
         Views::ViewApp *viwApp;
+        bool _appCreated;
+        
+
     };
 }
 

@@ -10,7 +10,7 @@ namespace Ms
     {
         namespace Dbo
         {
-            class MDboManagerBase;
+            class MDboSession;
         }
     }
 
@@ -21,7 +21,7 @@ namespace Ms
 
         class MDboBase
         {
-            friend class Ms::Core::Dbo::MDboManagerBase;
+            friend class Ms::Core::Dbo::MDboSession;
 
             template<class Result>
             friend class Ms::Dbo::MDboQueryModel;
@@ -46,8 +46,8 @@ namespace Ms
             virtual bool active() const;
             virtual void setActive(bool active);
             virtual MDboBase *modify();
-            Ms::Core::Dbo::MDboManagerBase *dboManager() const;
-            void setDboManager(Ms::Core::Dbo::MDboManagerBase *dboManager);
+            const Core::Dbo::MDboSession *dboSession() const;
+            void setDboManager(const Ms::Core::Dbo::MDboSession *dboSession);
 
         protected:
             std::string thumbnail_;
@@ -59,7 +59,7 @@ namespace Ms
             int viewRank_;
             int editRank_;
             int removeRank_;
-            Ms::Core::Dbo::MDboManagerBase *dboManager_;
+            const Ms::Core::Dbo::MDboSession *dboSession_;
 
             //functions
             template<class Action>

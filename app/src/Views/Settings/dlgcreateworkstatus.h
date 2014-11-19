@@ -1,6 +1,11 @@
 #ifndef DLGCREATEWORKSTATUSTYPE_H
 #define DLGCREATEWORKSTATUSTYPE_H
 
+#include "../../Session/sessionmanager.h"
+#include "../../Database/dbtables.h"
+
+#include <Ms/Widgets/MWidgetFactory.h>
+
 #include <Wt/WDialog>
 #include <Wt/WLabel>
 #include <Wt/WPushButton>
@@ -14,10 +19,6 @@
 #include <Wt/Dbo/Session>
 #include <Wt/Dbo/QueryModel>
 #include <Wt/Dbo/Query>
-
-#include "../../Database/dbtables.h"
-
-#include <Ms/Widgets/MWidgetFactory.h>
 
 namespace Views
 {
@@ -33,6 +34,8 @@ namespace Views
 
     private:
         //variables
+        
+        //UI
         Wt::WVBoxLayout *_layMain;
         Wt::WLineEdit *_txtType;
         Wt::WComboBox *_cmbType;

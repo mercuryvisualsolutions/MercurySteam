@@ -8,7 +8,7 @@ namespace Database
 {
     namespace
     {
-    //due to some mysql 6.5 restrictions:
+    //due to some mysql 5.6 restrictions:
     //-Can't alter many tables at once in mysql, so we use vector instead of a simple std::string
     //-mysql 5.6 prevents modification to columns with foreign keys without dropping the foreign keys first, then readding them in
     //another ALTER TABLE statement

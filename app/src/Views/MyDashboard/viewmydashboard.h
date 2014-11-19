@@ -39,11 +39,15 @@ namespace Views
         bool isTasksViewShown() const;
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *tasksQueryTableView() const;
 
+        //functions
+        void adjustUIPrivileges();
+
         //Signals
         Wt::Signal<> &onTabMyTasksSelected();
 
     private:
         //variables
+        
         Log::Logger *_logger;
         Ms::Widgets::MPropertiesPanel *_propertiesPanel;
 
@@ -61,6 +65,7 @@ namespace Views
         Wt::WVBoxLayout *_layTasks;
         Wt::WContainerWidget *_cntTasks;//container for task view
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *_qtvTasks;
+        Wt::WPushButton *_btnTaskFiles;
 
         /*******************--Properties--********************/
         Wt::WContainerWidget *_cntPropertiesMain;

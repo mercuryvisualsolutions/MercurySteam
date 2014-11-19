@@ -1,11 +1,9 @@
 #include <Wt/WMessageBox>
 
 #include "viewsettings.h"
-#include "../../Database/databasemanager.h"
-#include "../../Projects/projectsmanager.h"
+#include "../../Database/dbosession.h"
 #include "../../Log/logmanager.h"
 #include "../../Settings/appsettings.h"
-#include "Users/usersmanager.h"
 #include "../../Auth/authmanager.h"
 #include "../Dialogs/dlgcreatetag.h"
 #include "settingsdialogs.h"
@@ -16,8 +14,8 @@
 Views::ViewSettings::ViewSettings() :
     Ms::Widgets::MContainerWidget()
 {
-    _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
-    _propertiesPanel = Session::SessionManager::instance().getSessionPropertiesPanel(Wt::WApplication::instance()->sessionId());
+    _logger = Session::SessionManager::instance().logger();
+    _propertiesPanel = Session::SessionManager::instance().propertiesPanel();
 
     _prepareView();
 
@@ -28,6 +26,8 @@ Views::ViewSettings::ViewSettings() :
     _mnuProjectSettings->select(_mnuProjectSettingsTaskActivityTypeItem);
     _mnuUsersSettings->select(_mnuUsersSettingsUserTitlesItem);
     _mnuGlobalSettings->select(_mnuGlobalSettingsTagsItem);
+
+    adjustUIPrivileges();
 }
 
 //main
@@ -105,28 +105,29 @@ void Views::ViewSettings::updateTaskActivityTypeView()
 {
     try
     {
-        if(!Database::DatabaseManager::instance().openTransaction())
-            return;
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
         Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTaskActivityType>> query;
 
-        int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+        int viewRank = Session::SessionManager::instance().user()->viewRank();
 
         if(AppSettings::instance().isLoadInactiveData())
-            query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskActivityType>().where("View_Rank <= ?").bind(viewRank);
+            query = Session::SessionManager::instance().dboSession().find<Projects::ProjectTaskActivityType>().where("View_Rank <= ?").bind(viewRank);
         else
-            query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskActivityType>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
+            query = Session::SessionManager::instance().dboSession().find<Projects::ProjectTaskActivityType>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
 
         _qtvProjectTaskActivityType->setQuery(query);
 
-        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+        transaction.commit();
+
+        bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+        int editRank = Session::SessionManager::instance().user()->editRank();
 
         _qtvProjectTaskActivityType->clearColumns();
 
@@ -148,28 +149,29 @@ void Views::ViewSettings::updateTaskTypeView()
 {
     try
     {
-        if(!Database::DatabaseManager::instance().openTransaction())
-            return;
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
         Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTaskType>> query;
 
-        int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+        int viewRank = Session::SessionManager::instance().user()->viewRank();
 
         if(AppSettings::instance().isLoadInactiveData())
-            query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskType>().where("View_Rank <= ?").bind(viewRank);
+            query = Session::SessionManager::instance().dboSession().find<Projects::ProjectTaskType>().where("View_Rank <= ?").bind(viewRank);
         else
-            query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskType>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
+            query = Session::SessionManager::instance().dboSession().find<Projects::ProjectTaskType>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
 
         _qtvProjectTaskType->setQuery(query);
 
-        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+        transaction.commit();
+
+        bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+        int editRank = Session::SessionManager::instance().user()->editRank();
 
         _qtvProjectTaskType->clearColumns();
 
@@ -191,28 +193,29 @@ void Views::ViewSettings::updateAssetTypeView()
 {
     try
     {
-        if(!Database::DatabaseManager::instance().openTransaction())
-            return;
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
         Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectAssetType>> query;
 
-        int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+        int viewRank = Session::SessionManager::instance().user()->viewRank();
 
         if(AppSettings::instance().isLoadInactiveData())
-            query = Database::DatabaseManager::instance().session()->find<Projects::ProjectAssetType>().where("View_Rank <= ?").bind(viewRank);
+            query = Session::SessionManager::instance().dboSession().find<Projects::ProjectAssetType>().where("View_Rank <= ?").bind(viewRank);
         else
-            query = Database::DatabaseManager::instance().session()->find<Projects::ProjectAssetType>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
+            query = Session::SessionManager::instance().dboSession().find<Projects::ProjectAssetType>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
 
         _qtvProjectAssetType->setQuery(query);
 
-        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+        transaction.commit();
+
+        bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+        int editRank = Session::SessionManager::instance().user()->editRank();
 
         _qtvProjectAssetType->clearColumns();
 
@@ -234,37 +237,38 @@ void Views::ViewSettings::updateWorkStatusView()
 {
     try
     {
-        if(!Database::DatabaseManager::instance().openTransaction())
-            return;
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
         Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectWorkStatus>> query;
 
-        int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+        int viewRank = Session::SessionManager::instance().user()->viewRank();
 
         if(AppSettings::instance().isLoadInactiveData())
-            query = Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>().where("View_Rank <= ?").bind(viewRank);
+            query = Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>().where("View_Rank <= ?").bind(viewRank);
         else
-            query = Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
+            query = Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
 
         _qtvProjectWorkStatus->setQuery(query);
 
-        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+        transaction.commit();
+
+        bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+        int editRank = Session::SessionManager::instance().user()->editRank();
 
         _qtvProjectWorkStatus->clearColumns();
 
         //add columns
         _qtvProjectWorkStatus->addColumn(Ms::Widgets::MQueryTableViewColumn("Status", "Status", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
         _qtvProjectWorkStatus->addColumn(Ms::Widgets::MQueryTableViewColumn("Belongs_To_Work_Status_Type", "Belongs To Work Status Type",
-        flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectWorkStatusType>(Database::DatabaseManager::instance().session(),
-         AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatusType>() :
-         Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatusType>().where("Active = ?").bind(true),
+        flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectWorkStatusType>(&Session::SessionManager::instance().dboSession(),
+         AppSettings::instance().isLoadInactiveData() ? Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatusType>() :
+         Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatusType>().where("Active = ?").bind(true),
          "Work_Status_Type", editRank), true));
 
         if(AppSettings::instance().isShowExtraColumns())
@@ -292,28 +296,29 @@ void Views::ViewSettings::updateUserTitlesView()
 {
     try
     {
-        if(!Database::DatabaseManager::instance().openTransaction())
-            return;
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
         Wt::Dbo::Query<Wt::Dbo::ptr<Users::UserTitle>> query;
 
-        int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+        int viewRank = Session::SessionManager::instance().user()->viewRank();
 
         if(AppSettings::instance().isLoadInactiveData())
-            query = Database::DatabaseManager::instance().session()->find<Users::UserTitle>().where("View_Rank <= ?").bind(viewRank);
+            query = Session::SessionManager::instance().dboSession().find<Users::UserTitle>().where("View_Rank <= ?").bind(viewRank);
         else
-            query = Database::DatabaseManager::instance().session()->find<Users::UserTitle>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
+            query = Session::SessionManager::instance().dboSession().find<Users::UserTitle>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
 
         _qtvUserTitle->setQuery(query);
 
-        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+        transaction.commit();
+
+        bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+        int editRank = Session::SessionManager::instance().user()->editRank();
 
         _qtvUserTitle->clearColumns();
 
@@ -335,28 +340,29 @@ void Views::ViewSettings::updateTagsView()
 {
     try
     {
-        if(!Database::DatabaseManager::instance().openTransaction())
-            return;
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
         Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query;
 
-        int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+        int viewRank = Session::SessionManager::instance().user()->viewRank();
 
         if(AppSettings::instance().isLoadInactiveData())
-            query = Database::DatabaseManager::instance().session()->find<Database::Tag>().where("Type = ? AND View_Rank <= ?").bind("Global").bind(viewRank);
+            query = Session::SessionManager::instance().dboSession().find<Database::Tag>().where("Type = ? AND View_Rank <= ?").bind("Global").bind(viewRank);
         else
-            query = Database::DatabaseManager::instance().session()->find<Database::Tag>().where("Type = ? AND View_Rank <= ? AND Active = ?").bind("Global").bind(viewRank).bind(true);
+            query = Session::SessionManager::instance().dboSession().find<Database::Tag>().where("Type = ? AND View_Rank <= ? AND Active = ?").bind("Global").bind(viewRank).bind(true);
 
         _qtvTags->setQuery(query);
 
-        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+        transaction.commit();
+
+        bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+        int editRank = Session::SessionManager::instance().user()->editRank();
 
         _qtvTags->clearColumns();
 
@@ -374,6 +380,31 @@ void Views::ViewSettings::updateTagsView()
     {
         std::cerr << "Exception occured while updating tags table view" << std::endl;
     }
+}
+
+void Views::ViewSettings::adjustUIPrivileges()
+{
+    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
+
+    bool hasEditPriv = user->hasPrivilege("Edit");
+    bool hasCreateDboPriv = user->hasPrivilege("Create DBO");
+
+    _btnCreateTaskActivityType->setHidden(!hasCreateDboPriv);
+    _btnCreateTaskType->setHidden(!hasCreateDboPriv);
+    _btnCreateAssetType->setHidden(!hasCreateDboPriv);
+    _btnCreateWorkStatus->setHidden(!hasCreateDboPriv);
+    _btnCreateUserTitle->setHidden(!hasCreateDboPriv);
+    _btnCreateTag->setHidden(!hasCreateDboPriv);
+    _chkLoadInactiveData->setDisabled(!hasEditPriv);
+    _chkShowExtraColumns->setDisabled(!hasEditPriv);
+    _btnSave->setDisabled(!hasEditPriv);
+
+    _qtvProjectTaskActivityType->setImportCSVFeatureEnabled(hasCreateDboPriv);
+    _qtvProjectTaskType->setImportCSVFeatureEnabled(hasCreateDboPriv);
+    _qtvProjectAssetType->setImportCSVFeatureEnabled(hasCreateDboPriv);
+    _qtvProjectWorkStatus->setImportCSVFeatureEnabled(hasCreateDboPriv);
+    _qtvUserTitle->setImportCSVFeatureEnabled(hasCreateDboPriv);
+    _qtvTags->setImportCSVFeatureEnabled(hasCreateDboPriv);
 }
 
 Wt::Signal<> &Views::ViewSettings::onTabGeneralSelected()
@@ -460,25 +491,13 @@ void Views::ViewSettings::_mnuGlobalSettingsTagsItemTriggered()
 //TaskActivityType
 void Views::ViewSettings::_createTaskActivityTypeTableView()
 {
-    _qtvProjectTaskActivityType = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectTaskActivityType>(&Database::DatabaseManager::instance());
+    _qtvProjectTaskActivityType = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectTaskActivityType>(Session::SessionManager::instance().dboSession());
 
-    //requires "create" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
-    {
-        Wt::WPushButton *btn = _qtvProjectTaskActivityType->createToolButton("", "icons/Add.png", "Create A New Task Activity Type");
-        btn->clicked().connect(this, &Views::ViewSettings::_btnCreateTaskActivityTypeClicked);
+    _btnCreateTaskActivityType = _qtvProjectTaskActivityType->createToolButton("", "icons/Add.png", "Create A New Task Activity Type");
+    _btnCreateTaskActivityType->clicked().connect(this, &Views::ViewSettings::_btnCreateTaskActivityTypeClicked);
 
-        _qtvProjectTaskActivityType->setImportCSVFeatureEnabled(true);
-    }
-    else
-        _qtvProjectTaskActivityType->setImportCSVFeatureEnabled(false);
-
-    //requires "remove" privilege
-//    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
-//    {
-//        Wt::WPushButton *btn = _qtvProjectTaskActivityType->createToolButton("", "icons/Remove.png", "Remove Selected Task Activity Type");
-//        btn->clicked().connect(this, &Views::ViewSettings::_btnRemoveTaskActivityTypeClicked);
-//    }
+//    Wt::WPushButton *btn = _qtvProjectTaskActivityType->createToolButton("", "icons/Remove.png", "Remove Selected Task Activity Type");
+//    btn->clicked().connect(this, &Views::ViewSettings::_btnRemoveTaskActivityTypeClicked);
 
     updateTaskActivityTypeView();
 }
@@ -490,12 +509,12 @@ void Views::ViewSettings::_btnCreateTaskActivityTypeClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
-            if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectTaskActivityType>(dlg->type()))
+            if(!Session::SessionManager::instance().dboSession().dboExists<Projects::ProjectTaskActivityType>(dlg->type()))
             {
                 Projects::ProjectTaskActivityType *type = new Projects::ProjectTaskActivityType(dlg->type());
                 type->setActive(dlg->isActive());
 
-                Wt::Dbo::ptr<Projects::ProjectTaskActivityType> typePtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectTaskActivityType>(type);
+                Wt::Dbo::ptr<Projects::ProjectTaskActivityType> typePtr = Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTaskActivityType>(type);
 
                 if(typePtr.get())
                 {
@@ -530,25 +549,13 @@ void Views::ViewSettings::_btnRemoveTaskActivityTypeClicked()
 //TaskType
 void Views::ViewSettings::_createTaskTypeTableView()
 {
-    _qtvProjectTaskType = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectTaskType>(&Database::DatabaseManager::instance());
+    _qtvProjectTaskType = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectTaskType>(Session::SessionManager::instance().dboSession());
 
-    //requires "create" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
-    {
-        Wt::WPushButton *btn = _qtvProjectTaskType->createToolButton("", "icons/Add.png", "Create A New Task Type");
-        btn->clicked().connect(this, &Views::ViewSettings::_btnCreateTaskTypeClicked);
+    _btnCreateTaskType = _qtvProjectTaskType->createToolButton("", "icons/Add.png", "Create A New Task Type");
+    _btnCreateTaskType->clicked().connect(this, &Views::ViewSettings::_btnCreateTaskTypeClicked);
 
-        _qtvProjectTaskType->setImportCSVFeatureEnabled(true);
-    }
-    else
-        _qtvProjectTaskType->setImportCSVFeatureEnabled(false);
-
-    //requires "remove" privilege
-//    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
-//    {
-//        Wt::WPushButton *btn = _qtvProjectTaskType->createToolButton("", "icons/Remove.png", "Remove Selected Task Type");
-//        btn->clicked().connect(this, &Views::ViewSettings::_btnRemoveTaskTypeClicked);
-//    }
+//    Wt::WPushButton *btn = _qtvProjectTaskType->createToolButton("", "icons/Remove.png", "Remove Selected Task Type");
+//    btn->clicked().connect(this, &Views::ViewSettings::_btnRemoveTaskTypeClicked);
 
     updateTaskTypeView();
 }
@@ -560,12 +567,12 @@ void Views::ViewSettings::_btnCreateTaskTypeClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
-            if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectTaskType>(dlg->type()))
+            if(!Session::SessionManager::instance().dboSession().dboExists<Projects::ProjectTaskType>(dlg->type()))
             {
                 Projects::ProjectTaskType *type = new Projects::ProjectTaskType(dlg->type());
                 type->setActive(dlg->isActive());
 
-                Wt::Dbo::ptr<Projects::ProjectTaskType> typePtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectTaskType>(type);
+                Wt::Dbo::ptr<Projects::ProjectTaskType> typePtr = Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTaskType>(type);
 
                 if(typePtr.get())
                 {
@@ -600,25 +607,13 @@ void Views::ViewSettings::_btnRemoveTaskTypeClicked()
 //AssetType
 void Views::ViewSettings::_createAssetTypeTableView()
 {
-    _qtvProjectAssetType = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectAssetType>(&Database::DatabaseManager::instance());
+    _qtvProjectAssetType = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectAssetType>(Session::SessionManager::instance().dboSession());
 
-    //requires "create" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
-    {
-        Wt::WPushButton *btn = _qtvProjectAssetType->createToolButton("", "icons/Add.png", "Create A New Asset Type");
-        btn->clicked().connect(this, &Views::ViewSettings::_btnCreateAssetTypeClicked);
+    _btnCreateAssetType = _qtvProjectAssetType->createToolButton("", "icons/Add.png", "Create A New Asset Type");
+    _btnCreateAssetType->clicked().connect(this, &Views::ViewSettings::_btnCreateAssetTypeClicked);
 
-        _qtvProjectAssetType->setImportCSVFeatureEnabled(true);
-    }
-    else
-        _qtvProjectAssetType->setImportCSVFeatureEnabled(false);
-
-    //requires "remove" privilege
-//    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
-//    {
-//        Wt::WPushButton *btn = _qtvProjectAssetType->createToolButton("", "icons/Remove.png", "Remove Selected Asset Type");
-//        btn->clicked().connect(this, &Views::ViewSettings::_btnRemoveAssetTypeClicked);
-//    }
+//    Wt::WPushButton *btn = _qtvProjectAssetType->createToolButton("", "icons/Remove.png", "Remove Selected Asset Type");
+//    btn->clicked().connect(this, &Views::ViewSettings::_btnRemoveAssetTypeClicked);
 
     updateAssetTypeView();
 }
@@ -630,12 +625,12 @@ void Views::ViewSettings::_btnCreateAssetTypeClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
-            if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectAssetType>(dlg->type()))
+            if(!Session::SessionManager::instance().dboSession().dboExists<Projects::ProjectAssetType>(dlg->type()))
             {
                 Projects::ProjectAssetType *type = new Projects::ProjectAssetType(dlg->type());
                 type->setActive(dlg->isActive());
 
-                Wt::Dbo::ptr<Projects::ProjectAssetType> typePtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectAssetType>(type);
+                Wt::Dbo::ptr<Projects::ProjectAssetType> typePtr = Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectAssetType>(type);
 
                 if(typePtr.get())
                 {
@@ -670,25 +665,13 @@ void Views::ViewSettings::_btnRemoveAssetTypeClicked()
 //WorkStatus
 void Views::ViewSettings::_createWorkStatusTableView()
 {
-    _qtvProjectWorkStatus = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectWorkStatus>(&Database::DatabaseManager::instance());
+    _qtvProjectWorkStatus = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectWorkStatus>(Session::SessionManager::instance().dboSession());
 
-    //requires "create" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
-    {
-        Wt::WPushButton *btn = _qtvProjectWorkStatus->createToolButton("", "icons/Add.png", "Create A New Work Status");
-        btn->clicked().connect(this, &Views::ViewSettings::_btnCreateWorkStatusClicked);
+    _btnCreateWorkStatus = _qtvProjectWorkStatus->createToolButton("", "icons/Add.png", "Create A New Work Status");
+    _btnCreateWorkStatus->clicked().connect(this, &Views::ViewSettings::_btnCreateWorkStatusClicked);
 
-        _qtvProjectWorkStatus->setImportCSVFeatureEnabled(true);
-    }
-    else
-        _qtvProjectWorkStatus->setImportCSVFeatureEnabled(false);
-
-    //requires "remove" privilege
-//    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
-//    {
-//        Wt::WPushButton *btn = _qtvProjectWorkStatus->createToolButton("", "icons/Remove.png", "Remove Selected Work Status");
-//        btn->clicked().connect(this, &Views::ViewSettings::_btnRemoveWorkStatusClicked);
-//    }
+//    Wt::WPushButton *btn = _qtvProjectWorkStatus->createToolButton("", "icons/Remove.png", "Remove Selected Work Status");
+//    btn->clicked().connect(this, &Views::ViewSettings::_btnRemoveWorkStatusClicked);
 
     updateWorkStatusView();
 }
@@ -700,13 +683,13 @@ void Views::ViewSettings::_btnCreateWorkStatusClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
-            if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectWorkStatus>(dlg->type()))
+            if(!Session::SessionManager::instance().dboSession().dboExists<Projects::ProjectWorkStatus>(dlg->type()))
             {
                 Projects::ProjectWorkStatus *status = new Projects::ProjectWorkStatus(dlg->type());
                 status->setWorkStatusType(dlg->belongsToType());
                 status->setActive(dlg->isActive());
 
-                Wt::Dbo::ptr<Projects::ProjectWorkStatus> statusPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectWorkStatus>(status);
+                Wt::Dbo::ptr<Projects::ProjectWorkStatus> statusPtr = Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectWorkStatus>(status);
 
                 if(statusPtr.get())
                 {
@@ -741,25 +724,13 @@ void Views::ViewSettings::_btnRemoveWorkStatusClicked()
 //UserTitles
 void Views::ViewSettings::_createUsersTitlesTableView()
 {
-    _qtvUserTitle = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Users::UserTitle>(&Database::DatabaseManager::instance());
+    _qtvUserTitle = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Users::UserTitle>(Session::SessionManager::instance().dboSession());
 
-    //requires "create" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
-    {
-        Wt::WPushButton *btn = _qtvUserTitle->createToolButton("", "icons/Add.png", "Create A New User Title");
-        btn->clicked().connect(this, &Views::ViewSettings::_btnCreateUserTitleClicked);
+    _btnCreateUserTitle = _qtvUserTitle->createToolButton("", "icons/Add.png", "Create A New User Title");
+    _btnCreateUserTitle->clicked().connect(this, &Views::ViewSettings::_btnCreateUserTitleClicked);
 
-        _qtvUserTitle->setImportCSVFeatureEnabled(true);
-    }
-    else
-        _qtvUserTitle->setImportCSVFeatureEnabled(false);
-
-    //requires "remove" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
-    {
-        //Wt::WPushButton *btn = _qtvUserTitle->createToolButton("", "icons/Remove.png", "Remove Selected User Title");
-        //btn->clicked().connect(this, &Views::ViewSettings::_btnRemoveUserTitlesClicked);
-    }
+    //Wt::WPushButton *btn = _qtvUserTitle->createToolButton("", "icons/Remove.png", "Remove Selected User Title");
+    //btn->clicked().connect(this, &Views::ViewSettings::_btnRemoveUserTitlesClicked);
 
     updateUserTitlesView();
 }
@@ -771,12 +742,12 @@ void Views::ViewSettings::_btnCreateUserTitleClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
-            if(!Database::DatabaseManager::instance().dboExists<Users::UserTitle>(dlg->title()))
+            if(!Session::SessionManager::instance().dboSession().dboExists<Users::UserTitle>(dlg->title()))
             {
                 Users::UserTitle *title = new Users::UserTitle(dlg->title());
                 title->setActive(dlg->isActive());
 
-                Wt::Dbo::ptr<Users::UserTitle> titlePtr = Database::DatabaseManager::instance().createDbo<Users::UserTitle>(title);
+                Wt::Dbo::ptr<Users::UserTitle> titlePtr = Session::SessionManager::instance().dboSession().createDbo<Users::UserTitle>(title);
 
                 if(titlePtr.get())
                 {
@@ -811,25 +782,13 @@ void Views::ViewSettings::_btnRemoveUserTitlesClicked()
 //Tags
 void Views::ViewSettings::_createTagsTableView()
 {
-    _qtvTags = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::Tag>(&Database::DatabaseManager::instance());
+    _qtvTags = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::Tag>(Session::SessionManager::instance().dboSession());
 
-    //requires "create" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
-    {
-        Wt::WPushButton *btn = _qtvTags->createToolButton("", "icons/Add.png", "Create A New Tag");
-        btn->clicked().connect(this, &Views::ViewSettings::_btnCreateTagClicked);
+    _btnCreateTag = _qtvTags->createToolButton("", "icons/Add.png", "Create A New Tag");
+    _btnCreateTag->clicked().connect(this, &Views::ViewSettings::_btnCreateTagClicked);
 
-        _qtvTags->setImportCSVFeatureEnabled(true);
-    }
-    else
-        _qtvTags->setImportCSVFeatureEnabled(false);
-
-    //requires "remove" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
-    {
-        //Wt::WPushButton *btn = _qtvTags->createToolButton("", "icons/Remove.png", "Remove Selected Tags");
-        //btn->clicked().connect(this, &Views::ViewSettings::_btnRemoveTagClicked);
-    }
+    //Wt::WPushButton *btn = _qtvTags->createToolButton("", "icons/Remove.png", "Remove Selected Tags");
+    //btn->clicked().connect(this, &Views::ViewSettings::_btnRemoveTagClicked);
 
     updateTagsView();
 }
@@ -844,7 +803,7 @@ void Views::ViewSettings::_btnCreateTagClicked()
             Database::Tag *tag = new Database::Tag(dlg->tagName(), dlg->tagContent());
             tag->setActive(dlg->isActive());
 
-            Wt::Dbo::ptr<Database::Tag> tagPtr = Database::DatabaseManager::instance().createDbo<Database::Tag>(tag);
+            Wt::Dbo::ptr<Database::Tag> tagPtr = Session::SessionManager::instance().dboSession().createDbo<Database::Tag>(tag);
 
             if(tagPtr.get())
             {
@@ -953,15 +912,6 @@ void Views::ViewSettings::_prepareView()
     _cntBtnSave->addWidget(_btnSave);
 
     _grpGeneral->addWidget(_cntBtnSave);
-
-    //check privileges
-    //requires "edit" privilege
-    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
-    {
-        _chkLoadInactiveData->setDisabled(true);
-        _chkShowExtraColumns->setDisabled(true);
-        _btnSave->setDisabled(true);
-    }
 
     //add our general view to the Settings view
     _stkSettings->addWidget(_cntGeneralSettings);

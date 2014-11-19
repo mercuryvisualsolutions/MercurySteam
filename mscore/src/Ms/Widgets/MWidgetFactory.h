@@ -51,7 +51,7 @@ namespace Ms
             static Wt::WDateValidator *createDateValidator(const Wt::WString &format = "dd/MM/yyyy", const Wt::WDate &bottom = Wt::WDate(1900, 1, 1), const Wt::WDate &top = Wt::WDate(2099, 1, 1), bool setMandatory = true);
 
             template<typename T>
-            static Ms::Widgets::MQueryTableViewWidget<T> *createQueryTableViewWidget(Ms::Core::Dbo::MDboManagerBase *dboManager, Wt::WContainerWidget *parent = 0);
+            static Ms::Widgets::MQueryTableViewWidget<T> *createQueryTableViewWidget(Core::Dbo::MDboSession &dboSession, Wt::WContainerWidget *parent = 0);
         };
     }
 }

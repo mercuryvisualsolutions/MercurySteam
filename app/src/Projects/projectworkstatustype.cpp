@@ -1,5 +1,5 @@
 #include "../Database/dbtables.h"
-#include "../Database/databasemanager.h"
+#include "../Session/sessionmanager.h"
 
 Projects::ProjectWorkStatusType::ProjectWorkStatusType() :
     Ms::Dbo::MDboBase()
@@ -47,7 +47,5 @@ bool Projects::ProjectWorkStatusType::operator !=(const Projects::ProjectWorkSta
 
 void Projects::ProjectWorkStatusType::_init()
 {
-    dboManager_ = &Database::DatabaseManager::instance();
-
     _workStatusType = "New Work Status Type";
 }

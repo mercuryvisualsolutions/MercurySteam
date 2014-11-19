@@ -1,21 +1,7 @@
 #ifndef VIEWPROJECTS_H
 #define VIEWPROJECTS_H
 
-#include <Wt/WContainerWidget>
-#include <Wt/WVBoxLayout>
-#include <Wt/WHBoxLayout>
-#include <Wt/WPushButton>
-#include <Wt/WLineEdit>
-#include <Wt/WStackedWidget>
-#include <Wt/WMenu>
-#include <Wt/WMenuItem>
-#include <Wt/WToolBar>
-#include <Wt/WNavigationBar>
-#include <Wt/WTableView>
-#include <Wt/Dbo/QueryModel>
-#include <Wt/WSortFilterProxyModel>
-#include <Wt/WStandardItemModel>
-
+#include "../../Session/sessionmanager.h"
 #include "projectsdialogs.h"
 #include "../../Log/logger.h"
 #include "../../Session/sessionmanager.h"
@@ -33,6 +19,21 @@
 #include <Ms/Widgets/MQueryTableViewWidget.h>
 #include <Ms/Widgets/MTableViewWidget.h>
 #include <Ms/Widgets/MContainerWidget.h>
+
+#include <Wt/WContainerWidget>
+#include <Wt/WVBoxLayout>
+#include <Wt/WHBoxLayout>
+#include <Wt/WPushButton>
+#include <Wt/WLineEdit>
+#include <Wt/WStackedWidget>
+#include <Wt/WMenu>
+#include <Wt/WMenuItem>
+#include <Wt/WToolBar>
+#include <Wt/WNavigationBar>
+#include <Wt/WTableView>
+#include <Wt/Dbo/QueryModel>
+#include <Wt/WSortFilterProxyModel>
+#include <Wt/WStandardItemModel>
 
 namespace Views
 {
@@ -62,6 +63,8 @@ namespace Views
         const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectAsset> *assetsQueryTableView() const;
         const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *tasksQueryTableView() const;
 
+        void adjustUIPrivileges();
+
         //Signals
         Wt::Signal<> &onTabProjectsSelected();
         Wt::Signal<> &onTabSequencesSelected();
@@ -88,6 +91,7 @@ namespace Views
         Wt::Signal<> _onTabTasksSelected;
 
         //variables
+        
         Log::Logger *_logger;
         Ms::Widgets::MPropertiesPanel *_propertiesPanel;
 
@@ -108,6 +112,10 @@ namespace Views
         Wt::WVBoxLayout *_layProjects;//Projects layout
         Wt::WContainerWidget *_cntProjects;//container for projects view
         Ms::Widgets::MQueryTableViewWidget<Projects::Project> *_qtvProjects;
+        Wt::WPushButton *_btnCreateProject;
+        Wt::WPushButton *_btnEditProjects;
+        Wt::WPushButton *_btnImportProjectsThumbnails;
+        Wt::WPushButton *_btnProjectsFiles;
 
         //Sequences
         Wt::WVBoxLayout *_laySequences;

@@ -1,13 +1,13 @@
 #ifndef DLGSELECTTASKDBO_H
 #define DLGSELECTTASKDBO_H
 
+#include <Ms/Widgets/MWidgetFactory.h>
+
 #include <Wt/WDialog>
 #include <Wt/WLabel>
 #include <Wt/WPushButton>
 #include <Wt/WVBoxLayout>
 #include <Wt/WComboBox>
-
-#include <Ms/Widgets/MWidgetFactory.h>
 
 namespace Views
 {

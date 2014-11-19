@@ -1,8 +1,7 @@
 ﻿#include "viewusers.h"
 #include "usersdialogs.h"
 #include "../../Settings/appsettings.h"
-#include "../../Database/databasemanager.h"
-#include "../../Users/usersmanager.h"
+#include "../../Database/dbosession.h"
 #include "../../Users/usersio.h"
 #include "../../Auth/authmanager.h"
 #include "../../Log/logmanager.h"
@@ -27,11 +26,13 @@
 Views::ViewUsers::ViewUsers() :
     Ms::Widgets::MContainerWidget()
 {
-    _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
-    _propertiesPanel = Session::SessionManager::instance().getSessionPropertiesPanel(Wt::WApplication::instance()->sessionId());
+    _logger = Session::SessionManager::instance().logger();
+    _propertiesPanel = Session::SessionManager::instance().propertiesPanel();
 
     _prepareView();
     _mnuMain->select(_mnuMainUsersItem);
+
+    adjustUIPrivileges();
 }
 
 void Views::ViewUsers::updateView()
@@ -44,28 +45,29 @@ void Views::ViewUsers::updateView()
 
 void Views::ViewUsers::updateUsersView()
 {
-    if(!Database::DatabaseManager::instance().openTransaction())
-        return;
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Users::User>> query;
 
-    int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+    int viewRank = Session::SessionManager::instance().user()->viewRank();
 
     if(AppSettings::instance().isLoadInactiveData())
-        query = Database::DatabaseManager::instance().session()->find<Users::User>().where("View_Rank <= ?").bind(viewRank);
+        query = Session::SessionManager::instance().dboSession().find<Users::User>().where("View_Rank <= ?").bind(viewRank);
     else
-        query = Database::DatabaseManager::instance().session()->find<Users::User>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
+        query = Session::SessionManager::instance().dboSession().find<Users::User>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
 
     _qtvUsers->setQuery(query);
 
-    bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+    transaction.commit();
+
+    bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
     Wt::WFlags<Wt::ItemFlag> flags;
     if(canEdit)
         flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
     else
         flags = Wt::ItemIsSelectable;
 
-    int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+    int editRank = Session::SessionManager::instance().user()->editRank();
 
     _qtvUsers->clearColumns();
 
@@ -73,16 +75,16 @@ void Views::ViewUsers::updateUsersView()
     _qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Thumbnail", "Thumbnail", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MThumbnailDelegate(100, 64, "pics/NoPreview.png"), false, true, 100));
     _qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     _qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Group_Name", "Group", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Users::Group>(
-     Database::DatabaseManager::instance().session() ,
-     AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Users::Group>() :
-     Database::DatabaseManager::instance().session()->find<Users::Group>().where("Active = ?").bind(true),
+     &Session::SessionManager::instance().dboSession() ,
+     AppSettings::instance().isLoadInactiveData() ? Session::SessionManager::instance().dboSession().find<Users::Group>() :
+     Session::SessionManager::instance().dboSession().find<Users::Group>().where("Active = ?").bind(true),
      "Name", editRank), true));
     _qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Title_Name", "Title", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Users::UserTitle>(
-     Database::DatabaseManager::instance().session(),
-     AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Users::UserTitle>() :
-     Database::DatabaseManager::instance().session()->find<Users::UserTitle>().where("Active = ?").bind(true),
+     &Session::SessionManager::instance().dboSession(),
+     AppSettings::instance().isLoadInactiveData() ? Session::SessionManager::instance().dboSession().find<Users::UserTitle>() :
+     Session::SessionManager::instance().dboSession().find<Users::UserTitle>().where("Active = ?").bind(true),
      "Name", editRank)));
-    _qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Email_Address", "Email", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
+    _qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Email_Address", "Email", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
     _qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Phone_Number", "Phone Number", flags, new Ms::Widgets::Delegates::MValidatorFieldDelegate("[0-9]{1,255}", true, editRank)));
     _qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Id_Number", "Id Number", flags, new Ms::Widgets::Delegates::MValidatorFieldDelegate("[0-9]{1,255}", true, editRank)));
     _qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Address", "Address", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
@@ -99,28 +101,29 @@ void Views::ViewUsers::updateUsersView()
 
 void Views::ViewUsers::updateGroupsView()
 {
-    if(!Database::DatabaseManager::instance().openTransaction())
-        return;
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Users::Group>> query;
 
-    int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+    int viewRank = Session::SessionManager::instance().user()->viewRank();
 
     if(AppSettings::instance().isLoadInactiveData())
-        query = Database::DatabaseManager::instance().session()->find<Users::Group>().where("View_Rank <= ?").bind(viewRank);
+        query = Session::SessionManager::instance().dboSession().find<Users::Group>().where("View_Rank <= ?").bind(viewRank);
     else
-        query = Database::DatabaseManager::instance().session()->find<Users::Group>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
+        query = Session::SessionManager::instance().dboSession().find<Users::Group>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
 
     _qtvGroups->setQuery(query);
 
-    bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+    transaction.commit();
+
+    bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
     Wt::WFlags<Wt::ItemFlag> flags;
     if(canEdit)
         flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
     else
         flags = Wt::ItemIsSelectable;
 
-    int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+    int editRank = Session::SessionManager::instance().user()->editRank();
 
     _qtvGroups->clearColumns();
 
@@ -176,6 +179,21 @@ Ms::Widgets::MQueryTableViewWidget<Users::Group> *Views::ViewUsers::groupsQueryT
     return _qtvGroups;
 }
 
+void Views::ViewUsers::adjustUIPrivileges()
+{
+    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
+
+    bool hasEditPriv = user->hasPrivilege("Edit");
+    bool hasCreateUsersAndGroupsPriv = user->hasPrivilege("Create Users And Groups");
+
+    _btnCreateUser->setHidden(!hasCreateUsersAndGroupsPriv);
+    _btnChangeUserPassword->setHidden(!hasEditPriv);
+    _btnImportUsersThumbnails->setHidden(!hasEditPriv);
+    _btnCreateGroup->setHidden(!hasCreateUsersAndGroupsPriv);
+
+    _qtvGroups->setImportCSVFeatureEnabled(hasCreateUsersAndGroupsPriv);
+}
+
 Wt::Signal<> &Views::ViewUsers::onTabUsersSelected()
 {
     return _onTabUsersSelected;
@@ -197,10 +215,10 @@ void Views::ViewUsers::_addDataToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec)
            for(auto &ptr : dboVec)
            {
                 Database::DboData *data = new Database::DboData(dlg->key(), dlg->value());
-                Wt::Dbo::ptr<Database::DboData> dataPtr = Database::DatabaseManager::instance().createDbo<Database::DboData>(data);
+                Wt::Dbo::ptr<Database::DboData> dataPtr = Session::SessionManager::instance().dboSession().createDbo<Database::DboData>(data);
 
                 if(dataPtr.get())
-                    Database::DatabaseManager::instance().modifyDbo<T>(ptr)->addData(dataPtr);
+                    Session::SessionManager::instance().dboSession().modifyDbo<T>(ptr)->addData(dataPtr);
                 else
                     delete data;
            }
@@ -225,10 +243,10 @@ void Views::ViewUsers::_addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec)
            for(auto &ptr : dboVec)
            {
                 Database::Note *note = new Database::Note(dlg->content());
-                Wt::Dbo::ptr<Database::Note> notePtr = Database::DatabaseManager::instance().createDbo<Database::Note>(note);
+                Wt::Dbo::ptr<Database::Note> notePtr = Session::SessionManager::instance().dboSession().createDbo<Database::Note>(note);
 
                 if(notePtr.get())
-                    Database::DatabaseManager::instance().modifyDbo<T>(ptr)->addNote(notePtr);
+                    Session::SessionManager::instance().dboSession().modifyDbo<T>(ptr)->addNote(notePtr);
                 else
                     delete note;
            }
@@ -251,7 +269,7 @@ void Views::ViewUsers::_assignTagToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVe
         {
             for(auto &tagPtr : tagVec)
             {
-                Database::DatabaseManager::instance().modifyDbo<T>(dboPtr)->assignTag(tagPtr);
+                Session::SessionManager::instance().dboSession().modifyDbo<T>(dboPtr)->assignTag(tagPtr);
             }
         }
 
@@ -268,7 +286,7 @@ void Views::ViewUsers::_unAssignTagFromDbo(const std::vector<Wt::Dbo::ptr<T>> &d
         {
             for(auto &tagPtr : tagVec)
             {
-                Database::DatabaseManager::instance().modifyDbo<T>(dboPtr)->unassignTag(tagPtr);
+                Session::SessionManager::instance().dboSession().modifyDbo<T>(dboPtr)->unassignTag(tagPtr);
             }
         }
 
@@ -284,10 +302,9 @@ void Views::ViewUsers::_btnUsersCreateClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
-            if(!Database::DatabaseManager::instance().dboExists<Users::User>(dlg->userName()))
+            try
             {
-                Wt::Auth::User authUser = Auth::AuthManager::instance().registerUser(dlg->userName(), dlg->password(), dlg->emailAddress());
-                if(authUser.isValid())//added the auth user successfully ?
+                if(!Session::SessionManager::instance().dboSession().dboExists<Users::User>(dlg->userName()))
                 {
                     Users::User *user = new Users::User(dlg->userName(), dlg->emailAddress());
                     user->setGroup(dlg->group());
@@ -297,32 +314,29 @@ void Views::ViewUsers::_btnUsersCreateClicked()
                     user->setAddress(dlg->address());
                     user->setActive(dlg->isActive());
 
-                    Wt::Dbo::ptr<Users::User> userPtr = Database::DatabaseManager::instance().createDbo<Users::User>(user);
+                    Wt::Dbo::ptr<Users::User> userPtr = Session::SessionManager::instance().dboSession().createDbo<Users::User>(user);
 
-                    if(userPtr)
-                    {
-                        Wt::Dbo::ptr<Auth::AuthInfo> authInfo = Auth::AuthManager::instance().getUserAuthInfo(authUser);
-                        if(authInfo)
-                            authInfo.modify()->setUser(userPtr);
+                    Wt::Auth::User authUser = Session::SessionManager::instance().dboSession().users().findWithIdentity(Wt::Auth::Identity::LoginName, userPtr->name());
 
-                        //create user directory structure
-                        Users::UsersIO::createUserDirectoryStructure(user->name());
+                    Auth::AuthManager::instance().passwordService().updatePassword(authUser, dlg->password());
 
-                        updateUsersView();
+                    //create user directory structure
+                    Users::UsersIO::createUserDirectoryStructure(user->name());
 
-                        _logger->log(std::string("Created user ") + dlg->userName(), Ms::Log::LogMessageType::Info);
-                    }
-                    else
-                    {
-                        delete user;
-
-                        _logger->log(std::string("error creating user ") + dlg->userName(), Ms::Log::LogMessageType::Error);
-                    }
+                    updateUsersView();
+                }
+                else
+                {
+                    _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
                 }
             }
-            else
+            catch(Wt::Dbo::Exception ex)
             {
-                _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
+                _logger->log(std::string("Error occured while trying to add default users ") + ex.what() , Ms::Log::LogMessageType::Error);
+            }
+            catch(...)
+            {
+                _logger->log("Error occured while trying to add default work users", Ms::Log::LogMessageType::Error);
             }
         }
 
@@ -334,22 +348,27 @@ void Views::ViewUsers::_btnUsersCreateClicked()
 
 void Views::ViewUsers::_btnUsersChangePasswordClicked()
 {
-    if(_qtvUsers->table()->selectedIndexes().size() < 1)
-        return;
+    if(_qtvUsers->table()->selectedIndexes().size() != 1)
+    {
+        _logger->log(std::string("Please select one user") , Ms::Log::LogMessageType::Warning);
 
-    int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+        return;
+    }
+
+    int editRank = Session::SessionManager::instance().user()->editRank();
 
     Views::DlgChangeUserPassword *dlg = new Views::DlgChangeUserPassword();
     dlg->finished().connect(std::bind([=]()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
-            for(const Wt::WModelIndex &index : _qtvUsers->table()->selectedIndexes())
-            {
-                Wt::Dbo::ptr<Users::User> userPtr = _qtvUsers->model()->resultRow(_qtvUsers->proxyModel()->mapToSource(index).row());
+            Wt::Dbo::ptr<Users::User> userPtr = _qtvUsers->selectedItems().at(0);
 
-                if(editRank >= userPtr->editRank())
-                    Auth::AuthManager::instance().setUserPassword(Wt::Auth::Identity::LoginName, userPtr->name(), dlg->password());
+            if(editRank >= userPtr->editRank())
+            {
+                Wt::Auth::User authUser = Session::SessionManager::instance().dboSession().users().find(userPtr);
+
+                Auth::AuthManager::instance().passwordService().updatePassword(authUser, dlg->password());
             }
         }
 
@@ -366,7 +385,7 @@ void Views::ViewUsers::_btnUsersRemoveClicked()
 //        std::vector<userData> delRows;
 //        try
 //        {
-//            Wt::Dbo::Transaction transaction(Database::DatabaseManager::instance().session);
+//            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession().session);
 
 //            for(auto &userIndex : tblUsers->selectedIndexes())
 //                delRows.push_back(mdlTblUsers->resultRow(mdlTblUsersFilter->mapToSource(userIndex).row()));
@@ -403,15 +422,14 @@ void Views::ViewUsers::_btnUsersImportThumbnailsClicked()
                 std::string rawFileName = pair.second.substr(0, lastIndex);
 
                 //match thumbnail by user name
-                if(!Database::DatabaseManager::instance().openTransaction())
-                    return;
+                Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
                 Wt::Dbo::ptr<Users::User> userPtr;
 
                 if(AppSettings::instance().isLoadInactiveData())
-                    userPtr = Database::DatabaseManager::instance().session()->find<Users::User>().where("Name = ?").bind(rawFileName);
+                    userPtr = Session::SessionManager::instance().dboSession().find<Users::User>().where("Name = ?").bind(rawFileName);
                 else
-                    userPtr = Database::DatabaseManager::instance().session()->find<Users::User>().where("Name = ? AND Active = ?").bind(rawFileName).bind(true);
+                    userPtr = Session::SessionManager::instance().dboSession().find<Users::User>().where("Name = ? AND Active = ?").bind(rawFileName).bind(true);
 
                 if(userPtr)//found a user that has the same name as the thumbnail ?
                 {
@@ -427,6 +445,8 @@ void Views::ViewUsers::_btnUsersImportThumbnailsClicked()
                                                                  "thumbnails" + Ms::IO::dirSeparator() + pair.second);
                     }
                 }
+
+                transaction.commit();
             }
             catch(Wt::WException e)
             {
@@ -453,40 +473,24 @@ void Views::ViewUsers::_btnUsersImportThumbnailsClicked()
 
 void Views::ViewUsers::_createUsersTableView()
 {
-    _qtvUsers = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Users::User>(&Database::DatabaseManager::instance());
+    _qtvUsers = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Users::User>(Session::SessionManager::instance().dboSession());
     _qtvUsers->tableSelectionChanged().connect(this, &Views::ViewUsers::updatePropertiesView);
     _qtvUsers->setRowHeight(64);
     _qtvUsers->setDefaultFilterColumnIndex(1);
     _qtvUsers->setIgnoreNumFilterColumns(1);
     _qtvUsers->setImportCSVFeatureEnabled(false);
 
-    //requires "create" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
-    {
-        Wt::WPushButton *btn = _qtvUsers->createToolButton("", "icons/Add.png", "Create A New User");
-        btn->clicked().connect(this, &Views::ViewUsers::_btnUsersCreateClicked);
-    }
+    _btnCreateUser = _qtvUsers->createToolButton("", "icons/Add.png", "Create A New User");
+    _btnCreateUser->clicked().connect(this, &Views::ViewUsers::_btnUsersCreateClicked);
 
-    //requires "edit" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
-    {
-        Wt::WPushButton *btn = _qtvUsers->createToolButton("", "icons/Password.png", "Change User Password");
-        btn->clicked().connect(this, &Views::ViewUsers::_btnUsersChangePasswordClicked);
-    }
+    _btnChangeUserPassword = _qtvUsers->createToolButton("", "icons/Password.png", "Change User Password");
+    _btnChangeUserPassword->clicked().connect(this, &Views::ViewUsers::_btnUsersChangePasswordClicked);
 
-    //requires "remove" privilege
-//    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
-//    {
-//        Wt::WPushButton *btn = _qtvUsers->createToolButton("", "icons/Remove.png", "Remove Selected User");
-//        btn->clicked().connect(this, &Views::ViewUsers::_btnUsersRemoveClicked);
-//    }
+//    Wt::WPushButton *btn = _qtvUsers->createToolButton("", "icons/Remove.png", "Remove Selected User");
+//    btn->clicked().connect(this, &Views::ViewUsers::_btnUsersRemoveClicked);
 
-    //requires "view" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
-    {
-        Wt::WPushButton *btn = _qtvUsers->createToolButton("", "icons/Thumbnail.png", "Import Thumbnails");
-        btn->clicked().connect(this, &Views::ViewUsers::_btnUsersImportThumbnailsClicked);
-    }
+    _btnImportUsersThumbnails = _qtvUsers->createToolButton("", "icons/Thumbnail.png", "Import Thumbnails");
+    _btnImportUsersThumbnails->clicked().connect(this, &Views::ViewUsers::_btnUsersImportThumbnailsClicked);
 
     updateUsersView();
 }
@@ -500,10 +504,10 @@ void Views::ViewUsers::_btnGroupsCreateClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
-            if(!Database::DatabaseManager::instance().dboExists<Users::Group>(dlg->groupName()))
+            if(!Session::SessionManager::instance().dboSession().dboExists<Users::Group>(dlg->groupName()))
             {
                 Users::Group *group = new Users::Group(dlg->groupName(), dlg->rank());
-                Wt::Dbo::ptr<Users::Group> groupPtr = Database::DatabaseManager::instance().createDbo<Users::Group>(group);
+                Wt::Dbo::ptr<Users::Group> groupPtr = Session::SessionManager::instance().dboSession().createDbo<Users::Group>(group);
 
                 if(groupPtr)
                 {
@@ -537,7 +541,7 @@ void Views::ViewUsers::_btnGroupsRemoveClicked()
 //        std::vector<Wt::Dbo::ptr<Users::Group>> delRows;
 //        try
 //        {
-//            Wt::Dbo::Transaction transaction(Database::DatabaseManager::instance().session);
+//            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession().session);
 //            for(auto &groupIndex : tblGroups->selectedIndexes())
 //                delRows.push_back(mdlTblGroups->resultRow(groupIndex.row()));
 
@@ -557,27 +561,15 @@ void Views::ViewUsers::_btnGroupsRemoveClicked()
 
 void Views::ViewUsers::_createGroupsTableView()
 {
-    _qtvGroups = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Users::Group>(&Database::DatabaseManager::instance());
+    _qtvGroups = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Users::Group>(Session::SessionManager::instance().dboSession());
     _qtvGroups->tableSelectionChanged().connect(this, &Views::ViewUsers::updatePropertiesView);
     _qtvGroups->setMinimumSize(1000, 600);
 
-    //requires "create" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
-    {
-        Wt::WPushButton *btn = _qtvGroups->createToolButton("", "icons/Add.png", "Create A New Group");
-        btn->clicked().connect(this, &Views::ViewUsers::_btnGroupsCreateClicked);
+    _btnCreateGroup = _qtvGroups->createToolButton("", "icons/Add.png", "Create A New Group");
+    _btnCreateGroup->clicked().connect(this, &Views::ViewUsers::_btnGroupsCreateClicked);
 
-        _qtvGroups->setImportCSVFeatureEnabled(true);
-    }
-    else
-        _qtvGroups->setImportCSVFeatureEnabled(false);
-
-    //requires "remove" privilege
-//    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
-//    {
-//        Wt::WPushButton *btn = _qtvGroups->createToolButton("", "icons/Remove.png", "Remove Selected Group");
-//        btn->clicked().connect(this, &Views::ViewUsers::_btnGroupsRemoveClicked);
-//    }
+//    Wt::WPushButton *btn = _qtvGroups->createToolButton("", "icons/Remove.png", "Remove Selected Group");
+//    btn->clicked().connect(this, &Views::ViewUsers::_btnGroupsRemoveClicked);
 
     updateGroupsView();
 }
@@ -661,7 +653,7 @@ void Views::ViewUsers::_createTagRequested()
            tag->setType(tagType);
            tag->setActive(dlg->isActive());
 
-            Wt::Dbo::ptr<Database::Tag> tagPtr = Database::DatabaseManager::instance().createDbo<Database::Tag>(tag);
+            Wt::Dbo::ptr<Database::Tag> tagPtr = Session::SessionManager::instance().dboSession().createDbo<Database::Tag>(tag);
 
             if(tagPtr.get())
             {
@@ -718,7 +710,7 @@ void Views::ViewUsers::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<Dat
     if(tagVec.size() == 0)
         return;
 
-    std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Database::Tag>(tagVec);
+    std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Database::Tag>(tagVec);
 
     if(_stkMain->currentWidget() == _qtvUsers)
     {
@@ -789,7 +781,7 @@ void Views::ViewUsers::_assignPrivilegesRequested(const std::vector<Wt::Dbo::ptr
         {
             for(auto &prvPtr : privVec)
             {
-                Database::DatabaseManager::instance().modifyDbo<Users::Group>(grpPtr)->addPrivilege(prvPtr);
+                Session::SessionManager::instance().dboSession().modifyDbo<Users::Group>(grpPtr)->addPrivilege(prvPtr);
             }
         }
 
@@ -805,7 +797,7 @@ void Views::ViewUsers::_unassignPrivilegesRequested(const std::vector<Wt::Dbo::p
         {
             for(auto &prvPtr : privVec)
             {
-                Database::DatabaseManager::instance().modifyDbo<Users::Group>(grpPtr)->removePrivilege(prvPtr);
+                Session::SessionManager::instance().dboSession().modifyDbo<Users::Group>(grpPtr)->removePrivilege(prvPtr);
             }
         }
 
@@ -820,7 +812,7 @@ void Views::ViewUsers::_filterByPrivilegesRequested(const std::vector<Wt::Dbo::p
     if(privVec.size() == 0)
         return;
 
-    std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Users::Privilege>(privVec);
+    std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Users::Privilege>(privVec);
 
     strFilterQuery = "Name IN (SELECT gp.group_Name FROM rel_group_privileges gp WHERE privilege_Name IN (" + idValues.at(0) + "))";
 
@@ -908,19 +900,18 @@ void Views::ViewUsers::_createPropertiesView()
 
 void Views::ViewUsers::_updatePropertiesDataView()
 {
-    if(!Database::DatabaseManager::instance().openTransaction())
-        return;
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-    bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+    bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
     Wt::WFlags<Wt::ItemFlag> flags;
     if(canEdit)
         flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
     else
         flags = Wt::ItemIsSelectable;
 
-    int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+    int editRank = Session::SessionManager::instance().user()->editRank();
 
-    const Ms::Widgets::MQueryTableViewWidget<Database::DboData> *_qtvPropertiesData = _viewData->qtvData();
+    Ms::Widgets::MQueryTableViewWidget<Database::DboData> *_qtvPropertiesData = _viewData->qtvData();
 
     _qtvPropertiesData->clearColumns();
 
@@ -928,7 +919,7 @@ void Views::ViewUsers::_updatePropertiesDataView()
     _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("DBOKey", "Key", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("DBOValue", "Value", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
-    Wt::Dbo::Query<Wt::Dbo::ptr<Database::DboData>> query = Database::DatabaseManager::instance().session()->find<Database::DboData>();
+    Wt::Dbo::Query<Wt::Dbo::ptr<Database::DboData>> query = Session::SessionManager::instance().dboSession().find<Database::DboData>();
 
     bool update = false;
 
@@ -937,7 +928,7 @@ void Views::ViewUsers::_updatePropertiesDataView()
         if(_qtvUsers->table()->selectedIndexes().size() > 0)
         {
             update = true;
-            query.where("User_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Users::User>(_qtvUsers->selectedItems()).at(0) + ")");
+            query.where("User_Name IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Users::User>(_qtvUsers->selectedItems()).at(0) + ")");
         }
 
         _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("User_Name", "User Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
@@ -948,7 +939,7 @@ void Views::ViewUsers::_updatePropertiesDataView()
         {
             update = true;
 
-            query.where("Group_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Users::Group>(_qtvGroups->selectedItems()).at(0) + ")");
+            query.where("Group_Name IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Users::Group>(_qtvGroups->selectedItems()).at(0) + ")");
         }
 
         _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("Group_Name", "Group Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
@@ -956,7 +947,7 @@ void Views::ViewUsers::_updatePropertiesDataView()
 
     if(update)
     {
-        int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+        int viewRank = Session::SessionManager::instance().user()->viewRank();
 
         if(!AppSettings::instance().isLoadInactiveData())
             query.where("Active = ?").bind(true);
@@ -968,6 +959,8 @@ void Views::ViewUsers::_updatePropertiesDataView()
 
     _qtvPropertiesData->setQuery(query);
 
+    transaction.commit();
+
     if(AppSettings::instance().isShowExtraColumns())
         _qtvPropertiesData->addBaseColumns(flags, editRank);
 
@@ -976,19 +969,18 @@ void Views::ViewUsers::_updatePropertiesDataView()
 
 void Views::ViewUsers::_updatePropertiesTagsView()
 {
-    if(!Database::DatabaseManager::instance().openTransaction())
-            return;
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-    bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+    bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
     Wt::WFlags<Wt::ItemFlag> flags;
     if(canEdit)
         flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
     else
         flags = Wt::ItemIsSelectable;
 
-    int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+    int editRank = Session::SessionManager::instance().user()->editRank();
 
-    const Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesTags = _viewTags->qtvTags();
+    Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesTags = _viewTags->qtvTags();
 
     _qtvPropertiesTags->clearColumns();
 
@@ -998,14 +990,14 @@ void Views::ViewUsers::_updatePropertiesTagsView()
     _qtvPropertiesTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Content", "Content", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     _qtvPropertiesTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
-    Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query = Database::DatabaseManager::instance().session()->find<Database::Tag>();
+    Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query = Session::SessionManager::instance().dboSession().find<Database::Tag>();
 
     if(_stkMain->currentWidget() == _qtvUsers)
         query.where("(Type IN ('User', 'Global'))");
     else if(_stkMain->currentWidget() == _qtvGroups)
         query.where("(Type IN ('Group', 'Global'))");
 
-    int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+    int viewRank = Session::SessionManager::instance().user()->viewRank();
 
     if(!AppSettings::instance().isLoadInactiveData())
         query.where("Active = ?").bind(true);
@@ -1013,6 +1005,8 @@ void Views::ViewUsers::_updatePropertiesTagsView()
     query.where("View_Rank <= ?").bind(viewRank);
 
     _qtvPropertiesTags->setQuery(query);
+
+    transaction.commit();
 
     if(AppSettings::instance().isShowExtraColumns())
         _qtvPropertiesTags->addBaseColumns(flags, editRank);
@@ -1022,19 +1016,18 @@ void Views::ViewUsers::_updatePropertiesTagsView()
 
 void Views::ViewUsers::_updatePropertiesAssignedTagsView()
 {
-    if(!Database::DatabaseManager::instance().openTransaction())
-        return;
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-    bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+    bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
     Wt::WFlags<Wt::ItemFlag> flags;
     if(canEdit)
         flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
     else
         flags = Wt::ItemIsSelectable;
 
-    int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+    int editRank = Session::SessionManager::instance().user()->editRank();
 
-    const Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesAssignedTags = _viewTags->qtvAssignedTags();
+    Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesAssignedTags = _viewTags->qtvAssignedTags();
 
     _qtvPropertiesAssignedTags->clearColumns();
 
@@ -1044,7 +1037,7 @@ void Views::ViewUsers::_updatePropertiesAssignedTagsView()
     _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Content", "Content", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
-    Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query = Database::DatabaseManager::instance().session()->find<Database::Tag>();
+    Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query = Session::SessionManager::instance().dboSession().find<Database::Tag>();
 
     bool update = false;
 
@@ -1054,7 +1047,7 @@ void Views::ViewUsers::_updatePropertiesAssignedTagsView()
         {
             update = true;
 
-            std::string usersSelectSql = "(pt.user_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Users::User>(_qtvUsers->selectedItems()).at(0) + "))";
+            std::string usersSelectSql = "(pt.user_Name IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Users::User>(_qtvUsers->selectedItems()).at(0) + "))";
 
             query.where("(id IN (SELECT pt.tag_id FROM rel_user_assigned_tags pt WHERE " + usersSelectSql + "))");
         }
@@ -1065,7 +1058,7 @@ void Views::ViewUsers::_updatePropertiesAssignedTagsView()
         {
             update = true;
 
-            std::string groupsSelectSql = "pt.group_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Users::Group>(_qtvGroups->selectedItems()).at(0) + ")";
+            std::string groupsSelectSql = "pt.group_Name IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Users::Group>(_qtvGroups->selectedItems()).at(0) + ")";
 
             query.where("(id IN (SELECT pt.tag_id FROM rel_group_assigned_tags pt WHERE " + groupsSelectSql + "))");
         }
@@ -1073,7 +1066,7 @@ void Views::ViewUsers::_updatePropertiesAssignedTagsView()
 
     if(update)
     {
-        int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+        int viewRank = Session::SessionManager::instance().user()->viewRank();
 
         if(!AppSettings::instance().isLoadInactiveData())
             query.where("Active = ?").bind(true);
@@ -1085,6 +1078,8 @@ void Views::ViewUsers::_updatePropertiesAssignedTagsView()
 
     _qtvPropertiesAssignedTags->setQuery(query);
 
+    transaction.commit();
+
     if(AppSettings::instance().isShowExtraColumns())
         _qtvPropertiesAssignedTags->addBaseColumns(flags, editRank);
 
@@ -1093,19 +1088,18 @@ void Views::ViewUsers::_updatePropertiesAssignedTagsView()
 
 void Views::ViewUsers::_updatePropertiesNotesView()
 {
-    if(!Database::DatabaseManager::instance().openTransaction())
-        return;
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-    bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+    bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
     Wt::WFlags<Wt::ItemFlag> flags;
     if(canEdit)
         flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
     else
         flags = Wt::ItemIsSelectable;
 
-    int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+    int editRank = Session::SessionManager::instance().user()->editRank();
 
-    const Ms::Widgets::MQueryTableViewWidget<Database::Note> *_qtvPropertiesNotes = _viewNotes->qtvNotes();
+    Ms::Widgets::MQueryTableViewWidget<Database::Note> *_qtvPropertiesNotes = _viewNotes->qtvNotes();
 
     _qtvPropertiesNotes->clearColumns();
 
@@ -1113,7 +1107,7 @@ void Views::ViewUsers::_updatePropertiesNotesView()
     _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("id", "Id", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Content", "Content", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
-    Wt::Dbo::Query<Wt::Dbo::ptr<Database::Note>> query = Database::DatabaseManager::instance().session()->find<Database::Note>();
+    Wt::Dbo::Query<Wt::Dbo::ptr<Database::Note>> query = Session::SessionManager::instance().dboSession().find<Database::Note>();
 
     bool update = false;
 
@@ -1122,7 +1116,7 @@ void Views::ViewUsers::_updatePropertiesNotesView()
         if(_qtvUsers->table()->selectedIndexes().size() > 0)
         {
             update = true;
-            query.where("User_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Users::User>(_qtvUsers->selectedItems()).at(0) + ")");
+            query.where("User_Name IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Users::User>(_qtvUsers->selectedItems()).at(0) + ")");
         }
 
         _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("User_Name", "User Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
@@ -1133,7 +1127,7 @@ void Views::ViewUsers::_updatePropertiesNotesView()
         {
             update = true;
 
-            query.where("Group_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Users::Group>(_qtvGroups->selectedItems()).at(0) + ")");
+            query.where("Group_Name IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Users::Group>(_qtvGroups->selectedItems()).at(0) + ")");
         }
 
         _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Group_Name", "Group Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
@@ -1141,7 +1135,7 @@ void Views::ViewUsers::_updatePropertiesNotesView()
 
     if(update)
     {
-        int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+        int viewRank = Session::SessionManager::instance().user()->viewRank();
 
         if(!AppSettings::instance().isLoadInactiveData())
             query.where("Active = ?").bind(true);
@@ -1153,6 +1147,8 @@ void Views::ViewUsers::_updatePropertiesNotesView()
 
     _qtvPropertiesNotes->setQuery(query);
 
+    transaction.commit();
+
     if(AppSettings::instance().isShowExtraColumns())
         _qtvPropertiesNotes->addBaseColumns(flags, editRank);
 
@@ -1161,21 +1157,22 @@ void Views::ViewUsers::_updatePropertiesNotesView()
 
 void Views::ViewUsers::_updatePropertiesPrivilegesView()
 {
-    if(!Database::DatabaseManager::instance().openTransaction())
-        return;
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Users::Privilege>> query;
 
-    int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+    int viewRank = Session::SessionManager::instance().user()->viewRank();
 
     if(AppSettings::instance().isLoadInactiveData())
-        query = Database::DatabaseManager::instance().session()->find<Users::Privilege>().where("View_Rank <= ?").bind(viewRank);
+        query = Session::SessionManager::instance().dboSession().find<Users::Privilege>().where("View_Rank <= ?").bind(viewRank);
     else
-        query = Database::DatabaseManager::instance().session()->find<Users::Privilege>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
+        query = Session::SessionManager::instance().dboSession().find<Users::Privilege>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
 
-    const Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *_qtvGroupsPrivileges = _viewPrivileges->qtvPrivileges();
+    Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *_qtvGroupsPrivileges = _viewPrivileges->qtvPrivileges();
 
     _qtvGroupsPrivileges->setQuery(query);
+
+    transaction.commit();
 
     _qtvGroupsPrivileges->clearColumns();
 
@@ -1195,20 +1192,21 @@ void Views::ViewUsers::_updatePropertiesAssignedPrivilegesView()
     if(_qtvGroups->table()->selectedIndexes().size() == 0)
         return;
 
-    if(!Database::DatabaseManager::instance().openTransaction())
-        return;
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-    std::string groupsSelectSql = "gp.group_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Users::Group>(_qtvGroups->selectedItems()).at(0) + ")";
+    std::string groupsSelectSql = "gp.group_Name IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Users::Group>(_qtvGroups->selectedItems()).at(0) + ")";
 
-    Wt::Dbo::Query<Wt::Dbo::ptr<Users::Privilege>> query = Database::DatabaseManager::instance().session()->find<Users::Privilege>().where(
+    Wt::Dbo::Query<Wt::Dbo::ptr<Users::Privilege>> query = Session::SessionManager::instance().dboSession().find<Users::Privilege>().where(
                 "Name IN (SELECT gp.privilege_Name FROM rel_group_privileges gp WHERE " + groupsSelectSql + ")");
 
     if(!AppSettings::instance().isLoadInactiveData())
         query.where("Active = ?").bind(true);
 
-    const Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *_qtvPropertiesGroupsAssignedPrivileges = _viewPrivileges->qtvAssignedPrivileges();
+    Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *_qtvPropertiesGroupsAssignedPrivileges = _viewPrivileges->qtvAssignedPrivileges();
 
     _qtvPropertiesGroupsAssignedPrivileges->setQuery(query);
+
+    transaction.commit();
 
     _qtvPropertiesGroupsAssignedPrivileges->clearColumns();
 

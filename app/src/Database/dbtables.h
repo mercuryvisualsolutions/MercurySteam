@@ -21,7 +21,7 @@
 
 namespace Database
 {
-    class DatabaseManager;
+    class DboSession;
 
     class DboData : public Ms::Dbo::MDboBase
     {
@@ -278,21 +278,58 @@ namespace Database
         Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>> tags_;//tags this group has
         Wt::Dbo::collection<Wt::Dbo::ptr<Database::Tag>> assignedTags_;//tags assigned to this group
     };
+
+    class Token : public Ms::Dbo::MDboBase
+    {
+    public:
+        Token();
+        Token(const std::string &value, const Wt::WDateTime &expires);
+
+        //variables
+
+        //functions
+        Token *modify() override;
+        std::string value() const;
+        void setValue(const std::string &value);
+        Wt::WDateTime expires() const;
+        void setExpires(const Wt::WDateTime &expires);
+
+        const Wt::Dbo::ptr<Users::User> user() const;
+
+        //operators
+        bool operator ==(const Tag &other) const;
+        bool operator !=(const Tag &other) const;
+
+        //DBO Functions
+        template<class Action>
+        void persist(Action &a)
+        {
+            Wt::Dbo::field(a, _value, "Value");
+            Wt::Dbo::field(a, _expires, "Expires");
+
+            Wt::Dbo::belongsTo(a, _user, "Token_User");
+
+            Ms::Dbo::MDboBase::persist<Action>(a);
+        }
+
+    private:
+        //variables
+        std::string _value;
+        Wt::WDateTime _expires;
+        Wt::Dbo::ptr<Users::User> _user;
+    };
 }
 
 namespace Users
 {
     class UsersManager;
 
-    //auth typedefs
-    using AuthInfo = Wt::Auth::Dbo::AuthInfo<User>;
-
     //user data typedefs
 
     class Privilege : public Ms::Dbo::MDboBase
     {
         friend class Users::UsersManager;
-        friend class Database::DatabaseManager;
+        friend class Database::DboSession;
 
     public:
         Privilege();
@@ -333,7 +370,7 @@ namespace Users
     class UserTitle : public Ms::Dbo::MDboBase
     {
         friend class Users::UsersManager;
-        friend class Database::DatabaseManager;
+        friend class Database::DboSession;
 
     public:
         UserTitle();
@@ -374,7 +411,7 @@ namespace Users
     class Group : public Database::Dbo
     {
         friend class Users::UsersManager;
-        friend class Database::DatabaseManager;
+        friend class Database::DboSession;
 
     public:
         Group();
@@ -432,7 +469,7 @@ namespace Users
     class User : public Database::Dbo
     {
         friend class Users::UsersManager;
-        friend class Database::DatabaseManager;
+        friend class Database::DboSession;
 
     public:
         User();
@@ -443,6 +480,20 @@ namespace Users
         User *modify() override;
         std::string name() const;
         void setName(const std::string &name);
+        std::string password() const;
+        void setPassword(const std::string &password);
+        std::string passwordMethod() const;
+        void setPasswordMethod(const std::string &passwordMethod);
+        std::string passwordSalt() const;
+        void setPasswordSalt(const std::string &passwordSalt);
+        int failedLoginAttempts() const;
+        void setFailedLoginAttempts(int failedLoginAttempts);
+        Wt::WDateTime lastLoginAttempt() const;
+        void setLastLoginAttempt(const Wt::WDateTime &lastLoginAttempt);
+        std::string oAuthId() const;
+        void setOAuthId(const std::string &oAuthId);
+        std::string oAuthProvider() const;
+        void setOAuthProvider(const std::string &oAuthProvider);
         bool hasPrivilege(Wt::Dbo::ptr<Users::Privilege> privilege) const;
         bool hasPrivilege(const char *privilegeName) const;
         bool hasTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const;
@@ -457,7 +508,6 @@ namespace Users
         void setPhoneNumber(const std::string &phoneNumber);
         std::string emailAddress() const;
         void setEmailAddress(const std::string &emailAddress);
-        Wt::WDateTime lastLogin() const;
         std::string address() const;
         void setAddress(const std::string &address);
         Wt::Dbo::ptr<Users::Group> group() const;//group this user in
@@ -467,6 +517,7 @@ namespace Users
         Wt::Dbo::weak_ptr<Projects::Project> project() const;
         void setProject(Wt::Dbo::weak_ptr<Projects::Project> project);//project this user manage
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>> tasks();
+        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Token>> authTokens() const;
 
         //operators
         bool operator ==(const User &other) const;
@@ -477,15 +528,22 @@ namespace Users
         void persist(Action &a)
         {
             Wt::Dbo::id(a, _name, "Name", 255);
+            Wt::Dbo::field(a, _password, "Password", 255);
+            Wt::Dbo::field(a, _passwordMethod, "Password_Method", 255);
+            Wt::Dbo::field(a, _passwordSalt, "Password_Salt", 255);
+            Wt::Dbo::field(a, _failedLoginAttempts, "Failed_Login_Attempts", 255);
+            Wt::Dbo::field(a, _lastLoginAttempt, "Last_Login_Attempt");
+            Wt::Dbo::field(a, _oAuthId, "OAuth_Id", 255);
+            Wt::Dbo::field(a, _oAuthProvider, "OAuth_Provider", 255);
             Wt::Dbo::field(a, _idNumber, "Id_Number", 14);
             Wt::Dbo::field(a, _phoneNumber, "Phone_Number", 255);
             Wt::Dbo::field(a, _emailAddress, "Email_Address", 255);
-            Wt::Dbo::field(a, _lastLogin, "Last_Login");
             Wt::Dbo::field(a, _address, "Address", 255);
             Wt::Dbo::field(a, _createRank, "Create_Rank");
             Wt::Dbo::belongsTo(a, _group, "Group");//create a OneToMany relationship to the table "group"
             Wt::Dbo::belongsTo(a, _title, "Title");//create a OneToMany relationship to the table "title"
             Wt::Dbo::hasMany(a, _tasks, Wt::Dbo::ManyToOne, "Task_User");//create a ManyToOne relationship to the table "project_task"
+            Wt::Dbo::hasMany(a, _authTokens, Wt::Dbo::ManyToOne, "Token_User");//create a ManyToOne relationship to the table "token"
             Wt::Dbo::hasOne(a, _project, "Project_Manager");//create a ManyToOne relationship to the table "project"
             Wt::Dbo::hasMany(a, data_, Wt::Dbo::ManyToOne, "User");//create a ManyToOne relationship to the table "data
             Wt::Dbo::hasMany(a, notes_, Wt::Dbo::ManyToOne, "User");//create a ManyToOne relationship to the table "note
@@ -498,14 +556,21 @@ namespace Users
     private:
         //variables
         std::string _name;
+        std::string _password;
+        std::string _passwordMethod;
+        std::string _passwordSalt;
+        int _failedLoginAttempts;
+        Wt::WDateTime _lastLoginAttempt;
+        std::string _oAuthId;
+        std::string _oAuthProvider;
         std::string _idNumber;
         std::string _phoneNumber;
         std::string _emailAddress;
-        Wt::WDateTime _lastLogin;
         std::string _address;
         Wt::Dbo::ptr<Users::Group> _group;//group this user in
         Wt::Dbo::ptr<Users::UserTitle> _title;//title this user has
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>> _tasks;//tasks this user has
+        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Token>> _authTokens;//tokens this user has
         Wt::Dbo::weak_ptr<Projects::Project> _project;//project this user manage
         int _createRank;
 
@@ -568,7 +633,7 @@ namespace Projects
     class ProjectTaskActivityType : public Ms::Dbo::MDboBase
     {
         friend class Projects::ProjectsManager;
-        friend class Database::DatabaseManager;
+        friend class Database::DboSession;
 
     public:
         ProjectTaskActivityType();
@@ -610,7 +675,7 @@ namespace Projects
     class ProjectTaskActivity : public Ms::Dbo::MDboBase
     {
         friend class Projects::ProjectsManager;
-        friend class Database::DatabaseManager;
+        friend class Database::DboSession;
 
     public:
         ProjectTaskActivity();
@@ -662,7 +727,7 @@ namespace Projects
     class ProjectActivityTemplateActivityItem : public Ms::Dbo::MDboBase
     {
         friend class Projects::ProjectsManager;
-        friend class Database::DatabaseManager;
+        friend class Database::DboSession;
 
     public:
         ProjectActivityTemplateActivityItem();
@@ -715,7 +780,7 @@ namespace Projects
     class ProjectActivityTemplate : public Ms::Dbo::MDboBase
     {
         friend class Projects::ProjectsManager;
-        friend class Database::DatabaseManager;
+        friend class Database::DboSession;
 
     public:
         ProjectActivityTemplate();
@@ -730,7 +795,7 @@ namespace Projects
         bool hasItem(Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem> taskItem) const;
         bool addItem(Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem> taskItem);
         bool removeItem(Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem> taskItem);
-        bool createActivitiesForProjectTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const;
+        bool createActivitiesForProjectTask(Wt::Dbo::ptr<Projects::ProjectTask> task);
         const Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem>> items() const;
 
         //operators
@@ -759,7 +824,7 @@ namespace Projects
     class ProjectTaskTemplateTaskItem : public Ms::Dbo::MDboBase
     {
         friend class Projects::ProjectsManager;
-        friend class Database::DatabaseManager;
+        friend class Database::DboSession;
 
     public:
         ProjectTaskTemplateTaskItem();
@@ -808,7 +873,7 @@ namespace Projects
     class ProjectTaskTemplate : public Ms::Dbo::MDboBase
     {
         friend class Projects::ProjectsManager;
-        friend class Database::DatabaseManager;
+        friend class Database::DboSession;
 
     public:
         ProjectTaskTemplate();
@@ -823,10 +888,10 @@ namespace Projects
         bool hasItem(Wt::Dbo::ptr<Projects::ProjectTaskTemplateTaskItem> taskItem) const;
         bool addItem(Wt::Dbo::ptr<Projects::ProjectTaskTemplateTaskItem> taskItem);
         bool removeItem(Wt::Dbo::ptr<Projects::ProjectTaskTemplateTaskItem> taskItem);
-        bool createTasksForProjectAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset) const;
-        bool createTasksForProjectShot(Wt::Dbo::ptr<Projects::ProjectShot> shot) const;
-        bool createTasksForProjectSequence(Wt::Dbo::ptr<Projects::ProjectSequence> sequence) const;
-        bool createTasksForProject(Wt::Dbo::ptr<Projects::Project> project) const;
+        bool createTasksForProjectAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset);
+        bool createTasksForProjectShot(Wt::Dbo::ptr<Projects::ProjectShot> shot);
+        bool createTasksForProjectSequence(Wt::Dbo::ptr<Projects::ProjectSequence> sequence);
+        bool createTasksForProject(Wt::Dbo::ptr<Projects::Project> project);
         const Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTaskTemplateTaskItem>> items() const;
 
         //operators
@@ -855,7 +920,7 @@ namespace Projects
     class ProjectWorkStatusType : public Ms::Dbo::MDboBase
     {
         friend class Projects::ProjectsManager;
-        friend class Database::DatabaseManager;
+        friend class Database::DboSession;
 
     public:
         ProjectWorkStatusType();
@@ -895,7 +960,7 @@ namespace Projects
     class ProjectAssetType : public Ms::Dbo::MDboBase
     {
         friend class Projects::ProjectsManager;
-        friend class Database::DatabaseManager;
+        friend class Database::DboSession;
 
     public:
         ProjectAssetType();
@@ -935,7 +1000,7 @@ namespace Projects
     class ProjectWorkStatus : public Ms::Dbo::MDboBase
     {
         friend class Projects::ProjectsManager;
-        friend class Database::DatabaseManager;
+        friend class Database::DboSession;
 
     public:
         ProjectWorkStatus();
@@ -991,7 +1056,7 @@ namespace Projects
     class ProjectSequence : public ProjectDbo
     {
         friend class Projects::ProjectsManager;
-        friend class Database::DatabaseManager;
+        friend class Database::DboSession;
 
     public:
         ProjectSequence();
@@ -1071,7 +1136,7 @@ namespace Projects
     class ProjectTask : public ProjectDbo
     {
         friend class Projects::ProjectsManager;
-        friend class Database::DatabaseManager;
+        friend class Database::DboSession;
 
     public:
         ProjectTask();
@@ -1147,7 +1212,7 @@ namespace Projects
     class ProjectTaskType : public Ms::Dbo::MDboBase
     {
         friend class Projects::ProjectsManager;
-        friend class Database::DatabaseManager;
+        friend class Database::DboSession;
 
     public:
         ProjectTaskType();
@@ -1187,7 +1252,7 @@ namespace Projects
     class ProjectShot : public ProjectDbo
     {
         friend class Projects::ProjectsManager;
-        friend class Database::DatabaseManager;
+        friend class Database::DboSession;
 
     public:
         ProjectShot();
@@ -1266,7 +1331,7 @@ namespace Projects
     class ProjectAsset : public ProjectDbo
     {
         friend class Projects::ProjectsManager;
-        friend class Database::DatabaseManager;
+        friend class Database::DboSession;
 
     public:
         ProjectAsset();
@@ -1331,7 +1396,7 @@ namespace Projects
     class Project : public ProjectDbo
     {
         friend class Projects::ProjectsManager;
-        friend class Database::DatabaseManager;
+        friend class Database::DboSession;
 
     public:
         Project();

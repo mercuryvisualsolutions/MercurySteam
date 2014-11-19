@@ -3,102 +3,144 @@
 #include <boost/filesystem.hpp>
 
 #include <iostream>
-#include <Wt/WApplication>
-#include <Wt/WEnvironment>
-#include <Wt/WVBoxLayout>
-#include <Wt/WCssTheme>
-#include <Wt/WBootstrapTheme>
-#include <Wt/Dbo/Dbo>
-#include <Wt/WTableView>
-#include <Wt/Dbo/QueryModel>
+
 #include <Wt/WServer>
 
 #include "Settings/appsettings.h"
-#include "Database/databasemanager.h"
+#include "Database/dbosession.h"
+#include "Database/dbschemaattributes.h"
 #include "Views/Main/viewmain.h"
-#include "Users/usersmanager.h"
-#include "Projects/projectsmanager.h"
 #include "Auth/authmanager.h"
 #include "Log/logmanager.h"
+#include "Application/msapplication.h"
+#include "Users/usersio.h"
 
-Wt::WApplication *createApplication(const Wt::WEnvironment &env)
+void addDefaultUser(Database::DboSession &session)
 {
-    //load settings with each new session, in case admin changes settings anytime
-    AppSettings::instance().loadAppSettings();
-
-    Wt::WApplication *app = new Wt::WApplication(env);
-
-    app->setTitle("Mercury Steam");
-
-    //data checking
-    if (app->appRoot().empty())
+    try
     {
-        Log::LogManager::instance().getGlobalLogger()->log("approot not set!", Ms::Log::LogMessageType::Warning);
+        Users::User *user = new Users::User("Admin", "admin@mercuryvs.com");
+        user->setCreateRank(INT_MAX);
+        user->setViewRank(INT_MAX);
+        user->setEditRank(INT_MAX);
+        user->setRemoveRank(INT_MAX);
+
+        Wt::Dbo::ptr<Users::Group> group = session.getDbo<Users::Group>("Admin");
+        user->setGroup(group);
+
+        Wt::Dbo::ptr<Users::User> userPtr = session.createDbo<Users::User>(user);
+
+        Wt::Auth::User authUser = session.users().findWithIdentity(Wt::Auth::Identity::LoginName, userPtr->name());
+
+        Auth::AuthManager::instance().passwordService().updatePassword(authUser, "admin");
+
+        //create user directory structure
+        Users::UsersIO::createUserDirectoryStructure(user->name());
     }
-    if(app->docRoot().empty())
+    catch(Wt::Dbo::Exception ex)
     {
-        Log::LogManager::instance().getGlobalLogger()->log("docroot not set!", Ms::Log::LogMessageType::Warning);
+        Log::LogManager::instance().getGlobalLogger()->log(std::string("Error occured while trying to add default users ") + ex.what() , Ms::Log::LogMessageType::Error);
+    }
+    catch(...)
+    {
+        Log::LogManager::instance().getGlobalLogger()->log("Error occured while trying to add default work users", Ms::Log::LogMessageType::Error);
+    }
+}
+
+bool initDatabase(Wt::Dbo::SqlConnectionPool &sqlConnectionPool)
+{
+    Database::DboSession session(sqlConnectionPool);
+
+    //try to create schema if it doesn't already exist
+    try
+    {
+        Wt::Dbo::Transaction transaction(session);
+
+        int numTables = session.query<int>("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '" + AppSettings::instance().databaseSchema() + "';");
+
+        transaction.commit();
+
+        if(numTables == 0)
+        {
+            Log::LogManager::instance().getGlobalLogger()->log("Server running for first time, creating database tables..", Ms::Log::LogMessageType::Info);
+
+            Wt::Dbo::Transaction createTableTransaction(session);
+
+            //create DB tables
+            session.createTables();
+
+            createTableTransaction.commit();
+
+            //execute firstrun.sql file to add default data
+            std::vector<std::string> sql;
+
+            std::ifstream sqlFile;
+            sqlFile.open("approot/firstrun.sql");
+            if(sqlFile.is_open())
+            {
+                std::string line;
+                while(std::getline(sqlFile, line))
+                {
+                    if((line != "") && (line.at(0) != '#') && (line.at(0) != ' '))
+                        sql.push_back(line);
+                }
+
+                sqlFile.close();
+
+                Wt::Dbo::Transaction firstRunTransaction(session);
+
+                Log::LogManager::instance().getGlobalLogger()->log("Executing \"firstrun.sql\"..", Ms::Log::LogMessageType::Info);
+
+                for( auto &line : sql)
+                {
+                    session.execute(line);
+                }
+
+                firstRunTransaction.commit();
+            }
+
+            Log::LogManager::instance().getGlobalLogger()->log("Creating default user..", Ms::Log::LogMessageType::Info);
+            //add default user
+            addDefaultUser(session);
+
+            //set default schema attributes
+            Log::LogManager::instance().getGlobalLogger()->log("Settings schema attributes..", Ms::Log::LogMessageType::Info);
+            Wt::Dbo::Transaction schemaAttributesTransaction(session);
+
+            for(const std::string &command : Database::sqlAttributesCommands)
+            {
+                try
+                {
+                    session.execute(command);
+                }
+                catch(Wt::Dbo::Exception e)
+                {
+                    Log::LogManager::instance().getGlobalLogger()->log(std::string("Error setting DB Schema Attributes") + e.what(), Ms::Log::LogMessageType::Error);
+                }
+            }
+
+            schemaAttributesTransaction.commit();
+        }
+    }
+    catch(Wt::Dbo::Exception e)
+    {
+        Log::LogManager::instance().getGlobalLogger()->log(std::string("Can't Create DB Schema ") + e.what(), Ms::Log::LogMessageType::Fatal);
+
+        return false;
+    }
+    catch(...)
+    {
+        Log::LogManager::instance().getGlobalLogger()->log(std::string("Can't Create DB Schema because of unknown error"), Ms::Log::LogMessageType::Fatal);
+
+        return false;
     }
 
-    //theme
-    const std::string *themePtr = env.getParameter("theme");
-    std::string theme;
-    if (!themePtr)
-        theme = "bootstrap3";
-    else
-        theme = *themePtr;
+    return true;
+}
 
-    if(theme == "bootstrap3")
-    {
-        Wt::WBootstrapTheme *bootstrapTheme = new Wt::WBootstrapTheme(app);
-        bootstrapTheme->setVersion(Wt::WBootstrapTheme::Version3);
-        bootstrapTheme->setResponsive(true);
-        app->setTheme(bootstrapTheme);
-
-        // load the default bootstrap3 (sub-)theme
-        app->useStyleSheet("resources/themes/bootstrap/3/bootstrap-theme.min.css");
-      }
-    else if (theme == "bootstrap2")
-    {
-        Wt::WBootstrapTheme *bootstrapTheme = new Wt::WBootstrapTheme(app);
-        bootstrapTheme->setResponsive(true);
-        app->setTheme(bootstrapTheme);
-      }
-    else
-        app->setTheme(new Wt::WCssTheme(theme));
-
-    //main layout
-    Wt::WVBoxLayout *layMain = new Wt::WVBoxLayout(app->root());
-    layMain->setContentsMargins(0,0,0,0);
-    layMain->setSpacing(0);
-
-    Views::ViewMain *viwMain = new Views::ViewMain();
-
-    //add our main view
-    layMain->addWidget(viwMain);
-
-    //init session loggers
-    Auth::AuthManager::instance().initSessionLogger();
-    Database::DatabaseManager::instance().initSessionLogger();
-    Projects::ProjectsManager::instance().initSessionLogger();
-    Users::UsersManager::instance().initSessionLogger();
-
-    //stylesheet
-    app->useStyleSheet("style/focusStyle.css");
-
-    //js required files
-    app->require("resources/themes/bootstrap/js/bootstrap.js");
-    app->require("resources/themes/bootstrap/js/bootstrap.min.js");
-    app->require("resources/themes/bootstrap/js/npm.js");
-
-    //add resources to style WAuthWidget
-    app->messageResourceBundle().use("docroot/resources/xml/auth_strings");
-    app->messageResourceBundle().use("docroot/resources/xml/bootstrap_theme");
-
-    //handle internalPathChange
-    //app->setInternalPath("/auth", true);
-
-    return app;
+Wt::WApplication *createApplication(const Wt::WEnvironment &env, Wt::Dbo::SqlConnectionPool* sqlConnectionPool)
+{
+    return new App::MSApplication(env, *sqlConnectionPool);
 }
 
 int main(int argc, char *argv[])
@@ -140,14 +182,17 @@ int main(int argc, char *argv[])
         exit(-1);
     }
 
-    Log::LogManager::instance().getGlobalLogger()->log("Settings loaded..", Ms::Log::LogMessageType::Info);
-
+    //Auth
+    Log::LogManager::instance().getGlobalLogger()->log("Initializing auth service..", Ms::Log::LogMessageType::Info);
     //configure auth service
     Auth::AuthManager::instance().configureAuth();
 
+    //Database
+    Log::LogManager::instance().getGlobalLogger()->log("Initializing database..", Ms::Log::LogMessageType::Info);
     //initialize database
-    Log::LogManager::instance().getGlobalLogger()->log("Initializing Database..", Ms::Log::LogMessageType::Info);
-    Database::DatabaseManager::instance().initDatabase();
+    Wt::Dbo::SqlConnectionPool *sqlConnectionPool = Database::DboSession::createConnectionPool();
+
+    initDatabase(*sqlConnectionPool);
 
     //run the application
     try
@@ -155,13 +200,16 @@ int main(int argc, char *argv[])
         Wt::WServer server(argv[0]);
 
         server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
-        server.addEntryPoint(Wt::Application, createApplication);
 
-        if (server.start())
-        {
-              Wt::WServer::waitForShutdown();
-              server.stop();
-        }
+        server.addEntryPoint(Wt::Application, boost::bind(&createApplication, _1, sqlConnectionPool));
+
+        server.run();
+
+//        if (server.start())
+//        {
+//              Wt::WServer::waitForShutdown();
+//              server.stop();
+//        }
     }
     catch (Wt::WServer::Exception& e)
     {
@@ -172,5 +220,5 @@ int main(int argc, char *argv[])
         std::cerr << "exception: " << e.what() << std::endl;
     }
 
-    return 0;
+    delete sqlConnectionPool;
 }

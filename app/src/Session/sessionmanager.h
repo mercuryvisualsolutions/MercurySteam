@@ -1,7 +1,10 @@
 #ifndef SESSIONMANAGER_H
 #define SESSIONMANAGER_H
 
-#include <Ms/Log/MLogger.h>
+#include "../Application/msapplication.h"
+#include "../Database/dbosession.h"
+#include "../Log/logger.h"
+
 #include <Ms/Widgets/MPropertiesPanel.h>
 
 namespace Session
@@ -20,17 +23,17 @@ namespace Session
             return man;
         }
 
-        ~SessionManager();
-
+    public:
         //functions
-        Ms::Widgets::MPropertiesPanel *getSessionPropertiesPanel(const std::string &sessionId);
+        Database::DboSession &dboSession();
+        Wt::Auth::Login &login();
+        Wt::Dbo::ptr<Users::User> user();
+
+        Ms::Widgets::MPropertiesPanel *propertiesPanel();
+        Log::Logger *logger();
 
     private:
-        //variables
-        std::map<std::string,Ms::Widgets::MPropertiesPanel*> _sessionsPropertiesPanels;
-
-        //functions
-        void _init();
+        App::MSApplication *getCurrentAppInstance();
     };
 }
 

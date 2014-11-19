@@ -18,7 +18,6 @@ LIBS += -lwthttp -lwt -lwtdbo -lwtdbomysql -lboost_signals -lboost_filesystem -l
 SOURCES += main.cpp \
     Views/Projects/viewprojects.cpp \
     Views/Users/viewusers.cpp \
-    Database/databasemanager.cpp \
     Users/group.cpp \
     Settings/appsettings.cpp \
     Views/Settings/viewsettings.cpp \
@@ -38,8 +37,6 @@ SOURCES += main.cpp \
     Views/Settings/dlgcreateassettype.cpp \
     Views/Settings/dlgcreatetasktype.cpp \
     Views/Settings/dlgcreateworkstatus.cpp \
-    Projects/projectsmanager.cpp \
-    Users/usersmanager.cpp \
     Views/App/viewapp.cpp \
     Views/Main/viewmain.cpp \
     Auth/authmanager.cpp \
@@ -95,12 +92,15 @@ SOURCES += main.cpp \
     Projects/projectactivitytemplate.cpp \
     Projects/projectactivitytemplateactivityitem.cpp \
     Projects/projecttasktemplatetaskitem.cpp \
-    Projects/projecttasktemplate.cpp
+    Projects/projecttasktemplate.cpp \
+    Application/msapplication.cpp \
+    Database/userdatabase.cpp \
+    Database/token.cpp \
+    Database/dbosession.cpp
 
 HEADERS += \
     Views/Projects/viewprojects.h \
     Views/Users/viewusers.h \
-    Database/databasemanager.h \
     Settings/appsettings.h \
     Views/Settings/viewsettings.h \
     Views/Reports/viewreports.h \
@@ -116,8 +116,6 @@ HEADERS += \
     Views/Settings/dlgcreatetasktype.h \
     Views/Settings/settingsdialogs.h \
     Views/Settings/dlgcreateworkstatus.h \
-    Projects/projectsmanager.h \
-    Users/usersmanager.h \
     Views/App/viewapp.h \
     Views/Main/viewmain.h \
     Auth/authmanager.h \
@@ -133,7 +131,6 @@ HEADERS += \
     Views/Log/viewlog.h \
     Views/MyDashboard/viewmydashboard.h \
     Database/globaldbospecialization.h \
-    Database/databasemanager_impl.h \
     Log/logglobals.h \
     Session/sessionmanager.h \
     Log/logger.h \
@@ -166,4 +163,8 @@ HEADERS += \
     Views/Settings/dlgcreateandeditactivitytemplateitem.h \
     Views/Settings/dlgcreateandedittasktemplateitem.h \
     Views/Projects/dlgselecttasktemplate.h \
-    Views/Settings/viewtasktemplate.h
+    Views/Settings/viewtasktemplate.h \
+    Application/msapplication.h \
+    Database/userdatabase.h \
+    Database/dbosession.h \
+    Database/dbosession_impl.h

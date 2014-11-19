@@ -2,7 +2,7 @@
 
 #include <Wt/WBreak>
 
-#include "../../Database/databasemanager.h"
+#include "../../Database/dbosession.h"
 #include "../../Settings/appsettings.h"
 
 Views::DlgSelectTaskTemplate::DlgSelectTaskTemplate()
@@ -63,18 +63,17 @@ void Views::DlgSelectTaskTemplate::_createCmbTemplate()
 
     _mdlCmbTemplate = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectTaskTemplate>>();
 
-    if(!Database::DatabaseManager::instance().openTransaction())
-        return;
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTaskTemplate>> query;
     if(AppSettings::instance().isLoadInactiveData())
-        query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskTemplate>();
+        query = Session::SessionManager::instance().dboSession().find<Projects::ProjectTaskTemplate>();
     else
-        query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskTemplate>().where("Active = ?").bind(true);
+        query = Session::SessionManager::instance().dboSession().find<Projects::ProjectTaskTemplate>().where("Active = ?").bind(true);
 
     _mdlCmbTemplate->setQuery(query);
 
-    Database::DatabaseManager::instance().commitTransaction();
+    transaction.commit();
 
     _mdlCmbTemplate->reload();
 

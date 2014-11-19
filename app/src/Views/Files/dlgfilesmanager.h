@@ -1,6 +1,7 @@
 #ifndef DLGFILESMANAGER_H
 #define DLGFILESMANAGER_H
 
+#include "../../Session/sessionmanager.h"
 #include "../../Log/logger.h"
 
 #include <Wt/WDialog>
@@ -35,6 +36,8 @@ namespace Views
         void setCheckInDisabled(bool disabled);
         bool checkOutDisabled();
         void setCheckOutDisabled(bool disabled);
+        bool viewDisabled();
+        void setViewDisabled(bool disabled);
 
     private:
         //variables
@@ -55,12 +58,14 @@ namespace Views
         Wt::WPushButton *_btnClose;
 
         //variables
+        
         Log::Logger *_logger;
         std::string _rootPath;
         std::string _absoluteRootPath;
         bool _createEnabled;
         bool _checkInEnabled;
         bool _checkOutEnabled;
+        bool _isViewDisabled;
 
         std::vector<Ms::IO::MStreamedFileResource*> _downloadedFiles;
 

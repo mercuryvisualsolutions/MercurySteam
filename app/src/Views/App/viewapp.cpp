@@ -1,9 +1,7 @@
 #include "viewapp.h"
 
 #include "Auth/authmanager.h"
-#include "Users/usersmanager.h"
-#include "Projects/projectsmanager.h"
-#include "Database/databasemanager.h"
+#include "Database/dbosession.h"
 #include "Settings/appsettings.h"
 #include "../../Log/logmanager.h"
 #include "../../Session/sessionmanager.h"
@@ -12,15 +10,17 @@
 #include <Wt/WApplication>
 #include <Wt/WImage>
 
-Views::ViewApp::ViewApp()
-: WContainerWidget()
+Views::ViewApp::ViewApp():
+    WContainerWidget()
 {
-    _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
-    _propertiesPanel = Session::SessionManager::instance().getSessionPropertiesPanel(Wt::WApplication::instance()->sessionId());
+    _logger = Session::SessionManager::instance().logger();
+    _propertiesPanel = Session::SessionManager::instance().propertiesPanel();
 
     _prepareView();
 
-    _mnuSideMain->select(_mnuSideMainProjectsItem);//default start to the main projects page
+    _mnuSideMain->select(_mnuSideMainMyDashboardItem);//default start to the main projects page
+
+    adjustUIPrivileges();
 
     //hide log view by default
     _viwLog->hide();
@@ -29,8 +29,8 @@ Views::ViewApp::ViewApp()
 
 void Views::ViewApp::showAuthView()
 {
-    if(Auth::AuthManager::instance().login().loggedIn())
-        Auth::AuthManager::instance().login().logout();
+    if(Session::SessionManager::instance().login().loggedIn())
+        Session::SessionManager::instance().login().logout();
 }
 
 void Views::ViewApp::showProjectsView()
@@ -71,6 +71,19 @@ void Views::ViewApp::showSettingsView()
     _propertiesPanel->showView(_viwSettings->id());
     _stkMainView->setCurrentWidget(_viwSettings);
     _viwSettings->updateView();
+}
+
+void Views::ViewApp::adjustUIPrivileges()
+{
+    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
+
+    bool hasViewProjectsPriv = user->hasPrivilege("View Projects");
+    bool hasViewUsersAndGroupsPriv = user->hasPrivilege("View Users And Groups");
+    bool hasViewSettingsPriv = user->hasPrivilege("View Settings");
+
+    _mnuSideMainProjectsItem->setHidden(!hasViewProjectsPriv);
+    _mnuSideMainUsersAndGroupsItem->setHidden(!hasViewUsersAndGroupsPriv);
+    _mnuSideMainSettingsItem->setHidden(!hasViewSettingsPriv);
 }
 
 void Views::ViewApp::_globalAppKeyWentDown(Wt::WKeyEvent key)
@@ -275,7 +288,7 @@ void Views::ViewApp::_prepareView()
     _mnuMainRight = new Wt::WMenu();
     _navBarMain->addMenu(_mnuMainRight, Wt::AlignRight);
 
-    _mnuMainRightCurrentUserItem = new Wt::WMenuItem(Auth::AuthManager::instance().login().user().identity(Wt::Auth::Identity::LoginName));
+    _mnuMainRightCurrentUserItem = new Wt::WMenuItem(Session::SessionManager::instance().user()->name());
     _mnuMainRight->addItem(_mnuMainRightCurrentUserItem);//add the mnuMainCurrentUserItem to mnuMain
 
     _mnuMainRightCurrentUserSub = new Wt::WPopupMenu();
@@ -299,50 +312,49 @@ void Views::ViewApp::_prepareView()
     //_mnuSideMain->setInternalPathEnabled();
     _cntMnuSideMain->addWidget(_mnuSideMain);
 
-    //requires "view" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("View"))
-    {
-        //_mnuSideMain->addSectionHeader("Management");
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-        Wt::WContainerWidget *cntProjectMnuItem = new Wt::WContainerWidget();
-        cntProjectMnuItem->setLayout(new Wt::WHBoxLayout());
+    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
 
-        _mnuSideMainProjectsItem = new Wt::WMenuItem("Projects");//projects menu item
-        //_mnuSideMainProjectsItem->setStyleClass("side-menu-item");
-        _mnuSideMainProjectsItem->triggered().connect(this, &Views::ViewApp::_mnuSideMainProjectsItemTriggered);
-        _mnuSideMain->addItem(_mnuSideMainProjectsItem);
+    //_mnuSideMain->addSectionHeader("Management");
 
-        //_mnuSideMain->addSeparator();
+    Wt::WContainerWidget *cntProjectMnuItem = new Wt::WContainerWidget();
+    cntProjectMnuItem->setLayout(new Wt::WHBoxLayout());
 
-        //_mnuSideMain->addSectionHeader("Security");
+    _mnuSideMainProjectsItem = new Wt::WMenuItem("Projects");//projects menu item
+    //_mnuSideMainProjectsItem->setStyleClass("side-menu-item");
+    _mnuSideMainProjectsItem->triggered().connect(this, &Views::ViewApp::_mnuSideMainProjectsItemTriggered);
+    _mnuSideMain->addItem(_mnuSideMainProjectsItem);
 
-        _mnuSideMainUsersAndGroupsItem = new Wt::WMenuItem("Users And Groups");//Users menu item
-        //_mnuSideMainUsersAndGroupsItem->setStyleClass("side-menu-item");
-        _mnuSideMainUsersAndGroupsItem->triggered().connect(this, &Views::ViewApp::_mnuSideMainUsersAndGroupsItemTriggered);
-        _mnuSideMain->addItem(_mnuSideMainUsersAndGroupsItem);
+    //_mnuSideMain->addSeparator();
 
-        //_mnuSideMain->addSeparator();
+    //_mnuSideMain->addSectionHeader("Security");
 
-        //_mnuSideMain->addSectionHeader("Reports");
+    _mnuSideMainUsersAndGroupsItem = new Wt::WMenuItem("Users And Groups");//Users menu item
+    //_mnuSideMainUsersAndGroupsItem->setStyleClass("side-menu-item");
+    _mnuSideMainUsersAndGroupsItem->triggered().connect(this, &Views::ViewApp::_mnuSideMainUsersAndGroupsItemTriggered);
+    _mnuSideMain->addItem(_mnuSideMainUsersAndGroupsItem);
 
-        //_mnuSideMainReportsItem = new Wt::WMenuItem("Reports");//reports menu item
-        //_mnuSideMainReportsItem->triggered().connect(this, &Views::ViewApp::_mnuSideMainReportsItemTriggered);
-        //_mnuSideMain->addItem(_mnuSideMainReportsItem);
+    //_mnuSideMain->addSeparator();
 
-        //_mnuSideMain->addSectionHeader("Search");
+    //_mnuSideMain->addSectionHeader("Reports");
 
-        //_mnuSideMainSearchItem = new Wt::WMenuItem("Search");//search menu item
-        //_mnuSideMainSearchItem->triggered().connect(this, &Views::ViewApp::_mnuSideMainSearchItemTriggered);
-        //_mnuSideMain->addItem(_mnuSideMainSearchItem);
+    //_mnuSideMainReportsItem = new Wt::WMenuItem("Reports");//reports menu item
+    //_mnuSideMainReportsItem->triggered().connect(this, &Views::ViewApp::_mnuSideMainReportsItemTriggered);
+    //_mnuSideMain->addItem(_mnuSideMainReportsItem);
 
-        //_mnuSideMain->addSectionHeader("Settings");
+    //_mnuSideMain->addSectionHeader("Search");
 
-        _mnuSideMainSettingsItem = new Wt::WMenuItem("Settings");//settings menu item
-        //_mnuSideMainSettingsItem->setStyleClass("side-menu-item");
-        _mnuSideMainSettingsItem->triggered().connect(this, &Views::ViewApp::_mnuSideMainSettingsItemTriggered);
-        _mnuSideMain->addItem(_mnuSideMainSettingsItem);
-    }
+    //_mnuSideMainSearchItem = new Wt::WMenuItem("Search");//search menu item
+    //_mnuSideMainSearchItem->triggered().connect(this, &Views::ViewApp::_mnuSideMainSearchItemTriggered);
+    //_mnuSideMain->addItem(_mnuSideMainSearchItem);
 
+    //_mnuSideMain->addSectionHeader("Settings");
+
+    _mnuSideMainSettingsItem = new Wt::WMenuItem("Settings");//settings menu item
+    //_mnuSideMainSettingsItem->setStyleClass("side-menu-item");
+    _mnuSideMainSettingsItem->triggered().connect(this, &Views::ViewApp::_mnuSideMainSettingsItemTriggered);
+    _mnuSideMain->addItem(_mnuSideMainSettingsItem);
     //_mnuSideMain->addSectionHeader("My Steam");
 
     _mnuSideMainMyDashboardItem = new Wt::WMenuItem("My Dashboard");//my tasks menu item
@@ -405,28 +417,32 @@ void Views::ViewApp::_prepareView()
     _cntTxtFooter->addWidget(_txtFooter);
 
     _layMain->addWidget(_cntTxtFooter);
+
+    transaction.commit();
 }
 
 void Views::ViewApp::_prepareChildViews(Wt::WStackedWidget *widget)
 {
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
     //requires "view" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("View"))
-    {
-        _viwUsers = new ViewUsers();
 
-        _viwProjects = new ViewProjects();
-        //_viwReports = new ViewReports();
-        //_viwSearch = new ViewSearch();
-        _viwSettings = new ViewSettings();
+    _viwUsers = new ViewUsers();
 
-        widget->addWidget(_viwProjects);
-        widget->addWidget(_viwUsers);
-        //widget->addWidget(_viwReports);
-        //widget->addWidget(_viwSearch);
-        widget->addWidget(_viwSettings);
-    }
+    _viwProjects = new ViewProjects();
+    //_viwReports = new ViewReports();
+    //_viwSearch = new ViewSearch();
+    _viwSettings = new ViewSettings();
+
+    widget->addWidget(_viwProjects);
+    widget->addWidget(_viwUsers);
+    //widget->addWidget(_viwReports);
+    //widget->addWidget(_viwSearch);
+    widget->addWidget(_viwSettings);
 
     _viwMyDashboard = new ViewMyDashboard();
 
     widget->addWidget(_viwMyDashboard);
+
+    transaction.commit();
 }

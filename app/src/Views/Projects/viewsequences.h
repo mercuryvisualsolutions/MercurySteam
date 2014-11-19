@@ -1,6 +1,7 @@
 #ifndef VIEWSEQUENCES_H
 #define VIEWSEQUENCES_H
 
+#include "../../Session/sessionmanager.h"
 #include "../../Database/dbtables.h"
 #include "../../Log/logger.h"
 
@@ -30,6 +31,8 @@ namespace Views
         bool isOpenFilesOptionHidden();
         void setOpenFilesOptionHidden(bool hidden) const;
 
+        void adjustUIPrivileges();
+
         //Signals
         Wt::Signal<> &createSequenceRequested();
         Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>>> &removeSequencesRequested();
@@ -39,16 +42,15 @@ namespace Views
 
     private:
         //Variables
+        
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectSequence> *_qtvSequences;
+        Log::Logger *_logger;
         //UI
         Wt::WPushButton *_btnCreateSequence;
         Wt::WPushButton *_btnRemoveSequences;
         Wt::WPushButton *_btnEditSequences;
         Wt::WPushButton *_btnImportThumbnails;
         Wt::WPushButton *_btnOpenFilesView;
-
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectSequence> *_qtvSequences;
-        Log::Logger *_logger;
-        //UI variables
         Wt::WVBoxLayout *_layMain;
 
         //Signals

@@ -33,7 +33,6 @@ SOURCES += \
     IO/MStreamedMemoryResource.cpp \
     Widgets/Dialogs/MFilesUploadDialog.cpp \
     IO/MResource.cpp \
-    Core/Dbo/MDboManagerBase.cpp \
     Log/MLogger.cpp \
     Widgets/MLogWidget.cpp \
     Widgets/Delegates/MComboBoxDelegate.cpp \
@@ -43,8 +42,8 @@ SOURCES += \
     Widgets/MContainerWidget.cpp \
     Widgets/MTableViewWidget.cpp \
     Widgets/MQueryTableViewColumn.cpp \
-    Core/MItemModel.cpp \
-    Core/MTableViewColumn.cpp
+    Core/MTableViewColumn.cpp \
+    Core/Dbo/MDboSession.cpp
 
 HEADERS +=\
     Mscore_global.h \
@@ -78,8 +77,6 @@ HEADERS +=\
     IO/MStreamedFileResource.h \
     IO/MStreamedMemoryResource.h \
     Widgets/Dialogs/MFilesUploadDialog.h \
-    Core/Dbo/MDboManagerBase_impl.h \
-    Core/Dbo/MDboManagerBase.h \
     Widgets/MWidgetFactory_impl.h \
     Log/MLogger.h \
     Log/MLogGlobals.h \
@@ -92,8 +89,9 @@ HEADERS +=\
     Widgets/MContainerWidget.h \
     Widgets/MTableViewWidget.h \
     Widgets/MQueryTableViewColumn.h \
-    Core/MItemModel.h \
-    Core/MTableViewColumn.h
+    Core/MTableViewColumn.h \
+    Core/Dbo/MDboSession_impl.h \
+    Core/Dbo/MDboSession.h
 
 unix {
     target.path = /usr/lib64

@@ -1,33 +1,51 @@
 #include "viewtags.h"
 #include "../../Auth/authmanager.h"
 #include "../../Settings/appsettings.h"
-#include "../../Database/databasemanager.h"
+#include "../../Database/dbosession.h"
 
 #include <Ms/Widgets/MWidgetFactory.h>
 
 Views::ViewTags::ViewTags()
 {
     _prepareView();
+
+    adjustUIPrivileges();
 }
 
-const Ms::Widgets::MQueryTableViewWidget<Database::Tag> *Views::ViewTags::qtvTags() const
+Ms::Widgets::MQueryTableViewWidget<Database::Tag> *Views::ViewTags::qtvTags()
 {
     return _qtvTags;
 }
 
-const Ms::Widgets::MQueryTableViewWidget<Database::Tag> *Views::ViewTags::qtvAssignedTags() const
+Ms::Widgets::MQueryTableViewWidget<Database::Tag> *Views::ViewTags::qtvAssignedTags()
 {
     return _qtvAssignedTags;
 }
 
 bool Views::ViewTags::isCreateOptionHidden() const
 {
-    return _btnCreateTag->isHidden();
+    if(_btnCreateTag)
+        return _btnCreateTag->isHidden();
+
+    return false;
 }
 
 void Views::ViewTags::setCreateOptionHidden(bool hidden)
 {
-    _btnCreateTag->setHidden(hidden);
+    if(_btnCreateTag)
+        _btnCreateTag->setHidden(hidden);
+}
+
+void Views::ViewTags::adjustUIPrivileges()
+{
+    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
+
+    bool hasCreateDboPriv = user->hasPrivilege("Create DBO");
+    bool hasEditPriv = user->hasPrivilege("Edit");
+
+    _btnCreateTag->setHidden(!hasCreateDboPriv);
+    _btnAssignTags->setHidden(!hasEditPriv);
+    _btnUnassignTags->setHidden(!hasEditPriv);
 }
 
 Wt::Signal<> &Views::ViewTags::createTagRequested()
@@ -82,18 +100,14 @@ void Views::ViewTags::_btnClearTagsFilterClicked()
 
 void Views::ViewTags::_createTagsTableView()
 {
-    _qtvTags = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::Tag>(&Database::DatabaseManager::instance());
+    _qtvTags = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::Tag>(Session::SessionManager::instance().dboSession());
     _qtvTags->setImportCSVFeatureEnabled(false);
 
-    //requires "create" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
-    {
-        _btnCreateTag = _qtvTags->createToolButton("", "icons/Add.png", "Create A Custom Tag");
-        _btnCreateTag->clicked().connect(this, &Views::ViewTags::_btnCreateTagClicked);
+    _btnCreateTag = _qtvTags->createToolButton("", "icons/Add.png", "Create A Custom Tag");
+    _btnCreateTag->clicked().connect(this, &Views::ViewTags::_btnCreateTagClicked);
 
-        Wt::WPushButton *btnAssign = _qtvTags->createToolButton("", "icons/AddTo.png", "Add selected tags to selected items");
-        btnAssign->clicked().connect(this, &Views::ViewTags::_btnAssignTagsClicked);
-    }
+    _btnAssignTags = _qtvTags->createToolButton("", "icons/AddTo.png", "Add selected tags to selected items");
+    _btnAssignTags->clicked().connect(this, &Views::ViewTags::_btnAssignTagsClicked);
 
     Wt::WPushButton *btnFilter = _qtvTags->createToolButton("", "icons/Filter.png", "Filter active view by selected tags");
     btnFilter->clicked().connect(this, &Views::ViewTags::_btnTagsFilterClicked);
@@ -104,15 +118,11 @@ void Views::ViewTags::_createTagsTableView()
 
 void Views::ViewTags::_createAssignedTagsTableView()
 {
-    _qtvAssignedTags = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::Tag>(&Database::DatabaseManager::instance());
+    _qtvAssignedTags = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::Tag>(Session::SessionManager::instance().dboSession());
     _qtvAssignedTags->setImportCSVFeatureEnabled(false);
 
-    //requires "create" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
-    {
-        Wt::WPushButton *btn = _qtvAssignedTags->createToolButton("", "icons/RemoveFrom.png", "Remove selected tags from selected items");
-        btn->clicked().connect(this, &Views::ViewTags::_btnUnassignTagsClicked);
-    }
+    _btnUnassignTags = _qtvAssignedTags->createToolButton("", "icons/RemoveFrom.png", "Remove selected tags from selected items");
+    _btnUnassignTags->clicked().connect(this, &Views::ViewTags::_btnUnassignTagsClicked);
 }
 
 void Views::ViewTags::_prepareView()

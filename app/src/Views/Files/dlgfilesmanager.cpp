@@ -1,9 +1,7 @@
 #include "dlgfilesmanager.h"
 #include "dlgcreaterepo.h"
-#include "../../Users/usersmanager.h"
 #include "../../Users/usersio.h"
 #include "../../Log/logmanager.h"
-#include "../../Auth/authmanager.h"
 #include "../../Settings/appsettings.h"
 
 #include <Wt/WIconPair>
@@ -27,9 +25,10 @@
 #include <Ms/Widgets/Dialogs/MFilesUploadDialog.h>
 
 Views::DlgFilesManager::DlgFilesManager(const std::string &rootPath) :
-    _rootPath(rootPath)
+    _rootPath(rootPath),
+    _isViewDisabled(true)
 {
-    _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
+    _logger = Session::SessionManager::instance().logger();
 
     _absoluteRootPath = Ms::IO::absolutePath(AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + _rootPath);
 
@@ -223,7 +222,8 @@ void Views::DlgFilesManager::_trDirsItemSelectionChanged()
 
 void Views::DlgFilesManager::tblFilesItemDoubleClicked(Wt::WModelIndex index)
 {
-    viewItem(index);
+    if(!_isViewDisabled)
+        viewItem(index);
 }
 
 void Views::DlgFilesManager::viewItem(Wt::WModelIndex index)
@@ -346,6 +346,18 @@ bool Views::DlgFilesManager::checkOutDisabled()
 void Views::DlgFilesManager::setCheckOutDisabled(bool disabled)
 {
     _btnCheckOut->setDisabled(disabled);
+}
+
+bool Views::DlgFilesManager::viewDisabled()
+{
+    return _isViewDisabled;
+}
+
+void Views::DlgFilesManager::setViewDisabled(bool disabled)
+{
+    _isViewDisabled = disabled;
+
+    _btnView->setDisabled(disabled);
 }
 
 void Views::DlgFilesManager::_createDirTree()
@@ -473,7 +485,7 @@ std::string Views::DlgFilesManager::_generateDownloadUrl()
 
 std::string Views::DlgFilesManager::_getUniqueTmpFileName()
 {
-    std::string currentUserTmpDir = Users::UsersIO::getUserTempDir(Auth::AuthManager::instance().currentUser()->name());
+    std::string currentUserTmpDir = Users::UsersIO::getUserTempDir(Session::SessionManager::instance().user()->name());
 
     int numFiles = Ms::IO::dirFilesCount(currentUserTmpDir);
 

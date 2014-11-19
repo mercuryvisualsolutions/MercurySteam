@@ -1,5 +1,5 @@
 ﻿#include "../Database/dbtables.h"
-#include "../Database/databasemanager.h"
+#include "../Session/sessionmanager.h"
 #include "../Log/logmanager.h"
 
 #include <Ms/Exceptions/MNullPointerException.h>
@@ -41,16 +41,23 @@ int Users::Group::rank() const
 
 bool Users::Group::hasUser(Wt::Dbo::ptr<Users::User> user) const
 {
-    if(dboManager_ && dboManager_->openTransaction())
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+    bool result = false;
+
+    for(auto iter = _users.begin(); iter != _users.end(); ++iter)
     {
-        for(auto iter = _users.begin(); iter != _users.end(); ++iter)
+        if((*iter).id() == user.id())
         {
-            if((*iter).id() == user.id())
-                return true;
+            result = true;
+
+            break;
         }
     }
 
-    return false;
+    transaction.commit();
+
+    return result;
 }
 
 bool Users::Group::addUser(Wt::Dbo::ptr<Users::User> user)
@@ -77,39 +84,56 @@ bool Users::Group::removeUser(Wt::Dbo::ptr<User> user)
 
 bool Users::Group::hasPrivilege(Wt::Dbo::ptr<Users::Privilege> privilege) const
 {
-    if(dboManager_ && dboManager_->openTransaction())
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+    bool result = false;
+
+    for(auto iter = _privileges.begin(); iter != _privileges.end(); ++iter)
     {
-        for(auto iter = _privileges.begin(); iter != _privileges.end(); ++iter)
+        if((*iter).id() == privilege.id())
         {
-            if((*iter).id() == privilege.id())
-                return true;
+            result = true;
+
+            break;
         }
     }
 
-    return false;
+    transaction.commit();
+
+    return result;
 }
 
 bool Users::Group::hasPrivilege(const char *privilegeName) const
 {
-    if(dboManager_ && dboManager_->openTransaction())
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+    bool result = false;
+
+    for(auto iter = _privileges.begin(); iter != _privileges.end(); ++iter)
     {
-        for(auto iter = _privileges.begin(); iter != _privileges.end(); ++iter)
+        if((*iter)->name() == privilegeName)
         {
-            if((*iter)->name() == privilegeName)
-            {
-                return true;
-            }
+            result = true;
+
+            break;
         }
     }
 
-    return false;
+    transaction.commit();
+
+    return result;
 }
 
 bool Users::Group::addPrivilege(Wt::Dbo::ptr<Users::Privilege> privilege)
 {
     if(!hasPrivilege(privilege))
     {
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
         _privileges.insert(privilege);
+
+        transaction.commit();
+
         return true;
     }
 
@@ -154,8 +178,6 @@ bool Users::Group::operator !=(const Users::Group &other) const
 
 void Users::Group::_init()
 {
-    dboManager_ = &Database::DatabaseManager::instance();
-
     _name = "New Group";
     _rank = 0;
 }

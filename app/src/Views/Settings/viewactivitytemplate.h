@@ -1,6 +1,7 @@
 #ifndef VIEWACTIVITYTEMPLATE_H
 #define VIEWACTIVITYTEMPLATE_H
 
+#include "../../Session/sessionmanager.h"
 #include "../../Database/dbtables.h"
 #include "../../Log/logger.h"
 
@@ -28,6 +29,8 @@ namespace Views
         bool isEditTemplateItemOptionHidden() const;
         void setEditTemplateItemOptionHidden(bool hidden);
 
+        void adjustUIPrivileges();
+
         //Signals
         Wt::Signal<> &createTemplateRequested();
         Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>>> &removeTemplatesRequested();
@@ -36,6 +39,7 @@ namespace Views
 
     private:
         //Variables
+        
         Log::Logger *_logger;
 
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectActivityTemplate> *_qtvTemplates;

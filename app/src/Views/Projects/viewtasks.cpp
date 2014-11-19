@@ -1,7 +1,7 @@
 #include "viewtasks.h"
 #include "../../Auth/authmanager.h"
 #include "../../Settings/appsettings.h"
-#include "../../Database/databasemanager.h"
+#include "../../Database/dbosession.h"
 #include "../../Projects/projectsio.h"
 #include "../Files/dlgfilesmanager.h"
 #include "../../Log/logmanager.h"
@@ -14,12 +14,14 @@
 
 Views::ViewTasks::ViewTasks()
 {
-    _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
+    _logger = Session::SessionManager::instance().logger();
 
     _prepareView();
+
+    adjustUIPrivileges();
 }
 
-Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *Views::ViewTasks::qtvTasks() const
+Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *Views::ViewTasks::qtvTasks()
 {
     return _qtvTasks;
 }
@@ -31,10 +33,9 @@ void Views::ViewTasks::updateView(const std::vector<Wt::Dbo::ptr<Projects::Proje
 {
     try
     {
-        if(!Database::DatabaseManager::instance().openTransaction())
-            return;
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-        Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTask>> query = Database::DatabaseManager::instance().session()->find<Projects::ProjectTask>();
+        Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTask>> query = Session::SessionManager::instance().dboSession().find<Projects::ProjectTask>();
         bool multiDbo = false;
         bool update = false;
 
@@ -44,7 +45,7 @@ void Views::ViewTasks::updateView(const std::vector<Wt::Dbo::ptr<Projects::Proje
         {
             update = true;
 
-            std::vector<std::string> projectsIdValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::Project>(prjVec);
+            std::vector<std::string> projectsIdValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::Project>(prjVec);
 
             strQuery = "(Task_Project_Project_Name IN (" + projectsIdValues.at(0) + "))";
         }
@@ -56,7 +57,7 @@ void Views::ViewTasks::updateView(const std::vector<Wt::Dbo::ptr<Projects::Proje
             else
                 update = true;
 
-            std::vector<std::string> sequencesIdValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectSequence>(seqVec);;
+            std::vector<std::string> sequencesIdValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectSequence>(seqVec);;
 
             if(multiDbo)
                 strQuery += " OR ";
@@ -71,7 +72,7 @@ void Views::ViewTasks::updateView(const std::vector<Wt::Dbo::ptr<Projects::Proje
             else
                 update = true;
 
-            std::vector<std::string> shotsIdValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectShot>(shotVec);
+            std::vector<std::string> shotsIdValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectShot>(shotVec);
 
             if(multiDbo)
                 strQuery += " OR ";
@@ -86,7 +87,7 @@ void Views::ViewTasks::updateView(const std::vector<Wt::Dbo::ptr<Projects::Proje
             else
                 update = true;
 
-            std::vector<std::string> assetsIdValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectAsset>(assetVec);
+            std::vector<std::string> assetsIdValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectAsset>(assetVec);
 
             if(multiDbo)
                 strQuery += " OR ";
@@ -102,7 +103,7 @@ void Views::ViewTasks::updateView(const std::vector<Wt::Dbo::ptr<Projects::Proje
             if(!AppSettings::instance().isLoadInactiveData())
                 query.where("Active = ?").bind(true);
 
-            int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+            int viewRank = Session::SessionManager::instance().user()->viewRank();
             query.where("View_Rank <= ?").bind(viewRank);
         }
         else
@@ -110,33 +111,35 @@ void Views::ViewTasks::updateView(const std::vector<Wt::Dbo::ptr<Projects::Proje
 
         _qtvTasks->setQuery(query);
 
-        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+        transaction.commit();
+
+        bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+        int editRank = Session::SessionManager::instance().user()->editRank();
 
         _qtvTasks->clearColumns();
 
         //add columns
         _qtvTasks->addColumn(Ms::Widgets::MQueryTableViewColumn("id", "ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
         _qtvTasks->addColumn(Ms::Widgets::MQueryTableViewColumn("Task_Type", "Type", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectTaskType>(
-         Database::DatabaseManager::instance().session(),
-         AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskType>() :
-         Database::DatabaseManager::instance().session()->find<Projects::ProjectTaskType>().where("Active = ?").bind(true),
+         &Session::SessionManager::instance().dboSession(),
+         AppSettings::instance().isLoadInactiveData() ? Session::SessionManager::instance().dboSession().find<Projects::ProjectTaskType>() :
+         Session::SessionManager::instance().dboSession().find<Projects::ProjectTaskType>().where("Active = ?").bind(true),
          "Type", editRank), true));
         _qtvTasks->addColumn(Ms::Widgets::MQueryTableViewColumn("Task_User_Name", "Asignee", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Users::User>(
-         Database::DatabaseManager::instance().session(),
-         AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Users::User>() :
-         Database::DatabaseManager::instance().session()->find<Users::User>().where("Active = ?").bind(true),
+         &Session::SessionManager::instance().dboSession(),
+         AppSettings::instance().isLoadInactiveData() ? Session::SessionManager::instance().dboSession().find<Users::User>() :
+         Session::SessionManager::instance().dboSession().find<Users::User>().where("Active = ?").bind(true),
          "Name", editRank), true));
         _qtvTasks->addColumn(Ms::Widgets::MQueryTableViewColumn("Current_Status", "Status", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectWorkStatus>(
-         Database::DatabaseManager::instance().session(),
-         AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>() :
-         Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true),
+         &Session::SessionManager::instance().dboSession(),
+         AppSettings::instance().isLoadInactiveData() ? Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>() :
+         Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true),
          "Status", editRank)));
         _qtvTasks->addColumn(Ms::Widgets::MQueryTableViewColumn("Start_Date", "Start Date", flags, new Ms::Widgets::Delegates::MDateDelegate(editRank)));
         _qtvTasks->addColumn(Ms::Widgets::MQueryTableViewColumn("End_Date", "End Date",flags, new Ms::Widgets::Delegates::MDateDelegate(editRank)));
@@ -177,52 +180,93 @@ void Views::ViewTasks::updateView(const std::vector<Wt::Dbo::ptr<Projects::Proje
 
 bool Views::ViewTasks::isCreateOptionHidden()
 {
-    return _btnCreateTask->isHidden();
+    if(_btnCreateTask)
+        return _btnCreateTask->isHidden();
+
+    return false;
 }
 
 void Views::ViewTasks::setCreateOptionHidden(bool hidden) const
 {
-    _btnCreateTask->setHidden(hidden);
+    if(_btnCreateTask)
+        _btnCreateTask->setHidden(hidden);
 }
 
 bool Views::ViewTasks::isCreateForTemplateOptionHidden()
 {
-    return _btnCreateTasksForTemplate->isHidden();
+    if(_btnCreateTasksForTemplate)
+        return _btnCreateTasksForTemplate->isHidden();
+
+    return false;
 }
 
 void Views::ViewTasks::setCreateForTemplateOptionHidden(bool hidden) const
 {
-    _btnCreateTasksForTemplate->setHidden(hidden);
+    if(_btnCreateTasksForTemplate)
+        _btnCreateTasksForTemplate->setHidden(hidden);
 }
 
 bool Views::ViewTasks::isEditOptionHidden()
 {
-    return _btnEditTasks->isHidden();
+    if(_btnEditTasks)
+        return _btnEditTasks->isHidden();
+
+    return false;
 }
 
 void Views::ViewTasks::setEditOptionHidden(bool hidden) const
 {
-    _btnEditTasks->setHidden(hidden);
+    if(_btnEditTasks)
+        _btnEditTasks->setHidden(hidden);
 }
 
 //bool Views::ViewTasks::isRemoveOptionHidden()
 //{
-//    return _btnRemoveTasks->isHidden();
+//    if(_btnRemoveTasks)
+//        return _btnRemoveTasks->isHidden();
+
+//    return false;
 //}
 
 //void Views::ViewTasks::setRemoveOptionHidden(bool hidden) const
 //{
-//    _btnRemoveTasks->setHidden(hidden);
+//    if(_btnRemoveTasks)
+//        _btnRemoveTasks->setHidden(hidden);
 //}
 
 bool Views::ViewTasks::isOpenFilesOptionHidden()
 {
-    return _btnOpenFilesView->isHidden();
+    if(_btnOpenFilesView)
+        return _btnOpenFilesView->isHidden();
+
+    return false;
 }
 
 void Views::ViewTasks::setOpenFilesOptionHidden(bool hidden) const
 {
-    _btnOpenFilesView->setHidden(hidden);
+    if(_btnOpenFilesView)
+        _btnOpenFilesView->setHidden(hidden);
+}
+
+void Views::ViewTasks::adjustUIPrivileges()
+{
+    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
+
+    bool hasViewFilesPriv = user->hasPrivilege("View Files");
+    bool hasEditPriv = user->hasPrivilege("Edit");
+    bool hasCreateProjectsPriv = user->hasPrivilege("Create Projects");
+    bool hasCheckInPriv = user->hasPrivilege("Check In");
+    bool hasCheckOutPriv = user->hasPrivilege("Check Out");
+    bool hasCreateRepoPriv = user->hasPrivilege("Create Repositories");
+
+    _btnCreateTask->setHidden(!hasCreateProjectsPriv);
+    _btnCreateTasksForTemplate->setHidden(!hasCreateProjectsPriv);
+    _btnEditTasks->setHidden(!hasEditPriv);
+
+    _qtvTasks->setImportCSVFeatureEnabled(hasCreateProjectsPriv);
+
+    bool showTaskFilesButton = hasViewFilesPriv || hasCheckInPriv || hasCheckOutPriv || hasCreateRepoPriv;//if have any of the privileges
+    _btnOpenFilesView->setHidden(!showTaskFilesButton);
 }
 
 Wt::Signal<> &Views::ViewTasks::createTaskRequested()
@@ -277,28 +321,28 @@ void Views::ViewTasks::_btnEditTasksClicked()
             for(auto taskPtr : _qtvTasks->selectedItems())
             {
                 if(dlg->editedStartDate())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTask>(taskPtr)->setStartDate(dlg->startDate());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectTask>(taskPtr)->setStartDate(dlg->startDate());
 
                 if(dlg->editedEndDate())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTask>(taskPtr)->setEndDate(dlg->endDate());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectTask>(taskPtr)->setEndDate(dlg->endDate());
 
                 if(dlg->editedType())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTask>(taskPtr)->setType(dlg->type());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectTask>(taskPtr)->setType(dlg->type());
 
                 if(dlg->editedPriority())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTask>(taskPtr)->setPriority(dlg->priority());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectTask>(taskPtr)->setPriority(dlg->priority());
 
                 if(dlg->editedStatus())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTask>(taskPtr)->setStatus(dlg->status());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectTask>(taskPtr)->setStatus(dlg->status());
 
-                if(dlg->editedStatus())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTask>(taskPtr)->setUser(dlg->user());
+                if(dlg->editedUser())
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectTask>(taskPtr)->setUser(dlg->user());
 
                 if(dlg->editedDescription())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTask>(taskPtr)->setDescription(dlg->description());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectTask>(taskPtr)->setDescription(dlg->description());
 
                 if(dlg->editedActive())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectTask>(taskPtr)->setActive(dlg->isActive());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectTask>(taskPtr)->setActive(dlg->isActive());
             }
 
             _qtvTasks->updateView();
@@ -325,61 +369,67 @@ void Views::ViewTasks::_btnOpenFilesViewClicked()
     {
         if(dlgSelectDbo->result() == Wt::WDialog::Accepted)
         {
-            if(Database::DatabaseManager::instance().openTransaction())
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+            Wt::Dbo::ptr<Projects::ProjectTask> taskPtr =  _qtvTasks->selectedItems().at(0);
+
+            std::string path = "";
+
+            if(dlgSelectDbo->type() == "Project")
             {
-                Wt::Dbo::ptr<Projects::ProjectTask> taskPtr =  _qtvTasks->selectedItems().at(0);
-
-                std::string path = "";
-
-                if(dlgSelectDbo->type() == "Project")
-                {
-                    if(taskPtr->project().get())
-                        path = Projects::ProjectsIO::getRelativeProjectTaskDir(taskPtr->project()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
-                    else
-                        _logger->log("Task does not belong to a project.", Ms::Log::LogMessageType::Warning);
-                }
-                else if(dlgSelectDbo->type() == "Sequence")
-                {
-                    if(taskPtr->sequence().get())
-                        path = Projects::ProjectsIO::getRelativeSequenceTaskDir(taskPtr->sequence()->projectName(), taskPtr->sequence()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
-                    else
-                        _logger->log("Task does not belong to a sequence.", Ms::Log::LogMessageType::Warning);
-                }
-                else if(dlgSelectDbo->type() == "Shot")
-                {
-                    if(taskPtr->shot().get())
-                        path = Projects::ProjectsIO::getRelativeShotTaskDir(taskPtr->shot()->projectName(), taskPtr->shot()->sequenceName(), taskPtr->shot()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
-                    else
-                        _logger->log("Task does not belong to a shot.", Ms::Log::LogMessageType::Warning);
-                }
-                else if(dlgSelectDbo->type() == "Asset")
-                {
-                    if(taskPtr->asset().get())
-                        path = Projects::ProjectsIO::getRelativeAssetTaskDir(taskPtr->asset()->projectName(), taskPtr->asset()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
-                    else
-                        _logger->log("Task does not belong to an asset.", Ms::Log::LogMessageType::Warning);
-                }
-
-                if(path != "")
-                {
-                    DlgFilesManager *dlgFiles = new DlgFilesManager(path);
-                    dlgFiles->finished().connect(std::bind([=]()
-                    {
-                        delete dlgFiles;
-                    }));
-
-                    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
-                        dlgFiles->setCreateDisabled(true);
-                    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In"))
-                        dlgFiles->setCheckInDisabled(true);
-                    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
-                        dlgFiles->setCheckOutDisabled(true);
-
-                    dlgFiles->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
-
-                    _openfilesViewRequested(_qtvTasks->selectedItems());
-                }
+                if(taskPtr->project().get())
+                    path = Projects::ProjectsIO::getRelativeProjectTaskDir(taskPtr->project()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
+                else
+                    _logger->log("Task does not belong to a project.", Ms::Log::LogMessageType::Warning);
             }
+            else if(dlgSelectDbo->type() == "Sequence")
+            {
+                if(taskPtr->sequence().get())
+                    path = Projects::ProjectsIO::getRelativeSequenceTaskDir(taskPtr->sequence()->projectName(), taskPtr->sequence()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
+                else
+                    _logger->log("Task does not belong to a sequence.", Ms::Log::LogMessageType::Warning);
+            }
+            else if(dlgSelectDbo->type() == "Shot")
+            {
+                if(taskPtr->shot().get())
+                    path = Projects::ProjectsIO::getRelativeShotTaskDir(taskPtr->shot()->projectName(), taskPtr->shot()->sequenceName(), taskPtr->shot()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
+                else
+                    _logger->log("Task does not belong to a shot.", Ms::Log::LogMessageType::Warning);
+            }
+            else if(dlgSelectDbo->type() == "Asset")
+            {
+                if(taskPtr->asset().get())
+                    path = Projects::ProjectsIO::getRelativeAssetTaskDir(taskPtr->asset()->projectName(), taskPtr->asset()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
+                else
+                    _logger->log("Task does not belong to an asset.", Ms::Log::LogMessageType::Warning);
+            }
+
+            if(path != "")
+            {
+                DlgFilesManager *dlgFiles = new DlgFilesManager(path);
+                dlgFiles->finished().connect(std::bind([=]()
+                {
+                    delete dlgFiles;
+                }));
+
+                Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
+
+                bool hasViewFilesPriv = user->hasPrivilege("View Files");
+                bool hasCheckInPriv = user->hasPrivilege("Check In");
+                bool hasCheckOutPriv = user->hasPrivilege("Check Out");
+                bool hasCreateRepoPriv = user->hasPrivilege("Create Repositories");
+
+                dlgFiles->setViewDisabled(!hasViewFilesPriv);
+                dlgFiles->setCreateDisabled(!hasCreateRepoPriv);
+                dlgFiles->setCheckInDisabled(!hasCheckInPriv);
+                dlgFiles->setCheckOutDisabled(!hasCheckOutPriv);
+
+                dlgFiles->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
+
+                _openfilesViewRequested(_qtvTasks->selectedItems());
+            }
+
+            transaction.commit();
         }
 
         delete dlgSelectDbo;
@@ -390,44 +440,22 @@ void Views::ViewTasks::_btnOpenFilesViewClicked()
 
 void Views::ViewTasks::_createTasksTableView()
 {
-    _qtvTasks = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectTask>(&Database::DatabaseManager::instance());
+    _qtvTasks = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectTask>(Session::SessionManager::instance().dboSession());
 
-    //requires "create" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
-    {
-        _btnCreateTask = _qtvTasks->createToolButton("", "icons/Add.png", "Create A New Task");
-        _btnCreateTask->clicked().connect(this, &Views::ViewTasks::_btnCreateTaskClicked);
+    _btnCreateTask = _qtvTasks->createToolButton("", "icons/Add.png", "Create A New Task");
+    _btnCreateTask->clicked().connect(this, &Views::ViewTasks::_btnCreateTaskClicked);
 
-        _btnCreateTasksForTemplate = _qtvTasks->createToolButton("", "icons/Template.png", "Create Tasks Based On Template");
-        _btnCreateTasksForTemplate->clicked().connect(this, &Views::ViewTasks::_btnCreateTasksForTemplateClicked);
+    _btnCreateTasksForTemplate = _qtvTasks->createToolButton("", "icons/Template.png", "Create Tasks Based On Template");
+    _btnCreateTasksForTemplate->clicked().connect(this, &Views::ViewTasks::_btnCreateTasksForTemplateClicked);
 
-        _qtvTasks->setImportCSVFeatureEnabled(true);
-    }
-    else
-        _qtvTasks->setImportCSVFeatureEnabled(false);
+    //_btnRemoveTasks = _qtvTasks->createToolButton("", "icons/Remove.png", "Remove Selected Tasks");
+    //_btnRemoveTasks->clicked().connect(this, &Views::ViewTasks::_btnRemoveTasksClicked);
 
-    //requires "remove" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
-    {
-        //_btnRemoveTasks = _qtvTasks->createToolButton("", "icons/Remove.png", "Remove Selected Tasks");
-        //_btnRemoveTasks->clicked().connect(this, &Views::ViewTasks::_btnRemoveTasksClicked);
-    }
+    _btnEditTasks = _qtvTasks->createToolButton("", "icons/Edit.png", "Edit Selected Tasks");
+    _btnEditTasks->clicked().connect(this, &Views::ViewTasks::_btnEditTasksClicked);
 
-    //requires "remove" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
-    {
-        _btnEditTasks = _qtvTasks->createToolButton("", "icons/Edit.png", "Edit Selected Tasks");
-        _btnEditTasks->clicked().connect(this, &Views::ViewTasks::_btnEditTasksClicked);
-    }
-
-    //requires "CheckIn or CheckOut" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In") ||
-            Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out") ||
-            Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
-    {
-        _btnOpenFilesView = _qtvTasks->createToolButton("", "icons/Files.png", "Files Manager");
-        _btnOpenFilesView->clicked().connect(this, &Views::ViewTasks::_btnOpenFilesViewClicked);
-    }
+    _btnOpenFilesView = _qtvTasks->createToolButton("", "icons/Files.png", "Files Manager");
+    _btnOpenFilesView->clicked().connect(this, &Views::ViewTasks::_btnOpenFilesViewClicked);
 }
 
 void Views::ViewTasks::_prepareView()

@@ -1,6 +1,7 @@
 #ifndef VIEWSHOTS_H
 #define VIEWSHOTS_H
 
+#include "../../Session/sessionmanager.h"
 #include "../../Database/dbtables.h"
 #include "../../Log/logger.h"
 
@@ -30,6 +31,8 @@ namespace Views
         bool isOpenFilesOptionHidden();
         void setOpenFilesOptionHidden(bool hidden) const;
 
+        void adjustUIPrivileges();
+
         //Signals
         Wt::Signal<> &createShotRequested();
         Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectShot>>> &removeShotsRequested();
@@ -38,16 +41,15 @@ namespace Views
 
     private:
         //Variables
+        
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectShot> *_qtvShots;
+        Log::Logger *_logger;
         //UI
         Wt::WPushButton *_btnCreateShot;
         Wt::WPushButton *_btnRemoveShots;
         Wt::WPushButton *_btnEditShots;
         Wt::WPushButton *_btnImportThumbnails;
         Wt::WPushButton *_btnOpenFilesView;
-
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectShot> *_qtvShots;
-        Log::Logger *_logger;
-        //UI variables
         Wt::WVBoxLayout *_layMain;
 
         //Signals

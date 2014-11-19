@@ -1,6 +1,7 @@
 #ifndef VIEWTASKACTIVITIES_H
 #define VIEWTASKACTIVITIES_H
 
+#include "../../Session/sessionmanager.h"
 #include "../../Database/dbtables.h"
 #include "../../Log/logger.h"
 
@@ -28,6 +29,8 @@ namespace Views
         bool isEditOptionHidden();
         void setEditOptionHidden(bool hidden) const;
 
+        void adjustUIPrivileges();
+
         //Signals
         Wt::Signal<> &createTaskActivityRequested();
         Wt::Signal<> &createTaskActivitiesForTemplateRequested();
@@ -35,15 +38,14 @@ namespace Views
 
     private:
         //Variables
+        
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskActivity> *_qtvTaskActivities;
+        Log::Logger *_logger;
         //UI
         Wt::WPushButton *_btnCreateTaskActivity;
         Wt::WPushButton *_btnCreateTaskActivitiesForTemplate;
         Wt::WPushButton *_btnRemoveTaskActivities;
         Wt::WPushButton *_btnEditTaskActivities;
-
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskActivity> *_qtvTaskActivities;
-        Log::Logger *_logger;
-        //UI variables
         Wt::WVBoxLayout *_layMain;
 
         //Signals

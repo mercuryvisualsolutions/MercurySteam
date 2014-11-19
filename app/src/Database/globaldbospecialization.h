@@ -1,5 +1,5 @@
 #ifndef GLOBALDBOSPECIALIZATION_H
-#define GLOBlDBOSPECIALIZATION_H
+#define GLOBALDBOSPECIALIZATION_H
 
 #include <iostream>
 #include <string>

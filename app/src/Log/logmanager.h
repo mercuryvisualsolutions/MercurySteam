@@ -25,12 +25,10 @@ namespace Log
 
         //functions
         Ms::Log::MLogger *getGlobalLogger();
-        Logger *getSessionLogger(const std::string &sessionId);
 
     private:
         //variables
         Ms::Log::MLogger *_globalLogger;
-        std::map<std::string,Log::Logger*> _sessionsLoggers;
 
         //functions
         void _init();

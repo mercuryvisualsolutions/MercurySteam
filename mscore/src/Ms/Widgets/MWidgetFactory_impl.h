@@ -8,9 +8,9 @@ namespace Ms
     namespace Widgets
     {
         template<typename T>
-        Ms::Widgets::MQueryTableViewWidget<T> *Ms::Widgets::MWidgetFactory::createQueryTableViewWidget(Core::Dbo::MDboManagerBase *dboManager, Wt::WContainerWidget *parent)
+        Ms::Widgets::MQueryTableViewWidget<T> *Ms::Widgets::MWidgetFactory::createQueryTableViewWidget(Core::Dbo::MDboSession &dboSession, Wt::WContainerWidget *parent)
         {
-            Ms::Widgets::MQueryTableViewWidget<T> *_qtv = new Ms::Widgets::MQueryTableViewWidget<T>(dboManager);
+            Ms::Widgets::MQueryTableViewWidget<T> *_qtv = new Ms::Widgets::MQueryTableViewWidget<T>(dboSession, parent);
             _qtv->setHeaderHeight(24);
             _qtv->setRowHeight(24);
             _qtv->setSelectionMode(Wt::ExtendedSelection);

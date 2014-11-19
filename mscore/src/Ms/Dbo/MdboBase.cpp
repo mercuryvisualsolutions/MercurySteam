@@ -93,14 +93,14 @@ Ms::Dbo::MDboBase *Ms::Dbo::MDboBase::modify()
     return this;
 }
 
-Ms::Core::Dbo::MDboManagerBase *Ms::Dbo::MDboBase::dboManager() const
+const Ms::Core::Dbo::MDboSession *Ms::Dbo::MDboBase::dboSession() const
 {
-    return dboManager_;
+    return dboSession_;
 }
 
-void Ms::Dbo::MDboBase::setDboManager(Core::Dbo::MDboManagerBase *dboManager)
+void Ms::Dbo::MDboBase::setDboManager(const Core::Dbo::MDboSession *dboSession)
 {
-    dboManager_ = dboManager;
+    dboSession_ = dboSession;
 }
 
 void Ms::Dbo::MDboBase::_init()

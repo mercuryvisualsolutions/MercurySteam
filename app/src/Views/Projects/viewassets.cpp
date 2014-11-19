@@ -1,7 +1,7 @@
 #include "viewassets.h"
 #include "../../Auth/authmanager.h"
 #include "../../Settings/appsettings.h"
-#include "../../Database/databasemanager.h"
+#include "../../Database/dbosession.h"
 #include "../../Projects/projectsio.h"
 #include "../Files/dlgfilesmanager.h"
 #include "../../Log/logmanager.h"
@@ -13,9 +13,11 @@
 
 Views::ViewAssets::ViewAssets()
 {
-    _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
+    _logger = Session::SessionManager::instance().logger();
 
     _prepareView();
+
+    adjustUIPrivileges();
 }
 
 Ms::Widgets::MQueryTableViewWidget<Projects::ProjectAsset> *Views::ViewAssets::qtvAssets() const
@@ -27,14 +29,13 @@ void Views::ViewAssets::updateView(const std::vector<Wt::Dbo::ptr<Projects::Proj
 {
     try
     {
-        if(!Database::DatabaseManager::instance().openTransaction())
-            return;
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-        Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectAsset>> query = Database::DatabaseManager::instance().session()->find<Projects::ProjectAsset>();
+        Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectAsset>> query = Session::SessionManager::instance().dboSession().find<Projects::ProjectAsset>();
 
         if(prjVec.size() > 0)
         {
-            std::vector<std::string> projectsIdValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::Project>(prjVec);
+            std::vector<std::string> projectsIdValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::Project>(prjVec);
 
             //generate the where clause
             query.where("Asset_Project_Project_Name IN (" + projectsIdValues.at(0) + ")");
@@ -43,7 +44,7 @@ void Views::ViewAssets::updateView(const std::vector<Wt::Dbo::ptr<Projects::Proj
             if(!AppSettings::instance().isLoadInactiveData())
                 query.where("Active = ?").bind(true);
 
-            int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+            int viewRank = Session::SessionManager::instance().user()->viewRank();
             query.where("View_Rank <= ?").bind(viewRank);
         }
         else
@@ -51,14 +52,16 @@ void Views::ViewAssets::updateView(const std::vector<Wt::Dbo::ptr<Projects::Proj
 
         _qtvAssets->setQuery(query);
 
-        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+        transaction.commit();
+
+        bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+        int editRank = Session::SessionManager::instance().user()->editRank();
 
         _qtvAssets->clearColumns();
 
@@ -67,15 +70,15 @@ void Views::ViewAssets::updateView(const std::vector<Wt::Dbo::ptr<Projects::Proj
         _qtvAssets->addColumn(Ms::Widgets::MQueryTableViewColumn("Asset_Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
         _qtvAssets->addColumn(Ms::Widgets::MQueryTableViewColumn("Asset_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
         _qtvAssets->addColumn(Ms::Widgets::MQueryTableViewColumn("Asset_Type", "Type", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectAssetType>(
-         Database::DatabaseManager::instance().session(),
-         AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Projects::ProjectAssetType>() :
-         Database::DatabaseManager::instance().session()->find<Projects::ProjectAssetType>().where("Active = ?").bind(true),
+         &Session::SessionManager::instance().dboSession(),
+         AppSettings::instance().isLoadInactiveData() ? Session::SessionManager::instance().dboSession().find<Projects::ProjectAssetType>() :
+         Session::SessionManager::instance().dboSession().find<Projects::ProjectAssetType>().where("Active = ?").bind(true),
          "Type", editRank)));
         _qtvAssets->addColumn(Ms::Widgets::MQueryTableViewColumn("Start_Date", "Start Date", flags, new Ms::Widgets::Delegates::MDateDelegate(editRank)));
         _qtvAssets->addColumn(Ms::Widgets::MQueryTableViewColumn("End_Date", "End Date", flags, new Ms::Widgets::Delegates::MDateDelegate(editRank)));
         _qtvAssets->addColumn(Ms::Widgets::MQueryTableViewColumn("Current_Status", "Status", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectWorkStatus>(
-        Database::DatabaseManager::instance().session(),AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>() :
-         Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true), "Status", editRank)));
+        &Session::SessionManager::instance().dboSession(),AppSettings::instance().isLoadInactiveData() ? Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>() :
+         Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true), "Status", editRank)));
         _qtvAssets->addColumn(Ms::Widgets::MQueryTableViewColumn("Description", "Description", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
         _qtvAssets->addColumn(Ms::Widgets::MQueryTableViewColumn("Priority", "Priority", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
 
@@ -92,52 +95,93 @@ void Views::ViewAssets::updateView(const std::vector<Wt::Dbo::ptr<Projects::Proj
 
 bool Views::ViewAssets::isCreateOptionHidden()
 {
-    return _btnCreateAsset->isHidden();
+    if(_btnCreateAsset)
+        return _btnCreateAsset->isHidden();
+
+    return false;
 }
 
 void Views::ViewAssets::setCreateOptionHidden(bool hidden) const
 {
-    _btnCreateAsset->setHidden(hidden);
+    if(_btnCreateAsset)
+        _btnCreateAsset->setHidden(hidden);
 }
 
 bool Views::ViewAssets::isEditOptionHidden()
 {
-    return _btnEditAssets->isHidden();
+    if(_btnEditAssets)
+        return _btnEditAssets->isHidden();
+
+    return false;
 }
 
 void Views::ViewAssets::setEditOptionHidden(bool hidden) const
 {
-    _btnEditAssets->setHidden(hidden);
+    if(_btnEditAssets)
+        _btnEditAssets->setHidden(hidden);
 }
 
 //bool Views::ViewAssets::isRemoveOptionHidden()
 //{
-//    return _btnRemoveAssets->isHidden();
+//    if(_btnRemoveAssets)
+//        return _btnRemoveAssets->isHidden();
+
+//    return false;
 //}
 
 //void Views::ViewAssets::setRemoveOptionHidden(bool hidden) const
 //{
-//    _btnRemoveAssets->setHidden(hidden);
+//    if(_btnRemoveAssets)
+//        _btnRemoveAssets->setHidden(hidden);
 //}
 
 bool Views::ViewAssets::isImportThumbnailsOptionHidden()
 {
-    return _btnImportThumbnails->isHidden();
+    if(_btnImportThumbnails)
+        return _btnImportThumbnails->isHidden();
+
+    return false;
 }
 
 void Views::ViewAssets::setImportThumbnailsOptionHidden(bool hidden) const
 {
-    _btnImportThumbnails->setHidden(hidden);
+    if(_btnImportThumbnails)
+        _btnImportThumbnails->setHidden(hidden);
 }
 
 bool Views::ViewAssets::isOpenFilesOptionHidden()
 {
-    return _btnOpenFilesView->isHidden();
+    if(_btnOpenFilesView)
+        return _btnOpenFilesView->isHidden();
+
+    return false;
 }
 
 void Views::ViewAssets::setOpenFilesOptionHidden(bool hidden) const
 {
-    _btnOpenFilesView->setHidden(hidden);
+    if(_btnOpenFilesView)
+        _btnOpenFilesView->setHidden(hidden);
+}
+
+void Views::ViewAssets::adjustUIPrivileges()
+{
+    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
+
+    bool hasViewFilesPriv = user->hasPrivilege("View Files");
+    bool hasEditPriv = user->hasPrivilege("Edit");
+    bool hasCreateProjectsPriv = user->hasPrivilege("Create Projects");
+    bool hasCheckInPriv = user->hasPrivilege("Check In");
+    bool hasCheckOutPriv = user->hasPrivilege("Check Out");
+    bool hasCreateRepoPriv = user->hasPrivilege("Create Repositories");
+
+    _btnCreateAsset->setHidden(!hasCreateProjectsPriv);
+    _btnImportThumbnails->setHidden(!hasEditPriv);
+    _btnEditAssets->setHidden(!hasEditPriv);
+
+    _qtvAssets->setImportCSVFeatureEnabled(hasCreateProjectsPriv);
+
+    bool showTaskFilesButton = hasViewFilesPriv || hasCheckInPriv || hasCheckOutPriv || hasCreateRepoPriv;//if have any of the privileges
+    _btnOpenFilesView->setHidden(!showTaskFilesButton);
 }
 
 Wt::Signal<> &Views::ViewAssets::createAssetRequested()
@@ -187,25 +231,25 @@ void Views::ViewAssets::_btnEditAssetsClicked()
             for(auto assetPtr : _qtvAssets->selectedItems())
             {
                 if(dlg->editedStartDate())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectAsset>(assetPtr)->setStartDate(dlg->startDate());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectAsset>(assetPtr)->setStartDate(dlg->startDate());
 
                 if(dlg->editedEndDate())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectAsset>(assetPtr)->setEndDate(dlg->endDate());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectAsset>(assetPtr)->setEndDate(dlg->endDate());
 
                 if(dlg->editedType())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectAsset>(assetPtr)->setType(dlg->assetType());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectAsset>(assetPtr)->setType(dlg->assetType());
 
                 if(dlg->editedPriority())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectAsset>(assetPtr)->setPriority(dlg->priority());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectAsset>(assetPtr)->setPriority(dlg->priority());
 
                 if(dlg->editedStatus())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectAsset>(assetPtr)->setStatus(dlg->status());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectAsset>(assetPtr)->setStatus(dlg->status());
 
                 if(dlg->editedDescription())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectAsset>(assetPtr)->setDescription(dlg->description());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectAsset>(assetPtr)->setDescription(dlg->description());
 
                 if(dlg->editedActive())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectAsset>(assetPtr)->setActive(dlg->isActive());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectAsset>(assetPtr)->setActive(dlg->isActive());
             }
 
             _qtvAssets->updateView();
@@ -235,8 +279,7 @@ void Views::ViewAssets::_btnImportThumbnailsClicked()
                 std::string rawFileName = pair.second.substr(0, lastIndex);
 
                 //match thumbnail by asset name
-                if(!Database::DatabaseManager::instance().openTransaction())
-                    return;
+                Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
                 //loop for all assets
                 for(int i = 0; i < _qtvAssets->model()->rowCount(); ++i)
@@ -263,6 +306,8 @@ void Views::ViewAssets::_btnImportThumbnailsClicked()
                         break;//asset mtching thumbnail name found, exit loop
                     }
                 }
+
+                transaction.commit();
             }
             catch(Wt::WException e)
             {
@@ -300,71 +345,52 @@ void Views::ViewAssets::_btnOpenFilesViewClicked()
 
     Wt::Dbo::ptr<Projects::ProjectAsset> assetPtr =  _qtvAssets->selectedItems().at(0);
 
-    DlgFilesManager *dlg = new DlgFilesManager(Projects::ProjectsIO::getRelativeAssetDir(assetPtr->projectName(), assetPtr->name()) + Ms::IO::dirSeparator() + "files");
-    dlg->finished().connect(std::bind([=]()
+    DlgFilesManager *dlgFiles = new DlgFilesManager(Projects::ProjectsIO::getRelativeAssetDir(assetPtr->projectName(), assetPtr->name()) + Ms::IO::dirSeparator() + "files");
+    dlgFiles->finished().connect(std::bind([=]()
     {
-        delete dlg;
+        delete dlgFiles;
     }));
 
-    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
-        dlg->setCreateDisabled(true);
-    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In"))
-        dlg->setCheckInDisabled(true);
-    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
-        dlg->setCheckOutDisabled(true);
+    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
 
-    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
+    bool hasViewFilesPriv = user->hasPrivilege("View Files");
+    bool hasCheckInPriv = user->hasPrivilege("Check In");
+    bool hasCheckOutPriv = user->hasPrivilege("Check Out");
+    bool hasCreateRepoPriv = user->hasPrivilege("Create Repositories");
+
+    dlgFiles->setViewDisabled(!hasViewFilesPriv);
+    dlgFiles->setCreateDisabled(!hasCreateRepoPriv);
+    dlgFiles->setCheckInDisabled(!hasCheckInPriv);
+    dlgFiles->setCheckOutDisabled(!hasCheckOutPriv);
+
+    dlgFiles->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 
     _openfilesViewRequested(_qtvAssets->selectedItems());
 }
 
 void Views::ViewAssets::_createAssetsTableView()
 {
-    _qtvAssets = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectAsset>(&Database::DatabaseManager::instance());
+    _qtvAssets = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectAsset>(Session::SessionManager::instance().dboSession());
     _qtvAssets->setRowHeight(160);
     _qtvAssets->setDefaultFilterColumnIndex(1);
     _qtvAssets->setIgnoreNumFilterColumns(1);
 
-    //requires "create" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
-    {
-        _btnCreateAsset = _qtvAssets->createToolButton("", "icons/Add.png", "Create A New Asset");
-        _btnCreateAsset->clicked().connect(this, &Views::ViewAssets::_btnCreateAssetClicked);
+    _btnCreateAsset = _qtvAssets->createToolButton("", "icons/Add.png", "Create A New Asset");
+    _btnCreateAsset->clicked().connect(this, &Views::ViewAssets::_btnCreateAssetClicked);
 
-        _qtvAssets->setImportCSVFeatureEnabled(true);
-    }
-    else
-        _qtvAssets->setImportCSVFeatureEnabled(false);
+    _qtvAssets->setImportCSVFeatureEnabled(true);
 
-    //requires "remove" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
-    {
-        //_btnRemoveAssets = _qtvAssets->createToolButton("", "icons/Remove.png", "Remove Selected Assets");
-        //_btnRemoveAssets->clicked().connect(this, &Views::ViewAssets::_btnRemoveAssetsClicked);
-    }
+//    _btnRemoveAssets = _qtvAssets->createToolButton("", "icons/Remove.png", "Remove Selected Assets");
+//    _btnRemoveAssets->clicked().connect(this, &Views::ViewAssets::_btnRemoveAssetsClicked);
 
-    //requires "view" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
-    {
-        _btnImportThumbnails = _qtvAssets->createToolButton("", "icons/Thumbnail.png", "Import Thumbnails");
-        _btnImportThumbnails->clicked().connect(this, &Views::ViewAssets::_btnImportThumbnailsClicked);
-    }
+    _btnImportThumbnails = _qtvAssets->createToolButton("", "icons/Thumbnail.png", "Import Thumbnails");
+    _btnImportThumbnails->clicked().connect(this, &Views::ViewAssets::_btnImportThumbnailsClicked);
 
-    //requires "view" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
-    {
-        _btnEditAssets = _qtvAssets->createToolButton("", "icons/Edit.png", "Edit Selected Assets");
-        _btnEditAssets->clicked().connect(this, &Views::ViewAssets::_btnEditAssetsClicked);
-    }
+    _btnEditAssets = _qtvAssets->createToolButton("", "icons/Edit.png", "Edit Selected Assets");
+    _btnEditAssets->clicked().connect(this, &Views::ViewAssets::_btnEditAssetsClicked);
 
-    //requires "CheckIn or CheckOut" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In") ||
-            Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out") ||
-            Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
-    {
-        _btnOpenFilesView = _qtvAssets->createToolButton("", "icons/Files.png", "Files Manager");
-        _btnOpenFilesView->clicked().connect(this, &Views::ViewAssets::_btnOpenFilesViewClicked);
-    }
+    _btnOpenFilesView = _qtvAssets->createToolButton("", "icons/Files.png", "Files Manager");
+    _btnOpenFilesView->clicked().connect(this, &Views::ViewAssets::_btnOpenFilesViewClicked);
 }
 
 void Views::ViewAssets::_prepareView()

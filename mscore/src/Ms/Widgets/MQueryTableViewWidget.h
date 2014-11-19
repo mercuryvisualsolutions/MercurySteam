@@ -30,7 +30,7 @@
 #include <Wt/WMemoryResource>
 #include <Wt/WSlider>
 
-#include "../Core/Dbo/MDboManagerBase.h"
+#include "../Core/Dbo/MDboSession.h"
 #include "MContainerWidget.h"
 
 namespace Ms
@@ -42,8 +42,7 @@ namespace Ms
         {
         public:
             //constructors
-            MQueryTableViewWidget(Wt::WContainerWidget *parent = 0);
-            MQueryTableViewWidget(Ms::Core::Dbo::MDboManagerBase *dboManager, Wt::WContainerWidget *parent = 0);
+            MQueryTableViewWidget(Ms::Core::Dbo::MDboSession &dboSession, Wt::WContainerWidget *parent = 0);
 
             //destructor
             ~MQueryTableViewWidget();
@@ -63,8 +62,8 @@ namespace Ms
             const Wt::WLength headerHeight() const;
             void setQuery(Wt::Dbo::Query<Wt::Dbo::ptr<T>> &query) const;
             Wt::Dbo::Query<Wt::Dbo::ptr<T>> &query() const;
-            const Ms::Core::Dbo::MDboManagerBase *dboManager() const;
-            void setDboManager(Ms::Core::Dbo::MDboManagerBase *dboManager);
+            const Ms::Core::Dbo::MDboSession *dboSession() const;
+            void setDboSession(Ms::Core::Dbo::MDboSession &dboSession);
             void setDefaultFilterColumnIndex(int columnIndex);
             int defaultFilterColumnIndex();
             void setSelectionMode(Wt::SelectionMode mode);
@@ -79,7 +78,7 @@ namespace Ms
             bool isColumnResizeEnabled() const;
             void setAlternatingRowColors(bool enable);
             bool alternatingRowColors() const;
-            void updateView() const;
+            void updateView();
             void saveSelection() const;
             void loadSelection() const;
             void selectAll() const;
@@ -140,14 +139,14 @@ namespace Ms
             void _sldRowHeightValueChanged();
 
             //functions
-            void _importCSV(const std::string &fileName) const;
+            void _importCSV(const std::string &fileName);
             std::string _generateCSVData() const;
             void _setModelUserName(const std::string &name) const;
             void _refilter() const;
             void _createMainTable();
             void _createAdvancedFilterView();
             void _createPropertiesView();
-            void _updateModel() const;
+            void _updateModel();
             void _updateTable() const;
             void _updateAdvancedFilterTable() const;
             void _toggleAdvancedFilterView() const;
@@ -158,7 +157,7 @@ namespace Ms
             mutable Wt::Dbo::Query<Wt::Dbo::ptr<T>> _query;
             mutable Wt::Dbo::Query<Wt::Dbo::ptr<T>> _queryFilter;
             mutable std::vector<typename Wt::Dbo::dbo_traits<T>::IdType> _selection;//for saving/loading selection in view
-            Ms::Core::Dbo::MDboManagerBase *_dboManager;
+            Ms::Core::Dbo::MDboSession &_dboSession;
             int _defaultFilterColumnIndex;
             Wt::WString _filterRegExpression;
             int _ignoreNumFilterColumns;//numbers of columns to ignore when filtering

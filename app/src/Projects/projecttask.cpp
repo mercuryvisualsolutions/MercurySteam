@@ -1,5 +1,5 @@
 #include "../Database/dbtables.h"
-#include "../Database/databasemanager.h"
+#include "../Session/sessionmanager.h"
 
 Projects::ProjectTask::ProjectTask() :
     ProjectDbo()
@@ -26,16 +26,17 @@ int Projects::ProjectTask::totalHours() const
 {
     int totalHours = 0;
 
-    if(dboManager_ && dboManager_->openTransaction())
-    {
-        for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
-        {
-            if(!(*iter)->active())
-                continue;
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-            totalHours += (*iter)->hours();
-        }
+    for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
+    {
+        if(!(*iter)->active())
+            continue;
+
+        totalHours += (*iter)->hours();
     }
+
+    transaction.commit();
 
     return totalHours;
 }
@@ -44,17 +45,18 @@ int Projects::ProjectTask::doneHours() const
 {
     int finishedHours = 0;
 
-    if(dboManager_ && dboManager_->openTransaction())
-    {
-        for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
-        {
-            if(!(*iter)->active())
-                continue;
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-            if((*iter)->status()->workStatusType()->workStatusType() == "Done")//finished task
-                finishedHours += (*iter)->hours();
-        }
+    for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
+    {
+        if(!(*iter)->active())
+            continue;
+
+        if((*iter)->status()->workStatusType()->workStatusType() == "Done")//finished task
+            finishedHours += (*iter)->hours();
     }
+
+    transaction.commit();
 
     return finishedHours;
 }
@@ -131,25 +133,35 @@ void Projects::ProjectTask::setAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset)
 
 bool Projects::ProjectTask::hasActivity(Wt::Dbo::ptr<Projects::ProjectTaskActivity> activity) const
 {
-    if(dboManager_ && dboManager_->openTransaction())
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+    bool result = false;
+
+    for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
     {
-        for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
+        if((*iter).id() == activity.id())
         {
-            if((*iter).id() == activity.id())
-            {
-                return true;
-            }
+            result = true;
+
+            break;
         }
     }
 
-    return false;
+    transaction.commit();
+
+    return result;
 }
 
 bool Projects::ProjectTask::addActivity(Wt::Dbo::ptr<Projects::ProjectTaskActivity> activity)
 {
     if(!hasActivity(activity))
     {
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
         _activities.insert(activity);
+
+        transaction.commit();
+
         return true;
     }
 
@@ -160,7 +172,12 @@ bool Projects::ProjectTask::removeActivity(Wt::Dbo::ptr<Projects::ProjectTaskAct
 {
     if(hasActivity(activity))
     {
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
         _activities.erase(activity);
+
+        transaction.commit();
+
         return true;
     }
 
@@ -186,25 +203,24 @@ int Projects::ProjectTask::doneActivities() const
 {
     int doneActivities = 0;
 
-    if(dboManager_ && dboManager_->openTransaction())
-    {
-        for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
-        {
-            if(!(*iter)->active())
-                continue;
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-            if((*iter)->status()->workStatusType()->workStatusType() == "Done")
-                doneActivities++;
-        }
+    for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
+    {
+        if(!(*iter)->active())
+            continue;
+
+        if((*iter)->status()->workStatusType()->workStatusType() == "Done")
+            doneActivities++;
     }
+
+    transaction.commit();
 
     return doneActivities;
 }
 
 void Projects::ProjectTask::_init()
 {
-    dboManager_ = &Database::DatabaseManager::instance();
-
     thumbnail_ = "pics/NoPreviewBig.png";
     _acceptedByUser = false;
 }

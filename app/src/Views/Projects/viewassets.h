@@ -1,6 +1,7 @@
 #ifndef VIEWASSETS_H
 #define VIEWASSETS_H
 
+#include "../../Session/sessionmanager.h"
 #include "../../Database/dbtables.h"
 #include "../../Log/logger.h"
 
@@ -16,6 +17,7 @@ namespace Views
     public:
         ViewAssets();
 
+        //functions
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectAsset> *qtvAssets() const;
         void updateView(const std::vector<Wt::Dbo::ptr<Projects::Project>> &prjVec) const;
 
@@ -30,6 +32,8 @@ namespace Views
         bool isOpenFilesOptionHidden();
         void setOpenFilesOptionHidden(bool hidden) const;
 
+        void adjustUIPrivileges();
+
         //Signals
         Wt::Signal<> &createAssetRequested();
         Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectAsset>>> &removeAssetsRequested();
@@ -38,16 +42,15 @@ namespace Views
 
     private:
         //Variables
+        
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectAsset> *_qtvAssets;
+        Log::Logger *_logger;
         //UI
         Wt::WPushButton *_btnCreateAsset;
         Wt::WPushButton *_btnRemoveAssets;
         Wt::WPushButton *_btnEditAssets;
         Wt::WPushButton *_btnImportThumbnails;
         Wt::WPushButton *_btnOpenFilesView;
-
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectAsset> *_qtvAssets;
-        Log::Logger *_logger;
-        //UI variables
         Wt::WVBoxLayout *_layMain;
 
         //Signals

@@ -1,5 +1,5 @@
 #include "../Database/dbtables.h"
-#include "../Database/databasemanager.h"
+#include "../Session/sessionmanager.h"
 #include "../Log/logmanager.h"
 
 Users::UserTitle::UserTitle() :
@@ -48,7 +48,5 @@ bool Users::UserTitle::operator !=(const Users::UserTitle &other) const
 
 void Users::UserTitle::_init()
 {
-    dboManager_ = &Database::DatabaseManager::instance();
-
     _name = "New User Title";
 }

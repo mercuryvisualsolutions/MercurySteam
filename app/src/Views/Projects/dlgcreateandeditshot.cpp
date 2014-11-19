@@ -3,7 +3,7 @@
 
 #include <Wt/WBreak>
 
-#include "../../Database/databasemanager.h"
+#include "../../Database/dbosession.h"
 #include "../../Settings/appsettings.h"
 
 Views::DlgCreateAndEditShot::DlgCreateAndEditShot(bool editing) :
@@ -351,18 +351,17 @@ void Views::DlgCreateAndEditShot::_createCmbStatus()
 
     _mdlCmbStatus = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatus>>();
 
-    if(!Database::DatabaseManager::instance().openTransaction())
-        return;
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectWorkStatus>> query;
     if(AppSettings::instance().isLoadInactiveData())
-        query = Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>();
+        query = Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>();
     else
-        query = Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true);
+        query = Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true);
 
     _mdlCmbStatus->setQuery(query);
 
-    Database::DatabaseManager::instance().commitTransaction();
+    transaction.commit();
 
     _mdlCmbStatus->reload();
 

@@ -1,6 +1,19 @@
 #ifndef VIEWUSERS_H
 #define VIEWUSERS_H
 
+#include "../../Database/dbtables.h"
+#include "../../Log/logger.h"
+#include "../../Session/sessionmanager.h"
+#include "viewprivileges.h"
+#include "../Database/viewdbodata.h"
+#include "../Database/viewtags.h"
+#include "../Database/viewnotes.h"
+#include "../../Auth/authmanager.h"
+
+#include <Ms/Widgets/MWidgetFactory.h>
+#include <Ms/Widgets/MQueryTableViewWidget.h>
+#include <Ms/Widgets/MContainerWidget.h>
+
 #include <Wt/WContainerWidget>
 #include <Wt/WVBoxLayout>
 #include <Wt/WHBoxLayout>
@@ -21,21 +34,9 @@
 
 #include <utility>
 
-#include "../../Database/dbtables.h"
-#include "../../Log/logger.h"
-#include "../../Session/sessionmanager.h"
-#include "viewprivileges.h"
-#include "../Database/viewdbodata.h"
-#include "../Database/viewtags.h"
-#include "../Database/viewnotes.h"
-
-#include <Ms/Widgets/MWidgetFactory.h>
-#include <Ms/Widgets/MQueryTableViewWidget.h>
-#include <Ms/Widgets/MContainerWidget.h>
-
 namespace Views
 {
-    using userData = boost::tuple<Wt::Dbo::ptr<Users::User>, Wt::Dbo::ptr<Users::AuthInfo>, Wt::Dbo::ptr<Users::AuthInfo::AuthIdentityType>>;
+    //using userData = boost::tuple<Wt::Dbo::ptr<Users::User>, Wt::Dbo::ptr<Auth::AuthInfo>, Wt::Dbo::ptr<Auth::AuthInfo::AuthIdentityType>>;
 
     class ViewUsers : public Ms::Widgets::MContainerWidget
     {
@@ -55,6 +56,8 @@ namespace Views
         Ms::Widgets::MQueryTableViewWidget<Users::User> *usersQueryTableView() const;
         Ms::Widgets::MQueryTableViewWidget<Users::Group> *groupsQueryTableView() const;
 
+        void adjustUIPrivileges();
+
         //Signals
         Wt::Signal<> &onTabUsersSelected();
         Wt::Signal<> &onTabGroupsSelected();
@@ -70,6 +73,7 @@ namespace Views
         void _unAssignTagFromDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
 
         //variables
+        
         Log::Logger *_logger;
         Ms::Widgets::MPropertiesPanel *_propertiesPanel;
 
@@ -92,6 +96,9 @@ namespace Views
 
         /*******************--Users--********************/
         Ms::Widgets::MQueryTableViewWidget<Users::User> *_qtvUsers;
+        Wt::WPushButton *_btnCreateUser;
+        Wt::WPushButton *_btnChangeUserPassword;
+        Wt::WPushButton *_btnImportUsersThumbnails;
         //slots
         void _btnUsersCreateClicked();
         void _btnUsersChangePasswordClicked();
@@ -103,6 +110,7 @@ namespace Views
 
         /*******************--Groups--********************/
         Ms::Widgets::MQueryTableViewWidget<Users::Group> *_qtvGroups;
+        Wt::WPushButton *_btnCreateGroup;
         //slots
         void _btnGroupsCreateClicked();
         void _btnGroupsRemoveClicked();

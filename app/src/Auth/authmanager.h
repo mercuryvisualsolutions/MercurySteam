@@ -1,6 +1,8 @@
 #ifndef AUTHMANAGER_H
 #define AUTHMANAGER_H
 
+#include "../Database/dbosession.h"
+
 #include <Log/logger.h>
 
 #include <Wt/Auth/Login>
@@ -14,16 +16,8 @@
 
 #include <Ms/Core/MManagerBase.h>
 
-namespace Users
-{
-    class User;
-}
-
 namespace Auth
 {
-    //auth typedefs
-    using AuthInfo = Wt::Auth::Dbo::AuthInfo<Users::User>;
-
     class AuthManager : public Ms::Core::MManagerBase
     {
     private:
@@ -40,36 +34,20 @@ namespace Auth
 
         ~AuthManager();
 
-        //functions
-        void initSessionLogger();
+        //functions;
         //auth stuff
         void configureAuth();
         const Wt::Auth::AuthService &authService();
-        const Wt::Auth::PasswordService *passwordService();
-        const std::vector<const Wt::Auth::OAuthService *> &oAuthService();
-        Wt::Auth::User registerUser(const std::string &name, const std::string &password, const std::string &email = "");
-        Wt::Dbo::ptr<Auth::AuthInfo> getUserAuthInfo(Wt::Auth::User authUser);
-        Wt::Auth::User getAuthUser(const std::string &provider, const std::string &identity);
-        Wt::Dbo::ptr<Users::User> currentUser();
-
-        bool setUserEmail(const std::string &provider, const std::string &identity, const std::string &email);
-        bool setUserPassword(const std::string &provider, const std::string &identity, const std::string &password);
-
-        //auth stuff
-        Wt::Auth::Login &login();
-
-        //variables
-        //auth stuff
-        Wt::Auth::Login _login;
+        const Wt::Auth::PasswordService &passwordService();
+        const std::vector<const Wt::Auth::OAuthService*> &oAuthService();
 
     private:
         //variables
-        Log::Logger *_logger;
 
         //auth stuff
         Wt::Auth::AuthService _authService;
-        Wt::Auth::PasswordService* _passwordService;
-        std::vector<const Wt::Auth::OAuthService*> _OAuthService;
+        Wt::Auth::PasswordService _passwordService;
+        std::vector<const Wt::Auth::OAuthService*> _oAuthService;
     };
 }
 

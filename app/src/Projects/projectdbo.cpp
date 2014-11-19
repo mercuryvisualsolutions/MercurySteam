@@ -1,5 +1,5 @@
 #include "../Database/dbtables.h"
-#include "../Database/databasemanager.h"
+#include "../Database/dbosession.h"
 
 Projects::ProjectDbo::ProjectDbo() :
     Database::Dbo()

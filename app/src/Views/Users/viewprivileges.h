@@ -1,6 +1,7 @@
 #ifndef VIEWPRIVILEGES_H
 #define VIEWPRIVILEGES_H
 
+#include "../../Session/sessionmanager.h"
 #include "../../Database/dbtables.h"
 
 #include <Ms/Widgets/MQueryTableViewWidget.h>
@@ -15,8 +16,10 @@ namespace Views
     public:
         ViewPrivileges();
 
-        const Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *qtvPrivileges() const;
-        const Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *qtvAssignedPrivileges() const;
+        Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *qtvPrivileges();
+        Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *qtvAssignedPrivileges();
+
+        void adjustUIPrivileges();
 
         //Signals
         Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> &assignPrivilegesRequested();
@@ -26,6 +29,7 @@ namespace Views
 
     private:
         //Variables
+        
         Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *_qtvPrivileges;
         Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *_qtvAssignedPrivileges;
 
@@ -35,6 +39,8 @@ namespace Views
         Wt::WVBoxLayout *_layCntPrivileges;
         Ms::Widgets::MContainerWidget *_cntAssignedPrivileges;
         Ms::Widgets::MContainerWidget *_cntAvailablePrivileges;
+        Wt::WPushButton *_btnAssignPrivileges;
+        Wt::WPushButton *_btnUnassignPrivileges;
 
         //Signals
         Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> _assignPrivilegesRequested;

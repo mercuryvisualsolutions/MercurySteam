@@ -1,5 +1,5 @@
 #include "../Database/dbtables.h"
-#include "../Database/databasemanager.h"
+#include "../Session/sessionmanager.h"
 
 Projects::ProjectTaskActivityType::ProjectTaskActivityType() :
     Ms::Dbo::MDboBase()
@@ -32,25 +32,35 @@ void Projects::ProjectTaskActivityType::setType(const std::string &type)
 
 bool Projects::ProjectTaskActivityType::hasActivity(Wt::Dbo::ptr<Projects::ProjectTaskActivity> activity) const
 {
-    if(dboManager_ && dboManager_->openTransaction())
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+    bool result = true;
+
+    for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
     {
-        for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
+        if((*iter).id() == activity.id())
         {
-            if((*iter).id() == activity.id())
-            {
-                return true;
-            }
+            result = true;
+
+            break;
         }
     }
 
-    return false;
+    transaction.commit();
+
+    return result;
 }
 
 bool Projects::ProjectTaskActivityType::addActivity(Wt::Dbo::ptr<Projects::ProjectTaskActivity> activity)
 {
     if(!hasActivity(activity))
     {
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
         _activities.insert(activity);
+
+        transaction.commit();
+
         return true;
     }
 
@@ -61,7 +71,12 @@ bool Projects::ProjectTaskActivityType::removeActivity(Wt::Dbo::ptr<Projects::Pr
 {
     if(hasActivity(activity))
     {
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
         _activities.erase(activity);
+
+        transaction.commit();
+
         return true;
     }
 

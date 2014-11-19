@@ -1,5 +1,5 @@
 #include "../Database/dbtables.h"
-#include "../Database/databasemanager.h"
+#include "../Session/sessionmanager.h"
 
 Projects::ProjectAssetType::ProjectAssetType() :
     Ms::Dbo::MDboBase()
@@ -47,7 +47,5 @@ Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectAsset>>::size_type Projects::P
 
 void Projects::ProjectAssetType::_init()
 {
-    dboManager_ = &Database::DatabaseManager::instance();
-
     _type = "New Project Asset Type";
 }

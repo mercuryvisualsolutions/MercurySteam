@@ -1,7 +1,5 @@
 #include "viewmain.h"
-#include "../../Database/databasemanager.h"
-#include "../../Users/usersmanager.h"
-#include "../../Projects/projectsmanager.h"
+#include "../../Database/dbosession.h"
 #include "../../Auth/authmanager.h"
 #include "../../Log/logmanager.h"
 
@@ -9,41 +7,57 @@
 
 Views::ViewMain::ViewMain()
 {
-    _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
+    Session::SessionManager::instance().login().changed().connect(this, &Views::ViewMain::authEvent);
 
     _prepareView();
-
-    Auth::AuthManager::instance().login().changed().connect(this, &Views::ViewMain::authEvent);
 }
 
 void Views::ViewMain::authEvent()
 {
-    if(Auth::AuthManager::instance().login().loggedIn())
-    {
-        std::string userName = Auth::AuthManager::instance().login().user().identity(Wt::Auth::Identity::LoginName).toUTF8();
-
-        _logger->log(std::string("User: ") + userName + " Logged In", Ms::Log::LogMessageType::Info);
-
-        //assign userName for managers
-        Database::DatabaseManager::instance().setUserName(userName);
-        Users::UsersManager::instance().setUserName(userName);
-        Projects::ProjectsManager::instance().setUserName(userName);
-
-        _prepareAppView(_stkMain);
-        _showAppView();
-    }
+    if(Session::SessionManager::instance().login().loggedIn())
+        loggedIn();
     else
-    {
-        _logger->log("User Logged Out", Ms::Log::LogMessageType::Info);
+        loggedOut();
+}
 
-        Wt::WApplication::instance()->refresh();
-        showAuthView();
-    }
+void Views::ViewMain::loggedIn()
+{
+    App::MSApplication *app = dynamic_cast<App::MSApplication*>(Wt::WApplication::instance());
+
+    app->createGlobalWidgets();
+
+    _logger = app->logger();
+
+    std::string userName = app->dboSession().login().user().identity(Wt::Auth::Identity::LoginName).toUTF8();
+
+    _logger->log(std::string("User: ") + userName + " Logged In", Ms::Log::LogMessageType::Info);
+
+    //assign userName for current session
+    app->dboSession().setUserName(userName);
+
+    _prepareAppView(_stkMain);
+
+    _showAppView();
+}
+
+void Views::ViewMain::loggedOut()
+{
+    App::MSApplication *app = dynamic_cast<App::MSApplication*>(Wt::WApplication::instance());
+
+    _stkMain->setCurrentWidget(_cntAuth);
+
+    //_stkMain->removeWidget(viwApp);
+
+    //app->destroyGlobalWidgets();
+
+    //delete viwApp;
+
+    //Wt::WApplication::instance()->refresh();
 }
 
 void Views::ViewMain::showAuthView()
 {
-    Auth::AuthManager::instance().login().logout();//logout current user (if any)
+    Session::SessionManager::instance().login().logout();//logout current user (if any)
 
     //show the auth view
     _stkMain->setCurrentWidget(_cntAuth);
@@ -51,7 +65,6 @@ void Views::ViewMain::showAuthView()
 
 void Views::ViewMain::_showAppView()
 {
-    viwApp->showProjectsView();
     _stkMain->setCurrentWidget(viwApp);
 }
 
@@ -77,8 +90,8 @@ void Views::ViewMain::_prepareView()
 
     _stkMain->addWidget(_cntAuth);
 
-    _authWidget = new Wt::Auth::AuthWidget(Auth::AuthManager::instance().authService(), Database::DatabaseManager::instance().users(), Auth::AuthManager::instance().login());
-    _authWidget->model()->addPasswordAuth(Auth::AuthManager::instance().passwordService());
+    _authWidget = new Wt::Auth::AuthWidget(Auth::AuthManager::instance().authService(), Session::SessionManager::instance().dboSession().users(), Session::SessionManager::instance().login());
+    _authWidget->model()->addPasswordAuth(&Auth::AuthManager::instance().passwordService());
     _authWidget->model()->addOAuth(Auth::AuthManager::instance().oAuthService());
     _authWidget->setMinimumSize(400, 400);
 
@@ -95,11 +108,9 @@ void Views::ViewMain::_prepareView()
 
     _layCntAuth->addWidget(_authWidget);
 
-    if(Auth::AuthManager::instance().login().loggedIn())//if user is already logged in
-    {
-        _prepareAppView(_stkMain);
-        _showAppView();
-    }
+    //if user is already logged in
+    if(Session::SessionManager::instance().login().loggedIn())
+        loggedIn();
 }
 
 void Views::ViewMain::_prepareAppView(Wt::WStackedWidget *widget)

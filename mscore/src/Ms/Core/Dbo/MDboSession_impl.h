@@ -1,7 +1,8 @@
-#ifndef MDBOMANAGERBASE_IMPL_H
-#define MDBOMANAGERBASE_IMPL_H
+#ifndef MDBOSESSION_IMPL_H
+#define MDBOSESSION_IMPL_H
 
 #include <Wt/Dbo/ptr>
+#include <Wt/Dbo/Transaction>
 
 namespace Ms
 {
@@ -10,20 +11,22 @@ namespace Ms
         namespace Dbo
         {
             template<typename T>
-            Wt::Dbo::ptr<T> Ms::Core::Dbo::MDboManagerBase::createDbo(T *dbo)
+            Wt::Dbo::ptr<T> Ms::Core::Dbo::MDboSession::createDbo(T *dbo)
             {
                 Wt::Dbo::ptr<T> dboPtr;
 
-                if(openTransaction() && dbo)
+                if(dbo)
                 {
                     dbo->createdBy_ = userName_;
                     dbo->dateCreated_ = Wt::WDateTime::currentDateTime();
 
                     try
                     {
-                        dboPtr = session_->add(dbo);
+                        Wt::Dbo::Transaction transaction(*this);
 
-                        commitTransaction();
+                        dboPtr = add(dbo);
+
+                        transaction.commit();
                     }
                     catch(Wt::Dbo::Exception ex)
                     {
@@ -35,21 +38,23 @@ namespace Ms
             }
 
             template<typename T>
-            T* Ms::Core::Dbo::MDboManagerBase::modifyDbo(Wt::Dbo::ptr<T> dboPtr)
+            T* Ms::Core::Dbo::MDboSession::modifyDbo(Wt::Dbo::ptr<T> dboPtr)
             {
-                if(openTransaction() && dboPtr)
+                if(dboPtr)
                 {
+                    Wt::Dbo::Transaction transaction(*this);
+
                     dboPtr.modify()->modify()->lastModifiedDate_ = Wt::WDateTime::currentDateTime();
                     dboPtr.modify()->modify()->lastModifiedBy_ = userName_;
 
-                    commitTransaction();
+                    transaction.commit();
                 }
 
                 return dboPtr.modify()->modify();
             }
 
             template<typename T>
-            std::vector<std::string> Ms::Core::Dbo::MDboManagerBase::getDboIdFieldsNames()
+            std::vector<std::string> Ms::Core::Dbo::MDboSession::getDboIdFieldsNames() const
             {
                 std::vector<std::string> fields;
 
@@ -66,7 +71,7 @@ namespace Ms
             }
 
             template<typename T>
-            std::vector<std::string> Ms::Core::Dbo::MDboManagerBase::getDboIdFieldsValues(const typename Wt::Dbo::dbo_traits<T>::IdType &id)
+            std::vector<std::string> Ms::Core::Dbo::MDboSession::getDboIdFieldsValues(const typename Wt::Dbo::dbo_traits<T>::IdType &id) const
             {
                 std::vector<std::string> values;
 
@@ -83,33 +88,34 @@ namespace Ms
             }
 
             template<typename T>
-            Wt::Dbo::ptr<T> Ms::Core::Dbo::MDboManagerBase::getDbo(const typename Wt::Dbo::dbo_traits<T>::IdType &id, bool forceReread)
+            Wt::Dbo::ptr<T> Ms::Core::Dbo::MDboSession::getDbo(const typename Wt::Dbo::dbo_traits<T>::IdType &id, bool forceReread)
             {
                 Wt::Dbo::ptr<T> dboPtr;
 
-                if(openTransaction())
-                {
-                    try
-                    {
-                        dboPtr = session_->load<T>(id, forceReread);
 
-                        commitTransaction();
-                    }
-                    catch(Wt::Dbo::ObjectNotFoundException)
-                    {
-                        //do nothing
-                    }
-                    catch(Wt::Dbo::Exception ex)
-                    {
-                        std::cout << "Error occured while trying to get Dbo from database" << std::endl << ex.what() << std::endl;
-                    }
+                try
+                {
+                    Wt::Dbo::Transaction transaction(*this);
+
+                    dboPtr = load<T>(id, forceReread);
+
+                    transaction.commit();
                 }
+                catch(Wt::Dbo::ObjectNotFoundException)
+                {
+                    //do nothing
+                }
+                catch(Wt::Dbo::Exception ex)
+                {
+                    std::cout << "Error occured while trying to get Dbo from database" << std::endl << ex.what() << std::endl;
+                }
+
 
                 return dboPtr;
             }
 
             template<typename T>
-            bool Ms::Core::Dbo::MDboManagerBase::dboExists(const typename Wt::Dbo::dbo_traits<T>::IdType &id)
+            bool Ms::Core::Dbo::MDboSession::dboExists(const typename Wt::Dbo::dbo_traits<T>::IdType &id)
             {
                 return getDbo<T>(id).get() != nullptr;
             }
@@ -117,4 +123,4 @@ namespace Ms
     }
 }
 
-#endif // MDBOMANAGERBASE_IMPL_H
+#endif // MDBOSESSION_IMPL_H

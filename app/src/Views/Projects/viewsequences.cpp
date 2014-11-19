@@ -1,7 +1,7 @@
 #include "viewsequences.h"
 #include "../../Auth/authmanager.h"
 #include "../../Settings/appsettings.h"
-#include "../../Database/databasemanager.h"
+#include "../../Database/dbosession.h"
 #include "../../Projects/projectsio.h"
 #include "../Files/dlgfilesmanager.h"
 #include "../../Log/logmanager.h"
@@ -13,9 +13,11 @@
 
 Views::ViewSequences::ViewSequences()
 {
-    _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
+    _logger = Session::SessionManager::instance().logger();
 
     _prepareView();
+
+    adjustUIPrivileges();
 }
 
 Ms::Widgets::MQueryTableViewWidget<Projects::ProjectSequence> *Views::ViewSequences::qtvSequences() const
@@ -27,14 +29,13 @@ void Views::ViewSequences::updateView(const std::vector<Wt::Dbo::ptr<Projects::P
 {
     try
     {
-        if(!Database::DatabaseManager::instance().openTransaction())
-            return;
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-        Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectSequence>> query = Database::DatabaseManager::instance().session()->find<Projects::ProjectSequence>();
+        Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectSequence>> query = Session::SessionManager::instance().dboSession().find<Projects::ProjectSequence>();
 
         if(prjVec.size() > 0)
         {
-            std::vector<std::string> projectsIdValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::Project>(prjVec);
+            std::vector<std::string> projectsIdValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::Project>(prjVec);
 
             //generate the where clause
             query.where("Sequence_Project_Project_Name IN (" + projectsIdValues.at(0) + ")");
@@ -43,7 +44,7 @@ void Views::ViewSequences::updateView(const std::vector<Wt::Dbo::ptr<Projects::P
             if(!AppSettings::instance().isLoadInactiveData())
                 query.where("Active = ?").bind(true);
 
-            int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+            int viewRank = Session::SessionManager::instance().user()->viewRank();
             query.where("View_Rank <= ?").bind(viewRank);
         }
         else
@@ -51,14 +52,16 @@ void Views::ViewSequences::updateView(const std::vector<Wt::Dbo::ptr<Projects::P
 
         _qtvSequences->setQuery(query);
 
-        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+        transaction.commit();
+
+        bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+        int editRank = Session::SessionManager::instance().user()->editRank();
 
         _qtvSequences->clearColumns();
 
@@ -73,9 +76,9 @@ void Views::ViewSequences::updateView(const std::vector<Wt::Dbo::ptr<Projects::P
         _qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Frame_Width", "Frame Width", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
         _qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Frame_Height", "Frame Height", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
         _qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Current_Status", "Status", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectWorkStatus>(
-         Database::DatabaseManager::instance().session(),
-         AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>() :
-         Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true),
+         &Session::SessionManager::instance().dboSession(),
+         AppSettings::instance().isLoadInactiveData() ? Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>() :
+         Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true),
          "Status", editRank)));
         _qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Description", "Description", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
         _qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Priority", "Priority", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
@@ -94,22 +97,30 @@ void Views::ViewSequences::updateView(const std::vector<Wt::Dbo::ptr<Projects::P
 
 bool Views::ViewSequences::isCreateOptionHidden()
 {
-    return _btnCreateSequence->isHidden();
+    if(_btnCreateSequence)
+        return _btnCreateSequence->isHidden();
+
+    return false;
 }
 
 void Views::ViewSequences::setCreateOptionHidden(bool hidden) const
 {
-    _btnCreateSequence->setHidden(hidden);
+    if(_btnCreateSequence)
+        _btnCreateSequence->setHidden(hidden);
 }
 
 bool Views::ViewSequences::isEditOptionHidden()
 {
-    return _btnEditSequences->isHidden();
+    if(_btnEditSequences)
+        return _btnEditSequences->isHidden();
+
+    return false;
 }
 
 void Views::ViewSequences::setEditOptionHidden(bool hidden) const
 {
-    _btnEditSequences->setHidden(hidden);
+    if(_btnEditSequences)
+        _btnEditSequences->setHidden(hidden);
 }
 
 //bool Views::ViewSequences::isRemoveOptionHidden()
@@ -124,22 +135,51 @@ void Views::ViewSequences::setEditOptionHidden(bool hidden) const
 
 bool Views::ViewSequences::isImportThumbnailsOptionHidden()
 {
-    return _btnImportThumbnails->isHidden();
+    if(_btnImportThumbnails)
+        return _btnImportThumbnails->isHidden();
+
+    return false;
 }
 
 void Views::ViewSequences::setImportThumbnailsOptionHidden(bool hidden) const
 {
-    _btnImportThumbnails->setHidden(hidden);
+    if(_btnImportThumbnails)
+        _btnImportThumbnails->setHidden(hidden);
 }
 
 bool Views::ViewSequences::isOpenFilesOptionHidden()
 {
-    return _btnOpenFilesView->isHidden();
+    if(_btnOpenFilesView)
+        return _btnOpenFilesView->isHidden();
+
+    return false;
 }
 
 void Views::ViewSequences::setOpenFilesOptionHidden(bool hidden) const
 {
-    _btnOpenFilesView->setHidden(hidden);
+    if(_btnOpenFilesView)
+        _btnOpenFilesView->setHidden(hidden);
+}
+
+void Views::ViewSequences::adjustUIPrivileges()
+{
+    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
+
+    bool hasViewFilesPriv = user->hasPrivilege("View Files");
+    bool hasEditPriv = user->hasPrivilege("Edit");
+    bool hasCreateProjectsPriv = user->hasPrivilege("Create Projects");
+    bool hasCheckInPriv = user->hasPrivilege("Check In");
+    bool hasCheckOutPriv = user->hasPrivilege("Check Out");
+    bool hasCreateRepoPriv = user->hasPrivilege("Create Repositories");
+
+    _btnCreateSequence->setHidden(!hasCreateProjectsPriv);
+    _btnImportThumbnails->setHidden(!hasEditPriv);
+    _btnEditSequences->setHidden(!hasEditPriv);
+
+    _qtvSequences->setImportCSVFeatureEnabled(hasCreateProjectsPriv);
+
+    bool showTaskFilesButton = hasViewFilesPriv || hasCheckInPriv || hasCheckOutPriv || hasCreateRepoPriv;//if have any of the privileges
+    _btnOpenFilesView->setHidden(!showTaskFilesButton);
 }
 
 Wt::Signal<> &Views::ViewSequences::createSequenceRequested()
@@ -194,34 +234,34 @@ void Views::ViewSequences::_btnEditSequencesClicked()
             for(auto seqPtr : _qtvSequences->selectedItems())
             {
                 if(dlg->editedStartDate())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectSequence>(seqPtr)->setStartDate(dlg->startDate());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setStartDate(dlg->startDate());
 
                 if(dlg->editedEndDate())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectSequence>(seqPtr)->setEndDate(dlg->endDate());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setEndDate(dlg->endDate());
 
                 if(dlg->editedDuration())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectSequence>(seqPtr)->setDurationInFrames(dlg->duration());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setDurationInFrames(dlg->duration());
 
                 if(dlg->editedFps())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectSequence>(seqPtr)->setFps(dlg->fps());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setFps(dlg->fps());
 
                 if(dlg->editedFrameWidth())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectSequence>(seqPtr)->setFrameWidth(dlg->frameWidth());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setFrameWidth(dlg->frameWidth());
 
                 if(dlg->editedFrameHeight())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectSequence>(seqPtr)->setFrameHeight(dlg->frameHeight());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setFrameHeight(dlg->frameHeight());
 
                 if(dlg->editedPriority())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectSequence>(seqPtr)->setPriority(dlg->priority());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setPriority(dlg->priority());
 
                 if(dlg->editedStatus())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectSequence>(seqPtr)->setStatus(dlg->status());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setStatus(dlg->status());
 
                 if(dlg->editedDescription())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectSequence>(seqPtr)->setDescription(dlg->description());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setDescription(dlg->description());
 
                 if(dlg->editedActive())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::ProjectSequence>(seqPtr)->setActive(dlg->isActive());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setActive(dlg->isActive());
             }
 
             _qtvSequences->updateView();
@@ -251,8 +291,7 @@ void Views::ViewSequences::_btnImportThumbnailsClicked()
                 std::string rawFileName = pair.second.substr(0, lastIndex);
 
                 //match thumbnail by sequence name
-                if(!Database::DatabaseManager::instance().openTransaction())
-                    return;
+                Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
                 //loop for all sequences
                 for(int i = 0; i < _qtvSequences->model()->rowCount(); ++i)
@@ -272,13 +311,15 @@ void Views::ViewSequences::_btnImportThumbnailsClicked()
 
                         if(Ms::IO::copyFile(pair.first, localFile))//copy and rename the file to the original name
                         {
-                            Database::DatabaseManager::instance().modifyDbo<Projects::ProjectSequence>(seqPtr)->setThumbnail(Projects::ProjectsIO::getRelativeSequenceDir(seqPtr->projectName(), seqPtr->name()) +
+                            Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setThumbnail(Projects::ProjectsIO::getRelativeSequenceDir(seqPtr->projectName(), seqPtr->name()) +
                                     Ms::IO::dirSeparator() + "thumbnails" + Ms::IO::dirSeparator() + pair.second);
                         }
 
                         break;//sequence mtching thumbnail name found, exit loop
                     }
                 }
+
+                transaction.commit();
             }
             catch(Wt::WException e)
             {
@@ -316,71 +357,50 @@ void Views::ViewSequences::_btnOpenFilesViewClicked()
 
     Wt::Dbo::ptr<Projects::ProjectSequence> seqPtr = _qtvSequences->selectedItems().at(0);
 
-    DlgFilesManager *dlg = new DlgFilesManager(Projects::ProjectsIO::getRelativeSequenceDir(seqPtr->projectName(), seqPtr->name()) + Ms::IO::dirSeparator() + "files");
-    dlg->finished().connect(std::bind([=]()
+    DlgFilesManager *dlgFiles = new DlgFilesManager(Projects::ProjectsIO::getRelativeSequenceDir(seqPtr->projectName(), seqPtr->name()) + Ms::IO::dirSeparator() + "files");
+    dlgFiles->finished().connect(std::bind([=]()
     {
-        delete dlg;
+        delete dlgFiles;
     }));
 
-    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
-        dlg->setCreateDisabled(true);
-    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In"))
-        dlg->setCheckInDisabled(true);
-    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
-        dlg->setCheckOutDisabled(true);
+    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
 
-    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
+    bool hasViewFilesPriv = user->hasPrivilege("View Files");
+    bool hasCheckInPriv = user->hasPrivilege("Check In");
+    bool hasCheckOutPriv = user->hasPrivilege("Check Out");
+    bool hasCreateRepoPriv = user->hasPrivilege("Create Repositories");
+
+    dlgFiles->setViewDisabled(!hasViewFilesPriv);
+    dlgFiles->setCreateDisabled(!hasCreateRepoPriv);
+    dlgFiles->setCheckInDisabled(!hasCheckInPriv);
+    dlgFiles->setCheckOutDisabled(!hasCheckOutPriv);
+
+    dlgFiles->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 
     _openfilesViewRequested(_qtvSequences->selectedItems());
 }
 
 void Views::ViewSequences::_createSequencesTableView()
 {
-    _qtvSequences = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectSequence>(&Database::DatabaseManager::instance());
+    _qtvSequences = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectSequence>(Session::SessionManager::instance().dboSession());
     _qtvSequences->setRowHeight(160);
     _qtvSequences->setDefaultFilterColumnIndex(1);
     _qtvSequences->setIgnoreNumFilterColumns(1);
 
-    //requires "create" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
-    {
-        _btnCreateSequence = _qtvSequences->createToolButton("", "icons/Add.png", "Create A New Sequence");
-        _btnCreateSequence->clicked().connect(this, &Views::ViewSequences::_btnCreateSequenceClicked);
+    _btnCreateSequence = _qtvSequences->createToolButton("", "icons/Add.png", "Create A New Sequence");
+    _btnCreateSequence->clicked().connect(this, &Views::ViewSequences::_btnCreateSequenceClicked);
 
-        _qtvSequences->setImportCSVFeatureEnabled(true);
-    }
-    else
-        _qtvSequences->setImportCSVFeatureEnabled(false);
+    //_btnRemoveSequences = _qtvSequences->createToolButton("", "icons/Remove.png", "Remove Selected Sequences");
+    //_btnRemoveSequences->clicked().connect(this, &Views::ViewSequences::_btnRemoveSequencesClicked);
 
-    //requires "remove" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
-    {
-        //_btnRemoveSequences = _qtvSequences->createToolButton("", "icons/Remove.png", "Remove Selected Sequences");
-        //_btnRemoveSequences->clicked().connect(this, &Views::ViewSequences::_btnRemoveSequencesClicked);
-    }
+    _btnEditSequences = _qtvSequences->createToolButton("", "icons/Edit.png", "Edit Selected Sequences");
+    _btnEditSequences->clicked().connect(this, &Views::ViewSequences::_btnEditSequencesClicked);
 
-    //requires "view" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
-    {
-        _btnEditSequences = _qtvSequences->createToolButton("", "icons/Edit.png", "Edit Selected Sequences");
-        _btnEditSequences->clicked().connect(this, &Views::ViewSequences::_btnEditSequencesClicked);
-    }
+    _btnImportThumbnails= _qtvSequences->createToolButton("", "icons/Thumbnail.png", "Import Thumbnails");
+    _btnImportThumbnails->clicked().connect(this, &Views::ViewSequences::_btnImportThumbnailsClicked);
 
-    //requires "view" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
-    {
-        _btnImportThumbnails= _qtvSequences->createToolButton("", "icons/Thumbnail.png", "Import Thumbnails");
-        _btnImportThumbnails->clicked().connect(this, &Views::ViewSequences::_btnImportThumbnailsClicked);
-    }
-
-    //requires "CheckIn or CheckOut" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In") ||
-            Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out") ||
-            Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
-    {
-        _btnOpenFilesView = _qtvSequences->createToolButton("", "icons/Files.png", "Files Manager");
-        _btnOpenFilesView->clicked().connect(this, &Views::ViewSequences::_btnOpenFilesViewClicked);
-    }
+    _btnOpenFilesView = _qtvSequences->createToolButton("", "icons/Files.png", "Files Manager");
+    _btnOpenFilesView->clicked().connect(this, &Views::ViewSequences::_btnOpenFilesViewClicked);
 }
 
 void Views::ViewSequences::_prepareView()

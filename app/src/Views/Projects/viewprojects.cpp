@@ -1,10 +1,8 @@
 #include "viewprojects.h"
 
 #include "../../Settings/appsettings.h"
-#include "../../Database/databasemanager.h"
-#include "../../Projects/projectsmanager.h"
+#include "../../Database/dbosession.h"
 #include "../../Projects/projectsio.h"
-#include "Users/usersmanager.h"
 #include "../Files/dlgfilesmanager.h"
 #include "../../Log/logmanager.h"
 #include "../../Auth/authmanager.h"
@@ -27,8 +25,8 @@
 Views::ViewProjects::ViewProjects()
     : Ms::Widgets::MContainerWidget()
 {
-    _logger = Log::LogManager::instance().getSessionLogger(Wt::WApplication::instance()->sessionId());
-    _propertiesPanel = Session::SessionManager::instance().getSessionPropertiesPanel(Wt::WApplication::instance()->sessionId());
+    _logger = Session::SessionManager::instance().logger();
+    _propertiesPanel = Session::SessionManager::instance().propertiesPanel();
 
     _prepareView();
 
@@ -36,6 +34,8 @@ Views::ViewProjects::ViewProjects()
 
     updateProjectsView();
     _stkMain->setCurrentWidget(_cntProjects);
+
+    adjustUIPrivileges();
 }
 
 void Views::ViewProjects::updateView()
@@ -56,28 +56,29 @@ void Views::ViewProjects::updateProjectsView()
 {
     try
     {
-        if(!Database::DatabaseManager::instance().openTransaction())
-            return;
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
         Wt::Dbo::Query<Wt::Dbo::ptr<Projects::Project>> query;
 
-        int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+        int viewRank = Session::SessionManager::instance().user()->viewRank();
 
         if(AppSettings::instance().isLoadInactiveData())
-            query = Database::DatabaseManager::instance().session()->find<Projects::Project>().where("View_Rank <= ?").bind(viewRank);
+            query = Session::SessionManager::instance().dboSession().find<Projects::Project>().where("View_Rank <= ?").bind(viewRank);
         else
-            query = Database::DatabaseManager::instance().session()->find<Projects::Project>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
+            query = Session::SessionManager::instance().dboSession().find<Projects::Project>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
 
         _qtvProjects->setQuery(query);
 
-        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+        transaction.commit();
+
+        bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+        int editRank = Session::SessionManager::instance().user()->editRank();
 
         _qtvProjects->clearColumns();
 
@@ -91,14 +92,14 @@ void Views::ViewProjects::updateProjectsView()
         _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Frame_Width", "Frame Width", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
         _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Frame_Height", "Frame Height", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
         _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Current_Status", "Status", flags, new Widgets::Delegates::WorkStatusQueryComboBoxDelegate<Projects::ProjectWorkStatus>(
-         Database::DatabaseManager::instance().session(),
-         AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>() :
-         Database::DatabaseManager::instance().session()->find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true),
+         &Session::SessionManager::instance().dboSession(),
+         AppSettings::instance().isLoadInactiveData() ? Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>() :
+         Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true),
          "Status", editRank)));
         _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Manager_Name", "Manager", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Users::User>(
-         Database::DatabaseManager::instance().session(),
-         AppSettings::instance().isLoadInactiveData() ? Database::DatabaseManager::instance().session()->find<Users::User>() :
-         Database::DatabaseManager::instance().session()->find<Users::User>().where("Active = ?").bind(true),
+         &Session::SessionManager::instance().dboSession(),
+         AppSettings::instance().isLoadInactiveData() ? Session::SessionManager::instance().dboSession().find<Users::User>() :
+         Session::SessionManager::instance().dboSession().find<Users::User>().where("Active = ?").bind(true),
          "Name", editRank)));
         _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Description", "Description", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
         _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Priority", "Priority", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
@@ -245,6 +246,27 @@ const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *Views::ViewProj
     return _viewTasks->qtvTasks();
 }
 
+void Views::ViewProjects::adjustUIPrivileges()
+{
+    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
+
+    bool hasViewFilesPriv = user->hasPrivilege("View Files");
+    bool hasEditPriv = user->hasPrivilege("Edit");
+    bool hasCreateProjectsPriv = user->hasPrivilege("Create Projects");
+    bool hasCheckInPriv = user->hasPrivilege("Check In");
+    bool hasCheckOutPriv = user->hasPrivilege("Check Out");
+    bool hasCreateRepoPriv = user->hasPrivilege("Create Repositories");
+
+    _btnCreateProject->setHidden(!hasCreateProjectsPriv);
+    _btnImportProjectsThumbnails->setHidden(!hasEditPriv);
+    _btnEditProjects->setHidden(!hasEditPriv);
+
+    _qtvProjects->setImportCSVFeatureEnabled(hasCreateProjectsPriv);
+
+    bool showTaskFilesButton = hasViewFilesPriv || hasCheckInPriv || hasCheckOutPriv || hasCreateRepoPriv;//if have any of the privileges
+    _btnProjectsFiles->setHidden(!showTaskFilesButton);
+}
+
 Wt::Signal<> &Views::ViewProjects::onTabProjectsSelected()
 {
     return _onTabProjectsSelected;
@@ -281,10 +303,10 @@ void Views::ViewProjects::_addDataToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboV
            for(auto &ptr : dboVec)
            {
                 Database::DboData *data = new Database::DboData(dlg->key(), dlg->value());
-                Wt::Dbo::ptr<Database::DboData> dataPtr = Database::DatabaseManager::instance().createDbo<Database::DboData>(data);
+                Wt::Dbo::ptr<Database::DboData> dataPtr = Session::SessionManager::instance().dboSession().createDbo<Database::DboData>(data);
 
                 if(dataPtr.get())
-                    Database::DatabaseManager::instance().modifyDbo<T>(ptr)->addData(dataPtr);
+                    Session::SessionManager::instance().dboSession().modifyDbo<T>(ptr)->addData(dataPtr);
                 else
                     delete data;
            }
@@ -309,10 +331,10 @@ void Views::ViewProjects::_addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboV
            for(auto &ptr : dboVec)
            {
                 Database::Note *note = new Database::Note(dlg->content());
-                Wt::Dbo::ptr<Database::Note> notePtr = Database::DatabaseManager::instance().createDbo<Database::Note>(note);
+                Wt::Dbo::ptr<Database::Note> notePtr = Session::SessionManager::instance().dboSession().createDbo<Database::Note>(note);
 
                 if(notePtr.get())
-                    Database::DatabaseManager::instance().modifyDbo<T>(ptr)->addNote(notePtr);
+                    Session::SessionManager::instance().dboSession().modifyDbo<T>(ptr)->addNote(notePtr);
                 else
                     delete note;
            }
@@ -335,7 +357,7 @@ void Views::ViewProjects::_assignTagToDbo(const std::vector<Wt::Dbo::ptr<T>> &db
         {
             for(auto &tagPtr : tagVec)
             {
-                Database::DatabaseManager::instance().modifyDbo<T>(dboPtr)->assignTag(tagPtr);
+                Session::SessionManager::instance().dboSession().modifyDbo<T>(dboPtr)->assignTag(tagPtr);
             }
         }
 
@@ -352,7 +374,7 @@ void Views::ViewProjects::_unAssignTagFromDbo(const std::vector<Wt::Dbo::ptr<T>>
         {
             for(auto &tagPtr : tagVec)
             {
-                Database::DatabaseManager::instance().modifyDbo<T>(dboPtr)->unassignTag(tagPtr);
+                Session::SessionManager::instance().dboSession().modifyDbo<T>(dboPtr)->unassignTag(tagPtr);
             }
         }
 
@@ -484,7 +506,7 @@ void Views::ViewProjects::_btnProjectsCreateClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
-            if(!Database::DatabaseManager::instance().dboExists<Projects::Project>(dlg->projectName()))
+            if(!Session::SessionManager::instance().dboSession().dboExists<Projects::Project>(dlg->projectName()))
             {
 
                 Projects::Project *project = new Projects::Project(dlg->projectName());
@@ -500,7 +522,7 @@ void Views::ViewProjects::_btnProjectsCreateClicked()
                 project->setDescription(dlg->description());
                 project->setActive(dlg->isActive());
 
-                if(Database::DatabaseManager::instance().createDbo<Projects::Project>(project))
+                if(Session::SessionManager::instance().dboSession().createDbo<Projects::Project>(project))
                 {
                     Projects::ProjectsIO::createProjectDirectoryStructure(dlg->projectName());
                     updateProjectsView();
@@ -548,37 +570,37 @@ void Views::ViewProjects::_btnProjectsEditClicked()
             for(auto prjPtr : _qtvProjects->selectedItems())
             {
                 if(dlg->editedStartDate())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::Project>(prjPtr)->setStartDate(dlg->startDate());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setStartDate(dlg->startDate());
 
                 if(dlg->editedEndDate())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::Project>(prjPtr)->setEndDate(dlg->endDate());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setEndDate(dlg->endDate());
 
                 if(dlg->editedDuration())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::Project>(prjPtr)->setDurationInFrames(dlg->duration());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setDurationInFrames(dlg->duration());
 
                 if(dlg->editedFps())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::Project>(prjPtr)->setFps(dlg->fps());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setFps(dlg->fps());
 
                 if(dlg->editedFrameWidth())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::Project>(prjPtr)->setFrameWidth(dlg->frameWidth());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setFrameWidth(dlg->frameWidth());
 
                 if(dlg->editedFrameHeight())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::Project>(prjPtr)->setFrameHeight(dlg->frameHeight());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setFrameHeight(dlg->frameHeight());
 
                 if(dlg->editedPriority())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::Project>(prjPtr)->setPriority(dlg->priority());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setPriority(dlg->priority());
 
                 if(dlg->editedStatus())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::Project>(prjPtr)->setStatus(dlg->status());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setStatus(dlg->status());
 
                 if(dlg->editedManager())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::Project>(prjPtr)->setManager(dlg->manager());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setManager(dlg->manager());
 
                 if(dlg->editedDescription())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::Project>(prjPtr)->setDescription(dlg->description());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setDescription(dlg->description());
 
                 if(dlg->editedActive())
-                    Database::DatabaseManager::instance().modifyDbo<Projects::Project>(prjPtr)->setActive(dlg->isActive());
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setActive(dlg->isActive());
             }
 
             _qtvProjects->updateView();
@@ -601,20 +623,25 @@ void Views::ViewProjects::_btnProjectsFilesClicked()
 
     std::string prjName = _qtvProjects->selectedItems().at(0)->name();
 
-    DlgFilesManager *dlg = new DlgFilesManager(Projects::ProjectsIO::getRelativeProjectDir(prjName) + Ms::IO::dirSeparator() + "files");
-    dlg->finished().connect(std::bind([=]()
+    DlgFilesManager *dlgFiles = new DlgFilesManager(Projects::ProjectsIO::getRelativeProjectDir(prjName) + Ms::IO::dirSeparator() + "files");
+    dlgFiles->finished().connect(std::bind([=]()
     {
-        delete dlg;
+        delete dlgFiles;
     }));
 
-    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
-        dlg->setCreateDisabled(true);
-    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In"))
-        dlg->setCheckInDisabled(true);
-    if(!Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out"))
-        dlg->setCheckOutDisabled(true);
+    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
 
-    dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
+    bool hasViewFilesPriv = user->hasPrivilege("View Files");
+    bool hasCheckInPriv = user->hasPrivilege("Check In");
+    bool hasCheckOutPriv = user->hasPrivilege("Check Out");
+    bool hasCreateRepoPriv = user->hasPrivilege("Create Repositories");
+
+    dlgFiles->setViewDisabled(!hasViewFilesPriv);
+    dlgFiles->setCreateDisabled(!hasCreateRepoPriv);
+    dlgFiles->setCheckInDisabled(!hasCheckInPriv);
+    dlgFiles->setCheckOutDisabled(!hasCheckOutPriv);
+
+    dlgFiles->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
 void Views::ViewProjects::_btnProjectsImportThumbnailsClicked()
@@ -635,15 +662,16 @@ void Views::ViewProjects::_btnProjectsImportThumbnailsClicked()
                 std::string rawFileName = pair.second.substr(0, lastIndex);
 
                 //match thumbnail by project name
-                if(!Database::DatabaseManager::instance().openTransaction())
-                    return;
+                Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
                 Wt::Dbo::ptr<Projects::Project> prjPtr;
 
                 if(AppSettings::instance().isLoadInactiveData())
-                    prjPtr = Database::DatabaseManager::instance().session()->find<Projects::Project>().where("Project_Name = ?").bind(rawFileName);
+                    prjPtr = Session::SessionManager::instance().dboSession().find<Projects::Project>().where("Project_Name = ?").bind(rawFileName);
                 else
-                    prjPtr = Database::DatabaseManager::instance().session()->find<Projects::Project>().where("Project_Name = ? AND Active = ?").bind(rawFileName).bind(true);
+                    prjPtr = Session::SessionManager::instance().dboSession().find<Projects::Project>().where("Project_Name = ? AND Active = ?").bind(rawFileName).bind(true);
+
+                transaction.commit();
 
                 if(prjPtr)//found a project that has the same name as the thumbnail ?
                 {
@@ -690,53 +718,27 @@ void Views::ViewProjects::_projectImported(Wt::Dbo::ptr<Projects::Project> proje
 
 void Views::ViewProjects::_createProjectsTableView()
 {
-    _qtvProjects = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::Project>(&Database::DatabaseManager::instance());
+    _qtvProjects = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::Project>(Session::SessionManager::instance().dboSession());
     _qtvProjects->setRowHeight(160);
     _qtvProjects->setDefaultFilterColumnIndex(1);
     _qtvProjects->setIgnoreNumFilterColumns(1);
     _qtvProjects->tableSelectionChanged().connect(this, &Views::ViewProjects::updatePropertiesView);
     _qtvProjects->itemImported().connect(this, &Views::ViewProjects::_projectImported);
 
-    //requires "create" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Create"))
-    {
-        Wt::WPushButton *btn = _qtvProjects->createToolButton("", "icons/Add.png", "Create A New Project");
-        btn->clicked().connect(this, &Views::ViewProjects::_btnProjectsCreateClicked);
+    _btnCreateProject = _qtvProjects->createToolButton("", "icons/Add.png", "Create A New Project");
+    _btnCreateProject->clicked().connect(this, &Views::ViewProjects::_btnProjectsCreateClicked);
 
-        _qtvProjects->setImportCSVFeatureEnabled(true);
-    }
-    else
-        _qtvProjects->setImportCSVFeatureEnabled(false);
+    //Wt::WPushButton *btn = _qtvProjects->createToolButton("", "icons/Remove.png", "Remove Selected Project");
+    //btn->clicked().connect(this, &Views::ViewProjects::_btnProjectsRemoveClicked);
 
-    //requires "remove" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Remove"))
-    {
-        //Wt::WPushButton *btn = _qtvProjects->createToolButton("", "icons/Remove.png", "Remove Selected Project");
-        //btn->clicked().connect(this, &Views::ViewProjects::_btnProjectsRemoveClicked);
-    }
+    _btnEditProjects = _qtvProjects->createToolButton("", "icons/Edit.png", "Edit Selected Projects");
+    _btnEditProjects->clicked().connect(this, &Views::ViewProjects::_btnProjectsEditClicked);
 
-    //requires "edit" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
-    {
-        Wt::WPushButton *btn = _qtvProjects->createToolButton("", "icons/Edit.png", "Edit Selected Projects");
-        btn->clicked().connect(this, &Views::ViewProjects::_btnProjectsEditClicked);
-    }
+    _btnImportProjectsThumbnails = _qtvProjects->createToolButton("", "icons/Thumbnail.png", "Import Thumbnails");
+    _btnImportProjectsThumbnails->clicked().connect(this, &Views::ViewProjects::_btnProjectsImportThumbnailsClicked);
 
-    //requires "edit" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit"))
-    {
-        Wt::WPushButton *btn = _qtvProjects->createToolButton("", "icons/Thumbnail.png", "Import Thumbnails");
-        btn->clicked().connect(this, &Views::ViewProjects::_btnProjectsImportThumbnailsClicked);
-    }
-
-    //requires "CheckIn or CheckOut" privilege
-    if(Auth::AuthManager::instance().currentUser()->hasPrivilege("Check In") ||
-            Auth::AuthManager::instance().currentUser()->hasPrivilege("Check Out") ||
-            Auth::AuthManager::instance().currentUser()->hasPrivilege("Create Repositories"))
-    {
-        Wt::WPushButton *btn = _qtvProjects->createToolButton("", "icons/Files.png", "Files Manager");
-        btn->clicked().connect(this, &Views::ViewProjects::_btnProjectsFilesClicked);
-    }
+    _btnProjectsFiles = _qtvProjects->createToolButton("", "icons/Files.png", "Files Manager");
+    _btnProjectsFiles->clicked().connect(this, &Views::ViewProjects::_btnProjectsFilesClicked);
 
     updateProjectsView();
 }
@@ -762,7 +764,7 @@ void Views::ViewProjects::_createSequenceRequested()
             id.name = (dlg->sequenceName());
             id.project = prjPtr;
 
-            if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectSequence>(id))
+            if(!Session::SessionManager::instance().dboSession().dboExists<Projects::ProjectSequence>(id))
             {
                 Projects::ProjectSequence *sequence = new Projects::ProjectSequence(dlg->sequenceName());
                 sequence->setProject(prjPtr);
@@ -777,7 +779,7 @@ void Views::ViewProjects::_createSequenceRequested()
                 sequence->setDescription(dlg->description());
                 sequence->setActive(dlg->isActive());
 
-                Wt::Dbo::ptr<Projects::ProjectSequence> seqPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectSequence>(sequence);
+                Wt::Dbo::ptr<Projects::ProjectSequence> seqPtr = Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectSequence>(sequence);
                 if(seqPtr.get())
                 {
                     Projects::ProjectsIO::createSequenceDirectoryStructure(prjPtr->name(), seqPtr->name());
@@ -838,7 +840,7 @@ void Views::ViewProjects::_createShotRequested()
             id.name = (dlg->shotName());
             id.sequence = seqPtr;
 
-            if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectShot>(id))
+            if(!Session::SessionManager::instance().dboSession().dboExists<Projects::ProjectShot>(id))
             {
                 Projects::ProjectShot *shot = new Projects::ProjectShot(dlg->shotName());
                 shot->setSequence(seqPtr);
@@ -853,7 +855,7 @@ void Views::ViewProjects::_createShotRequested()
                 shot->setDescription(dlg->description());
                 shot->setActive(dlg->isActive());
 
-                Wt::Dbo::ptr<Projects::ProjectShot> shotPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectShot>(shot);
+                Wt::Dbo::ptr<Projects::ProjectShot> shotPtr = Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectShot>(shot);
                 if(shotPtr.get())
                 {
                     Projects::ProjectsIO::createShotDirectoryStructure(seqPtr->projectName(), seqPtr->name(), shotPtr->name());
@@ -914,7 +916,7 @@ void Views::ViewProjects::_createAssetRequested()
             id.name = (dlg->assetName());
             id.project = prjPtr;
 
-            if(!Database::DatabaseManager::instance().dboExists<Projects::ProjectAsset>(id))
+            if(!Session::SessionManager::instance().dboSession().dboExists<Projects::ProjectAsset>(id))
             {
                 Projects::ProjectAsset *asset = new Projects::ProjectAsset(dlg->assetName());
                 asset->setProject(prjPtr);
@@ -926,7 +928,7 @@ void Views::ViewProjects::_createAssetRequested()
                 asset->setDescription(dlg->description());
                 asset->setActive(dlg->isActive());
 
-                Wt::Dbo::ptr<Projects::ProjectAsset> assetPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectAsset>(asset);
+                Wt::Dbo::ptr<Projects::ProjectAsset> assetPtr = Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectAsset>(asset);
                 if(assetPtr.get())
                 {
                     Projects::ProjectsIO::createAssetDirectoryStructure(prjPtr->name(), assetPtr->name());
@@ -994,7 +996,7 @@ void Views::ViewProjects::_createTasksRequested()
                         task->setActive(dlg->isActive());
                         task->setProject(prjPtr);
 
-                        Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectTask>(task);
+                        Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTask>(task);
                         if(taskPtr.get())
                         {
                             Projects::ProjectsIO::createProjectTaskDirectoryStructure(prjPtr->name(), taskPtr.id());
@@ -1025,7 +1027,7 @@ void Views::ViewProjects::_createTasksRequested()
                         task->setActive(dlg->isActive());
                         task->setSequence(seqPtr);
 
-                        Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectTask>(task);
+                        Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTask>(task);
                         if(taskPtr.get())
                         {
                             Projects::ProjectsIO::createSequenceTaskDirectoryStructure(seqPtr->projectName(), seqPtr->name(), taskPtr.id());
@@ -1056,7 +1058,7 @@ void Views::ViewProjects::_createTasksRequested()
                         task->setActive(dlg->isActive());
                         task->setShot(shotPtr);
 
-                        Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectTask>(task);
+                        Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTask>(task);
                         if(taskPtr.get())
                         {
                             Projects::ProjectsIO::createShotTaskDirectoryStructure(shotPtr->projectName(), shotPtr->sequenceName(), shotPtr->name(), taskPtr.id());
@@ -1089,7 +1091,7 @@ void Views::ViewProjects::_createTasksRequested()
                         task->setActive(dlg->isActive());
                         task->setAsset(assetPtr);
 
-                        Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectTask>(task);
+                        Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTask>(task);
                         if(taskPtr.get())
                         {
                             Projects::ProjectsIO::createAssetTaskDirectoryStructure(assetPtr->projectName(), assetPtr->projectName(), taskPtr.id());
@@ -1141,43 +1143,102 @@ void Views::ViewProjects::_createTasksForTemplateRequested()
                 {
                     if(_stkMain->currentWidget() == _cntProjects)
                     {
+                        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
                         for(auto &prjPtr : _qtvProjects->selectedItems())
                         {
-                            if(templatePtr->createTasksForProject(prjPtr))
-                                _logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
-                            else
-                                _logger->log(std::string("error creating tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Error);
+                            for(auto iter = templatePtr->items().begin(); iter != templatePtr->items().end(); ++iter)
+                            {
+                                if(!(*iter)->active())
+                                    continue;
+
+                                Projects::ProjectTask *task = new Projects::ProjectTask();
+                                task->setProject(prjPtr);
+                                task->setStatus((*iter)->status());
+                                task->setType((*iter)->type());
+                                task->setDescription((*iter)->description());
+
+                                Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTask>(task);
+                            }
                         }
+
+                        transaction.commit();
+
+                        _logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
                     }
                     else if(_stkMain->currentWidget() == _cntSequences)
                     {
+                        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
                         for(auto &seqPtr : _viewSequences->qtvSequences()->selectedItems())
                         {
-                            if(templatePtr->createTasksForProjectSequence(seqPtr))
-                                _logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
-                            else
-                                _logger->log(std::string("error creating tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Error);
+                            for(auto iter = templatePtr->items().begin(); iter != templatePtr->items().end(); ++iter)
+                            {
+                                if(!(*iter)->active())
+                                    continue;
+
+                                Projects::ProjectTask *task = new Projects::ProjectTask();
+                                task->setSequence(seqPtr);
+                                task->setStatus((*iter)->status());
+                                task->setType((*iter)->type());
+                                task->setDescription((*iter)->description());
+
+                                Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTask>(task);
+                            }
                         }
+
+                        transaction.commit();
+
+                        _logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
                     }
                     else if(_stkMain->currentWidget() == _cntShots)
                     {
+                        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
                         for(auto &shotPtr : _viewShots->qtvShots()->selectedItems())
                         {
-                            if(templatePtr->createTasksForProjectShot(shotPtr))
-                                _logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
-                            else
-                                _logger->log(std::string("error creating tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Error);
+                            for(auto iter = templatePtr->items().begin(); iter != templatePtr->items().end(); ++iter)
+                            {
+                                if(!(*iter)->active())
+                                    continue;
+
+                                Projects::ProjectTask *task = new Projects::ProjectTask();
+                                task->setShot(shotPtr);
+                                task->setStatus((*iter)->status());
+                                task->setType((*iter)->type());
+                                task->setDescription((*iter)->description());
+
+                                Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTask>(task);
+                            }
+
+                            transaction.commit();
+
+                            _logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
                         }
                     }
                     else if(_stkMain->currentWidget() == _cntAssets)
                     {
-                        //add tasks for selected assets
+                        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
                         for(auto &assetPtr : _viewAssets->qtvAssets()->selectedItems())
                         {
-                            if(templatePtr->createTasksForProjectAsset(assetPtr))
-                                _logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
-                            else
-                                _logger->log(std::string("error creating tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Error);
+                            for(auto iter = templatePtr->items().begin(); iter != templatePtr->items().end(); ++iter)
+                            {
+                                if(!(*iter)->active())
+                                    continue;
+
+                                Projects::ProjectTask *task = new Projects::ProjectTask();
+                                task->setAsset(assetPtr);
+                                task->setStatus((*iter)->status());
+                                task->setType((*iter)->type());
+                                task->setDescription((*iter)->description());
+
+                                Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTask>(task);
+                            }
+
+                            transaction.commit();
+
+                            _logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
                         }
                     }
 
@@ -1329,12 +1390,12 @@ void Views::ViewProjects::_createProjectTagRequested()
 
             tag->setActive(dlg->isActive());
 
-            Wt::Dbo::ptr<Database::Tag> tagPtr = Database::DatabaseManager::instance().createDbo<Database::Tag>(tag);
+            Wt::Dbo::ptr<Database::Tag> tagPtr = Session::SessionManager::instance().dboSession().createDbo<Database::Tag>(tag);
 
             if(tagPtr.get())
             {
                 if(customProjectTag)
-                    Database::DatabaseManager::instance().modifyDbo<Projects::Project>(_qtvProjects->selectedItems().at(0))->addTag(tagPtr);
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(_qtvProjects->selectedItems().at(0))->addTag(tagPtr);
 
                 _updatePropertiesTagsView();
             }
@@ -1419,7 +1480,7 @@ void Views::ViewProjects::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<
     if(tagVec.size() == 0)
         return;
 
-    std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Database::Tag>(tagVec);
+    std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Database::Tag>(tagVec);
 
     if(_stkMain->currentWidget() == _cntProjects)
     {
@@ -1533,7 +1594,7 @@ void Views::ViewProjects::_createTaskActivityRequested()
             activity->setDescription(dlg->description());
             activity->setActive(dlg->isActive());
 
-            Wt::Dbo::ptr<Projects::ProjectTaskActivity> activityPtr = Database::DatabaseManager::instance().createDbo<Projects::ProjectTaskActivity>(activity);
+            Wt::Dbo::ptr<Projects::ProjectTaskActivity> activityPtr = Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTaskActivity>(activity);
             if(activityPtr.get())
             {
                 _updatePropertiesTaskActivitiesView();
@@ -1572,16 +1633,28 @@ void Views::ViewProjects::_createTaskActivitiesForTemplateRequested()
 
             Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = _viewTasks->qtvTasks()->selectedItems().at(0);
 
-            if(templatePtr->createActivitiesForProjectTask(taskPtr))
-            {
-                _updatePropertiesTaskActivitiesView();
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-                _logger->log(std::string("Created task activities for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
-            }
-            else
+            for(auto iter = templatePtr->items().begin(); iter != templatePtr->items().end(); ++iter)
             {
-                _logger->log(std::string("error creating task activities for template ") + templatePtr->name(), Ms::Log::LogMessageType::Error);
+                if(!(*iter)->active())
+                    continue;
+
+                Projects::ProjectTaskActivity *activity = new Projects::ProjectTaskActivity();
+                activity->setTask(taskPtr);
+                activity->setStatus((*iter)->status());
+                activity->setType((*iter)->type());
+                activity->setHours((*iter)->hours());
+                activity->setDescription((*iter)->description());
+
+                Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTaskActivity>(activity);
             }
+
+            transaction.commit();
+
+            _updatePropertiesTaskActivitiesView();
+
+            _logger->log(std::string("Created task activities for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
         }
 
         delete dlg;
@@ -1729,19 +1802,18 @@ void Views::ViewProjects::_createPropertiesView()
 
 void Views::ViewProjects::_updatePropertiesDataView()
 {
-    if(!Database::DatabaseManager::instance().openTransaction())
-        return;
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-    bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+    bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
     Wt::WFlags<Wt::ItemFlag> flags;
     if(canEdit)
         flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
     else
         flags = Wt::ItemIsSelectable;
 
-    int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+    int editRank = Session::SessionManager::instance().user()->editRank();
 
-    const Ms::Widgets::MQueryTableViewWidget<Database::DboData> *_qtvPropertiesData = _viewPropertiesData->qtvData();
+    Ms::Widgets::MQueryTableViewWidget<Database::DboData> *_qtvPropertiesData = _viewPropertiesData->qtvData();
 
     _qtvPropertiesData->clearColumns();
 
@@ -1749,7 +1821,7 @@ void Views::ViewProjects::_updatePropertiesDataView()
     _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("DBOKey", "Key", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("DBOValue", "Value", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
-    Wt::Dbo::Query<Wt::Dbo::ptr<Database::DboData>> query = Database::DatabaseManager::instance().session()->find<Database::DboData>();
+    Wt::Dbo::Query<Wt::Dbo::ptr<Database::DboData>> query = Session::SessionManager::instance().dboSession().find<Database::DboData>();
 
     bool update = false;
 
@@ -1758,7 +1830,7 @@ void Views::ViewProjects::_updatePropertiesDataView()
         if(_qtvProjects->table()->selectedIndexes().size() > 0)
         {
             update = true;
-            query.where("Project_Project_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Projects::Project>(_qtvProjects->selectedItems()).at(0) + ")");
+            query.where("Project_Project_Name IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::Project>(_qtvProjects->selectedItems()).at(0) + ")");
         }
 
         _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
@@ -1769,7 +1841,7 @@ void Views::ViewProjects::_updatePropertiesDataView()
         {
             update = true;
 
-            std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems());
+            std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems());
 
             query.where("project_sequence_Sequence_Name IN (" + idValues.at(0) + ")"
                         " AND Project_Sequence_Sequence_Project_Project_Name IN (" + idValues.at(1) + ")");
@@ -1784,7 +1856,7 @@ void Views::ViewProjects::_updatePropertiesDataView()
         {
             update = true;
 
-            std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems());
+            std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems());
 
             query.where("Project_Shot_Shot_Name IN (" + idValues.at(0) + ")"
                         " AND Project_Shot_Shot_Sequence_Sequence_Name IN (" + idValues.at(1) + ")"
@@ -1801,7 +1873,7 @@ void Views::ViewProjects::_updatePropertiesDataView()
         {
             update = true;
 
-            std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems());
+            std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems());
 
             query.where("Project_Asset_Asset_Name IN (" + idValues.at(0) + ")"
                         " AND Project_Asset_Asset_Project_Project_Name IN (" + idValues.at(1) + ")");
@@ -1816,7 +1888,7 @@ void Views::ViewProjects::_updatePropertiesDataView()
         {
             update = true;
 
-            query.where("Project_Task_id IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems()).at(0) + ")");
+            query.where("Project_Task_id IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems()).at(0) + ")");
         }
 
         _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Task_id", "Task ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
@@ -1824,7 +1896,7 @@ void Views::ViewProjects::_updatePropertiesDataView()
 
     if(update)
     {
-        int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+        int viewRank = Session::SessionManager::instance().user()->viewRank();
 
         if(!AppSettings::instance().isLoadInactiveData())
             query.where("Active = ?").bind(true);
@@ -1836,6 +1908,8 @@ void Views::ViewProjects::_updatePropertiesDataView()
 
     _qtvPropertiesData->setQuery(query);
 
+    transaction.commit();
+
     if(AppSettings::instance().isShowExtraColumns())
         _qtvPropertiesData->addBaseColumns(flags, editRank);
 
@@ -1844,90 +1918,90 @@ void Views::ViewProjects::_updatePropertiesDataView()
 
 void Views::ViewProjects::_updatePropertiesTagsView()
 {
-    if(!Database::DatabaseManager::instance().openTransaction())
-            return;
-
-        try
-        {
-            bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
-            Wt::WFlags<Wt::ItemFlag> flags;
-            if(canEdit)
-                flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
-            else
-                flags = Wt::ItemIsSelectable;
-
-            int editRank = Auth::AuthManager::instance().currentUser()->editRank();
-
-            const Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesTags = _viewPropertiesTags->qtvTags();
-
-            _qtvPropertiesTags->clearColumns();
-
-            //add columns
-            _qtvPropertiesTags->addColumn(Ms::Widgets::MQueryTableViewColumn("id", "ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-            _qtvPropertiesTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-            _qtvPropertiesTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Content", "Content", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-            _qtvPropertiesTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-
-            Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query = Database::DatabaseManager::instance().session()->find<Database::Tag>();
-
-            if(_stkMain->currentWidget() == _cntProjects)
-            {
-                if(_qtvProjects->table()->selectedIndexes().size() > 0)
-                {
-                    std::string projectsSelectSql = "(pt.project_Project_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Projects::Project>(_qtvProjects->selectedItems()).at(0) + "))";
-                    query.where("(id IN (SELECT pt.tag_id FROM rel_project_tags pt WHERE " + projectsSelectSql + ") OR (Type IN ('Project', 'Global')))");
-                }
-                else
-                    query.where("(Type IN ('Project', 'Global'))");
-            }
-            else
-            {
-                if(_qtvProjects->table()->selectedIndexes().size() > 0)
-                {
-                    std::string projectsSelectSql = "(pt.project_Project_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Projects::Project>(_qtvProjects->selectedItems()).at(0) + "))";
-                    query.where("(id IN (SELECT pt.tag_id FROM rel_project_tags pt WHERE " + projectsSelectSql + ") OR (Type = 'Global'))");
-                }
-                else
-                    query.where("Type = 'Global'");
-            }
-
-            int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
-
-            if(!AppSettings::instance().isLoadInactiveData())
-                query.where("Active = ?").bind(true);
-
-            query.where("View_Rank <= ?").bind(viewRank);
-
-            _qtvPropertiesTags->setQuery(query);
-
-            if(AppSettings::instance().isShowExtraColumns())
-                _qtvPropertiesTags->addBaseColumns(flags, editRank);
-
-            _qtvPropertiesTags->updateView();
-        }
-        catch(Wt::Dbo::Exception ex)
-        {
-            _logger->log(std::string("error occured while trying to update tags view ") + ex.what(), Ms::Log::LogMessageType::Error);
-        }
-}
-
-void Views::ViewProjects::_updatePropertiesAssignedTagsView()
-{
-    if(!Database::DatabaseManager::instance().openTransaction())
-        return;
-
     try
     {
-        bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+        bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
             flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
         else
             flags = Wt::ItemIsSelectable;
 
-        int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+        int editRank = Session::SessionManager::instance().user()->editRank();
 
-        const Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesAssignedTags = _viewPropertiesTags->qtvAssignedTags();
+        Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesTags = _viewPropertiesTags->qtvTags();
+
+        _qtvPropertiesTags->clearColumns();
+
+        //add columns
+        _qtvPropertiesTags->addColumn(Ms::Widgets::MQueryTableViewColumn("id", "ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Content", "Content", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        _qtvPropertiesTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+
+        Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query = Session::SessionManager::instance().dboSession().find<Database::Tag>();
+
+        if(_stkMain->currentWidget() == _cntProjects)
+        {
+            if(_qtvProjects->table()->selectedIndexes().size() > 0)
+            {
+                std::string projectsSelectSql = "(pt.project_Project_Name IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::Project>(_qtvProjects->selectedItems()).at(0) + "))";
+                query.where("(id IN (SELECT pt.tag_id FROM rel_project_tags pt WHERE " + projectsSelectSql + ") OR (Type IN ('Project', 'Global')))");
+            }
+            else
+                query.where("(Type IN ('Project', 'Global'))");
+        }
+        else
+        {
+            if(_qtvProjects->table()->selectedIndexes().size() > 0)
+            {
+                std::string projectsSelectSql = "(pt.project_Project_Name IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::Project>(_qtvProjects->selectedItems()).at(0) + "))";
+                query.where("(id IN (SELECT pt.tag_id FROM rel_project_tags pt WHERE " + projectsSelectSql + ") OR (Type = 'Global'))");
+            }
+            else
+                query.where("Type = 'Global'");
+        }
+
+        int viewRank = Session::SessionManager::instance().user()->viewRank();
+
+        if(!AppSettings::instance().isLoadInactiveData())
+            query.where("Active = ?").bind(true);
+
+        query.where("View_Rank <= ?").bind(viewRank);
+
+        _qtvPropertiesTags->setQuery(query);
+
+        transaction.commit();
+
+        if(AppSettings::instance().isShowExtraColumns())
+            _qtvPropertiesTags->addBaseColumns(flags, editRank);
+
+        _qtvPropertiesTags->updateView();
+    }
+    catch(Wt::Dbo::Exception ex)
+    {
+        _logger->log(std::string("error occured while trying to update tags view ") + ex.what(), Ms::Log::LogMessageType::Error);
+    }
+}
+
+void Views::ViewProjects::_updatePropertiesAssignedTagsView()
+{
+    try
+    {
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+        bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
+        Wt::WFlags<Wt::ItemFlag> flags;
+        if(canEdit)
+            flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
+        else
+            flags = Wt::ItemIsSelectable;
+
+        int editRank = Session::SessionManager::instance().user()->editRank();
+
+        Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesAssignedTags = _viewPropertiesTags->qtvAssignedTags();
 
         _qtvPropertiesAssignedTags->clearColumns();
 
@@ -1937,7 +2011,7 @@ void Views::ViewProjects::_updatePropertiesAssignedTagsView()
         _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Content", "Content", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
         _qtvPropertiesAssignedTags->addColumn(Ms::Widgets::MQueryTableViewColumn("Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
-        Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query = Database::DatabaseManager::instance().session()->find<Database::Tag>();
+        Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query = Session::SessionManager::instance().dboSession().find<Database::Tag>();
 
         bool update = false;
 
@@ -1946,7 +2020,7 @@ void Views::ViewProjects::_updatePropertiesAssignedTagsView()
             if(_qtvProjects->table()->selectedIndexes().size() > 0)
             {
                 update = true;
-                std::string projectsSelectSql = "(pt.project_Project_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Projects::Project>(_qtvProjects->selectedItems()).at(0) + "))";
+                std::string projectsSelectSql = "(pt.project_Project_Name IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::Project>(_qtvProjects->selectedItems()).at(0) + "))";
                 query.where("(id IN (SELECT pt.tag_id FROM rel_project_assigned_tags pt WHERE " + projectsSelectSql + "))");
             }
         }
@@ -1956,7 +2030,7 @@ void Views::ViewProjects::_updatePropertiesAssignedTagsView()
             {
                 update = true;
 
-                std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems());
+                std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems());
 
                 std::string sequencesSelectSql = "(pt.project_sequence_Sequence_Name IN (" + idValues.at(0) + ") AND "
                         "pt.project_sequence_Sequence_Project_Project_Name IN (" + idValues.at(1) + "))";
@@ -1970,7 +2044,7 @@ void Views::ViewProjects::_updatePropertiesAssignedTagsView()
             {
                 update = true;
 
-                std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems());
+                std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems());
 
                 std::string shotsSelectSql = "(pt.project_shot_Shot_Name IN (" + idValues.at(0) + ") AND "
                         "pt.project_shot_Shot_Sequence_Sequence_Name IN (" + idValues.at(1) + ") AND "
@@ -1985,7 +2059,7 @@ void Views::ViewProjects::_updatePropertiesAssignedTagsView()
             {
                 update = true;
 
-                std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems());
+                std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems());
 
                 std::string assetsSelectSql = "(pt.project_asset_Asset_Name IN (" + idValues.at(0) + ") AND "
                         "pt.project_asset_Asset_Project_Project_Name IN (" + idValues.at(1) + "))";
@@ -1999,7 +2073,7 @@ void Views::ViewProjects::_updatePropertiesAssignedTagsView()
             {
                 update = true;
 
-                std::string tasksSelectSql = "(pt.project_task_id IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems()).at(0) + "))";
+                std::string tasksSelectSql = "(pt.project_task_id IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems()).at(0) + "))";
 
                 query.where("(id IN (SELECT pt.tag_id FROM rel_project_task_assigned_tags pt WHERE " + tasksSelectSql + "))");
             }
@@ -2007,7 +2081,7 @@ void Views::ViewProjects::_updatePropertiesAssignedTagsView()
 
         if(update)
         {
-            int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+            int viewRank = Session::SessionManager::instance().user()->viewRank();
 
             if(!AppSettings::instance().isLoadInactiveData())
                 query.where("Active = ?").bind(true);
@@ -2018,6 +2092,8 @@ void Views::ViewProjects::_updatePropertiesAssignedTagsView()
             query.where("id = ?").bind(-1);
 
         _qtvPropertiesAssignedTags->setQuery(query);
+
+        transaction.commit();
 
         if(AppSettings::instance().isShowExtraColumns())
             _qtvPropertiesAssignedTags->addBaseColumns(flags, editRank);
@@ -2032,19 +2108,18 @@ void Views::ViewProjects::_updatePropertiesAssignedTagsView()
 
 void Views::ViewProjects::_updatePropertiesNotesView()
 {
-    if(!Database::DatabaseManager::instance().openTransaction())
-            return;
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-    bool canEdit = Auth::AuthManager::instance().currentUser()->hasPrivilege("Edit");
+    bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
     Wt::WFlags<Wt::ItemFlag> flags;
     if(canEdit)
         flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
     else
         flags = Wt::ItemIsSelectable;
 
-    int editRank = Auth::AuthManager::instance().currentUser()->editRank();
+    int editRank = Session::SessionManager::instance().user()->editRank();
 
-    const Ms::Widgets::MQueryTableViewWidget<Database::Note> *_qtvPropertiesNotes = _viewPropertiesNotes->qtvNotes();
+    Ms::Widgets::MQueryTableViewWidget<Database::Note> *_qtvPropertiesNotes = _viewPropertiesNotes->qtvNotes();
 
     _qtvPropertiesNotes->clearColumns();
 
@@ -2052,7 +2127,7 @@ void Views::ViewProjects::_updatePropertiesNotesView()
     _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("id", "Id", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Content", "Content", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
-    Wt::Dbo::Query<Wt::Dbo::ptr<Database::Note>> query = Database::DatabaseManager::instance().session()->find<Database::Note>();
+    Wt::Dbo::Query<Wt::Dbo::ptr<Database::Note>> query = Session::SessionManager::instance().dboSession().find<Database::Note>();
 
     bool update = false;
 
@@ -2061,7 +2136,7 @@ void Views::ViewProjects::_updatePropertiesNotesView()
         if(_qtvProjects->table()->selectedIndexes().size() > 0)
         {
             update = true;
-            query.where("Project_Project_Name IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Projects::Project>(_qtvProjects->selectedItems()).at(0) + ")");
+            query.where("Project_Project_Name IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::Project>(_qtvProjects->selectedItems()).at(0) + ")");
         }
 
         _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
@@ -2072,7 +2147,7 @@ void Views::ViewProjects::_updatePropertiesNotesView()
         {
             update = true;
 
-            std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems());
+            std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems());
 
             query.where("project_sequence_Sequence_Name IN (" + idValues.at(0) + ")"
                         " AND Project_Sequence_Sequence_Project_Project_Name IN (" + idValues.at(1) + ")");
@@ -2087,7 +2162,7 @@ void Views::ViewProjects::_updatePropertiesNotesView()
         {
             update = true;
 
-            std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems());
+            std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems());
 
             query.where("Project_Shot_Shot_Name IN (" + idValues.at(0) + ")"
                         " AND Project_Shot_Shot_Sequence_Sequence_Name IN (" + idValues.at(1) + ")"
@@ -2104,7 +2179,7 @@ void Views::ViewProjects::_updatePropertiesNotesView()
         {
             update = true;
 
-            std::vector<std::string> idValues = Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems());
+            std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems());
 
             query.where("Project_Asset_Asset_Name IN (" + idValues.at(0) + ")"
                         " AND Project_Asset_Asset_Project_Project_Name IN (" + idValues.at(1) + ")");
@@ -2119,7 +2194,7 @@ void Views::ViewProjects::_updatePropertiesNotesView()
         {
             update = true;
 
-            query.where("Project_Task_id IN (" + Database::DatabaseManager::instance().getDboQueryIdValues<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems()).at(0) + ")");
+            query.where("Project_Task_id IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems()).at(0) + ")");
         }
 
         _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Task_id", "Task ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
@@ -2127,7 +2202,7 @@ void Views::ViewProjects::_updatePropertiesNotesView()
 
     if(update)
     {
-        int viewRank = Auth::AuthManager::instance().currentUser()->viewRank();
+        int viewRank = Session::SessionManager::instance().user()->viewRank();
 
         if(!AppSettings::instance().isLoadInactiveData())
             query.where("Active = ?").bind(true);
@@ -2138,6 +2213,8 @@ void Views::ViewProjects::_updatePropertiesNotesView()
         query.where("id = ?").bind(-1);
 
     _qtvPropertiesNotes->setQuery(query);
+
+    transaction.commit();
 
     if(AppSettings::instance().isShowExtraColumns())
         _qtvPropertiesNotes->addBaseColumns(flags, editRank);
@@ -2198,8 +2275,7 @@ void Views::ViewProjects::_updatePropertiesTaskActivitiesView()
 
 void Views::ViewProjects::_updatePropertiesStatisticsView()
 {
-    if(!Database::DatabaseManager::instance().openTransaction())
-        return;
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     _viewPropertiesStatistics->clear();
 
@@ -2359,6 +2435,7 @@ void Views::ViewProjects::_updatePropertiesStatisticsView()
         }
     }
 
+    transaction.commit();
 }
 
 void Views::ViewProjects::_prepareView()
