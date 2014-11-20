@@ -6,13 +6,16 @@
 #include <Wt/WAbstractItemModel>
 
 Ms::Widgets::Delegates::MCheckBoxDelegate::MCheckBoxDelegate() :
-    MItemDelegate()
+    MItemDelegate(),
+    _enabled(true)
 {
+    _editRank = 0;
 }
 
-Ms::Widgets::Delegates::MCheckBoxDelegate::MCheckBoxDelegate(int editRank) :
+Ms::Widgets::Delegates::MCheckBoxDelegate::MCheckBoxDelegate(int editRank, bool enabled) :
     MCheckBoxDelegate()
 {
+    _enabled = enabled;
     _editRank = editRank;
 }
 
@@ -90,6 +93,8 @@ Wt::WWidget *Ms::Widgets::Delegates::MCheckBoxDelegate::update(Wt::WWidget *widg
         const_cast<Wt::WAbstractItemModel*>(index.model())->setData(index, chkEdit->isChecked(), Wt::EditRole);
     }));
 
+    result->setDisabled(!_enabled);
+
     boost::any rank = index.data(Wt::UserRole);
     if(!rank.empty())
     {
@@ -98,4 +103,14 @@ Wt::WWidget *Ms::Widgets::Delegates::MCheckBoxDelegate::update(Wt::WWidget *widg
     }
 
     return result;
+}
+
+bool Ms::Widgets::Delegates::MCheckBoxDelegate::enabled()
+{
+    return _enabled;
+}
+
+void Ms::Widgets::Delegates::MCheckBoxDelegate::setEnabled(bool enabled)
+{
+    _enabled = enabled;
 }

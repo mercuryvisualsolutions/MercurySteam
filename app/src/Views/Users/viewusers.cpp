@@ -703,7 +703,7 @@ void Views::ViewUsers::_unassignTagsRequested(const std::vector<Wt::Dbo::ptr<Dat
     }
 }
 
-void Views::ViewUsers::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
+void Views::ViewUsers::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec, bool exactSelection)
 {
     std::string strFilterQuery = "";
 
@@ -714,14 +714,18 @@ void Views::ViewUsers::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<Dat
 
     if(_stkMain->currentWidget() == _qtvUsers)
     {
-        strFilterQuery = "Name IN (SELECT ut.user_Name FROM rel_user_assigned_tags ut WHERE tag_id IN (" + idValues.at(0) + "))";
+        std::string matchBy = exactSelection ? " GROUP BY ut.user_Name HAVING COUNT(DISTINCT ut.tag_id) = " + std::to_string(tagVec.size()) : "";
+
+        strFilterQuery = "Name IN (SELECT ut.user_Name FROM rel_user_assigned_tags ut WHERE tag_id IN (" + idValues.at(0) + ")" + matchBy + ")";
 
         _qtvUsers->setCustomFilterString(strFilterQuery);
         _qtvUsers->setCustomFilterActive(true);
     }
     else if(_stkMain->currentWidget() == _qtvGroups)
     {
-        strFilterQuery = "Name IN (SELECT gt.group_Name FROM rel_group_assigned_tags gt WHERE tag_id IN (" + idValues.at(0) + "))";
+        std::string matchBy = exactSelection ? " GROUP BY gt.group_Name HAVING COUNT(DISTINCT gt.tag_id) = " + std::to_string(tagVec.size()) : "";
+
+        strFilterQuery = "Name IN (SELECT gt.group_Name FROM rel_group_assigned_tags gt WHERE tag_id IN (" + idValues.at(0) + ")" + matchBy + ")";
 
         _qtvGroups->setCustomFilterString(strFilterQuery);
         _qtvGroups->setCustomFilterActive(true);
@@ -805,16 +809,18 @@ void Views::ViewUsers::_unassignPrivilegesRequested(const std::vector<Wt::Dbo::p
     }
 }
 
-void Views::ViewUsers::_filterByPrivilegesRequested(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec)
+void Views::ViewUsers::_filterByPrivilegesRequested(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec, bool exactSelection)
 {
     std::string strFilterQuery = "";
 
     if(privVec.size() == 0)
         return;
 
+    std::string matchBy = exactSelection ? " GROUP BY gp.group_Name HAVING COUNT(DISTINCT gp.privilege_Name) = " + std::to_string(privVec.size()) : "";
+
     std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Users::Privilege>(privVec);
 
-    strFilterQuery = "Name IN (SELECT gp.group_Name FROM rel_group_privileges gp WHERE privilege_Name IN (" + idValues.at(0) + "))";
+    strFilterQuery = "Name IN (SELECT gp.group_Name FROM rel_group_privileges gp WHERE privilege_Name IN (" + idValues.at(0) + ")" + matchBy + ")";
 
     _qtvGroups->setCustomFilterString(strFilterQuery);
     _qtvGroups->setCustomFilterActive(true);

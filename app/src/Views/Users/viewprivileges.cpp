@@ -43,7 +43,7 @@ Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> &Views::ViewPrivileges::
     return _unassignPrivilegesRequested;
 }
 
-Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> &Views::ViewPrivileges::filterByPrivilegesRequested()
+Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege> >, bool> &Views::ViewPrivileges::filterByPrivilegesRequested()
 {
     return _filterByPrivilegesRequested;
 }
@@ -63,14 +63,19 @@ void Views::ViewPrivileges::_btnUnassignPrivilegesClicked()
     _unassignPrivilegesRequested(_qtvAssignedPrivileges->selectedItems());
 }
 
-void Views::ViewPrivileges::_btnPrivilegesFilterClicked()
-{
-    _filterByPrivilegesRequested(_qtvPrivileges->selectedItems());
-}
-
 void Views::ViewPrivileges::_btnClearPrivilegesFilterClicked()
 {
     _clearPrivilegesFilterRequested();
+}
+
+void Views::ViewPrivileges::_mnuFilterByPrivilegesExactSelectionItemTriggered()
+{
+    _filterByPrivilegesRequested(_qtvPrivileges->selectedItems(), true);
+}
+
+void Views::ViewPrivileges::_mnuFilterByPrivilegesAnyOfSelectionItemTriggered()
+{
+    _filterByPrivilegesRequested(_qtvPrivileges->selectedItems(), false);
 }
 
 void Views::ViewPrivileges::_createPrivilegesTableView()
@@ -81,11 +86,22 @@ void Views::ViewPrivileges::_createPrivilegesTableView()
     _btnAssignPrivileges = _qtvPrivileges->createToolButton("", "icons/AddTo.png", "Add selected Privileges to selected items");
     _btnAssignPrivileges->clicked().connect(this, &Views::ViewPrivileges::_btnAssignPrivilegesClicked);
 
-    Wt::WPushButton *btnFilter = _qtvPrivileges->createToolButton("", "icons/Filter.png", "Filter active view by selected Privileges");
-    btnFilter->clicked().connect(this, &Views::ViewPrivileges::_btnPrivilegesFilterClicked);
+    _btnFilterByPrivileges = _qtvPrivileges->createToolButton("", "icons/Filter.png", "Filter active view by selected Privileges");
 
-    Wt::WPushButton *btnClearFilter = _qtvPrivileges->createToolButton("", "icons/ClearFilter.png", "Clear Privileges filter on the active view");
-    btnClearFilter->clicked().connect(this, &Views::ViewPrivileges::_btnClearPrivilegesFilterClicked);
+    _mnuFilterByPrivileges = new Wt::WPopupMenu();
+
+    _mnuFilterByPrivilegesExactSelectionItem = new Wt::WPopupMenuItem("Exact Selection");
+    _mnuFilterByPrivilegesExactSelectionItem->triggered().connect(this, &Views::ViewPrivileges::_mnuFilterByPrivilegesExactSelectionItemTriggered);
+    _mnuFilterByPrivileges->addItem(_mnuFilterByPrivilegesExactSelectionItem);
+
+    _mnuFilterByPrivilegesAnyOfSelectionItem = new Wt::WPopupMenuItem("Any Of Selection");
+    _mnuFilterByPrivilegesAnyOfSelectionItem->triggered().connect(this, &Views::ViewPrivileges::_mnuFilterByPrivilegesAnyOfSelectionItemTriggered);
+    _mnuFilterByPrivileges->addItem(_mnuFilterByPrivilegesAnyOfSelectionItem);
+
+    _btnFilterByPrivileges->setMenu(_mnuFilterByPrivileges);
+
+    _btnClearPrivilegeFilter = _qtvPrivileges->createToolButton("", "icons/ClearFilter.png", "Clear Privileges filter on the active view");
+    _btnClearPrivilegeFilter->clicked().connect(this, &Views::ViewPrivileges::_btnClearPrivilegesFilterClicked);
 }
 
 void Views::ViewPrivileges::_createAssignedPrivilegesTableView()
@@ -102,7 +118,6 @@ void Views::ViewPrivileges::_prepareView()
     _layMain = new Wt::WVBoxLayout();
     _layMain->setContentsMargins(0,0,0,0);
     _layMain->setSpacing(0);
-    _layMain->setResizable(0, true);
 
     setLayout(_layMain);
 
@@ -112,7 +127,7 @@ void Views::ViewPrivileges::_prepareView()
 
     _layCntPrivileges = new Wt::WVBoxLayout();
     _layCntPrivileges->setContentsMargins(0,0,0,0);
-    _layCntPrivileges->setSpacing(0);
+    _layCntPrivileges->setSpacing(6);
 
     _cntPrivileges->setLayout(_layCntPrivileges);
 
@@ -137,4 +152,6 @@ void Views::ViewPrivileges::_prepareView()
     //Privileges Table View
     _createPrivilegesTableView();
     _layCntAvailablePrivileges->addWidget(_qtvPrivileges, 1);
+
+    _layCntPrivileges->setResizable(0, true);
 }

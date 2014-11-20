@@ -63,7 +63,7 @@ Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> &Views::ViewTags::unassignT
     return _unassignTagsRequested;
 }
 
-Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> &Views::ViewTags::filterByTagsRequested()
+Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag> >, bool> &Views::ViewTags::filterByTagsRequested()
 {
     return _filterByTagsRequested;
 }
@@ -88,14 +88,19 @@ void Views::ViewTags::_btnUnassignTagsClicked()
     _unassignTagsRequested(_qtvAssignedTags->selectedItems());
 }
 
-void Views::ViewTags::_btnTagsFilterClicked()
-{
-    _filterByTagsRequested(_qtvTags->selectedItems());
-}
-
 void Views::ViewTags::_btnClearTagsFilterClicked()
 {
     _clearTagsFilterRequested();
+}
+
+void Views::ViewTags::_mnuFilterByTagsExactSelectionItemTriggered()
+{
+    _filterByTagsRequested(_qtvTags->selectedItems(), true);
+}
+
+void Views::ViewTags::_mnuFilterByTagsAnyOfSelectionItemTriggered()
+{
+    _filterByTagsRequested(_qtvTags->selectedItems(), false);
 }
 
 void Views::ViewTags::_createTagsTableView()
@@ -109,11 +114,22 @@ void Views::ViewTags::_createTagsTableView()
     _btnAssignTags = _qtvTags->createToolButton("", "icons/AddTo.png", "Add selected tags to selected items");
     _btnAssignTags->clicked().connect(this, &Views::ViewTags::_btnAssignTagsClicked);
 
-    Wt::WPushButton *btnFilter = _qtvTags->createToolButton("", "icons/Filter.png", "Filter active view by selected tags");
-    btnFilter->clicked().connect(this, &Views::ViewTags::_btnTagsFilterClicked);
+    _btnFilterByTags = _qtvTags->createToolButton("", "icons/Filter.png", "Filter active view by selected tags");
 
-    Wt::WPushButton *btnClearFilter = _qtvTags->createToolButton("", "icons/ClearFilter.png", "Clear tags filter on the active view");
-    btnClearFilter->clicked().connect(this, &Views::ViewTags::_btnClearTagsFilterClicked);
+    _mnuFilterByTags = new Wt::WPopupMenu();
+
+    _mnuFilterByTagsExactSelectionItem = new Wt::WPopupMenuItem("Exact Selection");
+    _mnuFilterByTagsExactSelectionItem->triggered().connect(this, &Views::ViewTags::_mnuFilterByTagsExactSelectionItemTriggered);
+    _mnuFilterByTags->addItem(_mnuFilterByTagsExactSelectionItem);
+
+    _mnuFilterByTagsAnyOfSelectionItem = new Wt::WPopupMenuItem("Any Of Selection");
+    _mnuFilterByTagsAnyOfSelectionItem->triggered().connect(this, &Views::ViewTags::_mnuFilterByTagsAnyOfSelectionItemTriggered);
+    _mnuFilterByTags->addItem(_mnuFilterByTagsAnyOfSelectionItem);
+
+    _btnFilterByTags->setMenu(_mnuFilterByTags);
+
+    _btnClearTagsFilter = _qtvTags->createToolButton("", "icons/ClearFilter.png", "Clear tags filter on the active view");
+    _btnClearTagsFilter->clicked().connect(this, &Views::ViewTags::_btnClearTagsFilterClicked);
 }
 
 void Views::ViewTags::_createAssignedTagsTableView()
@@ -139,7 +155,7 @@ void Views::ViewTags::_prepareView()
 
     _layCntTags = new Wt::WVBoxLayout();
     _layCntTags->setContentsMargins(0,0,0,0);
-    _layCntTags->setSpacing(0);
+    _layCntTags->setSpacing(6);
 
     _cntTags->setLayout(_layCntTags);
 
@@ -164,4 +180,6 @@ void Views::ViewTags::_prepareView()
     //Tags Table View
     _createTagsTableView();
     _layCntAvailableTags->addWidget(_qtvTags, 1);
+
+    _layCntTags->setResizable(0, true);
 }

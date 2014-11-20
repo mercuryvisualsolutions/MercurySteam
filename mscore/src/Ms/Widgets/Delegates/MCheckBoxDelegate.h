@@ -13,7 +13,7 @@ namespace Ms
             {
             public:
                 MCheckBoxDelegate();
-                MCheckBoxDelegate(int editRank);
+                MCheckBoxDelegate(int editRank, bool enabled = true);
 
                 //functions
                 Wt::WWidget *createEditor(const Wt::WModelIndex &index, Wt::WFlags<Wt::ViewItemRenderFlag> flags) const override;
@@ -22,6 +22,12 @@ namespace Ms
                 boost::any editState(Wt::WWidget *editor) const override;
                 void setEditState(Wt::WWidget *editor, const boost::any &value) const override;
                 Wt::WWidget *update(Wt::WWidget *widget, const Wt::WModelIndex &index, Wt::WFlags<Wt::ViewItemRenderFlag> flags) override;
+
+                bool enabled();
+                void setEnabled(bool enabled);
+
+            private:
+                bool _enabled;
             };
         }
     }

@@ -20,6 +20,8 @@ Ms::Widgets::MTableViewWidget::MTableViewWidget()
 
 Ms::Widgets::MTableViewWidget::~MTableViewWidget()
 {
+    delete _model;
+    delete _proxyModel;
 }
 
 Wt::WTableView *Ms::Widgets::MTableViewWidget::table() const

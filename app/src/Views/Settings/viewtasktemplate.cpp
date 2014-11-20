@@ -80,7 +80,7 @@ void Views::ViewTaskTemplates::adjustUIPrivileges()
 
     _btnCreateTemplate->setHidden(!hasCreateDboPriv);
     _btnCreateTemplateItem->setHidden(!hasCreateDboPriv);
-    _btnEditTemplateItem->setDisabled(!hasEditPriv);
+    _btnEditTemplateItem->setHidden(!hasEditPriv);
 
     _qtvTemplates->setImportCSVFeatureEnabled(hasCreateDboPriv);
     _qtvTemplateItems->setImportCSVFeatureEnabled(hasCreateDboPriv);

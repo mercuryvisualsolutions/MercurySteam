@@ -131,7 +131,16 @@ void Views::ViewTaskActivity::setEditOptionHidden(bool hidden) const
 
 void Views::ViewTaskActivity::adjustUIPrivileges()
 {
+    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
 
+    bool hasEditPriv = user->hasPrivilege("Edit");
+    bool hasCreateProjectsPriv = user->hasPrivilege("Create Projects");
+
+    _btnCreateTaskActivity->setHidden(!hasCreateProjectsPriv);
+    _btnCreateTaskActivitiesForTemplate->setHidden(!hasCreateProjectsPriv);
+    _btnEditTaskActivities->setHidden(!hasEditPriv);
+
+    _qtvTaskActivities->setImportCSVFeatureEnabled(hasCreateProjectsPriv);
 }
 
 //bool Views::ViewTaskActivity::isRemoveOptionHidden()

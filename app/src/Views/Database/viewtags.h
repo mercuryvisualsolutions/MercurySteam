@@ -28,7 +28,7 @@ namespace Views
         Wt::Signal<> &createTagRequested();
         Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> &assignTagsRequested();
         Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> &unassignTagsRequested();
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> &filterByTagsRequested();
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>,bool> &filterByTagsRequested();
         Wt::Signal<> &clearTagsFilterRequested();
 
     private:
@@ -46,20 +46,26 @@ namespace Views
         Wt::WPushButton *_btnCreateTag;
         Wt::WPushButton *_btnAssignTags;
         Wt::WPushButton *_btnUnassignTags;
+        Wt::WPushButton *_btnFilterByTags;
+        Wt::WPushButton *_btnClearTagsFilter;
+        Wt::WPopupMenu *_mnuFilterByTags;
+        Wt::WMenuItem *_mnuFilterByTagsExactSelectionItem;
+        Wt::WMenuItem *_mnuFilterByTagsAnyOfSelectionItem;
 
         //Signals
         Wt::Signal<> _createTagRequested;
         Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> _assignTagsRequested;
         Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> _unassignTagsRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> _filterByTagsRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>,bool> _filterByTagsRequested;
         Wt::Signal<> _clearTagsFilterRequested;
 
         //Slots
         void _btnCreateTagClicked();
         void _btnAssignTagsClicked();
         void _btnUnassignTagsClicked();
-        void _btnTagsFilterClicked();
         void _btnClearTagsFilterClicked();
+        void _mnuFilterByTagsExactSelectionItemTriggered();
+        void _mnuFilterByTagsAnyOfSelectionItemTriggered();
 
         //Functions
         void _createTagsTableView();

@@ -24,7 +24,7 @@ namespace Views
         //Signals
         Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> &assignPrivilegesRequested();
         Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> &unassignPrivilegesRequested();
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> &filterByPrivilegesRequested();
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>,bool> &filterByPrivilegesRequested();
         Wt::Signal<> &clearPrivilegesFilterRequested();
 
     private:
@@ -41,18 +41,24 @@ namespace Views
         Ms::Widgets::MContainerWidget *_cntAvailablePrivileges;
         Wt::WPushButton *_btnAssignPrivileges;
         Wt::WPushButton *_btnUnassignPrivileges;
+        Wt::WPushButton *_btnFilterByPrivileges;
+        Wt::WPushButton *_btnClearPrivilegeFilter;
+        Wt::WPopupMenu *_mnuFilterByPrivileges;
+        Wt::WPopupMenuItem *_mnuFilterByPrivilegesExactSelectionItem;
+        Wt::WPopupMenuItem *_mnuFilterByPrivilegesAnyOfSelectionItem;
 
         //Signals
         Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> _assignPrivilegesRequested;
         Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> _unassignPrivilegesRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> _filterByPrivilegesRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>,bool> _filterByPrivilegesRequested;
         Wt::Signal<> _clearPrivilegesFilterRequested;
 
         //Slots
         void _btnAssignPrivilegesClicked();
         void _btnUnassignPrivilegesClicked();
-        void _btnPrivilegesFilterClicked();
         void _btnClearPrivilegesFilterClicked();
+        void _mnuFilterByPrivilegesExactSelectionItemTriggered();
+        void _mnuFilterByPrivilegesAnyOfSelectionItemTriggered();
 
         //Functions
         void _createPrivilegesTableView();

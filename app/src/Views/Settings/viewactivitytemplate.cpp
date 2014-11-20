@@ -76,14 +76,14 @@ void Views::ViewActivityTemplates::adjustUIPrivileges()
     Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
 
     bool hasEditPriv = user->hasPrivilege("Edit");
-    bool hasCreateProjectsPriv = user->hasPrivilege("Create Projects");
+    bool hasCreateDBOPriv = user->hasPrivilege("Create DBO");
 
-    _btnCreateTemplate->setHidden(!hasCreateProjectsPriv);
-    _btnCreateTemplateItem->setHidden(!hasCreateProjectsPriv);
+    _btnCreateTemplate->setHidden(!hasCreateDBOPriv);
+    _btnCreateTemplateItem->setHidden(!hasCreateDBOPriv);
     _btnEditTemplateItem->setHidden(!hasEditPriv);
 
-    _qtvTemplates->setImportCSVFeatureEnabled(hasCreateProjectsPriv);
-    _qtvTemplateItems->setImportCSVFeatureEnabled(hasCreateProjectsPriv);
+    _qtvTemplates->setImportCSVFeatureEnabled(hasCreateDBOPriv);
+    _qtvTemplateItems->setImportCSVFeatureEnabled(hasCreateDBOPriv);
 }
 
 Wt::Signal<> &Views::ViewActivityTemplates::createTemplateRequested()
