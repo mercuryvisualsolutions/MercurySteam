@@ -293,8 +293,11 @@ void Ms::Widgets::MTableViewWidget::createMainTable()
     _table->setRowHeight(25);
     _table->setHeaderHeight(25);
     _table->setSelectionMode(Wt::ExtendedSelection);
+    _table->selectionChanged().connect(this, &Ms::Widgets::MTableViewWidget::mainTableSelectionChanged);
 
     _model = new Wt::WStandardItemModel();
+    _model->rowsInserted().connect(this, &Ms::Widgets::MTableViewWidget::modelRowsInserted);
+    _model->rowsRemoved().connect(this, &Ms::Widgets::MTableViewWidget::modelRowsRemoved);
 
     _proxyModel = new Wt::WSortFilterProxyModel();
     _proxyModel->setDynamicSortFilter(true);
@@ -308,6 +311,8 @@ void Ms::Widgets::MTableViewWidget::createMainTable()
 void Ms::Widgets::MTableViewWidget::refilter() const
 {
     _proxyModel->setFilterRegExp(_lnFilter->text() + _filterRegExpression);
+
+    updateStatusBar();
 }
 
 std::string Ms::Widgets::MTableViewWidget::generateCSVData() const
@@ -370,6 +375,11 @@ std::string Ms::Widgets::MTableViewWidget::generateCSVData() const
     }
 
     return data;
+}
+
+void Ms::Widgets::MTableViewWidget::updateStatusBar() const
+{
+    _lblStatus->setText(std::to_string(_table->selectedIndexes().size()) + " Item(s) selected, " + std::to_string(_proxyModel->rowCount()) + " Total items.");
 }
 
 //Slots
@@ -457,6 +467,21 @@ void Ms::Widgets::MTableViewWidget::sldRowHeightValueChanged()
     //////////////////////////////////////////////////////////////////////////////
 }
 
+void Ms::Widgets::MTableViewWidget::mainTableSelectionChanged()
+{
+    updateStatusBar();
+}
+
+void Ms::Widgets::MTableViewWidget::modelRowsInserted()
+{
+    updateStatusBar();
+}
+
+void Ms::Widgets::MTableViewWidget::modelRowsRemoved()
+{
+    updateStatusBar();
+}
+
 void Ms::Widgets::MTableViewWidget::prepareView()
 {
     Wt::WHBoxLayout *layMain = new Wt::WHBoxLayout();
@@ -476,7 +501,7 @@ void Ms::Widgets::MTableViewWidget::prepareView()
 
     cntMainView->setLayout(layCntMainView);
 
-    //Main Toolbar
+    //Global Toolbar
     Wt::WHBoxLayout *layCntTbGlobal = new Wt::WHBoxLayout();
     layCntTbGlobal->setContentsMargins(0,10,0,10);
     layCntTbGlobal->setSpacing(4);
@@ -576,4 +601,19 @@ void Ms::Widgets::MTableViewWidget::prepareView()
     _sldRowHeight->valueChanged().connect(this, &Ms::Widgets::MTableViewWidget::sldRowHeightValueChanged);
 
     layTbMain->addWidget(_sldRowHeight);
+
+    //Status bar
+    _cntStatusBar = new Wt::WContainerWidget();
+
+    layCntMainView->addWidget(_cntStatusBar);
+
+    _layCntStatusBar = new Wt::WHBoxLayout();
+    _layCntStatusBar->setContentsMargins(4,0,4,0);
+    _layCntStatusBar->setSpacing(2);
+
+    _cntStatusBar->setLayout(_layCntStatusBar);
+
+    _lblStatus = new Wt::WLabel("");
+
+    _layCntStatusBar->addWidget(_lblStatus);
 }

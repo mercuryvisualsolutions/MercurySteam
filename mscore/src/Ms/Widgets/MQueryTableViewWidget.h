@@ -150,6 +150,7 @@ namespace Ms
             void _updateTable() const;
             void _updateAdvancedFilterTable() const;
             void _toggleAdvancedFilterView() const;
+            void _updateStatusBar() const;
             void _prepareView();
 
             //variables
@@ -190,6 +191,9 @@ namespace Ms
             Wt::WStandardItemModel *_mdlCmbColumnFilter;
             Wt::WLineEdit *_lnFilter;
             Wt::WTableView *_tblMain;
+            Wt::WContainerWidget *_cntStatusBar;
+            Wt::WHBoxLayout *_layCntStatusBar;
+            Wt::WLabel *_lblStatus;
             Wt::WSlider *_sldRowHeight;
             //a temp variable that gets signaled when we change the rowHeight of the table
             //used to fix a bug it Wt where table horizontal scrool bar gets hidden if we change

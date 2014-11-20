@@ -286,4 +286,5 @@ void Users::User::_init()
     _phoneNumber = "";
     _emailAddress = "";
     _address = "";
+    _createRank = 0;
 }

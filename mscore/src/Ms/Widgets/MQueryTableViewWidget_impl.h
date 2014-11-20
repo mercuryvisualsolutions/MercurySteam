@@ -262,6 +262,8 @@ namespace Ms
                     _updateAdvancedFilterTable();
 
                 loadSelection();
+
+                _updateStatusBar();
             }
             catch(Wt::Dbo::Exception ex)
             {
@@ -578,6 +580,8 @@ namespace Ms
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::_mainTableSelectionChanged()
         {
+            _updateStatusBar();
+
             _tableSelectionChanged();
         }
 
@@ -1005,6 +1009,8 @@ namespace Ms
         void Ms::Widgets::MQueryTableViewWidget<T>::_refilter() const
         {
             _proxyModel->setFilterRegExp(_lnFilter->text() + _filterRegExpression);
+
+            _updateStatusBar();
         }
 
         template<typename T>
@@ -1228,6 +1234,12 @@ namespace Ms
         }
 
         template<typename T>
+        void Ms::Widgets::MQueryTableViewWidget<T>::_updateStatusBar() const
+        {
+            _lblStatus->setText(std::to_string(_tblMain->selectedIndexes().size()) + " Item(s) selected, " + std::to_string(_proxyModel->rowCount()) + " Total items.");
+        }
+
+        template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::_prepareView()
         {
             Wt::WHBoxLayout *layMain = new Wt::WHBoxLayout();
@@ -1359,6 +1371,21 @@ namespace Ms
             _sldRowHeight->valueChanged().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_sldRowHeightValueChanged);
 
             layTbMain->addWidget(_sldRowHeight);
+
+            //Status bar
+            _cntStatusBar = new Wt::WContainerWidget();
+
+            layCntMainView->addWidget(_cntStatusBar);
+
+            _layCntStatusBar = new Wt::WHBoxLayout();
+            _layCntStatusBar->setContentsMargins(4,0,4,0);
+            _layCntStatusBar->setSpacing(2);
+
+            _cntStatusBar->setLayout(_layCntStatusBar);
+
+            _lblStatus = new Wt::WLabel("");
+
+            _layCntStatusBar->addWidget(_lblStatus);
 
             //advancedFilter
             _createAdvancedFilterView();

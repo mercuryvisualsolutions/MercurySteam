@@ -76,6 +76,9 @@ namespace Ms
             Wt::WToolBar *_tbMain;
             Wt::WToolBar *_tbGlobal;
             Wt::WSlider *_sldRowHeight;
+            Wt::WContainerWidget *_cntStatusBar;
+            Wt::WHBoxLayout *_layCntStatusBar;
+            Wt::WLabel *_lblStatus;
             //a temp variable that gets signaled when we change the rowHeight of the table
             //used to fix a bug it Wt where table horizontal scrool bar gets hidden if we change
             // rowHeight at runtime
@@ -98,6 +101,8 @@ namespace Ms
             virtual void refilter() const;
             virtual std::string generateCSVData() const;
 
+            virtual void updateStatusBar() const;
+
             //slots
             virtual void lnFilterKeyWentUp();
             virtual void cmbFilterColumnChanged();
@@ -108,6 +113,9 @@ namespace Ms
             virtual void popMnuIOImportCSVItemTriggered();
             virtual void popMnuIOExportCSVItemTriggered();
             virtual void sldRowHeightValueChanged();
+            virtual void mainTableSelectionChanged();
+            virtual void modelRowsInserted();
+            virtual void modelRowsRemoved();
 
         private:
             void prepareView();
