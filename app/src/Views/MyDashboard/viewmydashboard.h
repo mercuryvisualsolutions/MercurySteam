@@ -40,7 +40,7 @@ namespace Views
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *tasksQueryTableView() const;
 
         //functions
-        void adjustUIPrivileges();
+        void adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user);
 
         //Signals
         Wt::Signal<> &onTabMyTasksSelected();

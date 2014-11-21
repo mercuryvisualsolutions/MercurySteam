@@ -34,8 +34,6 @@ Views::ViewProjects::ViewProjects()
 
     updateProjectsView();
     _stkMain->setCurrentWidget(_cntProjects);
-
-    adjustUIPrivileges();
 }
 
 void Views::ViewProjects::updateView()
@@ -246,10 +244,8 @@ const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *Views::ViewProj
     return _viewTasks->qtvTasks();
 }
 
-void Views::ViewProjects::adjustUIPrivileges()
+void Views::ViewProjects::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
 {
-    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
-
     bool hasViewFilesPriv = user->hasPrivilege("View Files");
     bool hasEditPriv = user->hasPrivilege("Edit");
     bool hasCreateProjectsPriv = user->hasPrivilege("Create Projects");
@@ -265,6 +261,18 @@ void Views::ViewProjects::adjustUIPrivileges()
 
     bool showTaskFilesButton = hasViewFilesPriv || hasCheckInPriv || hasCheckOutPriv || hasCreateRepoPriv;//if have any of the privileges
     _btnProjectsFiles->setHidden(!showTaskFilesButton);
+
+    _viewSequences->adjustUIPrivileges(user);
+    _viewShots->adjustUIPrivileges(user);
+    _viewAssets->adjustUIPrivileges(user);
+    _viewTasks->adjustUIPrivileges(user);
+    _viewPropertiesData->adjustUIPrivileges(user);
+    _viewPropertiesTags->adjustUIPrivileges(user);
+    _viewPropertiesNotes->adjustUIPrivileges(user);
+    _viewPropertiesSequences->adjustUIPrivileges(user);
+    _viewPropertiesShots->adjustUIPrivileges(user);
+    _viewPropertiesAssets->adjustUIPrivileges(user);
+    _viewPropertiesTasks->adjustUIPrivileges(user);
 }
 
 Wt::Signal<> &Views::ViewProjects::onTabProjectsSelected()

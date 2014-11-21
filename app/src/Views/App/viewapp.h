@@ -39,6 +39,7 @@ class ViewApp : public Wt::WContainerWidget
         void showSearchView(const std::string &subView);
         void showMyDashboardView();
         void showSettingsView();
+        void adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user);
 
     private:
         //variables
@@ -67,6 +68,8 @@ class ViewApp : public Wt::WContainerWidget
         Wt::WMenuItem *_mnuMainLeftViewShowMenuPanel;//show menu panel menu item
         Wt::WMenuItem *_mnuMainLeftViewShowPropertiesPanel;//show properties Panel menu item
         Wt::WMenuItem *_mnuMainLeftViewShowLogPanel;//show log Panel menu item
+
+        Wt::WImage *_imgUserAvatar;//shows current user avatar
 
         Wt::WMenu *_mnuMainRight;//main menu in main navigation bar
         Wt::WMenuItem *_mnuMainRightCurrentUserItem;//CurrentUser menu item
@@ -108,7 +111,6 @@ class ViewApp : public Wt::WContainerWidget
         Wt::WContainerWidget *_cntTxtFooter;//container for txtFooter
 
         //functions
-        void adjustUIPrivileges();
         //slots
         //app
         void _globalAppKeyWentDown(Wt::WKeyEvent key);

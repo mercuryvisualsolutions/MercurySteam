@@ -17,8 +17,6 @@ Views::ViewTasks::ViewTasks()
     _logger = Session::SessionManager::instance().logger();
 
     _prepareView();
-
-    adjustUIPrivileges();
 }
 
 Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *Views::ViewTasks::qtvTasks()
@@ -248,10 +246,8 @@ void Views::ViewTasks::setOpenFilesOptionHidden(bool hidden) const
         _btnOpenFilesView->setHidden(hidden);
 }
 
-void Views::ViewTasks::adjustUIPrivileges()
+void Views::ViewTasks::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
 {
-    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
-
     bool hasViewFilesPriv = user->hasPrivilege("View Files");
     bool hasEditPriv = user->hasPrivilege("Edit");
     bool hasCreateProjectsPriv = user->hasPrivilege("Create Projects");

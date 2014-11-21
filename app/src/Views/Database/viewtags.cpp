@@ -8,8 +8,6 @@
 Views::ViewTags::ViewTags()
 {
     _prepareView();
-
-    adjustUIPrivileges();
 }
 
 Ms::Widgets::MQueryTableViewWidget<Database::Tag> *Views::ViewTags::qtvTags()
@@ -36,10 +34,8 @@ void Views::ViewTags::setCreateOptionHidden(bool hidden)
         _btnCreateTag->setHidden(hidden);
 }
 
-void Views::ViewTags::adjustUIPrivileges()
+void Views::ViewTags::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
 {
-    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
-
     bool hasCreateDboPriv = user->hasPrivilege("Create DBO");
     bool hasEditPriv = user->hasPrivilege("Edit");
 

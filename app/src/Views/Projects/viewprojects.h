@@ -63,7 +63,7 @@ namespace Views
         const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectAsset> *assetsQueryTableView() const;
         const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *tasksQueryTableView() const;
 
-        void adjustUIPrivileges();
+        void adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user);
 
         //Signals
         Wt::Signal<> &onTabProjectsSelected();

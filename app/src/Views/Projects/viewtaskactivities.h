@@ -29,7 +29,7 @@ namespace Views
         bool isEditOptionHidden();
         void setEditOptionHidden(bool hidden) const;
 
-        void adjustUIPrivileges();
+        void adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user);
 
         //Signals
         Wt::Signal<> &createTaskActivityRequested();

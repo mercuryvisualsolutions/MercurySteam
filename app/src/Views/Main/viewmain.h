@@ -22,6 +22,8 @@ namespace Views
 
     private:
         //variables
+        bool _applicationCreated;
+        //UI
         Log::Logger *_logger;
         Wt::WStackedWidget *_stkMain;
         Wt::WVBoxLayout *_layMain;

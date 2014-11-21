@@ -34,7 +34,7 @@ namespace Views
         bool isOpenFilesOptionHidden();
         void setOpenFilesOptionHidden(bool hidden) const;
 
-        void adjustUIPrivileges();
+        void adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user);
 
         //Signals
         Wt::Signal<> &createTaskRequested();

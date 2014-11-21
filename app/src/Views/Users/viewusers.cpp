@@ -31,8 +31,6 @@ Views::ViewUsers::ViewUsers() :
 
     _prepareView();
     _mnuMain->select(_mnuMainUsersItem);
-
-    adjustUIPrivileges();
 }
 
 void Views::ViewUsers::updateView()
@@ -179,10 +177,8 @@ Ms::Widgets::MQueryTableViewWidget<Users::Group> *Views::ViewUsers::groupsQueryT
     return _qtvGroups;
 }
 
-void Views::ViewUsers::adjustUIPrivileges()
+void Views::ViewUsers::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
 {
-    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
-
     bool hasEditPriv = user->hasPrivilege("Edit");
     bool hasCreateUsersAndGroupsPriv = user->hasPrivilege("Create Users And Groups");
 
@@ -192,6 +188,11 @@ void Views::ViewUsers::adjustUIPrivileges()
     _btnCreateGroup->setHidden(!hasCreateUsersAndGroupsPriv);
 
     _qtvGroups->setImportCSVFeatureEnabled(hasCreateUsersAndGroupsPriv);
+
+    _viewData->adjustUIPrivileges(user);
+    _viewTags->adjustUIPrivileges(user);
+    _viewNotes->adjustUIPrivileges(user);
+    _viewPrivileges->adjustUIPrivileges(user);
 }
 
 Wt::Signal<> &Views::ViewUsers::onTabUsersSelected()

@@ -50,7 +50,7 @@ namespace Views
         void updateUserTitlesView();
         void updateTagsView();
 
-        void adjustUIPrivileges();
+        void adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user);
 
         //Signal
         Wt::Signal<> &onTabGeneralSelected();

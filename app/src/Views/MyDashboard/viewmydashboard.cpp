@@ -21,8 +21,6 @@ Views::ViewMyDashboard::ViewMyDashboard() :
     _prepareView();
 
     _mnuNavBarMain->select(_mnuNavBarMainMyTasksItem);
-
-    adjustUIPrivileges();
 }
 
 void Views::ViewMyDashboard::updateView()
@@ -98,10 +96,8 @@ Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *Views::ViewMyDashboar
     return _qtvTasks;
 }
 
-void Views::ViewMyDashboard::adjustUIPrivileges()
+void Views::ViewMyDashboard::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
 {
-    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
-
     bool hasViewFilesPriv = user->hasPrivilege("View Files");
     bool hasCheckInPriv = user->hasPrivilege("Check In");
     bool hasCheckOutPriv = user->hasPrivilege("Check Out");

@@ -5,7 +5,8 @@
 
 #include <Wt/WApplication>
 
-Views::ViewMain::ViewMain()
+Views::ViewMain::ViewMain() :
+    _applicationCreated(false)
 {
     Session::SessionManager::instance().login().changed().connect(this, &Views::ViewMain::authEvent);
 
@@ -24,9 +25,16 @@ void Views::ViewMain::loggedIn()
 {
     App::MSApplication *app = dynamic_cast<App::MSApplication*>(Wt::WApplication::instance());
 
-    app->createGlobalWidgets();
+    if(!_applicationCreated)
+    {
+        app->createGlobalWidgets();
 
-    _logger = app->logger();
+        _logger = app->logger();
+
+        _prepareAppView(_stkMain);
+
+        _applicationCreated = true;
+    }
 
     std::string userName = app->dboSession().login().user().identity(Wt::Auth::Identity::LoginName).toUTF8();
 
@@ -35,24 +43,15 @@ void Views::ViewMain::loggedIn()
     //assign userName for current session
     app->dboSession().setUserName(userName);
 
-    _prepareAppView(_stkMain);
+    //adjust view based on current user's privileges
+    viwApp->adjustUIPrivileges(Session::SessionManager::instance().user());
 
     _showAppView();
 }
 
 void Views::ViewMain::loggedOut()
 {
-    App::MSApplication *app = dynamic_cast<App::MSApplication*>(Wt::WApplication::instance());
-
     _stkMain->setCurrentWidget(_cntAuth);
-
-    //_stkMain->removeWidget(viwApp);
-
-    //app->destroyGlobalWidgets();
-
-    //delete viwApp;
-
-    //Wt::WApplication::instance()->refresh();
 }
 
 void Views::ViewMain::showAuthView()

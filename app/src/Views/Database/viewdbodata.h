@@ -19,7 +19,7 @@ namespace Views
         Ms::Widgets::MQueryTableViewWidget<Database::DboData> *qtvData();
 
         //functions
-        void adjustUIPrivileges();
+        void adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user);
 
         //Signals
         Wt::Signal<> &addDataRequested();

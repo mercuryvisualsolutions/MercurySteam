@@ -8,8 +8,6 @@
 Views::ViewDboData::ViewDboData()
 {
     _prepareView();
-
-    adjustUIPrivileges();
 }
 
 Ms::Widgets::MQueryTableViewWidget<Database::DboData> *Views::ViewDboData::qtvData()
@@ -17,10 +15,8 @@ Ms::Widgets::MQueryTableViewWidget<Database::DboData> *Views::ViewDboData::qtvDa
     return _qtvData;
 }
 
-void Views::ViewDboData::adjustUIPrivileges()
+void Views::ViewDboData::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
 {
-    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
-
     bool hasCreateDboPriv = user->hasPrivilege("Create DBO");
 
     _btnCreateData->setHidden(!hasCreateDboPriv);

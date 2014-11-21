@@ -19,7 +19,7 @@ namespace Views
         Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *qtvPrivileges();
         Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *qtvAssignedPrivileges();
 
-        void adjustUIPrivileges();
+        void adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user);
 
         //Signals
         Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> &assignPrivilegesRequested();

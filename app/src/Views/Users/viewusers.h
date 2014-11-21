@@ -56,7 +56,7 @@ namespace Views
         Ms::Widgets::MQueryTableViewWidget<Users::User> *usersQueryTableView() const;
         Ms::Widgets::MQueryTableViewWidget<Users::Group> *groupsQueryTableView() const;
 
-        void adjustUIPrivileges();
+        void adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user);
 
         //Signals
         Wt::Signal<> &onTabUsersSelected();

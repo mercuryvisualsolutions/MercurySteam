@@ -8,8 +8,6 @@
 Views::ViewNotes::ViewNotes()
 {
     _prepareView();
-
-    adjustUIPrivileges();
 }
 
 Ms::Widgets::MQueryTableViewWidget<Database::Note> *Views::ViewNotes::qtvNotes()
@@ -17,10 +15,8 @@ Ms::Widgets::MQueryTableViewWidget<Database::Note> *Views::ViewNotes::qtvNotes()
     return _qtvNotes;
 }
 
-void Views::ViewNotes::adjustUIPrivileges()
+void Views::ViewNotes::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
 {
-    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
-
     bool hasCreateDboPriv = user->hasPrivilege("Create DBO");
 
     _btnCreateNote->setHidden(!hasCreateDboPriv);

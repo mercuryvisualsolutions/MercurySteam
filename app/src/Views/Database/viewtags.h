@@ -22,7 +22,7 @@ namespace Views
         void setCreateOptionHidden(bool hidden);
 
         //Functions
-        void adjustUIPrivileges();
+        void adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user);
 
         //Signals
         Wt::Signal<> &createTagRequested();

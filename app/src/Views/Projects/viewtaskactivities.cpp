@@ -16,8 +16,6 @@ Views::ViewTaskActivity::ViewTaskActivity()
     _logger = Session::SessionManager::instance().logger();
 
     _prepareView();
-
-    adjustUIPrivileges();
 }
 
 Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskActivity> *Views::ViewTaskActivity::qtvTaskActivities() const
@@ -129,10 +127,8 @@ void Views::ViewTaskActivity::setEditOptionHidden(bool hidden) const
         _btnEditTaskActivities->setHidden(hidden);
 }
 
-void Views::ViewTaskActivity::adjustUIPrivileges()
+void Views::ViewTaskActivity::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
 {
-    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
-
     bool hasEditPriv = user->hasPrivilege("Edit");
     bool hasCreateProjectsPriv = user->hasPrivilege("Create Projects");
 

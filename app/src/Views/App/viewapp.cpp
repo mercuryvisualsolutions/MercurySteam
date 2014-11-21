@@ -20,8 +20,6 @@ Views::ViewApp::ViewApp():
 
     _mnuSideMain->select(_mnuSideMainMyDashboardItem);//default start to the main projects page
 
-    adjustUIPrivileges();
-
     //hide log view by default
     _viwLog->hide();
     _layCntChildViewsAndPropertiesAndLog->setResizable(0, false);
@@ -73,10 +71,8 @@ void Views::ViewApp::showSettingsView()
     _viwSettings->updateView();
 }
 
-void Views::ViewApp::adjustUIPrivileges()
+void Views::ViewApp::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
 {
-    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
-
     bool hasViewProjectsPriv = user->hasPrivilege("View Projects");
     bool hasViewUsersAndGroupsPriv = user->hasPrivilege("View Users And Groups");
     bool hasViewSettingsPriv = user->hasPrivilege("View Settings");
@@ -84,6 +80,14 @@ void Views::ViewApp::adjustUIPrivileges()
     _mnuSideMainProjectsItem->setHidden(!hasViewProjectsPriv);
     _mnuSideMainUsersAndGroupsItem->setHidden(!hasViewUsersAndGroupsPriv);
     _mnuSideMainSettingsItem->setHidden(!hasViewSettingsPriv);
+
+    _mnuMainRightCurrentUserItem->setText(user->name());
+    _imgUserAvatar->setImageLink(Wt::WLink(user->thumbnail()));
+
+    _viwUsers->adjustUIPrivileges(user);
+    _viwProjects->adjustUIPrivileges(user);
+    _viwSettings->adjustUIPrivileges(user);
+    _viwMyDashboard->adjustUIPrivileges(user);
 }
 
 void Views::ViewApp::_globalAppKeyWentDown(Wt::WKeyEvent key)
@@ -284,11 +288,21 @@ void Views::ViewApp::_prepareView()
 
     _mnuMainLeftHelpSub->addItem(_mnuMainLeftHelpAbout);//add "About" item to mnuMainHelpSub
 
+    //User menu
+    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
+
+    //user avatar
+    _imgUserAvatar = new Wt::WImage();
+    _imgUserAvatar->setMaximumSize(64, 48);
+    _imgUserAvatar->setImageLink(Wt::WLink(user->thumbnail()));
+
+    _navBarMain->addWidget(_imgUserAvatar, Wt::AlignRight);
+
     //mnuRight
     _mnuMainRight = new Wt::WMenu();
     _navBarMain->addMenu(_mnuMainRight, Wt::AlignRight);
 
-    _mnuMainRightCurrentUserItem = new Wt::WMenuItem(Session::SessionManager::instance().user()->name());
+    _mnuMainRightCurrentUserItem = new Wt::WMenuItem(user->name());
     _mnuMainRight->addItem(_mnuMainRightCurrentUserItem);//add the mnuMainCurrentUserItem to mnuMain
 
     _mnuMainRightCurrentUserSub = new Wt::WPopupMenu();
@@ -313,8 +327,6 @@ void Views::ViewApp::_prepareView()
     _cntMnuSideMain->addWidget(_mnuSideMain);
 
     Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
-    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
 
     //_mnuSideMain->addSectionHeader("Management");
 

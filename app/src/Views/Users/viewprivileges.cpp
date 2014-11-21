@@ -9,8 +9,6 @@
 Views::ViewPrivileges::ViewPrivileges()
 {
     _prepareView();
-
-    adjustUIPrivileges();
 }
 
 Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *Views::ViewPrivileges::qtvPrivileges()
@@ -23,10 +21,8 @@ Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *Views::ViewPrivileges::qtv
     return _qtvAssignedPrivileges;
 }
 
-void Views::ViewPrivileges::adjustUIPrivileges()
+void Views::ViewPrivileges::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
 {
-    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
-
     bool hasEditPriv = user->hasPrivilege("Edit");
 
     _btnAssignPrivileges->setHidden(!hasEditPriv);

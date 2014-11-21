@@ -29,7 +29,7 @@ namespace Views
         bool isEditTemplateItemOptionHidden() const;
         void setEditTemplateItemOptionHidden(bool hidden);
 
-        void adjustUIPrivileges();
+        void adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user);
 
         //Signals
         Wt::Signal<> &createTemplateRequested();

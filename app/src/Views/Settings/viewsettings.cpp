@@ -26,8 +26,6 @@ Views::ViewSettings::ViewSettings() :
     _mnuProjectSettings->select(_mnuProjectSettingsTaskActivityTypeItem);
     _mnuUsersSettings->select(_mnuUsersSettingsUserTitlesItem);
     _mnuGlobalSettings->select(_mnuGlobalSettingsTagsItem);
-
-    adjustUIPrivileges();
 }
 
 //main
@@ -382,10 +380,8 @@ void Views::ViewSettings::updateTagsView()
     }
 }
 
-void Views::ViewSettings::adjustUIPrivileges()
+void Views::ViewSettings::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
 {
-    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
-
     bool hasEditPriv = user->hasPrivilege("Edit");
     bool hasCreateDboPriv = user->hasPrivilege("Create DBO");
 
