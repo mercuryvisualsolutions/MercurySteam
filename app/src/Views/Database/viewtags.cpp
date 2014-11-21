@@ -59,7 +59,7 @@ Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> &Views::ViewTags::unassignT
     return _unassignTagsRequested;
 }
 
-Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag> >, bool> &Views::ViewTags::filterByTagsRequested()
+Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag> >, bool, bool> &Views::ViewTags::filterByTagsRequested()
 {
     return _filterByTagsRequested;
 }
@@ -91,12 +91,17 @@ void Views::ViewTags::_btnClearTagsFilterClicked()
 
 void Views::ViewTags::_mnuFilterByTagsExactSelectionItemTriggered()
 {
-    _filterByTagsRequested(_qtvTags->selectedItems(), true);
+    _filterByTagsRequested(_qtvTags->selectedItems(), true, false);
 }
 
 void Views::ViewTags::_mnuFilterByTagsAnyOfSelectionItemTriggered()
 {
-    _filterByTagsRequested(_qtvTags->selectedItems(), false);
+    _filterByTagsRequested(_qtvTags->selectedItems(), false, false);
+}
+
+void Views::ViewTags::_mnuFilterByTagsNotInSelectionItemTriggered()
+{
+    _filterByTagsRequested(_qtvTags->selectedItems(), false, true);
 }
 
 void Views::ViewTags::_createTagsTableView()
@@ -121,6 +126,10 @@ void Views::ViewTags::_createTagsTableView()
     _mnuFilterByTagsAnyOfSelectionItem = new Wt::WPopupMenuItem("Any Of Selection");
     _mnuFilterByTagsAnyOfSelectionItem->triggered().connect(this, &Views::ViewTags::_mnuFilterByTagsAnyOfSelectionItemTriggered);
     _mnuFilterByTags->addItem(_mnuFilterByTagsAnyOfSelectionItem);
+
+    _mnuFilterByTagsNotInSelectionItem = new Wt::WPopupMenuItem("Not In Selection");
+    _mnuFilterByTagsNotInSelectionItem->triggered().connect(this, &Views::ViewTags::_mnuFilterByTagsNotInSelectionItemTriggered);
+    _mnuFilterByTags->addItem(_mnuFilterByTagsNotInSelectionItem);
 
     _btnFilterByTags->setMenu(_mnuFilterByTags);
 

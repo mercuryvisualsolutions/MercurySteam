@@ -238,7 +238,7 @@ namespace Views
         void _createProjectTagRequested();
         void _assignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
         void _unassignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
-        void _filterByTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec, bool exactSelection);
+        void _filterByTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec, bool exactSelection, bool inverse);
         void _clearTagsFilterRequested();
         void _addNoteRequested();
         void _removeNotesRequested(const std::vector<Wt::Dbo::ptr<Database::Note>> &noteVec);

@@ -24,7 +24,7 @@ namespace Views
         //Signals
         Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> &assignPrivilegesRequested();
         Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> &unassignPrivilegesRequested();
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>,bool> &filterByPrivilegesRequested();
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>,bool,bool> &filterByPrivilegesRequested();
         Wt::Signal<> &clearPrivilegesFilterRequested();
 
     private:
@@ -46,11 +46,12 @@ namespace Views
         Wt::WPopupMenu *_mnuFilterByPrivileges;
         Wt::WPopupMenuItem *_mnuFilterByPrivilegesExactSelectionItem;
         Wt::WPopupMenuItem *_mnuFilterByPrivilegesAnyOfSelectionItem;
+        Wt::WPopupMenuItem *_mnuFilterByPrivilegesNotInSelectionItem;
 
         //Signals
         Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> _assignPrivilegesRequested;
         Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> _unassignPrivilegesRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>,bool> _filterByPrivilegesRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>,bool,bool> _filterByPrivilegesRequested;
         Wt::Signal<> _clearPrivilegesFilterRequested;
 
         //Slots
@@ -59,6 +60,7 @@ namespace Views
         void _btnClearPrivilegesFilterClicked();
         void _mnuFilterByPrivilegesExactSelectionItemTriggered();
         void _mnuFilterByPrivilegesAnyOfSelectionItemTriggered();
+        void _mnuFilterByPrivilegesNotInSelectionItemTriggered();
 
         //Functions
         void _createPrivilegesTableView();

@@ -39,7 +39,7 @@ Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> &Views::ViewPrivileges::
     return _unassignPrivilegesRequested;
 }
 
-Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege> >, bool> &Views::ViewPrivileges::filterByPrivilegesRequested()
+Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege> >, bool, bool> &Views::ViewPrivileges::filterByPrivilegesRequested()
 {
     return _filterByPrivilegesRequested;
 }
@@ -66,12 +66,17 @@ void Views::ViewPrivileges::_btnClearPrivilegesFilterClicked()
 
 void Views::ViewPrivileges::_mnuFilterByPrivilegesExactSelectionItemTriggered()
 {
-    _filterByPrivilegesRequested(_qtvPrivileges->selectedItems(), true);
+    _filterByPrivilegesRequested(_qtvPrivileges->selectedItems(), true, false);
 }
 
 void Views::ViewPrivileges::_mnuFilterByPrivilegesAnyOfSelectionItemTriggered()
 {
-    _filterByPrivilegesRequested(_qtvPrivileges->selectedItems(), false);
+    _filterByPrivilegesRequested(_qtvPrivileges->selectedItems(), false, false);
+}
+
+void Views::ViewPrivileges::_mnuFilterByPrivilegesNotInSelectionItemTriggered()
+{
+    _filterByPrivilegesRequested(_qtvPrivileges->selectedItems(), false, true);
 }
 
 void Views::ViewPrivileges::_createPrivilegesTableView()
@@ -93,6 +98,10 @@ void Views::ViewPrivileges::_createPrivilegesTableView()
     _mnuFilterByPrivilegesAnyOfSelectionItem = new Wt::WPopupMenuItem("Any Of Selection");
     _mnuFilterByPrivilegesAnyOfSelectionItem->triggered().connect(this, &Views::ViewPrivileges::_mnuFilterByPrivilegesAnyOfSelectionItemTriggered);
     _mnuFilterByPrivileges->addItem(_mnuFilterByPrivilegesAnyOfSelectionItem);
+
+    _mnuFilterByPrivilegesNotInSelectionItem = new Wt::WPopupMenuItem("Not In Selection");
+    _mnuFilterByPrivilegesNotInSelectionItem->triggered().connect(this, &Views::ViewPrivileges::_mnuFilterByPrivilegesNotInSelectionItemTriggered);
+    _mnuFilterByPrivileges->addItem(_mnuFilterByPrivilegesNotInSelectionItem);
 
     _btnFilterByPrivileges->setMenu(_mnuFilterByPrivileges);
 

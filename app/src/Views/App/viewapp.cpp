@@ -334,7 +334,6 @@ void Views::ViewApp::_prepareView()
     cntProjectMnuItem->setLayout(new Wt::WHBoxLayout());
 
     _mnuSideMainProjectsItem = new Wt::WMenuItem("Projects");//projects menu item
-    //_mnuSideMainProjectsItem->setStyleClass("side-menu-item");
     _mnuSideMainProjectsItem->triggered().connect(this, &Views::ViewApp::_mnuSideMainProjectsItemTriggered);
     _mnuSideMain->addItem(_mnuSideMainProjectsItem);
 
@@ -343,7 +342,6 @@ void Views::ViewApp::_prepareView()
     //_mnuSideMain->addSectionHeader("Security");
 
     _mnuSideMainUsersAndGroupsItem = new Wt::WMenuItem("Users And Groups");//Users menu item
-    //_mnuSideMainUsersAndGroupsItem->setStyleClass("side-menu-item");
     _mnuSideMainUsersAndGroupsItem->triggered().connect(this, &Views::ViewApp::_mnuSideMainUsersAndGroupsItemTriggered);
     _mnuSideMain->addItem(_mnuSideMainUsersAndGroupsItem);
 

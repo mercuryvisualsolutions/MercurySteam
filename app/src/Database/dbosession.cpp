@@ -18,10 +18,6 @@ Database::DboSession::DboSession(Wt::Dbo::SqlConnectionPool &connectionPool) :
     mapClasses();
 }
 
-Database::DboSession::~DboSession()
-{
-}
-
 Database::UserDatabase &Database::DboSession::users()
 {
     return _users;

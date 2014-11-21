@@ -1481,7 +1481,7 @@ void Views::ViewProjects::_unassignTagsRequested(const std::vector<Wt::Dbo::ptr<
     }
 }
 
-void Views::ViewProjects::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec, bool exactSelection)
+void Views::ViewProjects::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec, bool exactSelection, bool inverse)
 {
     std::string strFilterQuery = "";
 
@@ -1490,11 +1490,13 @@ void Views::ViewProjects::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<
 
     std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Database::Tag>(tagVec);
 
+    std::string inverseOperator = inverse ? "NOT " : "";
+
     if(_stkMain->currentWidget() == _cntProjects)
     {
         std::string matchBy = exactSelection ? " GROUP BY pt.project_Project_Name HAVING COUNT(DISTINCT pt.tag_id) = " + std::to_string(tagVec.size()) : "";
 
-        strFilterQuery = "Project_Name IN (SELECT pt.project_Project_Name FROM rel_project_assigned_tags pt WHERE tag_id IN (" + idValues.at(0) + ")" + matchBy + ")";
+        strFilterQuery = "Project_Name " + inverseOperator + "IN (SELECT pt.project_Project_Name FROM rel_project_assigned_tags pt WHERE tag_id IN (" + idValues.at(0) + ")" + matchBy + ")";
 
         _qtvProjects->setCustomFilterString(strFilterQuery);
         _qtvProjects->setCustomFilterActive(true);
@@ -1504,8 +1506,8 @@ void Views::ViewProjects::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<
         std::string projectMatchBy = exactSelection ? " GROUP BY st.project_sequence_Sequence_Project_Project_Name HAVING COUNT(DISTINCT st.tag_id) = " + std::to_string(tagVec.size()) : "";
         std::string projectSequenceMatchBy = exactSelection ? " GROUP BY st.project_sequence_Sequence_Name HAVING COUNT(DISTINCT st.tag_id) = " + std::to_string(tagVec.size()) : "";
 
-        strFilterQuery = "Sequence_Name IN (SELECT st.project_sequence_Sequence_Name FROM rel_project_sequence_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + ")" + projectSequenceMatchBy + ") AND "
-                "Sequence_Project_Project_Name IN (SELECT st.project_sequence_Sequence_Project_Project_Name FROM rel_project_sequence_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + ")" + projectMatchBy + ")";
+        strFilterQuery = "Sequence_Name " + inverseOperator + "IN (SELECT st.project_sequence_Sequence_Name FROM rel_project_sequence_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + ")" + projectSequenceMatchBy + ") AND "
+                "Sequence_Project_Project_Name " + inverseOperator + " IN (SELECT st.project_sequence_Sequence_Project_Project_Name FROM rel_project_sequence_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + ")" + projectMatchBy + ")";
 
         _viewSequences->qtvSequences()->setCustomFilterString(strFilterQuery);
         _viewSequences->qtvSequences()->setCustomFilterActive(true);
@@ -1516,9 +1518,9 @@ void Views::ViewProjects::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<
         std::string projectSequenceMatchBy = exactSelection ? " GROUP BY st.project_shot_Shot_Sequence_Sequence_Name HAVING COUNT(DISTINCT st.tag_id) = " + std::to_string(tagVec.size()) : "";
         std::string projectShotMatchBy = exactSelection ? " GROUP BY st.project_shot_Shot_Name HAVING COUNT(DISTINCT st.tag_id) = " + std::to_string(tagVec.size()) : "";
 
-        strFilterQuery = "Shot_Name IN (SELECT st.project_shot_Shot_Name FROM rel_project_shot_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + ")" + projectShotMatchBy + ") AND "
-                "Shot_Sequence_Sequence_Name IN (SELECT st.project_shot_Shot_Sequence_Sequence_Name FROM rel_project_shot_assigned_tags st WHERE tag_id IN(" + idValues.at(0) + ")" + projectSequenceMatchBy + ") AND "
-                "Shot_Sequence_Sequence_Project_Project_Name IN (SELECT st.project_shot_Shot_Sequence_Sequence_Project_Project_Name FROM rel_project_shot_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + ")" + projectMatchBy + ")";
+        strFilterQuery = "Shot_Name " + inverseOperator + "IN (SELECT st.project_shot_Shot_Name FROM rel_project_shot_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + ")" + projectShotMatchBy + ") AND "
+                "Shot_Sequence_Sequence_Name " + inverseOperator + "IN (SELECT st.project_shot_Shot_Sequence_Sequence_Name FROM rel_project_shot_assigned_tags st WHERE tag_id IN(" + idValues.at(0) + ")" + projectSequenceMatchBy + ") AND "
+                "Shot_Sequence_Sequence_Project_Project_Name " + inverseOperator + "IN (SELECT st.project_shot_Shot_Sequence_Sequence_Project_Project_Name FROM rel_project_shot_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + ")" + projectMatchBy + ")";
 
         _viewShots->qtvShots()->setCustomFilterString(strFilterQuery);
         _viewShots->qtvShots()->setCustomFilterActive(true);
@@ -1528,8 +1530,8 @@ void Views::ViewProjects::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<
         std::string projectMatchBy = exactSelection ? " GROUP BY at.project_asset_Asset_Project_Project_Name HAVING COUNT(DISTINCT at.tag_id) = " + std::to_string(tagVec.size()) : "";
         std::string projectAssetMatchBy = exactSelection ? " GROUP BY at.project_asset_Asset_Name HAVING COUNT(DISTINCT at.tag_id) = " + std::to_string(tagVec.size()) : "";
 
-        strFilterQuery = "Asset_Name IN (SELECT at.project_asset_Asset_Name FROM rel_project_asset_assigned_tags at WHERE tag_id IN (" + idValues.at(0) + ")" + projectAssetMatchBy + ") AND "
-                "Asset_Project_Project_Name IN (SELECT at.project_asset_Asset_Project_Project_Name FROM rel_project_asset_assigned_tags at WHERE tag_id IN (" + idValues.at(0) + ")" + projectMatchBy + ")";
+        strFilterQuery = "Asset_Name " + inverseOperator + "IN (SELECT at.project_asset_Asset_Name FROM rel_project_asset_assigned_tags at WHERE tag_id IN (" + idValues.at(0) + ")" + projectAssetMatchBy + ") AND "
+                "Asset_Project_Project_Name " + inverseOperator + "IN (SELECT at.project_asset_Asset_Project_Project_Name FROM rel_project_asset_assigned_tags at WHERE tag_id IN (" + idValues.at(0) + ")" + projectMatchBy + ")";
 
         _viewAssets->qtvAssets()->setCustomFilterString(strFilterQuery);
         _viewAssets->qtvAssets()->setCustomFilterActive(true);
@@ -1538,7 +1540,7 @@ void Views::ViewProjects::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<
     {
         std::string taskMatchBy = exactSelection ? " GROUP BY tt.project_task_id HAVING COUNT(DISTINCT tt.tag_id) = " + std::to_string(tagVec.size()) : "";
 
-        strFilterQuery = "id IN (SELECT tt.project_task_id FROM rel_project_task_assigned_tags tt WHERE tag_id IN (" + idValues.at(0) + ")" + taskMatchBy + ")";
+        strFilterQuery = "id " + inverseOperator + "IN (SELECT tt.project_task_id FROM rel_project_task_assigned_tags tt WHERE tag_id IN (" + idValues.at(0) + ")" + taskMatchBy + ")";
 
         _viewTasks->qtvTasks()->setCustomFilterString(strFilterQuery);
         _viewTasks->qtvTasks()->setCustomFilterActive(true);

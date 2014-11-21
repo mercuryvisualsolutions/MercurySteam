@@ -145,13 +145,13 @@ namespace Views
         void _createTagRequested();
         void _assignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
         void _unassignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
-        void _filterByTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec, bool exactSelection);
+        void _filterByTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec, bool exactSelection, bool inverse);
         void _clearTagsFilterRequested();
         void _addNoteRequested();
         void _removeNotesRequested(const std::vector<Wt::Dbo::ptr<Database::Note>> &noteVec);
         void _assignPrivilegesRequested(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec);
         void _unassignPrivilegesRequested(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec);
-        void _filterByPrivilegesRequested(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec, bool exactSelection);
+        void _filterByPrivilegesRequested(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec, bool exactSelection, bool inverse);
         void _clearFilterPrivilegesFilterRequested();
 
         //functions

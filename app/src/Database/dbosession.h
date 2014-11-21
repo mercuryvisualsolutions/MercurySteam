@@ -18,7 +18,6 @@ namespace Database
     {
     public:
         DboSession(Wt::Dbo::SqlConnectionPool& connectionPool);
-        ~DboSession();
 
     //functions
 
