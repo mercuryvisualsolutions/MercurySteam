@@ -10,7 +10,7 @@ Database::Dbo::Dbo() :
 
 bool Database::Dbo::hasData(Wt::Dbo::ptr<Database::DboData> data) const
 {
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+    //Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     bool result = false;
 
@@ -24,7 +24,7 @@ bool Database::Dbo::hasData(Wt::Dbo::ptr<Database::DboData> data) const
         }
     }
 
-    transaction.commit();
+    //transaction.commit();
 
     return result;
 }
@@ -33,11 +33,11 @@ bool Database::Dbo::addData(Wt::Dbo::ptr<Database::DboData> data)
 {
     if(!hasData(data))
     {
-        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+        //Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
         data_.insert(data);
 
-        transaction.commit();
+        //transaction.commit();
 
         return true;
     }
@@ -49,11 +49,11 @@ bool Database::Dbo::removeData(Wt::Dbo::ptr<Database::DboData> data)
 {
     if(hasData(data))
     {
-        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+        //Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
         data_.erase(data);
 
-        transaction.commit();
+        //transaction.commit();
 
         return true;
     }
@@ -63,7 +63,7 @@ bool Database::Dbo::removeData(Wt::Dbo::ptr<Database::DboData> data)
 
 bool Database::Dbo::hasTag(Wt::Dbo::ptr<Database::Tag> tag) const
 {
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+    //Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     bool result = false;
 
@@ -77,7 +77,7 @@ bool Database::Dbo::hasTag(Wt::Dbo::ptr<Database::Tag> tag) const
         }
     }
 
-    transaction.commit();
+    //transaction.commit();
 
     return result;
 }
@@ -86,11 +86,11 @@ bool Database::Dbo::addTag(Wt::Dbo::ptr<Database::Tag> tag)
 {
     if(!hasTag(tag))
     {
-        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+        //Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
         tags_.insert(tag);
 
-        transaction.commit();
+        //transaction.commit();
 
         return true;
     }
@@ -102,11 +102,11 @@ bool Database::Dbo::removeTag(Wt::Dbo::ptr<Database::Tag> tag)
 {
     if(hasTag(tag))
     {
-        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+        //Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
         tags_.erase(tag);
 
-        transaction.commit();
+        //transaction.commit();
 
         return true;
     }
@@ -116,7 +116,7 @@ bool Database::Dbo::removeTag(Wt::Dbo::ptr<Database::Tag> tag)
 
 bool Database::Dbo::hasTagAssigned(Wt::Dbo::ptr<Database::Tag> tag) const
 {
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+    //Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     bool result = false;
 
@@ -130,7 +130,7 @@ bool Database::Dbo::hasTagAssigned(Wt::Dbo::ptr<Database::Tag> tag) const
         }
     }
 
-    transaction.commit();
+    //transaction.commit();
 
     return result;
 }
@@ -139,11 +139,11 @@ bool Database::Dbo::assignTag(Wt::Dbo::ptr<Database::Tag> tag)
 {
     if(!hasTagAssigned(tag))
     {
-        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+        //Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
         assignedTags_.insert(tag);
 
-        transaction.commit();
+        //transaction.commit();
 
         return true;
     }
@@ -155,11 +155,11 @@ bool Database::Dbo::unassignTag(Wt::Dbo::ptr<Database::Tag> tag)
 {
     if(hasTagAssigned(tag))
     {
-        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+        //Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
         assignedTags_.erase(tag);
 
-        transaction.commit();
+        //transaction.commit();
 
         return true;
     }
@@ -169,7 +169,7 @@ bool Database::Dbo::unassignTag(Wt::Dbo::ptr<Database::Tag> tag)
 
 bool Database::Dbo::hasNote(Wt::Dbo::ptr<Database::Note> note) const
 {
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+    //Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     bool result = false;
 
@@ -183,7 +183,7 @@ bool Database::Dbo::hasNote(Wt::Dbo::ptr<Database::Note> note) const
         }
     }
 
-    transaction.commit();
+    //transaction.commit();
 
     return result;
 }
@@ -192,11 +192,11 @@ bool Database::Dbo::addNote(Wt::Dbo::ptr<Database::Note> note)
 {
     if(!hasNote(note))
     {
-        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+        //Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
         notes_.insert(note);
 
-        transaction.commit();
+        //transaction.commit();
 
         return true;
     }
@@ -208,11 +208,11 @@ bool Database::Dbo::removeNote(Wt::Dbo::ptr<Database::Note> note)
 {
     if(hasNote(note))
     {
-        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+        //Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
         notes_.erase(note);
 
-        transaction.commit();
+        //transaction.commit();
 
         return true;
     }

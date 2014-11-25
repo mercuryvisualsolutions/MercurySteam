@@ -395,7 +395,7 @@ void Views::ViewTaskTemplates::_prepareView()
 
     _layCntTemplatesAndItems = new Wt::WVBoxLayout();
     _layCntTemplatesAndItems->setContentsMargins(0,0,0,0);
-    _layCntTemplatesAndItems->setSpacing(0);
+    _layCntTemplatesAndItems->setSpacing(6);
 
     _cntTemplatesAndItems->setLayout(_layCntTemplatesAndItems);
 
@@ -422,4 +422,6 @@ void Views::ViewTaskTemplates::_prepareView()
 
     _createTemplateItemsTableView();
     _layCntTemplateItems->addWidget(_qtvTemplateItems, 1);
+
+    _layCntTemplatesAndItems->setResizable(0,true);
 }

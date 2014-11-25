@@ -273,6 +273,17 @@ void Views::ViewProjects::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
     _viewPropertiesShots->adjustUIPrivileges(user);
     _viewPropertiesAssets->adjustUIPrivileges(user);
     _viewPropertiesTasks->adjustUIPrivileges(user);
+
+    //disable creation in main views
+    _viewSequences->setCreateOptionHidden(true);
+    _viewSequences->qtvSequences()->setImportCSVFeatureEnabled(false);
+    _viewShots->setCreateOptionHidden(true);
+    _viewShots->qtvShots()->setImportCSVFeatureEnabled(false);
+    _viewAssets->setCreateOptionHidden(true);
+    _viewAssets->qtvAssets()->setImportCSVFeatureEnabled(false);
+    _viewTasks->setCreateOptionHidden(true);
+    _viewTasks->setCreateForTemplateOptionHidden(true);
+    _viewTasks->qtvTasks()->setImportCSVFeatureEnabled(false);
 }
 
 Wt::Signal<> &Views::ViewProjects::onTabProjectsSelected()
@@ -308,6 +319,8 @@ void Views::ViewProjects::_addDataToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboV
     {
        if(dlg->result() == Wt::WDialog::Accepted)
        {
+           Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
            for(auto &ptr : dboVec)
            {
                 Database::DboData *data = new Database::DboData(dlg->key(), dlg->value());
@@ -318,6 +331,8 @@ void Views::ViewProjects::_addDataToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboV
                 else
                     delete data;
            }
+
+           transaction.commit();
 
            _updatePropertiesDataView();
        }
@@ -336,6 +351,8 @@ void Views::ViewProjects::_addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboV
     {
        if(dlg->result() == Wt::WDialog::Accepted)
        {
+           Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
            for(auto &ptr : dboVec)
            {
                 Database::Note *note = new Database::Note(dlg->content());
@@ -347,6 +364,8 @@ void Views::ViewProjects::_addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboV
                     delete note;
            }
 
+           transaction.commit();
+
            _updatePropertiesNotesView();
        }
 
@@ -354,40 +373,6 @@ void Views::ViewProjects::_addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboV
     }));
 
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
-}
-
-template<typename T>
-void Views::ViewProjects::_assignTagToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
-{
-    if(dboVec.size() > 0)
-    {
-        for(auto &dboPtr : dboVec)
-        {
-            for(auto &tagPtr : tagVec)
-            {
-                Session::SessionManager::instance().dboSession().modifyDbo<T>(dboPtr)->assignTag(tagPtr);
-            }
-        }
-
-        _updatePropertiesAssignedTagsView();
-    }
-}
-
-template<typename T>
-void Views::ViewProjects::_unAssignTagFromDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
-{
-    if(dboVec.size() > 0)
-    {
-        for(auto &dboPtr : dboVec)
-        {
-            for(auto &tagPtr : tagVec)
-            {
-                Session::SessionManager::instance().dboSession().modifyDbo<T>(dboPtr)->unassignTag(tagPtr);
-            }
-        }
-
-        _updatePropertiesAssignedTagsView();
-    }
 }
 
 //Main
@@ -1403,7 +1388,13 @@ void Views::ViewProjects::_createProjectTagRequested()
             if(tagPtr.get())
             {
                 if(customProjectTag)
+                {
+                    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(_qtvProjects->selectedItems().at(0))->addTag(tagPtr);
+
+                    transaction.commit();
+                }
 
                 _updatePropertiesTagsView();
             }
@@ -1425,27 +1416,47 @@ void Views::ViewProjects::_assignTagsRequested(const std::vector<Wt::Dbo::ptr<Da
     if(_stkMain->currentWidget() == _cntProjects)
     {
         if(_qtvProjects->table()->selectedIndexes().size() > 0)
-            _assignTagToDbo<Projects::Project>(_qtvProjects->selectedItems(), tagVec);
+        {
+            Session::SessionManager::instance().dboSession().assignTagsToDbo<Projects::Project>(_qtvProjects->selectedItems(), tagVec);
+
+            _updatePropertiesAssignedTagsView();
+        }
     }
     else if(_stkMain->currentWidget() == _cntSequences)
     {
         if(_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0)
-            _assignTagToDbo<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems(), tagVec);
+        {
+            Session::SessionManager::instance().dboSession().assignTagsToDbo<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems(), tagVec);
+
+            _updatePropertiesAssignedTagsView();
+        }
     }
     else if(_stkMain->currentWidget() == _cntShots)
     {
         if(_viewShots->qtvShots()->table()->selectedIndexes().size() > 0)
-            _assignTagToDbo<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems(), tagVec);
+        {
+            Session::SessionManager::instance().dboSession().assignTagsToDbo<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems(), tagVec);
+
+            _updatePropertiesAssignedTagsView();
+        }
     }
     else if(_stkMain->currentWidget() == _cntAssets)
     {
         if(_viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0)
-            _assignTagToDbo<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems(), tagVec);
+        {
+            Session::SessionManager::instance().dboSession().assignTagsToDbo<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems(), tagVec);
+
+            _updatePropertiesAssignedTagsView();
+        }
     }
     else if(_stkMain->currentWidget() == _cntTasks)
     {
         if(_viewTasks->qtvTasks()->table()->selectedIndexes().size() > 0)
-            _assignTagToDbo<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems(), tagVec);
+        {
+            Session::SessionManager::instance().dboSession().assignTagsToDbo<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems(), tagVec);
+
+            _updatePropertiesAssignedTagsView();
+        }
     }
 }
 
@@ -1457,27 +1468,47 @@ void Views::ViewProjects::_unassignTagsRequested(const std::vector<Wt::Dbo::ptr<
     if(_stkMain->currentWidget() == _cntProjects)
     {
         if(_qtvProjects->table()->selectedIndexes().size() > 0)
-            _unAssignTagFromDbo<Projects::Project>(_qtvProjects->selectedItems(), tagVec);
+        {
+            Session::SessionManager::instance().dboSession().unassignTagsFromDbo<Projects::Project>(_qtvProjects->selectedItems(), tagVec);
+
+            _updatePropertiesAssignedTagsView();
+        }
     }
     else if(_stkMain->currentWidget() == _cntSequences)
     {
         if(_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0)
-            _unAssignTagFromDbo<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems(), tagVec);
+        {
+            Session::SessionManager::instance().dboSession().unassignTagsFromDbo<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems(), tagVec);
+
+            _updatePropertiesAssignedTagsView();
+        }
     }
     else if(_stkMain->currentWidget() == _cntShots)
     {
         if(_viewShots->qtvShots()->table()->selectedIndexes().size() > 0)
-            _unAssignTagFromDbo<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems(), tagVec);
+        {
+            Session::SessionManager::instance().dboSession().unassignTagsFromDbo<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems(), tagVec);
+
+            _updatePropertiesAssignedTagsView();
+        }
     }
     else if(_stkMain->currentWidget() == _cntAssets)
     {
         if(_viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0)
-            _unAssignTagFromDbo<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems(), tagVec);
+        {
+            Session::SessionManager::instance().dboSession().unassignTagsFromDbo<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems(), tagVec);
+
+            _updatePropertiesAssignedTagsView();
+        }
     }
     else if(_stkMain->currentWidget() == _cntTasks)
     {
         if(_viewTasks->qtvTasks()->table()->selectedIndexes().size() > 0)
-            _unAssignTagFromDbo<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems(), tagVec);
+        {
+            Session::SessionManager::instance().dboSession().unassignTagsFromDbo<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems(), tagVec);
+
+            _updatePropertiesAssignedTagsView();
+        }
     }
 }
 
@@ -1490,13 +1521,14 @@ void Views::ViewProjects::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<
 
     std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Database::Tag>(tagVec);
 
-    std::string inverseOperator = inverse ? "NOT " : "";
+    std::string inverseIn = inverse ? "NOT " : "";
+    std::string andOr = inverse ? "OR" : "AND";
 
     if(_stkMain->currentWidget() == _cntProjects)
     {
         std::string matchBy = exactSelection ? " GROUP BY pt.project_Project_Name HAVING COUNT(DISTINCT pt.tag_id) = " + std::to_string(tagVec.size()) : "";
 
-        strFilterQuery = "Project_Name " + inverseOperator + "IN (SELECT pt.project_Project_Name FROM rel_project_assigned_tags pt WHERE tag_id IN (" + idValues.at(0) + ")" + matchBy + ")";
+        strFilterQuery = "Project_Name " + inverseIn + "IN (SELECT pt.project_Project_Name FROM rel_project_assigned_tags pt WHERE tag_id IN (" + idValues.at(0) + ")" + matchBy + ")";
 
         _qtvProjects->setCustomFilterString(strFilterQuery);
         _qtvProjects->setCustomFilterActive(true);
@@ -1506,8 +1538,8 @@ void Views::ViewProjects::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<
         std::string projectMatchBy = exactSelection ? " GROUP BY st.project_sequence_Sequence_Project_Project_Name HAVING COUNT(DISTINCT st.tag_id) = " + std::to_string(tagVec.size()) : "";
         std::string projectSequenceMatchBy = exactSelection ? " GROUP BY st.project_sequence_Sequence_Name HAVING COUNT(DISTINCT st.tag_id) = " + std::to_string(tagVec.size()) : "";
 
-        strFilterQuery = "Sequence_Name " + inverseOperator + "IN (SELECT st.project_sequence_Sequence_Name FROM rel_project_sequence_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + ")" + projectSequenceMatchBy + ") AND "
-                "Sequence_Project_Project_Name " + inverseOperator + " IN (SELECT st.project_sequence_Sequence_Project_Project_Name FROM rel_project_sequence_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + ")" + projectMatchBy + ")";
+        strFilterQuery = "Sequence_Name " + inverseIn + "IN (SELECT st.project_sequence_Sequence_Name FROM rel_project_sequence_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + ")" + projectSequenceMatchBy + ") " + andOr +
+                " Sequence_Project_Project_Name " + inverseIn + "IN (SELECT st.project_sequence_Sequence_Project_Project_Name FROM rel_project_sequence_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + ")" + projectMatchBy + ")";
 
         _viewSequences->qtvSequences()->setCustomFilterString(strFilterQuery);
         _viewSequences->qtvSequences()->setCustomFilterActive(true);
@@ -1518,9 +1550,9 @@ void Views::ViewProjects::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<
         std::string projectSequenceMatchBy = exactSelection ? " GROUP BY st.project_shot_Shot_Sequence_Sequence_Name HAVING COUNT(DISTINCT st.tag_id) = " + std::to_string(tagVec.size()) : "";
         std::string projectShotMatchBy = exactSelection ? " GROUP BY st.project_shot_Shot_Name HAVING COUNT(DISTINCT st.tag_id) = " + std::to_string(tagVec.size()) : "";
 
-        strFilterQuery = "Shot_Name " + inverseOperator + "IN (SELECT st.project_shot_Shot_Name FROM rel_project_shot_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + ")" + projectShotMatchBy + ") AND "
-                "Shot_Sequence_Sequence_Name " + inverseOperator + "IN (SELECT st.project_shot_Shot_Sequence_Sequence_Name FROM rel_project_shot_assigned_tags st WHERE tag_id IN(" + idValues.at(0) + ")" + projectSequenceMatchBy + ") AND "
-                "Shot_Sequence_Sequence_Project_Project_Name " + inverseOperator + "IN (SELECT st.project_shot_Shot_Sequence_Sequence_Project_Project_Name FROM rel_project_shot_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + ")" + projectMatchBy + ")";
+        strFilterQuery = "Shot_Name " + inverseIn + "IN (SELECT st.project_shot_Shot_Name FROM rel_project_shot_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + ")" + projectShotMatchBy + ") " + andOr +
+                " Shot_Sequence_Sequence_Name " + inverseIn + "IN (SELECT st.project_shot_Shot_Sequence_Sequence_Name FROM rel_project_shot_assigned_tags st WHERE tag_id IN(" + idValues.at(0) + ")" + projectSequenceMatchBy + ") " + andOr +
+                " Shot_Sequence_Sequence_Project_Project_Name " + inverseIn + "IN (SELECT st.project_shot_Shot_Sequence_Sequence_Project_Project_Name FROM rel_project_shot_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + ")" + projectMatchBy + ")";
 
         _viewShots->qtvShots()->setCustomFilterString(strFilterQuery);
         _viewShots->qtvShots()->setCustomFilterActive(true);
@@ -1530,8 +1562,8 @@ void Views::ViewProjects::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<
         std::string projectMatchBy = exactSelection ? " GROUP BY at.project_asset_Asset_Project_Project_Name HAVING COUNT(DISTINCT at.tag_id) = " + std::to_string(tagVec.size()) : "";
         std::string projectAssetMatchBy = exactSelection ? " GROUP BY at.project_asset_Asset_Name HAVING COUNT(DISTINCT at.tag_id) = " + std::to_string(tagVec.size()) : "";
 
-        strFilterQuery = "Asset_Name " + inverseOperator + "IN (SELECT at.project_asset_Asset_Name FROM rel_project_asset_assigned_tags at WHERE tag_id IN (" + idValues.at(0) + ")" + projectAssetMatchBy + ") AND "
-                "Asset_Project_Project_Name " + inverseOperator + "IN (SELECT at.project_asset_Asset_Project_Project_Name FROM rel_project_asset_assigned_tags at WHERE tag_id IN (" + idValues.at(0) + ")" + projectMatchBy + ")";
+        strFilterQuery = "Asset_Name " + inverseIn + "IN (SELECT at.project_asset_Asset_Name FROM rel_project_asset_assigned_tags at WHERE tag_id IN (" + idValues.at(0) + ")" + projectAssetMatchBy + ") " + andOr +
+                "Asset_Project_Project_Name " + inverseIn + "IN (SELECT at.project_asset_Asset_Project_Project_Name FROM rel_project_asset_assigned_tags at WHERE tag_id IN (" + idValues.at(0) + ")" + projectMatchBy + ")";
 
         _viewAssets->qtvAssets()->setCustomFilterString(strFilterQuery);
         _viewAssets->qtvAssets()->setCustomFilterActive(true);
@@ -1540,7 +1572,7 @@ void Views::ViewProjects::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<
     {
         std::string taskMatchBy = exactSelection ? " GROUP BY tt.project_task_id HAVING COUNT(DISTINCT tt.tag_id) = " + std::to_string(tagVec.size()) : "";
 
-        strFilterQuery = "id " + inverseOperator + "IN (SELECT tt.project_task_id FROM rel_project_task_assigned_tags tt WHERE tag_id IN (" + idValues.at(0) + ")" + taskMatchBy + ")";
+        strFilterQuery = "id " + inverseIn + "IN (SELECT tt.project_task_id FROM rel_project_task_assigned_tags tt WHERE tag_id IN (" + idValues.at(0) + ")" + taskMatchBy + ")";
 
         _viewTasks->qtvTasks()->setCustomFilterString(strFilterQuery);
         _viewTasks->qtvTasks()->setCustomFilterActive(true);
@@ -1552,27 +1584,27 @@ void Views::ViewProjects::_clearTagsFilterRequested()
     if(_stkMain->currentWidget() == _cntProjects)
     {
         _qtvProjects->setCustomFilterString("");
-        _qtvProjects->setCustomFilterActive(true);
+        _qtvProjects->setCustomFilterActive(false);
     }
     else if(_stkMain->currentWidget() == _cntSequences)
     {
         _viewSequences->qtvSequences()->setCustomFilterString("");
-        _viewSequences->qtvSequences()->setCustomFilterActive(true);
+        _viewSequences->qtvSequences()->setCustomFilterActive(false);
     }
     else if(_stkMain->currentWidget() == _cntShots)
     {
         _viewShots->qtvShots()->setCustomFilterString("");
-        _viewShots->qtvShots()->setCustomFilterActive(true);
+        _viewShots->qtvShots()->setCustomFilterActive(false);
     }
     else if(_stkMain->currentWidget() == _cntAssets)
     {
         _viewAssets->qtvAssets()->setCustomFilterString("");
-        _viewAssets->qtvAssets()->setCustomFilterActive(true);
+        _viewAssets->qtvAssets()->setCustomFilterActive(false);
     }
     else if(_stkMain->currentWidget() == _cntTasks)
     {
         _viewTasks->qtvTasks()->setCustomFilterString("");
-        _viewTasks->qtvTasks()->setCustomFilterActive(true);
+        _viewTasks->qtvTasks()->setCustomFilterActive(false);
     }
 }
 

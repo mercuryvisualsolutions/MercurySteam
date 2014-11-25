@@ -213,8 +213,10 @@ void Views::ViewUsers::_addDataToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec)
     {
        if(dlg->result() == Wt::WDialog::Accepted)
        {
-           for(auto &ptr : dboVec)
-           {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+            for(auto &ptr : dboVec)
+            {
                 Database::DboData *data = new Database::DboData(dlg->key(), dlg->value());
                 Wt::Dbo::ptr<Database::DboData> dataPtr = Session::SessionManager::instance().dboSession().createDbo<Database::DboData>(data);
 
@@ -222,9 +224,11 @@ void Views::ViewUsers::_addDataToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec)
                     Session::SessionManager::instance().dboSession().modifyDbo<T>(ptr)->addData(dataPtr);
                 else
                     delete data;
-           }
+            }
 
-           _updatePropertiesDataView();
+            transaction.commit();
+
+            _updatePropertiesDataView();
        }
 
        delete dlg;
@@ -241,6 +245,8 @@ void Views::ViewUsers::_addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec)
     {
        if(dlg->result() == Wt::WDialog::Accepted)
        {
+           Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
            for(auto &ptr : dboVec)
            {
                 Database::Note *note = new Database::Note(dlg->content());
@@ -252,6 +258,8 @@ void Views::ViewUsers::_addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec)
                     delete note;
            }
 
+           transaction.commit();
+
            _updatePropertiesNotesView();
        }
 
@@ -259,40 +267,6 @@ void Views::ViewUsers::_addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec)
     }));
 
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
-}
-
-template<typename T>
-void Views::ViewUsers::_assignTagToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
-{
-    if(dboVec.size() > 0)
-    {
-        for(auto &dboPtr : dboVec)
-        {
-            for(auto &tagPtr : tagVec)
-            {
-                Session::SessionManager::instance().dboSession().modifyDbo<T>(dboPtr)->assignTag(tagPtr);
-            }
-        }
-
-        _updatePropertiesAssignedTagsView();
-    }
-}
-
-template<typename T>
-void Views::ViewUsers::_unAssignTagFromDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
-{
-    if(dboVec.size() > 0)
-    {
-        for(auto &dboPtr : dboVec)
-        {
-            for(auto &tagPtr : tagVec)
-            {
-                Session::SessionManager::instance().dboSession().modifyDbo<T>(dboPtr)->unassignTag(tagPtr);
-            }
-        }
-
-        _updatePropertiesAssignedTagsView();
-    }
 }
 
 /*******************--Users--********************/
@@ -681,12 +655,20 @@ void Views::ViewUsers::_assignTagsRequested(const std::vector<Wt::Dbo::ptr<Datab
     if(_stkMain->currentWidget() == _qtvUsers)
     {
         if(_qtvUsers->table()->selectedIndexes().size() > 0)
-            _assignTagToDbo<Users::User>(_qtvUsers->selectedItems(), tagVec);
+        {
+            Session::SessionManager::instance().dboSession().assignTagsToDbo<Users::User>(_qtvUsers->selectedItems(), tagVec);
+
+            _updatePropertiesAssignedTagsView();
+        }
     }
     else if(_stkMain->currentWidget() == _qtvGroups)
     {
         if(_qtvGroups->table()->selectedIndexes().size() > 0)
-            _assignTagToDbo<Users::Group>(_qtvGroups->selectedItems(), tagVec);
+        {
+            Session::SessionManager::instance().dboSession().assignTagsToDbo<Users::Group>(_qtvGroups->selectedItems(), tagVec);
+
+            _updatePropertiesAssignedTagsView();
+        }
     }
 }
 
@@ -695,12 +677,20 @@ void Views::ViewUsers::_unassignTagsRequested(const std::vector<Wt::Dbo::ptr<Dat
     if(_stkMain->currentWidget() == _qtvUsers)
     {
         if(_qtvUsers->table()->selectedIndexes().size() > 0)
-            _unAssignTagFromDbo<Users::User>(_qtvUsers->selectedItems(), tagVec);
+        {
+            Session::SessionManager::instance().dboSession().unassignTagsFromDbo<Users::User>(_qtvUsers->selectedItems(), tagVec);
+
+            _updatePropertiesAssignedTagsView();
+        }
     }
     else if(_stkMain->currentWidget() == _qtvGroups)
     {
         if(_qtvGroups->table()->selectedIndexes().size() > 0)
-            _unAssignTagFromDbo<Users::Group>(_qtvGroups->selectedItems(), tagVec);
+        {
+            Session::SessionManager::instance().dboSession().unassignTagsFromDbo<Users::Group>(_qtvGroups->selectedItems(), tagVec);
+
+            _updatePropertiesAssignedTagsView();
+        }
     }
 }
 
@@ -740,12 +730,12 @@ void Views::ViewUsers::_clearTagsFilterRequested()
     if(_stkMain->currentWidget() == _qtvUsers)
     {
         _qtvUsers->setCustomFilterString("");
-        _qtvUsers->setCustomFilterActive(true);
+        _qtvUsers->setCustomFilterActive(false);
     }
     else if(_stkMain->currentWidget() == _qtvGroups)
     {
         _qtvGroups->setCustomFilterString("");
-        _qtvGroups->setCustomFilterActive(true);
+        _qtvGroups->setCustomFilterActive(false);
     }
 }
 
@@ -834,7 +824,7 @@ void Views::ViewUsers::_filterByPrivilegesRequested(const std::vector<Wt::Dbo::p
 void Views::ViewUsers::_clearFilterPrivilegesFilterRequested()
 {
     _qtvGroups->setCustomFilterString("");
-    _qtvGroups->setCustomFilterActive(true);
+    _qtvGroups->setCustomFilterActive(false);
 }
 
 void Views::ViewUsers::_createPropertiesView()

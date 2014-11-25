@@ -297,6 +297,43 @@ bool Database::DboSession::removeTagFromDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Da
     return false;
 }
 
+template<typename T>
+void Database::DboSession::assignTagsToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
+{
+    if(dboVec.size() > 0)
+    {
+        Wt::Dbo::Transaction transaction(*this);
+
+        for(auto &dboPtr : dboVec)
+        {
+            for(auto &tagPtr : tagVec)
+            {
+                modifyDbo<T>(dboPtr)->assignTag(tagPtr);
+            }
+        }
+
+        transaction.commit();
+    }
+}
+
+template<typename T>
+void Database::DboSession::unassignTagsFromDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
+{
+    if(dboVec.size() > 0)
+    {
+        Wt::Dbo::Transaction transaction(*this);
+
+        for(auto &dboPtr : dboVec)
+        {
+            for(auto &tagPtr : tagVec)
+            {
+                modifyDbo<T>(dboPtr)->unassignTag(tagPtr);
+            }
+        }
+
+        transaction.commit();
+    }
+}
 
 template<typename T>
 std::vector<std::string> Database::DboSession::getDboQueryIdValue(const Wt::Dbo::ptr<T> &dbo) const

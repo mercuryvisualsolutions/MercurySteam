@@ -61,7 +61,6 @@ App::MSApplication::MSApplication(const Wt::WEnvironment &env, Wt::Dbo::SqlConne
 
     //js required files
     require("resources/themes/bootstrap/js/bootstrap.js");
-    require("resources/themes/bootstrap/js/bootstrap.min.js");
     require("resources/themes/bootstrap/js/npm.js");
 
     //add resources to style WAuthWidget

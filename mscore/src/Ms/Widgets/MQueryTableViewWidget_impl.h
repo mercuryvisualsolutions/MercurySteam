@@ -521,6 +521,8 @@ namespace Ms
         {
             _advancedFilterActive = active;
 
+            _chkAdvancedFilterActive->setChecked(active);
+
             _updateModel();
         }
 
@@ -534,6 +536,8 @@ namespace Ms
         void Ms::Widgets::MQueryTableViewWidget<T>::setCustomFilterActive(bool active)
         {
             _customFilterActive = active;
+
+            _chkCustomFilterActive->setChecked(active);
 
             _updateModel();
         }
@@ -1385,7 +1389,30 @@ namespace Ms
 
             _lblStatus = new Wt::WLabel("");
 
-            _layCntStatusBar->addWidget(_lblStatus);
+            _layCntStatusBar->addWidget(_lblStatus, 1);
+
+            Wt::WHBoxLayout *layCntActiveFilters = new Wt::WHBoxLayout();
+            layCntActiveFilters->setContentsMargins(8,0,8,0);
+            layCntActiveFilters->setSpacing(6);
+
+            Wt::WContainerWidget *cntActiveFilters = new Wt::WContainerWidget();
+            cntActiveFilters->setLayout(layCntActiveFilters);
+
+            _layCntStatusBar->addWidget(cntActiveFilters);
+
+            _chkCustomFilterActive = new Wt::WCheckBox("CF");
+            _chkCustomFilterActive->setInline(true);
+            _chkCustomFilterActive->setToolTip("Custom Filter");
+            _chkCustomFilterActive->setDisabled(true);
+
+            layCntActiveFilters->addWidget(_chkCustomFilterActive);
+
+            _chkAdvancedFilterActive = new Wt::WCheckBox("AF");
+            _chkAdvancedFilterActive->setInline(true);
+            _chkAdvancedFilterActive->setToolTip("Advanced Filter");
+            _chkAdvancedFilterActive->setDisabled(true);
+
+            layCntActiveFilters->addWidget(_chkAdvancedFilterActive);
 
             //advancedFilter
             _createAdvancedFilterView();

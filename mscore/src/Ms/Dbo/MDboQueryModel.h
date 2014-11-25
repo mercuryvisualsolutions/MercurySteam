@@ -22,6 +22,7 @@ namespace Ms
         {
         public:
             MDboQueryModel(Wt::WObject *parent = 0);
+            ~MDboQueryModel();
 
             //functions
             std::string userName();

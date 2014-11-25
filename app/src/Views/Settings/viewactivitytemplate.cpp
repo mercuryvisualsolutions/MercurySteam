@@ -167,6 +167,7 @@ void Views::ViewActivityTemplates::_btnCreateTemplateItemClicked()
             templateItem->setStatus(dlg->status());
             templateItem->setDescription(dlg->description());
             templateItem->setActivityTemplate(templatePtr);
+            templateItem->setHours(dlg->hours());
             templateItem->setActive(dlg->isActive());
 
             Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem> templateItemPtr =
@@ -400,7 +401,7 @@ void Views::ViewActivityTemplates::_prepareView()
 
     _layCntTemplatesAndItems = new Wt::WVBoxLayout();
     _layCntTemplatesAndItems->setContentsMargins(0,0,0,0);
-    _layCntTemplatesAndItems->setSpacing(0);
+    _layCntTemplatesAndItems->setSpacing(6);
 
     _cntTemplatesAndItems->setLayout(_layCntTemplatesAndItems);
 
@@ -427,4 +428,6 @@ void Views::ViewActivityTemplates::_prepareView()
 
     _createTemplateItemsTableView();
     _layCntTemplateItems->addWidget(_qtvTemplateItems, 1);
+
+    _layCntTemplatesAndItems->setResizable(0,true);
 }

@@ -38,15 +38,24 @@ void Views::ViewMyDashboard::updateTasksView()
     {
         Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-        int editRank = Session::SessionManager::instance().user()->editRank();
+        Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
+
+        int editRank = user->editRank();
+
+        bool canEdit = user->hasPrivilege("Edit");
+        Wt::WFlags<Wt::ItemFlag> flags;
+        if(canEdit)
+            flags = Wt::ItemIsSelectable | Wt::ItemIsEditable;
+        else
+            flags = Wt::ItemIsSelectable;
 
         Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTask>> query = Session::SessionManager::instance().dboSession().find<Projects::ProjectTask>();
 
         //load inactive data if selected from settings
         if(AppSettings::instance().isLoadInactiveData())
-            query.where("Task_User_Name = ?").bind(Session::SessionManager::instance().login().user().identity(Wt::Auth::Identity::LoginName));
+            query.where("Task_User_Name = ?").bind(user->name());
         else
-            query.where("Task_User_Name = ? AND Active = ?").bind(Session::SessionManager::instance().login().user().identity(Wt::Auth::Identity::LoginName)).bind(true);
+            query.where("Task_User_Name = ? AND Active = ?").bind(user->name()).bind(true);
 
         _qtvTasks->setQuery(query);
 
@@ -57,7 +66,11 @@ void Views::ViewMyDashboard::updateTasksView()
         //add columns
         _qtvTasks->addColumn(Ms::Widgets::MQueryTableViewColumn("id", "ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, false, true));
         _qtvTasks->addColumn(Ms::Widgets::MQueryTableViewColumn("Task_Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, true));
-        _qtvTasks->addColumn(Ms::Widgets::MQueryTableViewColumn("Current_Status", "Status", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate));
+        _qtvTasks->addColumn(Ms::Widgets::MQueryTableViewColumn("Current_Status", "Status", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectWorkStatus>(
+         &Session::SessionManager::instance().dboSession(),
+         AppSettings::instance().isLoadInactiveData() ? Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>() :
+         Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true),
+         "Status", editRank)));
         _qtvTasks->addColumn(Ms::Widgets::MQueryTableViewColumn("Date_Created", "Date Created", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, false, true));
         _qtvTasks->addColumn(Ms::Widgets::MQueryTableViewColumn("Start_Date", "Start Date", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, false));
         _qtvTasks->addColumn(Ms::Widgets::MQueryTableViewColumn("End_Date", "End Date", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, false));

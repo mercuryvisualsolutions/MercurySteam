@@ -40,6 +40,10 @@ namespace Database
     bool addTagToDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Database::Tag> tag);
     template<typename T>
     bool removeTagFromDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Database::Tag> tag);
+    template<typename T>
+    void assignTagsToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
+    template<typename T>
+    void unassignTagsFromDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
 
     template<typename T>
     std::vector<std::string> getDboQueryIdValue(const Wt::Dbo::ptr<T> &dbo) const;
