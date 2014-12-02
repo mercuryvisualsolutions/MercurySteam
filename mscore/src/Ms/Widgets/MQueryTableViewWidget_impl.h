@@ -1169,7 +1169,7 @@ namespace Ms
 
                 _model->reload();
 
-                //int i;
+                //int i = 0;
 
                 for(auto iter = _columns.begin(); iter != _columns.end(); ++iter)
                 {

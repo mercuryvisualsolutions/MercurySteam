@@ -1,10 +1,11 @@
 #include "MQueryTableViewColumn.h"
 
-Ms::Widgets::MQueryTableViewColumn::MQueryTableViewColumn()
+Ms::Widgets::MQueryTableViewColumn::MQueryTableViewColumn() :
+    _width(150),
+    _flags(Wt::ItemIsSelectable),
+    _isMandatory(false),
+    _ignored(false)
 {
-    setMandatory(false);
-    setIgnored(false);
-    setFlags(Wt::ItemIsSelectable);
     setDelegate(new Ms::Widgets::Delegates::MItemDelegate);
 }
 

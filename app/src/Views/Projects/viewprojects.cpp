@@ -974,6 +974,8 @@ void Views::ViewProjects::_createTasksRequested()
         {
             if(dlg->result() == Wt::WDialog::Accepted)
             {
+                Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
                 if(_stkMain->currentWidget() == _cntProjects)
                 {
                     for(auto &prjPtr : _qtvProjects->selectedItems())
@@ -988,6 +990,7 @@ void Views::ViewProjects::_createTasksRequested()
                         task->setDescription(dlg->description());
                         task->setActive(dlg->isActive());
                         task->setProject(prjPtr);
+                        task->setThumbnail(prjPtr->thumbnail());
 
                         Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTask>(task);
                         if(taskPtr.get())
@@ -1020,6 +1023,11 @@ void Views::ViewProjects::_createTasksRequested()
                         task->setActive(dlg->isActive());
                         task->setSequence(seqPtr);
 
+                        if(dlg->thumbnail() == "Project")
+                            task->setThumbnail(seqPtr->project()->thumbnail());
+                        else
+                            task->setThumbnail(seqPtr->thumbnail());
+
                         Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTask>(task);
                         if(taskPtr.get())
                         {
@@ -1035,6 +1043,8 @@ void Views::ViewProjects::_createTasksRequested()
                             _logger->log(std::string("Error creating task for sequence") + seqPtr->name(), Ms::Log::LogMessageType::Error);
                         }
                     }
+
+                    transaction.commit();
                 }
                 else if(_stkMain->currentWidget() == _cntShots)
                 {
@@ -1050,6 +1060,13 @@ void Views::ViewProjects::_createTasksRequested()
                         task->setDescription(dlg->description());
                         task->setActive(dlg->isActive());
                         task->setShot(shotPtr);
+
+                        if(dlg->thumbnail() == "Project")
+                            task->setThumbnail(shotPtr->sequence()->project()->thumbnail());
+                        else if(dlg->thumbnail() == "Sequence")
+                            task->setThumbnail(shotPtr->id().sequence->thumbnail());
+                        else
+                            task->setThumbnail(shotPtr->thumbnail());
 
                         Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTask>(task);
                         if(taskPtr.get())
@@ -1069,7 +1086,6 @@ void Views::ViewProjects::_createTasksRequested()
                 }
                 else if(_stkMain->currentWidget() == _cntAssets)
                 {
-                    //add tasks for selected assets
                     for(auto &assetPtr : _viewAssets->qtvAssets()->selectedItems())
                     {
                         Projects::ProjectTask *task = new Projects::ProjectTask();
@@ -1083,6 +1099,11 @@ void Views::ViewProjects::_createTasksRequested()
                         task->setDescription(dlg->description());
                         task->setActive(dlg->isActive());
                         task->setAsset(assetPtr);
+
+                        if(dlg->thumbnail() == "Project")
+                            task->setThumbnail(assetPtr->project()->thumbnail());
+                        else
+                            task->setThumbnail(assetPtr->thumbnail());
 
                         Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTask>(task);
                         if(taskPtr.get())
@@ -1099,9 +1120,11 @@ void Views::ViewProjects::_createTasksRequested()
                             _logger->log(std::string("error creating task for asset ") + assetPtr->name(), Ms::Log::LogMessageType::Error);
                         }
                     }
-
-                    updateTasksView();
                 }
+
+                transaction.commit();
+
+                updateTasksView();
             }
 
             delete dlg;

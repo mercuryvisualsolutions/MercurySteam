@@ -64,6 +64,7 @@ void Views::ViewMyDashboard::updateTasksView()
         _qtvTasks->clearColumns();
 
         //add columns
+        _qtvTasks->addColumn(Ms::Widgets::MQueryTableViewColumn("Thumbnail", "Thumbnail", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MThumbnailDelegate(256, 160, "pics/NoPreviewBig.png"), false, true, 256));
         _qtvTasks->addColumn(Ms::Widgets::MQueryTableViewColumn("id", "ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, false, true));
         _qtvTasks->addColumn(Ms::Widgets::MQueryTableViewColumn("Task_Type", "Type", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, true));
         _qtvTasks->addColumn(Ms::Widgets::MQueryTableViewColumn("Current_Status", "Status", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectWorkStatus>(
@@ -128,14 +129,13 @@ Wt::Signal<> &Views::ViewMyDashboard::onTabMyTasksSelected()
 void Views::ViewMyDashboard::_createTasksTableView()
 {
     _qtvTasks = new Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask>(Session::SessionManager::instance().dboSession());
-    _qtvTasks->setHeaderHeight(24);
-    _qtvTasks->setRowHeight(24);
+    _qtvTasks->setRowHeight(160);
     _qtvTasks->setSelectionMode(Wt::ExtendedSelection);
     _qtvTasks->setDynamicSortFilter(true);
     _qtvTasks->setFilterRole(Wt::DisplayRole);
     _qtvTasks->setFilterRegExp("[^$]{0,255}");
     _qtvTasks->setDefaultFilterColumnIndex(0);
-    _qtvTasks->setIgnoreNumFilterColumns(0);
+    _qtvTasks->setIgnoreNumFilterColumns(1);
     _qtvTasks->setImportCSVFeatureEnabled(false);
 
     _btnTaskFiles = _qtvTasks->createToolButton("", "icons/Files.png", "Files Manager");

@@ -31,6 +31,7 @@ namespace Views
 
         Wt::Dbo::ptr<Projects::ProjectTaskType> type() const;
         Wt::Dbo::ptr<Projects::ProjectWorkStatus> status() const;
+        std::string thumbnail() const;
         Wt::Dbo::ptr<Users::User> user() const;
         Wt::WDate startDate() const;
         Wt::WDate endDate() const;
@@ -45,6 +46,7 @@ namespace Views
         bool editedPriority() const;
         bool editedType() const;
         bool editedStatus() const;
+        bool editedThumbnail() const;
         bool editedUser() const;
         bool editedDescription() const;
         bool editedActive() const;
@@ -64,6 +66,7 @@ namespace Views
         Wt::WComboBox *_cmbStatus;
         Wt::WContainerWidget *_cntCmbStatus;
         Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatus>> *_mdlCmbStatus;
+        Wt::WComboBox *_cmbThumbnail;
         Wt::WComboBox *_cmbUser;
         Wt::WContainerWidget *_cntCmbUser;
         Wt::Dbo::QueryModel<Wt::Dbo::ptr<Users::User>> *_mdlCmbUser;

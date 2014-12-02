@@ -21,6 +21,11 @@ Wt::Dbo::ptr<Projects::ProjectWorkStatus> Views::DlgCreateAndEditTask::status() 
     return _mdlCmbStatus->resultRow(_cmbStatus->currentIndex());
 }
 
+std::string Views::DlgCreateAndEditTask::thumbnail() const
+{
+    return _cmbThumbnail->currentText().toUTF8();
+}
+
 Wt::Dbo::ptr<Users::User> Views::DlgCreateAndEditTask::user() const
 {
     return _mdlCmbUser->resultRow(_cmbUser->currentIndex());
@@ -113,6 +118,19 @@ bool Views::DlgCreateAndEditTask::editedStatus() const
     if(_editing)
     {
         if(_cmbStatus->isEnabled())
+            return true;
+        else
+            return false;
+    }
+    else
+        return false;
+}
+
+bool Views::DlgCreateAndEditTask::editedThumbnail() const
+{
+    if(_editing)
+    {
+        if(_cmbThumbnail->isEnabled())
             return true;
         else
             return false;
@@ -233,13 +251,28 @@ void Views::DlgCreateAndEditTask::_prepareView()
 
     _layLeft->addWidget(new Wt::WBreak());
 
-    _createCmbUser();
+    _cmbThumbnail = new Wt::WComboBox();
+    _cmbThumbnail->addItem("Project");
+    _cmbThumbnail->addItem("Sequence");
+    _cmbThumbnail->addItem("Asset");
+    _cmbThumbnail->addItem("Shot");
+
+    _cmbThumbnail->setCurrentIndex(0);
+
     if(_editing)
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("User:", _cntCmbUser));
+        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Thumbnail:", _cmbThumbnail));
     else
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("User:", _cntCmbUser));
+        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Thumbnail:", _cmbThumbnail));
 
     _layLeft->addWidget(new Wt::WBreak(), 1);
+
+    _createCmbUser();
+    if(_editing)
+        _layRight->addWidget(Ms::Widgets::MWidgetFactory::createEditField("User:", _cntCmbUser));
+    else
+        _layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("User:", _cntCmbUser));
+
+    _layRight->addWidget(new Wt::WBreak());
 
     _txtDescription = Ms::Widgets::MWidgetFactory::createTextArea("", false);
     if(_editing)

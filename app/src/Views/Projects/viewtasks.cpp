@@ -123,6 +123,7 @@ void Views::ViewTasks::updateView(const std::vector<Wt::Dbo::ptr<Projects::Proje
         _qtvTasks->clearColumns();
 
         //add columns
+        _qtvTasks->addColumn(Ms::Widgets::MQueryTableViewColumn("Thumbnail", "Thumbnail", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MThumbnailDelegate(256, 160, "pics/NoPreviewBig.png"), false, true, 256));
         _qtvTasks->addColumn(Ms::Widgets::MQueryTableViewColumn("id", "ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(), false, true));
         _qtvTasks->addColumn(Ms::Widgets::MQueryTableViewColumn("Task_Type", "Type", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectTaskType>(
          &Session::SessionManager::instance().dboSession(),
@@ -314,6 +315,8 @@ void Views::ViewTasks::_btnEditTasksClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             for(auto taskPtr : _qtvTasks->selectedItems())
             {
                 if(dlg->editedStartDate())
@@ -331,6 +334,42 @@ void Views::ViewTasks::_btnEditTasksClicked()
                 if(dlg->editedStatus())
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectTask>(taskPtr)->setStatus(dlg->status());
 
+                if(dlg->editedThumbnail())
+                {
+                    std::string thumbnail = taskPtr->thumbnail();
+
+                    if(dlg->thumbnail() == "Project")
+                    {
+                        if(taskPtr->project())
+                            thumbnail = taskPtr->project()->thumbnail();
+                        else if(taskPtr->sequence())
+                            thumbnail = taskPtr->sequence()->project()->thumbnail();
+                        else if(taskPtr->asset())
+                            thumbnail = taskPtr->asset()->project()->thumbnail();
+                        else if(taskPtr->shot())
+                            thumbnail = taskPtr->shot()->project()->thumbnail();
+                    }
+                    else if(dlg->thumbnail() == "Sequence")
+                    {
+                        if(taskPtr->sequence())
+                            thumbnail = taskPtr->sequence()->thumbnail();
+                        else if(taskPtr->shot())
+                            thumbnail = taskPtr->shot()->sequence()->thumbnail();
+                    }
+                    else if(dlg->thumbnail() == "Asset")
+                    {
+                        if(taskPtr->asset())
+                            thumbnail = taskPtr->asset()->thumbnail();
+                    }
+                    else if(dlg->thumbnail() == "Shot")
+                    {
+                        if(taskPtr->shot())
+                            thumbnail = taskPtr->shot()->thumbnail();
+                    }
+
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectTask>(taskPtr)->setThumbnail(thumbnail);
+                }
+
                 if(dlg->editedUser())
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectTask>(taskPtr)->setUser(dlg->user());
 
@@ -339,7 +378,11 @@ void Views::ViewTasks::_btnEditTasksClicked()
 
                 if(dlg->editedActive())
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectTask>(taskPtr)->setActive(dlg->isActive());
+
+
             }
+
+            transaction.commit();
 
             _qtvTasks->updateView();
         }
@@ -437,6 +480,8 @@ void Views::ViewTasks::_btnOpenFilesViewClicked()
 void Views::ViewTasks::_createTasksTableView()
 {
     _qtvTasks = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectTask>(Session::SessionManager::instance().dboSession());
+    _qtvTasks->setRowHeight(160);
+    _qtvTasks->setIgnoreNumFilterColumns(1);
 
     _btnCreateTask = _qtvTasks->createToolButton("", "icons/Add.png", "Create A New Task");
     _btnCreateTask->clicked().connect(this, &Views::ViewTasks::_btnCreateTaskClicked);
