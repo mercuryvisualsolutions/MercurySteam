@@ -22,11 +22,7 @@ namespace Ms
 
                     try
                     {
-                        Wt::Dbo::Transaction transaction(*this);
-
                         dboPtr = add(dbo);
-
-                        transaction.commit();
                     }
                     catch(Wt::Dbo::Exception ex)
                     {
@@ -42,12 +38,8 @@ namespace Ms
             {
                 if(dboPtr)
                 {
-                    Wt::Dbo::Transaction transaction(*this);
-
                     dboPtr.modify()->modify()->lastModifiedDate_ = Wt::WDateTime::currentDateTime();
                     dboPtr.modify()->modify()->lastModifiedBy_ = userName_;
-
-                    transaction.commit();
                 }
 
                 return dboPtr.modify()->modify();
@@ -92,14 +84,9 @@ namespace Ms
             {
                 Wt::Dbo::ptr<T> dboPtr;
 
-
                 try
                 {
-                    Wt::Dbo::Transaction transaction(*this);
-
                     dboPtr = load<T>(id, forceReread);
-
-                    transaction.commit();
                 }
                 catch(Wt::Dbo::ObjectNotFoundException)
                 {

@@ -197,10 +197,6 @@ namespace Ms
             Wt::WSlider *_sldRowHeight;
             Wt::WCheckBox *_chkCustomFilterActive;
             Wt::WCheckBox *_chkAdvancedFilterActive;
-            //a temp variable that gets signaled when we change the rowHeight of the table
-            //used to fix a bug it Wt where table horizontal scrool bar gets hidden if we change
-            // rowHeight at runtime
-            bool _rowHeightChanged;
 
             //Advanced filter
             Ms::Widgets::MContainerWidget *_cntAdvancedFilter;

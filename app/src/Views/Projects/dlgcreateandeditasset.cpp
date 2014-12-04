@@ -149,6 +149,8 @@ bool Views::DlgCreateAndEditAsset::editedActive() const
 
 void Views::DlgCreateAndEditAsset::_prepareView()
 {
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
     if(!_editing)
         this->setCaption("Create Asset");
     else
@@ -253,6 +255,8 @@ void Views::DlgCreateAndEditAsset::_prepareView()
     _btnCancel = new Wt::WPushButton("Cancel", this->footer());
     _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
     _btnCancel->setFocus();
+
+    transaction.commit();
 }
 
 void Views::DlgCreateAndEditAsset::_btnOkClicked()
@@ -270,8 +274,6 @@ void Views::DlgCreateAndEditAsset::_createCmbType()
 
     _mdlCmbType = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectAssetType>>();
 
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectAssetType>> query;
     if(AppSettings::instance().isLoadInactiveData())
         query = Session::SessionManager::instance().dboSession().find<Projects::ProjectAssetType>();
@@ -279,8 +281,6 @@ void Views::DlgCreateAndEditAsset::_createCmbType()
         query = Session::SessionManager::instance().dboSession().find<Projects::ProjectAssetType>().where("Active = ?").bind(true);
 
     _mdlCmbType->setQuery(query);
-
-    transaction.commit();
 
     _mdlCmbType->reload();
 
@@ -301,8 +301,6 @@ void Views::DlgCreateAndEditAsset::_createCmbStatus()
 
     _mdlCmbStatus = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatus>>();
 
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectWorkStatus>> query;
     if(AppSettings::instance().isLoadInactiveData())
         query = Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>();
@@ -310,8 +308,6 @@ void Views::DlgCreateAndEditAsset::_createCmbStatus()
         query = Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true);
 
     _mdlCmbStatus->setQuery(query);
-
-    transaction.commit();
 
     _mdlCmbStatus->reload();
 

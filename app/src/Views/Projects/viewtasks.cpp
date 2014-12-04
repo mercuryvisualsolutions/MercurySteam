@@ -109,8 +109,6 @@ void Views::ViewTasks::updateView(const std::vector<Wt::Dbo::ptr<Projects::Proje
 
         _qtvTasks->setQuery(query);
 
-        transaction.commit();
-
         bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
@@ -168,6 +166,8 @@ void Views::ViewTasks::updateView(const std::vector<Wt::Dbo::ptr<Projects::Proje
 
         if(AppSettings::instance().isShowExtraColumns())
             _qtvTasks->addBaseColumns(flags, editRank);
+
+        transaction.commit();
 
         _qtvTasks->updateView();
     }

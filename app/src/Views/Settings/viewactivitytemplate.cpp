@@ -109,6 +109,8 @@ void Views::ViewActivityTemplates::_btnCreateTemplateClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             if(!Session::SessionManager::instance().dboSession().dboExists<Projects::ProjectActivityTemplate>(dlg->name()))
             {
                 Projects::ProjectActivityTemplate *activityTemplate = new Projects::ProjectActivityTemplate(dlg->name());
@@ -133,6 +135,8 @@ void Views::ViewActivityTemplates::_btnCreateTemplateClicked()
             {
                 _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
             }
+
+            transaction.commit();
         }
 
         delete dlg;
@@ -160,6 +164,8 @@ void Views::ViewActivityTemplates::_btnCreateTemplateItemClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             Wt::Dbo::ptr<Projects::ProjectActivityTemplate> templatePtr = _qtvTemplates->selectedItems().at(0);
 
             Projects::ProjectActivityTemplateActivityItem *templateItem = new Projects::ProjectActivityTemplateActivityItem();
@@ -187,6 +193,8 @@ void Views::ViewActivityTemplates::_btnCreateTemplateItemClicked()
 
                 _logger->log(std::string("Error creating item for activity template ") + templatePtr->name(), Ms::Log::LogMessageType::Error);
             }
+
+            transaction.commit();
         }
 
         delete dlg;
@@ -214,6 +222,8 @@ void Views::ViewActivityTemplates::_btnEditTemplateItemsClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             for(auto itemPtr : _qtvTemplateItems->selectedItems())
             {
                 if(dlg->editedType())
@@ -231,6 +241,8 @@ void Views::ViewActivityTemplates::_btnEditTemplateItemsClicked()
                 if(dlg->editedActive())
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectActivityTemplateActivityItem>(itemPtr)->setActive(dlg->isActive());
             }
+
+            transaction.commit();
 
             updateActivityTemplateItemsView();
         }
@@ -264,8 +276,6 @@ void Views::ViewActivityTemplates::updateActivityTemplatesView()
 
         _qtvTemplates->setQuery(query);
 
-        transaction.commit();
-
         bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
@@ -282,6 +292,8 @@ void Views::ViewActivityTemplates::updateActivityTemplatesView()
 
         if(AppSettings::instance().isShowExtraColumns())
             _qtvTemplates->addBaseColumns(flags, editRank);
+
+        transaction.commit();
 
         _qtvTemplates->updateView();
     }
@@ -318,8 +330,6 @@ void Views::ViewActivityTemplates::updateActivityTemplateItemsView()
 
         _qtvTemplateItems->setQuery(query);
 
-        transaction.commit();
-
         bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
@@ -352,6 +362,8 @@ void Views::ViewActivityTemplates::updateActivityTemplateItemsView()
 
         if(AppSettings::instance().isShowExtraColumns())
             _qtvTemplateItems->addBaseColumns(flags, editRank);
+
+        transaction.commit();
 
         _qtvTemplateItems->updateView();
     }

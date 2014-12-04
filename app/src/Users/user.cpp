@@ -120,8 +120,6 @@ bool Users::User::hasPrivilege(const char *privilegeName) const
 
 bool Users::User::hasTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const
 {
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     bool result = false;
 
     for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
@@ -134,8 +132,6 @@ bool Users::User::hasTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const
         }
     }
 
-    transaction.commit();
-
     return result;
 }
 
@@ -143,11 +139,7 @@ bool Users::User::addTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
 {
     if(!hasTask(task))
     {
-        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
         _tasks.insert(task);
-
-        transaction.commit();
 
         return true;
     }
@@ -159,11 +151,7 @@ bool Users::User::removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
 {
     if(hasTask(task))
     {
-        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
         _tasks.erase(task);
-
-        transaction.commit();
 
         return true;
     }

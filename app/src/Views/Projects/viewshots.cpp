@@ -57,8 +57,6 @@ void Views::ViewShots::updateView(const std::vector<Wt::Dbo::ptr<Projects::Proje
 
         _qtvShots->setQuery(query);
 
-        transaction.commit();
-
         bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
@@ -91,6 +89,8 @@ void Views::ViewShots::updateView(const std::vector<Wt::Dbo::ptr<Projects::Proje
 
         if(AppSettings::instance().isShowExtraColumns())
             _qtvShots->addBaseColumns(flags, editRank);
+
+        transaction.commit();
 
         _qtvShots->updateView();
     }
@@ -233,6 +233,8 @@ void Views::ViewShots::_btnEditShotsClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             for(auto shotPtr : _qtvShots->selectedItems())
             {
                 if(dlg->editedStartDate())
@@ -266,6 +268,8 @@ void Views::ViewShots::_btnEditShotsClicked()
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectShot>(shotPtr)->setActive(dlg->isActive());
             }
 
+            transaction.commit();
+
             _qtvShots->updateView();
         }
 
@@ -283,64 +287,69 @@ void Views::ViewShots::_btnImportThumbnailsClicked()
     Ms::Widgets::Dialogs::MFilesUploadDialog *dlg = new Ms::Widgets::Dialogs::MFilesUploadDialog(true, true);
     dlg->finished().connect(std::bind([=]()
     {
-        std::vector<std::string> delFiles;//holds thumbnails files for later deletion
-        for(const std::pair<std::string,std::string> &pair : dlg->uploadedFilesMap())
+        if(dlg->result() == Wt::WDialog::Accepted)
         {
-            try
+            std::vector<std::string> delFiles;//holds thumbnails files for later deletion
+
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+            for(const std::pair<std::string,std::string> &pair : dlg->uploadedFilesMap())
             {
-                //get the original raw file name without the extension
-                int lastIndex = pair.second.find_last_of(".");
-                std::string rawFileName = pair.second.substr(0, lastIndex);
-
-                //match thumbnail by shot name
-                Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
-                //loop for all shots
-                for(int i = 0; i < _qtvShots->model()->rowCount(); ++i)
+                try
                 {
-                    Wt::Dbo::ptr<Projects::ProjectShot> shotPtr = _qtvShots->model()->resultRow(i);
+                    //get the original raw file name without the extension
+                    int lastIndex = pair.second.find_last_of(".");
+                    std::string rawFileName = pair.second.substr(0, lastIndex);
 
-                    if(shotPtr->name() == rawFileName)//shot has the same name of the thumbnail ?
+                    //match thumbnail by shot name
+                    //loop for all shots
+                    for(int i = 0; i < _qtvShots->model()->rowCount(); ++i)
                     {
-                        if(shotPtr->active() == false && (!AppSettings::instance().isLoadInactiveData()))//don't change thumbnail for inactive shot
-                            continue;
+                        Wt::Dbo::ptr<Projects::ProjectShot> shotPtr = _qtvShots->model()->resultRow(i);
 
-                        std::string shotDir = Projects::ProjectsIO::getAbsoluteShotDir(shotPtr->projectName(), shotPtr->sequenceName(), shotPtr->name());
-                        std::string localFile = shotDir + Ms::IO::dirSeparator() + "thumbnails" + Ms::IO::dirSeparator() + pair.second;
-
-                        if(Ms::IO::fileExists(localFile))//if thumbnail already exist
-                            Ms::IO::removeFile(localFile);//delete it
-
-                        if(Ms::IO::copyFile(pair.first, localFile))//copy and rename the file to the original name
+                        if(shotPtr->name() == rawFileName)//shot has the same name of the thumbnail ?
                         {
-                            Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectShot>(shotPtr)->setThumbnail(
-                                        Projects::ProjectsIO::getRelativeShotDir(shotPtr->projectName(), shotPtr->sequenceName(), shotPtr->name()) +
-                                    Ms::IO::dirSeparator() + "thumbnails" + Ms::IO::dirSeparator() + pair.second);
-                        }
+                            if(shotPtr->active() == false && (!AppSettings::instance().isLoadInactiveData()))//don't change thumbnail for inactive shot
+                                continue;
 
-                        break;//shot mtching thumbnail name found, exit loop
+                            std::string shotDir = Projects::ProjectsIO::getAbsoluteShotDir(shotPtr->projectName(), shotPtr->sequenceName(), shotPtr->name());
+                            std::string localFile = shotDir + Ms::IO::dirSeparator() + "thumbnails" + Ms::IO::dirSeparator() + pair.second;
+
+                            if(Ms::IO::fileExists(localFile))//if thumbnail already exist
+                                Ms::IO::removeFile(localFile);//delete it
+
+                            if(Ms::IO::copyFile(pair.first, localFile))//copy and rename the file to the original name
+                            {
+                                Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectShot>(shotPtr)->setThumbnail(
+                                            Projects::ProjectsIO::getRelativeShotDir(shotPtr->projectName(), shotPtr->sequenceName(), shotPtr->name()) +
+                                        Ms::IO::dirSeparator() + "thumbnails" + Ms::IO::dirSeparator() + pair.second);
+                            }
+
+                            break;//shot mtching thumbnail name found, exit loop
+                        }
                     }
+
+                }
+                catch(Wt::WException e)
+                {
+                    _logger->log(std::string("Error occured while trying to import thumbnails to table shots") + e.what(),
+                                             Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
                 }
 
-                transaction.commit();
+                delFiles.push_back(pair.first);//cache it for later deletion
             }
-            catch(Wt::WException e)
+
+            transaction.commit();
+
+            for(std::vector<std::string>::size_type i = 0; i <delFiles.size(); ++i)
             {
-                _logger->log(std::string("Error occured while trying to import thumbnails to table shots") + e.what(),
-                                         Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
+                Ms::IO::removeFile(delFiles.at(i));//after finish processing, delete the uploaded thumbnails
+
+                _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
             }
 
-            delFiles.push_back(pair.first);//cache it for later deletion
+            _qtvShots->updateView();
         }
-
-        for(std::vector<std::string>::size_type i = 0; i <delFiles.size(); ++i)
-        {
-            Ms::IO::removeFile(delFiles.at(i));//after finish processing, delete the uploaded thumbnails
-
-            _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
-        }
-
-        _qtvShots->updateView();
 
         delete dlg;
     }));
@@ -352,6 +361,8 @@ void Views::ViewShots::_btnImportThumbnailsClicked()
 
 void Views::ViewShots::_btnOpenFilesViewClicked()
 {
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
     if(_qtvShots->table()->selectedIndexes().size() != 1)
     {
         _logger->log("Please select only one item.", Ms::Log::LogMessageType::Warning);
@@ -378,6 +389,8 @@ void Views::ViewShots::_btnOpenFilesViewClicked()
     dlgFiles->setCreateDisabled(!hasCreateRepoPriv);
     dlgFiles->setCheckInDisabled(!hasCheckInPriv);
     dlgFiles->setCheckOutDisabled(!hasCheckOutPriv);
+
+    transaction.commit();
 
     dlgFiles->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 

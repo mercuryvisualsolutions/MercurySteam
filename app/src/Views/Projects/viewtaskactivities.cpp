@@ -50,8 +50,6 @@ void Views::ViewTaskActivity::updateView(const std::vector<Wt::Dbo::ptr<Projects
 
         _qtvTaskActivities->setQuery(query);
 
-        transaction.commit();
-
         bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
@@ -84,6 +82,8 @@ void Views::ViewTaskActivity::updateView(const std::vector<Wt::Dbo::ptr<Projects
 
         if(AppSettings::instance().isShowExtraColumns())
             _qtvTaskActivities->addBaseColumns(flags, editRank);
+
+        transaction.commit();
 
         _qtvTaskActivities->updateView();
     }
@@ -197,6 +197,8 @@ void Views::ViewTaskActivity::_btnEditTaskActivitiesClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             for(auto activityPtr : _qtvTaskActivities->selectedItems())
             {
                 if(dlg->editedType())
@@ -211,6 +213,8 @@ void Views::ViewTaskActivity::_btnEditTaskActivitiesClicked()
                 if(dlg->editedActive())
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectTaskActivity>(activityPtr)->setActive(dlg->isActive());
             }
+
+            transaction.commit();
 
             _qtvTaskActivities->updateView();
         }

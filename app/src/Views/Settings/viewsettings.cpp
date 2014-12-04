@@ -116,8 +116,6 @@ void Views::ViewSettings::updateTaskActivityTypeView()
 
         _qtvProjectTaskActivityType->setQuery(query);
 
-        transaction.commit();
-
         bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
@@ -134,6 +132,8 @@ void Views::ViewSettings::updateTaskActivityTypeView()
 
         if(AppSettings::instance().isShowExtraColumns())
             _qtvProjectTaskActivityType->addBaseColumns(flags, editRank);
+
+        transaction.commit();
 
         _qtvProjectTaskActivityType->updateView();
     }
@@ -160,8 +160,6 @@ void Views::ViewSettings::updateTaskTypeView()
 
         _qtvProjectTaskType->setQuery(query);
 
-        transaction.commit();
-
         bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
@@ -178,6 +176,8 @@ void Views::ViewSettings::updateTaskTypeView()
 
         if(AppSettings::instance().isShowExtraColumns())
             _qtvProjectTaskType->addBaseColumns(flags, editRank);
+
+        transaction.commit();
 
         _qtvProjectTaskType->updateView();
     }
@@ -204,8 +204,6 @@ void Views::ViewSettings::updateAssetTypeView()
 
         _qtvProjectAssetType->setQuery(query);
 
-        transaction.commit();
-
         bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
@@ -222,6 +220,8 @@ void Views::ViewSettings::updateAssetTypeView()
 
         if(AppSettings::instance().isShowExtraColumns())
             _qtvProjectAssetType->addBaseColumns(flags, editRank);
+
+        transaction.commit();
 
         _qtvProjectAssetType->updateView();
     }
@@ -248,8 +248,6 @@ void Views::ViewSettings::updateWorkStatusView()
 
         _qtvProjectWorkStatus->setQuery(query);
 
-        transaction.commit();
-
         bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
@@ -271,6 +269,8 @@ void Views::ViewSettings::updateWorkStatusView()
 
         if(AppSettings::instance().isShowExtraColumns())
             _qtvProjectWorkStatus->addBaseColumns(flags, editRank);
+
+        transaction.commit();
 
         _qtvProjectWorkStatus->updateView();
     }
@@ -307,8 +307,6 @@ void Views::ViewSettings::updateUserTitlesView()
 
         _qtvUserTitle->setQuery(query);
 
-        transaction.commit();
-
         bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
@@ -325,6 +323,8 @@ void Views::ViewSettings::updateUserTitlesView()
 
         if(AppSettings::instance().isShowExtraColumns())
             _qtvUserTitle->addBaseColumns(flags, editRank);
+
+        transaction.commit();
 
         _qtvUserTitle->updateView();
     }
@@ -351,8 +351,6 @@ void Views::ViewSettings::updateTagsView()
 
         _qtvTags->setQuery(query);
 
-        transaction.commit();
-
         bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
@@ -371,6 +369,8 @@ void Views::ViewSettings::updateTagsView()
 
         if(AppSettings::instance().isShowExtraColumns())
             _qtvTags->addBaseColumns(flags, editRank);
+
+        transaction.commit();
 
         _qtvTags->updateView();
     }
@@ -505,6 +505,8 @@ void Views::ViewSettings::_btnCreateTaskActivityTypeClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             if(!Session::SessionManager::instance().dboSession().dboExists<Projects::ProjectTaskActivityType>(dlg->type()))
             {
                 Projects::ProjectTaskActivityType *type = new Projects::ProjectTaskActivityType(dlg->type());
@@ -529,6 +531,8 @@ void Views::ViewSettings::_btnCreateTaskActivityTypeClicked()
             {
                 _logger->log(std::string("Object already exist"), Ms::Log::LogMessageType::Warning);
             }
+
+            transaction.commit();
         }
 
         delete dlg;
@@ -563,6 +567,8 @@ void Views::ViewSettings::_btnCreateTaskTypeClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             if(!Session::SessionManager::instance().dboSession().dboExists<Projects::ProjectTaskType>(dlg->type()))
             {
                 Projects::ProjectTaskType *type = new Projects::ProjectTaskType(dlg->type());
@@ -587,6 +593,8 @@ void Views::ViewSettings::_btnCreateTaskTypeClicked()
             {
                 _logger->log(std::string("Object already exist"), Ms::Log::LogMessageType::Warning);
             }
+
+            transaction.commit();
         }
 
         delete dlg;
@@ -621,6 +629,8 @@ void Views::ViewSettings::_btnCreateAssetTypeClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             if(!Session::SessionManager::instance().dboSession().dboExists<Projects::ProjectAssetType>(dlg->type()))
             {
                 Projects::ProjectAssetType *type = new Projects::ProjectAssetType(dlg->type());
@@ -645,6 +655,8 @@ void Views::ViewSettings::_btnCreateAssetTypeClicked()
             {
                 _logger->log(std::string("Object already exist"), Ms::Log::LogMessageType::Warning);
             }
+
+            transaction.commit();
         }
 
         delete dlg;
@@ -679,6 +691,8 @@ void Views::ViewSettings::_btnCreateWorkStatusClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             if(!Session::SessionManager::instance().dboSession().dboExists<Projects::ProjectWorkStatus>(dlg->type()))
             {
                 Projects::ProjectWorkStatus *status = new Projects::ProjectWorkStatus(dlg->type());
@@ -704,6 +718,8 @@ void Views::ViewSettings::_btnCreateWorkStatusClicked()
             {
                 _logger->log(std::string("Object already exist"), Ms::Log::LogMessageType::Warning);
             }
+
+            transaction.commit();
         }
 
         delete dlg;
@@ -738,6 +754,8 @@ void Views::ViewSettings::_btnCreateUserTitleClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             if(!Session::SessionManager::instance().dboSession().dboExists<Users::UserTitle>(dlg->title()))
             {
                 Users::UserTitle *title = new Users::UserTitle(dlg->title());
@@ -762,6 +780,8 @@ void Views::ViewSettings::_btnCreateUserTitleClicked()
             {
                 _logger->log(std::string("Object already exist"), Ms::Log::LogMessageType::Warning);
             }
+
+            transaction.commit();
         }
 
         delete dlg;
@@ -796,6 +816,8 @@ void Views::ViewSettings::_btnCreateTagClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             Database::Tag *tag = new Database::Tag(dlg->tagName(), dlg->tagContent());
             tag->setActive(dlg->isActive());
 
@@ -813,6 +835,8 @@ void Views::ViewSettings::_btnCreateTagClicked()
 
                 _logger->log(std::string("Error creating tag ") + dlg->tagName(), Ms::Log::LogMessageType::Error);
             }
+
+            transaction.commit();
         }
 
         delete dlg;

@@ -17,8 +17,6 @@ bool Database::DboSession::dboHasData(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Database
 
     try
     {
-        Wt::Dbo::Transaction transaction(*this);
-
         bool result = false;
 
         for(auto iter = dbo->data_.begin(); iter != dbo->data_.end(); ++iter)
@@ -30,8 +28,6 @@ bool Database::DboSession::dboHasData(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Database
                 break;
             }
         }
-
-        transaction.commit();
 
         return result;
     }
@@ -56,11 +52,7 @@ bool Database::DboSession::addDataToDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Databa
     {
         if(!dboHasData(dbo, dboData))
         {
-            Wt::Dbo::Transaction transaction(*this);
-
             modifyDbo<T>(dbo)->data_.insert(dboData);
-
-            transaction.commit();
 
             return true;
         }
@@ -86,11 +78,7 @@ bool Database::DboSession::removeDataFromDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<D
     {
         if(dboHasData(dbo, dboData))
         {
-            Wt::Dbo::Transaction transaction(*this);
-
             modifyDbo<T>(dbo)->data_.erase(dboData);
-
-            transaction.commit();
 
             return true;
         }
@@ -114,8 +102,6 @@ bool Database::DboSession::dboHasNote(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Database
 
     try
     {
-        Wt::Dbo::Transaction transaction(*this);
-
         bool result = false;
 
         for(auto iter = dbo->notes_.begin(); iter != dbo->notes_.end(); ++iter)
@@ -127,8 +113,6 @@ bool Database::DboSession::dboHasNote(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Database
                 break;
             }
         }
-
-        transaction.commit();
 
         return result;
     }
@@ -153,11 +137,7 @@ bool Database::DboSession::addNoteToDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Databa
     {
         if(!dboHasNote(dbo, note))
         {
-            Wt::Dbo::Transaction transaction(*this);
-
             modifyDbo<T>(dbo)->notes_.insert(note);
-
-            transaction.commit();
 
             return true;
         }
@@ -183,11 +163,7 @@ bool Database::DboSession::removeNoteFromDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<D
     {
         if(dboHasNote(dbo, note))
         {
-            Wt::Dbo::Transaction transaction(*this);
-
             modifyDbo<T>(dbo)->notes_.erase(note);
-
-            transaction.commit();
 
             return true;
         }
@@ -211,8 +187,6 @@ bool Database::DboSession::dboHasTag(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Database:
 
     try
     {
-        Wt::Dbo::Transaction transaction(*this);
-
         bool result = false;
 
         for(auto iter = dbo->tags_.begin(); iter != dbo->tags_.end(); ++iter)
@@ -224,8 +198,6 @@ bool Database::DboSession::dboHasTag(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Database:
                 break;
             }
         }
-
-        transaction.commit();
 
         return result;
     }
@@ -250,11 +222,7 @@ bool Database::DboSession::addTagToDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Databas
     {
         if(!dboHasTag(dbo, tag))
         {
-            Wt::Dbo::Transaction transaction(*this);
-
             modifyDbo<T>(dbo)->tags_.insert(tag);
-
-            transaction.commit();
 
             return true;
         }
@@ -280,11 +248,7 @@ bool Database::DboSession::removeTagFromDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Da
     {
         if(dboHasTag(dbo, tag))
         {
-            Wt::Dbo::Transaction transaction(*this);
-
             modifyDbo<T>(dbo)->tags_.erase(tag);
-
-            transaction.commit();
 
             return true;
         }
@@ -302,8 +266,6 @@ void Database::DboSession::assignTagsToDbo(const std::vector<Wt::Dbo::ptr<T>> &d
 {
     if(dboVec.size() > 0)
     {
-        Wt::Dbo::Transaction transaction(*this);
-
         for(auto &dboPtr : dboVec)
         {
             for(auto &tagPtr : tagVec)
@@ -311,8 +273,6 @@ void Database::DboSession::assignTagsToDbo(const std::vector<Wt::Dbo::ptr<T>> &d
                 modifyDbo<T>(dboPtr)->assignTag(tagPtr);
             }
         }
-
-        transaction.commit();
     }
 }
 
@@ -321,8 +281,6 @@ void Database::DboSession::unassignTagsFromDbo(const std::vector<Wt::Dbo::ptr<T>
 {
     if(dboVec.size() > 0)
     {
-        Wt::Dbo::Transaction transaction(*this);
-
         for(auto &dboPtr : dboVec)
         {
             for(auto &tagPtr : tagVec)
@@ -330,8 +288,6 @@ void Database::DboSession::unassignTagsFromDbo(const std::vector<Wt::Dbo::ptr<T>
                 modifyDbo<T>(dboPtr)->unassignTag(tagPtr);
             }
         }
-
-        transaction.commit();
     }
 }
 

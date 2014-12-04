@@ -67,8 +67,6 @@ void Views::ViewProjects::updateProjectsView()
 
         _qtvProjects->setQuery(query);
 
-        transaction.commit();
-
         bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
@@ -104,6 +102,8 @@ void Views::ViewProjects::updateProjectsView()
 
         if(AppSettings::instance().isShowExtraColumns())
             _qtvProjects->addBaseColumns(flags, editRank);
+
+        transaction.commit();
 
         _qtvProjects->updateView();
     }
@@ -499,6 +499,8 @@ void Views::ViewProjects::_btnProjectsCreateClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             if(!Session::SessionManager::instance().dboSession().dboExists<Projects::Project>(dlg->projectName()))
             {
 
@@ -533,6 +535,8 @@ void Views::ViewProjects::_btnProjectsCreateClicked()
             {
                 _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
             }
+
+            transaction.commit();
         }
 
         delete dlg;
@@ -560,6 +564,8 @@ void Views::ViewProjects::_btnProjectsEditClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             for(auto prjPtr : _qtvProjects->selectedItems())
             {
                 if(dlg->editedStartDate())
@@ -596,6 +602,8 @@ void Views::ViewProjects::_btnProjectsEditClicked()
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setActive(dlg->isActive());
             }
 
+            transaction.commit();
+
             _qtvProjects->updateView();
         }
 
@@ -613,6 +621,8 @@ void Views::ViewProjects::_btnProjectsFilesClicked()
 
         return;
     }
+
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     std::string prjName = _qtvProjects->selectedItems().at(0)->name();
 
@@ -634,6 +644,8 @@ void Views::ViewProjects::_btnProjectsFilesClicked()
     dlgFiles->setCheckInDisabled(!hasCheckInPriv);
     dlgFiles->setCheckOutDisabled(!hasCheckOutPriv);
 
+    transaction.commit();
+
     dlgFiles->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
@@ -645,58 +657,63 @@ void Views::ViewProjects::_btnProjectsImportThumbnailsClicked()
     Ms::Widgets::Dialogs::MFilesUploadDialog *dlg = new Ms::Widgets::Dialogs::MFilesUploadDialog(true, true);
     dlg->finished().connect(std::bind([=]()
     {
-        std::vector<std::string> delFiles;//holds thumbnails files for later deletion
-        for(const std::pair<std::string,std::string> &pair : dlg->uploadedFilesMap())
+        if(dlg->result() == Wt::WDialog::Accepted)
         {
-            try
+            std::vector<std::string> delFiles;//holds thumbnails files for later deletion
+
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+            for(const std::pair<std::string,std::string> &pair : dlg->uploadedFilesMap())
             {
-                //get the original raw file name without the extension
-                int lastIndex = pair.second.find_last_of(".");
-                std::string rawFileName = pair.second.substr(0, lastIndex);
-
-                //match thumbnail by project name
-                Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
-                Wt::Dbo::ptr<Projects::Project> prjPtr;
-
-                if(AppSettings::instance().isLoadInactiveData())
-                    prjPtr = Session::SessionManager::instance().dboSession().find<Projects::Project>().where("Project_Name = ?").bind(rawFileName);
-                else
-                    prjPtr = Session::SessionManager::instance().dboSession().find<Projects::Project>().where("Project_Name = ? AND Active = ?").bind(rawFileName).bind(true);
-
-                transaction.commit();
-
-                if(prjPtr)//found a project that has the same name as the thumbnail ?
+                try
                 {
-                    std::string prjDir = Projects::ProjectsIO::getAbsoluteProjectDir(prjPtr->name());
-                    std::string localFile = prjDir + Ms::IO::dirSeparator() + "thumbnails" + Ms::IO::dirSeparator() + pair.second;
+                    //get the original raw file name without the extension
+                    int lastIndex = pair.second.find_last_of(".");
+                    std::string rawFileName = pair.second.substr(0, lastIndex);
 
-                    if(Ms::IO::fileExists(localFile))//if thumbnail already exist
-                        Ms::IO::removeFile(localFile);//delete it
+                    //match thumbnail by project name
 
-                    if(Ms::IO::copyFile(pair.first, localFile))//copy and rename the file to the original name
+                    Wt::Dbo::ptr<Projects::Project> prjPtr;
+
+                    if(AppSettings::instance().isLoadInactiveData())
+                        prjPtr = Session::SessionManager::instance().dboSession().find<Projects::Project>().where("Project_Name = ?").bind(rawFileName);
+                    else
+                        prjPtr = Session::SessionManager::instance().dboSession().find<Projects::Project>().where("Project_Name = ? AND Active = ?").bind(rawFileName).bind(true);
+
+                    if(prjPtr)//found a project that has the same name as the thumbnail ?
                     {
-                        prjPtr.modify()->setThumbnail(Projects::ProjectsIO::getRelativeProjectDir(prjPtr->name()) + Ms::IO::dirSeparator() +
-                                                      "thumbnails" + Ms::IO::dirSeparator() + pair.second);
+                        std::string prjDir = Projects::ProjectsIO::getAbsoluteProjectDir(prjPtr->name());
+                        std::string localFile = prjDir + Ms::IO::dirSeparator() + "thumbnails" + Ms::IO::dirSeparator() + pair.second;
+
+                        if(Ms::IO::fileExists(localFile))//if thumbnail already exist
+                            Ms::IO::removeFile(localFile);//delete it
+
+                        if(Ms::IO::copyFile(pair.first, localFile))//copy and rename the file to the original name
+                        {
+                            prjPtr.modify()->setThumbnail(Projects::ProjectsIO::getRelativeProjectDir(prjPtr->name()) + Ms::IO::dirSeparator() +
+                                                          "thumbnails" + Ms::IO::dirSeparator() + pair.second);
+                        }
                     }
                 }
+                catch(Wt::WException e)
+                {
+                    _logger->log(std::string("Error occured while trying to import thumbnails to table projects") + e.what(),
+                                 Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
+                }
+
+                delFiles.push_back(pair.first);//cache it for later deletion
             }
-            catch(Wt::WException e)
+
+            transaction.commit();
+
+            for(std::vector<std::string>::size_type i = 0; i <delFiles.size(); ++i)
             {
-                _logger->log(std::string("Error occured while trying to import thumbnails to table projects") + e.what(),
-                             Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
+                Ms::IO::removeFile(delFiles.at(i));//after finish processing, delete the uploaded thumbnails
+                _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
             }
 
-            delFiles.push_back(pair.first);//cache it for later deletion
+            _qtvProjects->updateView();
         }
-
-        for(std::vector<std::string>::size_type i = 0; i <delFiles.size(); ++i)
-        {
-            Ms::IO::removeFile(delFiles.at(i));//after finish processing, delete the uploaded thumbnails
-            _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
-        }
-
-        _qtvProjects->updateView();
 
         delete dlg;
     }));
@@ -751,6 +768,8 @@ void Views::ViewProjects::_createSequenceRequested()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             Wt::Dbo::ptr<Projects::Project> prjPtr = _qtvProjects->selectedItems().at(0);
 
             Projects::ProjectSequenceId id;
@@ -791,6 +810,8 @@ void Views::ViewProjects::_createSequenceRequested()
             {
                 _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
             }
+
+            transaction.commit();
         }
 
         delete dlg;
@@ -827,6 +848,8 @@ void Views::ViewProjects::_createShotRequested()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             Wt::Dbo::ptr<Projects::ProjectSequence> seqPtr = _viewSequences->qtvSequences()->selectedItems().at(0);
 
             Projects::ProjectShotId id;
@@ -867,6 +890,8 @@ void Views::ViewProjects::_createShotRequested()
             {
                 _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
             }
+
+            transaction.commit();
         }
 
         delete dlg;
@@ -903,6 +928,8 @@ void Views::ViewProjects::_createAssetRequested()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             Wt::Dbo::ptr<Projects::Project> prjPtr = _qtvProjects->selectedItems().at(0);
 
             Projects::ProjectAssetId id;
@@ -940,6 +967,8 @@ void Views::ViewProjects::_createAssetRequested()
             {
                 _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
             }
+
+            transaction.commit();
         }
 
         delete dlg;
@@ -1043,8 +1072,6 @@ void Views::ViewProjects::_createTasksRequested()
                             _logger->log(std::string("Error creating task for sequence") + seqPtr->name(), Ms::Log::LogMessageType::Error);
                         }
                     }
-
-                    transaction.commit();
                 }
                 else if(_stkMain->currentWidget() == _cntShots)
                 {
@@ -1150,6 +1177,8 @@ void Views::ViewProjects::_createTasksForTemplateRequested()
         {
             if(dlg->result() == Wt::WDialog::Accepted)
             {
+                Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
                 Wt::Dbo::ptr<Projects::ProjectTaskTemplate> templatePtr = dlg->taskTemplate();
 
                 if(_stkMain->currentWidget() == _cntProjects ||
@@ -1159,8 +1188,6 @@ void Views::ViewProjects::_createTasksForTemplateRequested()
                 {
                     if(_stkMain->currentWidget() == _cntProjects)
                     {
-                        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
                         for(auto &prjPtr : _qtvProjects->selectedItems())
                         {
                             for(auto iter = templatePtr->items().begin(); iter != templatePtr->items().end(); ++iter)
@@ -1178,14 +1205,10 @@ void Views::ViewProjects::_createTasksForTemplateRequested()
                             }
                         }
 
-                        transaction.commit();
-
                         _logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
                     }
                     else if(_stkMain->currentWidget() == _cntSequences)
                     {
-                        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
                         for(auto &seqPtr : _viewSequences->qtvSequences()->selectedItems())
                         {
                             for(auto iter = templatePtr->items().begin(); iter != templatePtr->items().end(); ++iter)
@@ -1203,14 +1226,10 @@ void Views::ViewProjects::_createTasksForTemplateRequested()
                             }
                         }
 
-                        transaction.commit();
-
                         _logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
                     }
                     else if(_stkMain->currentWidget() == _cntShots)
                     {
-                        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
                         for(auto &shotPtr : _viewShots->qtvShots()->selectedItems())
                         {
                             for(auto iter = templatePtr->items().begin(); iter != templatePtr->items().end(); ++iter)
@@ -1227,15 +1246,11 @@ void Views::ViewProjects::_createTasksForTemplateRequested()
                                 Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTask>(task);
                             }
 
-                            transaction.commit();
-
                             _logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
                         }
                     }
                     else if(_stkMain->currentWidget() == _cntAssets)
                     {
-                        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
                         for(auto &assetPtr : _viewAssets->qtvAssets()->selectedItems())
                         {
                             for(auto iter = templatePtr->items().begin(); iter != templatePtr->items().end(); ++iter)
@@ -1252,14 +1267,14 @@ void Views::ViewProjects::_createTasksForTemplateRequested()
                                 Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTask>(task);
                             }
 
-                            transaction.commit();
-
                             _logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
                         }
                     }
 
                     _updatePropertiesTasksView();
                 }
+
+                transaction.commit();
             }
 
             delete dlg;
@@ -1398,6 +1413,8 @@ void Views::ViewProjects::_createProjectTagRequested()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             Database::Tag *tag = new Database::Tag(dlg->tagName(), dlg->tagContent());
             if(customProjectTag)
                 tag->setType("Local");
@@ -1423,6 +1440,8 @@ void Views::ViewProjects::_createProjectTagRequested()
             }
             else
                 delete tag;
+
+            transaction.commit();
        }
 
        delete dlg;
@@ -1435,6 +1454,8 @@ void Views::ViewProjects::_assignTagsRequested(const std::vector<Wt::Dbo::ptr<Da
 {
     if(tagVec.size() == 0)
         return;
+
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     if(_stkMain->currentWidget() == _cntProjects)
     {
@@ -1481,12 +1502,16 @@ void Views::ViewProjects::_assignTagsRequested(const std::vector<Wt::Dbo::ptr<Da
             _updatePropertiesAssignedTagsView();
         }
     }
+
+    transaction.commit();
 }
 
 void Views::ViewProjects::_unassignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
     if(tagVec.size() == 0)
         return;
+
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     if(_stkMain->currentWidget() == _cntProjects)
     {
@@ -1533,6 +1558,8 @@ void Views::ViewProjects::_unassignTagsRequested(const std::vector<Wt::Dbo::ptr<
             _updatePropertiesAssignedTagsView();
         }
     }
+
+    transaction.commit();
 }
 
 void Views::ViewProjects::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec, bool exactSelection, bool inverse)
@@ -1664,6 +1691,8 @@ void Views::ViewProjects::_createTaskActivityRequested()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = _viewTasks->qtvTasks()->selectedItems().at(0);
 
             Projects::ProjectTaskActivity *activity = new Projects::ProjectTaskActivity();
@@ -1686,6 +1715,8 @@ void Views::ViewProjects::_createTaskActivityRequested()
 
                 _logger->log(std::string("error creating task activity"), Ms::Log::LogMessageType::Error);
             }
+
+            transaction.commit();
         }
 
         delete dlg;
@@ -1708,11 +1739,11 @@ void Views::ViewProjects::_createTaskActivitiesForTemplateRequested()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             Wt::Dbo::ptr<Projects::ProjectActivityTemplate> templatePtr = dlg->activityTemplate();
 
             Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = _viewTasks->qtvTasks()->selectedItems().at(0);
-
-            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
             for(auto iter = templatePtr->items().begin(); iter != templatePtr->items().end(); ++iter)
             {

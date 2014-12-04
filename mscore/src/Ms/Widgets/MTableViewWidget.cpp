@@ -13,7 +13,6 @@ Ms::Widgets::MTableViewWidget::MTableViewWidget()
     _ignoreNumFilterColumns = 0;
     _importCSVFeatureEnabled = true;
     _exportCSVFeatureEnabled = true;
-    _rowHeightChanged = false;
 
     prepareView();
 }
@@ -448,23 +447,6 @@ void Ms::Widgets::MTableViewWidget::popMnuIOExportCSVItemTriggered()
 void Ms::Widgets::MTableViewWidget::sldRowHeightValueChanged()
 {
     _table->setRowHeight(_sldRowHeight->value());
-
-    //resize the last column of the table to fix a bug in Wt where table horizontal scroll bar gets hidden
-    //when we chage rowHeight at runtime.
-    //////////////////////////////////////////////////////////////////////////////
-    int resizeValue = 0;
-    if(_rowHeightChanged)
-    {
-        resizeValue = 1;
-        _rowHeightChanged = false;
-    }
-    else
-    {
-        resizeValue = -1;
-        _rowHeightChanged = true;
-    }
-    _table->setColumnWidth(_model->columnCount() -1, _table->columnWidth(_model->columnCount() -1).value() + resizeValue);
-    //////////////////////////////////////////////////////////////////////////////
 }
 
 void Ms::Widgets::MTableViewWidget::mainTableSelectionChanged()

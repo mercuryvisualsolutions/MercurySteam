@@ -133,7 +133,6 @@ void Views::ViewMyDashboard::_createTasksTableView()
     _qtvTasks->setSelectionMode(Wt::ExtendedSelection);
     _qtvTasks->setDynamicSortFilter(true);
     _qtvTasks->setFilterRole(Wt::DisplayRole);
-    _qtvTasks->setFilterRegExp("[^$]{0,255}");
     _qtvTasks->setDefaultFilterColumnIndex(0);
     _qtvTasks->setIgnoreNumFilterColumns(1);
     _qtvTasks->setImportCSVFeatureEnabled(false);

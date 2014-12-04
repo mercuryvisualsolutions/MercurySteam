@@ -41,8 +41,6 @@ int Users::Group::rank() const
 
 bool Users::Group::hasUser(Wt::Dbo::ptr<Users::User> user) const
 {
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     bool result = false;
 
     for(auto iter = _users.begin(); iter != _users.end(); ++iter)
@@ -54,8 +52,6 @@ bool Users::Group::hasUser(Wt::Dbo::ptr<Users::User> user) const
             break;
         }
     }
-
-    transaction.commit();
 
     return result;
 }
@@ -84,8 +80,6 @@ bool Users::Group::removeUser(Wt::Dbo::ptr<User> user)
 
 bool Users::Group::hasPrivilege(Wt::Dbo::ptr<Users::Privilege> privilege) const
 {
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     bool result = false;
 
     for(auto iter = _privileges.begin(); iter != _privileges.end(); ++iter)
@@ -98,15 +92,11 @@ bool Users::Group::hasPrivilege(Wt::Dbo::ptr<Users::Privilege> privilege) const
         }
     }
 
-    transaction.commit();
-
     return result;
 }
 
 bool Users::Group::hasPrivilege(const char *privilegeName) const
 {
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     bool result = false;
 
     for(auto iter = _privileges.begin(); iter != _privileges.end(); ++iter)
@@ -119,8 +109,6 @@ bool Users::Group::hasPrivilege(const char *privilegeName) const
         }
     }
 
-    transaction.commit();
-
     return result;
 }
 
@@ -128,11 +116,7 @@ bool Users::Group::addPrivilege(Wt::Dbo::ptr<Users::Privilege> privilege)
 {
     if(!hasPrivilege(privilege))
     {
-        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
         _privileges.insert(privilege);
-
-        transaction.commit();
 
         return true;
     }

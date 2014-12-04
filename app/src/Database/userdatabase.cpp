@@ -61,6 +61,8 @@ Wt::Auth::User Database::UserDatabase::findWithIdentity(const std::string &provi
 
 void Database::UserDatabase::addIdentity(const Wt::Auth::User &user, const std::string &provider, const Wt::WString &id)
 {
+    Wt::Dbo::Transaction transaction(_session);
+
     WithUser find(*this, user);
 
     if(provider == Wt::Auth::Identity::LoginName)
@@ -70,10 +72,14 @@ void Database::UserDatabase::addIdentity(const Wt::Auth::User &user, const std::
         _session.modifyDbo<Users::User>(_user)->setOAuthProvider(provider);
         _session.modifyDbo<Users::User>(_user)->setOAuthId(id.toUTF8());
     }
+
+    transaction.commit();
 }
 
 Wt::WString Database::UserDatabase::identity(const Wt::Auth::User &user, const std::string &provider) const
 {
+    Wt::Dbo::Transaction transaction(_session);
+
     WithUser find(*this, user);
 
     if(provider == Wt::Auth::Identity::LoginName)
@@ -82,10 +88,14 @@ Wt::WString Database::UserDatabase::identity(const Wt::Auth::User &user, const s
         return Wt::WString::fromUTF8(_user->oAuthId());
     else
         return Wt::WString::Empty;
+
+    transaction.commit();
 }
 
 void Database::UserDatabase::removeIdentity(const Wt::Auth::User &user, const std::string &provider)
 {
+    Wt::Dbo::Transaction transaction(_session);
+
     WithUser find(*this, user);
 
     if(provider == Wt::Auth::Identity::LoginName)
@@ -95,6 +105,8 @@ void Database::UserDatabase::removeIdentity(const Wt::Auth::User &user, const st
         _session.modifyDbo<Users::User>(_user)->setOAuthProvider(std::string());
         _session.modifyDbo<Users::User>(_user)->setOAuthId(std::string());
     }
+
+    transaction.commit();
 }
 
 Wt::Auth::PasswordHash Database::UserDatabase::password(const Wt::Auth::User &user) const
@@ -106,11 +118,15 @@ Wt::Auth::PasswordHash Database::UserDatabase::password(const Wt::Auth::User &us
 
 void Database::UserDatabase::setPassword(const Wt::Auth::User &user, const Wt::Auth::PasswordHash &password)
 {
+    Wt::Dbo::Transaction transaction(_session);
+
     WithUser find(*this, user);
 
     _session.modifyDbo<Users::User>(_user)->setPassword(password.value());
     _session.modifyDbo<Users::User>(_user)->setPasswordMethod(password.function());
     _session.modifyDbo<Users::User>(_user)->setPasswordSalt(password.salt());
+
+    transaction.commit();
 }
 
 Wt::Auth::User::Status Database::UserDatabase::status(const Wt::Auth::User &user) const
@@ -125,17 +141,23 @@ void Database::UserDatabase::setStatus(const Wt::Auth::User &user, Wt::Auth::Use
 
 Wt::Auth::User Database::UserDatabase::registerNew()
 {
+    Wt::Dbo::Transaction transaction(_session);
+
     Users::User *user = new Users::User();
 
     _user = _session.createDbo<Users::User>(user);
 
     _user.flush();
 
+    transaction.commit();
+
     return Wt::Auth::User(boost::lexical_cast<std::string>(_user.id()), *this);
 }
 
 void Database::UserDatabase::addAuthToken(const Wt::Auth::User &user, const Wt::Auth::Token &token)
 {
+    Wt::Dbo::Transaction transaction(_session);
+
     WithUser find(*this, user);
 
     //very unlikely but big a security problem if we don't detect it
@@ -150,10 +172,14 @@ void Database::UserDatabase::addAuthToken(const Wt::Auth::User &user, const Wt::
 
     if(tokenPtr)
         _session.modifyDbo<Users::User>(_user)->authTokens().insert(tokenPtr);
+
+    transaction.commit();
 }
 
 int Database::UserDatabase::updateAuthToken(const Wt::Auth::User &user, const std::string &oldhash, const std::string &newhash)
 {
+    Wt::Dbo::Transaction transaction(_session);
+
     WithUser find(*this, user);
 
     for(auto iter = _user->authTokens().begin(); iter != _user->authTokens().end(); ++iter)
@@ -163,15 +189,21 @@ int Database::UserDatabase::updateAuthToken(const Wt::Auth::User &user, const st
             Wt::Dbo::ptr<Database::Token> tokenPtr = (*iter);
             _session.modifyDbo<Database::Token>(tokenPtr)->setValue(newhash);
 
+            transaction.commit();
+
             return std::max(Wt::WDateTime::currentDateTime().secsTo(tokenPtr->expires()), 0);
         }
     }
+
+    transaction.commit();
 
     return 0;
 }
 
 void Database::UserDatabase::removeAuthToken(const Wt::Auth::User &user, const std::string &hash)
 {
+    Wt::Dbo::Transaction transaction(_session);
+
     WithUser find(*this, user);
 
     for(auto iter = _user->authTokens().begin(); iter != _user->authTokens().end(); ++iter)
@@ -184,6 +216,8 @@ void Database::UserDatabase::removeAuthToken(const Wt::Auth::User &user, const s
             break;
         }
     }
+
+    transaction.commit();
 }
 
 Wt::Auth::User Database::UserDatabase::findWithAuthToken(const std::string &hash) const
@@ -212,9 +246,13 @@ int Database::UserDatabase::failedLoginAttempts(const Wt::Auth::User &user) cons
 
 void Database::UserDatabase::setFailedLoginAttempts(const Wt::Auth::User &user, int count)
 {
+    Wt::Dbo::Transaction transaction(_session);
+
     WithUser find(*this, user);
 
     _session.modifyDbo<Users::User>(_user)->setFailedLoginAttempts(count);
+
+    transaction.commit();
 }
 
 Wt::WDateTime Database::UserDatabase::lastLoginAttempt(const Wt::Auth::User &user) const
@@ -226,9 +264,13 @@ Wt::WDateTime Database::UserDatabase::lastLoginAttempt(const Wt::Auth::User &use
 
 void Database::UserDatabase::setLastLoginAttempt(const Wt::Auth::User &user, const Wt::WDateTime &t)
 {
+    Wt::Dbo::Transaction transaction(_session);
+
     WithUser find(*this, user);
 
     _session.modifyDbo<Users::User>(_user)->setLastLoginAttempt(t);
+
+    transaction.commit();
 }
 
 void Database::UserDatabase::getUser(const std::string &id) const

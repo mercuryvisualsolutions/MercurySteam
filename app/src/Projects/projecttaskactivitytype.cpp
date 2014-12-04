@@ -32,8 +32,6 @@ void Projects::ProjectTaskActivityType::setType(const std::string &type)
 
 bool Projects::ProjectTaskActivityType::hasActivity(Wt::Dbo::ptr<Projects::ProjectTaskActivity> activity) const
 {
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     bool result = true;
 
     for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
@@ -46,8 +44,6 @@ bool Projects::ProjectTaskActivityType::hasActivity(Wt::Dbo::ptr<Projects::Proje
         }
     }
 
-    transaction.commit();
-
     return result;
 }
 
@@ -55,11 +51,7 @@ bool Projects::ProjectTaskActivityType::addActivity(Wt::Dbo::ptr<Projects::Proje
 {
     if(!hasActivity(activity))
     {
-        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
         _activities.insert(activity);
-
-        transaction.commit();
 
         return true;
     }
@@ -71,11 +63,7 @@ bool Projects::ProjectTaskActivityType::removeActivity(Wt::Dbo::ptr<Projects::Pr
 {
     if(hasActivity(activity))
     {
-        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
         _activities.erase(activity);
-
-        transaction.commit();
 
         return true;
     }

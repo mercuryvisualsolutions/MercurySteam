@@ -50,8 +50,6 @@ void Views::ViewAssets::updateView(const std::vector<Wt::Dbo::ptr<Projects::Proj
 
         _qtvAssets->setQuery(query);
 
-        transaction.commit();
-
         bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
@@ -82,6 +80,8 @@ void Views::ViewAssets::updateView(const std::vector<Wt::Dbo::ptr<Projects::Proj
 
         if(AppSettings::instance().isShowExtraColumns())
             _qtvAssets->addBaseColumns(flags, editRank);
+
+        transaction.commit();
 
         _qtvAssets->updateView();
     }
@@ -224,6 +224,8 @@ void Views::ViewAssets::_btnEditAssetsClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             for(auto assetPtr : _qtvAssets->selectedItems())
             {
                 if(dlg->editedStartDate())
@@ -248,6 +250,8 @@ void Views::ViewAssets::_btnEditAssetsClicked()
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectAsset>(assetPtr)->setActive(dlg->isActive());
             }
 
+            transaction.commit();
+
             _qtvAssets->updateView();
         }
 
@@ -265,62 +269,66 @@ void Views::ViewAssets::_btnImportThumbnailsClicked()
     Ms::Widgets::Dialogs::MFilesUploadDialog *dlg = new Ms::Widgets::Dialogs::MFilesUploadDialog(true, true);
     dlg->finished().connect(std::bind([=]()
     {
-        std::vector<std::string> delFiles;//holds thumbnails files for later deletion
-        for(const std::pair<std::string,std::string> &pair : dlg->uploadedFilesMap())
+        if(dlg->result() == Wt::WDialog::Accepted)
         {
-            try
+            std::vector<std::string> delFiles;//holds thumbnails files for later deletion
+
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+            for(const std::pair<std::string,std::string> &pair : dlg->uploadedFilesMap())
             {
-                //get the original raw file name without the extension
-                int lastIndex = pair.second.find_last_of(".");
-                std::string rawFileName = pair.second.substr(0, lastIndex);
-
-                //match thumbnail by asset name
-                Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
-                //loop for all assets
-                for(int i = 0; i < _qtvAssets->model()->rowCount(); ++i)
+                try
                 {
-                    Wt::Dbo::ptr<Projects::ProjectAsset> assetPtr = _qtvAssets->model()->resultRow(i);
+                    //get the original raw file name without the extension
+                    int lastIndex = pair.second.find_last_of(".");
+                    std::string rawFileName = pair.second.substr(0, lastIndex);
 
-                    if(assetPtr->name() == rawFileName)//asset has the same name of the thumbnail ?
+                    //match thumbnail by asset name
+                    //loop for all assets
+                    for(int i = 0; i < _qtvAssets->model()->rowCount(); ++i)
                     {
-                        if(assetPtr->active() == false && (!AppSettings::instance().isLoadInactiveData()))//don't change thumbnail for inactive asset
-                            continue;
+                        Wt::Dbo::ptr<Projects::ProjectAsset> assetPtr = _qtvAssets->model()->resultRow(i);
 
-                        std::string assetDir = Projects::ProjectsIO::getAbsoluteAssetDir(assetPtr->projectName(), assetPtr->name());
-                        std::string localFile = assetDir + Ms::IO::dirSeparator() + "thumbnails" + Ms::IO::dirSeparator() + pair.second;
-
-                        if(Ms::IO::fileExists(localFile))//if thumbnail already exist
-                            Ms::IO::removeFile(localFile);//delete it
-
-                        if(Ms::IO::copyFile(pair.first, localFile))//copy and rename the file to the original name
+                        if(assetPtr->name() == rawFileName)//asset has the same name of the thumbnail ?
                         {
-                            assetPtr.modify()->setThumbnail(Projects::ProjectsIO::getRelativeAssetDir(assetPtr->projectName(), assetPtr->name()) +
-                                    Ms::IO::dirSeparator() + "thumbnails" + Ms::IO::dirSeparator() + pair.second);
-                        }
+                            if(assetPtr->active() == false && (!AppSettings::instance().isLoadInactiveData()))//don't change thumbnail for inactive asset
+                                continue;
 
-                        break;//asset mtching thumbnail name found, exit loop
+                            std::string assetDir = Projects::ProjectsIO::getAbsoluteAssetDir(assetPtr->projectName(), assetPtr->name());
+                            std::string localFile = assetDir + Ms::IO::dirSeparator() + "thumbnails" + Ms::IO::dirSeparator() + pair.second;
+
+                            if(Ms::IO::fileExists(localFile))//if thumbnail already exist
+                                Ms::IO::removeFile(localFile);//delete it
+
+                            if(Ms::IO::copyFile(pair.first, localFile))//copy and rename the file to the original name
+                            {
+                                assetPtr.modify()->setThumbnail(Projects::ProjectsIO::getRelativeAssetDir(assetPtr->projectName(), assetPtr->name()) +
+                                        Ms::IO::dirSeparator() + "thumbnails" + Ms::IO::dirSeparator() + pair.second);
+                            }
+
+                            break;//asset mtching thumbnail name found, exit loop
+                        }
                     }
                 }
+                catch(Wt::WException e)
+                {
+                    _logger->log(std::string("Error occured while trying to import thumbnails to table assets") + e.what(),
+                                             Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
+                }
 
-                transaction.commit();
+                delFiles.push_back(pair.first);//cache it for later deletion
             }
-            catch(Wt::WException e)
+
+            transaction.commit();
+
+            for(std::vector<std::string>::size_type i = 0; i < delFiles.size(); ++i)
             {
-                _logger->log(std::string("Error occured while trying to import thumbnails to table assets") + e.what(),
-                                         Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
+                Ms::IO::removeFile(delFiles.at(i));//after finish processing, delete the uploaded thumbnails
+                _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
             }
 
-            delFiles.push_back(pair.first);//cache it for later deletion
+            _qtvAssets->updateView();
         }
-
-        for(std::vector<std::string>::size_type i = 0; i < delFiles.size(); ++i)
-        {
-            Ms::IO::removeFile(delFiles.at(i));//after finish processing, delete the uploaded thumbnails
-            _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
-        }
-
-        _qtvAssets->updateView();
 
         delete dlg;
     }));
@@ -338,6 +346,8 @@ void Views::ViewAssets::_btnOpenFilesViewClicked()
 
         return;
     }
+
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     Wt::Dbo::ptr<Projects::ProjectAsset> assetPtr =  _qtvAssets->selectedItems().at(0);
 
@@ -358,6 +368,8 @@ void Views::ViewAssets::_btnOpenFilesViewClicked()
     dlgFiles->setCreateDisabled(!hasCreateRepoPriv);
     dlgFiles->setCheckInDisabled(!hasCheckInPriv);
     dlgFiles->setCheckOutDisabled(!hasCheckOutPriv);
+
+    transaction.commit();
 
     dlgFiles->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 

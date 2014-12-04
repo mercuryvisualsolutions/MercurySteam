@@ -50,8 +50,6 @@ void Views::ViewSequences::updateView(const std::vector<Wt::Dbo::ptr<Projects::P
 
         _qtvSequences->setQuery(query);
 
-        transaction.commit();
-
         bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
         if(canEdit)
@@ -84,6 +82,8 @@ void Views::ViewSequences::updateView(const std::vector<Wt::Dbo::ptr<Projects::P
 
         if(AppSettings::instance().isShowExtraColumns())
             _qtvSequences->addBaseColumns(flags, editRank);
+
+        transaction.commit();
 
         _qtvSequences->updateView();
     }
@@ -227,6 +227,8 @@ void Views::ViewSequences::_btnEditSequencesClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             for(auto seqPtr : _qtvSequences->selectedItems())
             {
                 if(dlg->editedStartDate())
@@ -260,6 +262,8 @@ void Views::ViewSequences::_btnEditSequencesClicked()
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setActive(dlg->isActive());
             }
 
+            transaction.commit();
+
             _qtvSequences->updateView();
         }
 
@@ -277,62 +281,66 @@ void Views::ViewSequences::_btnImportThumbnailsClicked()
     Ms::Widgets::Dialogs::MFilesUploadDialog *dlg = new Ms::Widgets::Dialogs::MFilesUploadDialog(true, true);
     dlg->finished().connect(std::bind([=]()
     {
-        std::vector<std::string> delFiles;//holds thumbnails files for later deletion
-        for(const std::pair<std::string,std::string> &pair : dlg->uploadedFilesMap())
+        if(dlg->result() == Wt::WDialog::Accepted)
         {
-            try
+            std::vector<std::string> delFiles;//holds thumbnails files for later deletion
+
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+            for(const std::pair<std::string,std::string> &pair : dlg->uploadedFilesMap())
             {
-                //get the original raw file name without the extension
-                int lastIndex = pair.second.find_last_of(".");
-                std::string rawFileName = pair.second.substr(0, lastIndex);
-
-                //match thumbnail by sequence name
-                Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
-                //loop for all sequences
-                for(int i = 0; i < _qtvSequences->model()->rowCount(); ++i)
+                try
                 {
-                    Wt::Dbo::ptr<Projects::ProjectSequence> seqPtr = _qtvSequences->model()->resultRow(i);
+                    //get the original raw file name without the extension
+                    int lastIndex = pair.second.find_last_of(".");
+                    std::string rawFileName = pair.second.substr(0, lastIndex);
 
-                    if(seqPtr->name() == rawFileName)//sequence has the same name of the thumbnail ?
+                    //match thumbnail by sequence name
+                    //loop for all sequences
+                    for(int i = 0; i < _qtvSequences->model()->rowCount(); ++i)
                     {
-                        if(seqPtr->active() == false && (!AppSettings::instance().isLoadInactiveData()))//don't change thumbnail for inactive sequence
-                            continue;
+                        Wt::Dbo::ptr<Projects::ProjectSequence> seqPtr = _qtvSequences->model()->resultRow(i);
 
-                        std::string seqDir = Projects::ProjectsIO::getAbsoluteSequenceDir(seqPtr->projectName(), seqPtr->name());
-                        std::string localFile = seqDir + Ms::IO::dirSeparator() + "thumbnails" + Ms::IO::dirSeparator() + pair.second;
-
-                        if(Ms::IO::fileExists(localFile))//if thumbnail already exist
-                            Ms::IO::removeFile(localFile);//delete it
-
-                        if(Ms::IO::copyFile(pair.first, localFile))//copy and rename the file to the original name
+                        if(seqPtr->name() == rawFileName)//sequence has the same name of the thumbnail ?
                         {
-                            Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setThumbnail(Projects::ProjectsIO::getRelativeSequenceDir(seqPtr->projectName(), seqPtr->name()) +
-                                    Ms::IO::dirSeparator() + "thumbnails" + Ms::IO::dirSeparator() + pair.second);
-                        }
+                            if(seqPtr->active() == false && (!AppSettings::instance().isLoadInactiveData()))//don't change thumbnail for inactive sequence
+                                continue;
 
-                        break;//sequence mtching thumbnail name found, exit loop
+                            std::string seqDir = Projects::ProjectsIO::getAbsoluteSequenceDir(seqPtr->projectName(), seqPtr->name());
+                            std::string localFile = seqDir + Ms::IO::dirSeparator() + "thumbnails" + Ms::IO::dirSeparator() + pair.second;
+
+                            if(Ms::IO::fileExists(localFile))//if thumbnail already exist
+                                Ms::IO::removeFile(localFile);//delete it
+
+                            if(Ms::IO::copyFile(pair.first, localFile))//copy and rename the file to the original name
+                            {
+                                Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setThumbnail(Projects::ProjectsIO::getRelativeSequenceDir(seqPtr->projectName(), seqPtr->name()) +
+                                        Ms::IO::dirSeparator() + "thumbnails" + Ms::IO::dirSeparator() + pair.second);
+                            }
+
+                            break;//sequence mtching thumbnail name found, exit loop
+                        }
                     }
                 }
+                catch(Wt::WException e)
+                {
+                    _logger->log(std::string("Error occured while trying to import thumbnails to table sequences") + e.what(),
+                                 Ms::Log::LogMessageType::Error);
+                }
 
-                transaction.commit();
+                delFiles.push_back(pair.first);//cache it for later deletion
             }
-            catch(Wt::WException e)
+
+            transaction.commit();
+
+            for(std::vector<std::string>::size_type i = 0; i < delFiles.size(); ++i)
             {
-                _logger->log(std::string("Error occured while trying to import thumbnails to table sequences") + e.what(),
-                             Ms::Log::LogMessageType::Error);
+                Ms::IO::removeFile(delFiles.at(i));//after finish processing, delete the uploaded thumbnails
+                _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
             }
 
-            delFiles.push_back(pair.first);//cache it for later deletion
+            _qtvSequences->updateView();
         }
-
-        for(std::vector<std::string>::size_type i = 0; i < delFiles.size(); ++i)
-        {
-            Ms::IO::removeFile(delFiles.at(i));//after finish processing, delete the uploaded thumbnails
-            _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
-        }
-
-        _qtvSequences->updateView();
 
         delete dlg;
     }));
@@ -344,6 +352,8 @@ void Views::ViewSequences::_btnImportThumbnailsClicked()
 
 void Views::ViewSequences::_btnOpenFilesViewClicked()
 {
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
     if(_qtvSequences->table()->selectedIndexes().size() != 1)
     {
         _logger->log("Please select only one item.", Ms::Log::LogMessageType::Warning);
@@ -370,6 +380,8 @@ void Views::ViewSequences::_btnOpenFilesViewClicked()
     dlgFiles->setCreateDisabled(!hasCreateRepoPriv);
     dlgFiles->setCheckInDisabled(!hasCheckInPriv);
     dlgFiles->setCheckOutDisabled(!hasCheckOutPriv);
+
+    transaction.commit();
 
     dlgFiles->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 

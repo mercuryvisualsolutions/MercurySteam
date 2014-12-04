@@ -205,6 +205,8 @@ bool Views::DlgCreateAndEditShot::editedActive() const
 
 void Views::DlgCreateAndEditShot::_prepareView()
 {
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
     if(!_editing)
         this->setCaption("Create Shot");
     else
@@ -334,6 +336,8 @@ void Views::DlgCreateAndEditShot::_prepareView()
     _btnCancel = new Wt::WPushButton("Cancel", this->footer());
     _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
     _btnCancel->setFocus();
+
+    transaction.commit();
 }
 
 void Views::DlgCreateAndEditShot::_btnOkClicked()
@@ -351,8 +355,6 @@ void Views::DlgCreateAndEditShot::_createCmbStatus()
 
     _mdlCmbStatus = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatus>>();
 
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectWorkStatus>> query;
     if(AppSettings::instance().isLoadInactiveData())
         query = Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>();
@@ -360,8 +362,6 @@ void Views::DlgCreateAndEditShot::_createCmbStatus()
         query = Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true);
 
     _mdlCmbStatus->setQuery(query);
-
-    transaction.commit();
 
     _mdlCmbStatus->reload();
 

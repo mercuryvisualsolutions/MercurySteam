@@ -108,6 +108,8 @@ bool Views::DlgCreateAndEditActivityTemplateItem::editedActive() const
 
 void Views::DlgCreateAndEditActivityTemplateItem::_prepareView()
 {
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
     if(!_editing)
         this->setCaption("Create Activity Template Item");
     else
@@ -188,6 +190,8 @@ void Views::DlgCreateAndEditActivityTemplateItem::_prepareView()
     _btnCancel = new Wt::WPushButton("Cancel", this->footer());
     _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
     _btnCancel->setFocus();
+
+    transaction.commit();
 }
 
 void Views::DlgCreateAndEditActivityTemplateItem::_btnOkClicked()
@@ -205,8 +209,6 @@ void Views::DlgCreateAndEditActivityTemplateItem::_createCmbType()
 
     _mdlCmbType = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectTaskActivityType>>();
 
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTaskActivityType>> query;
     if(AppSettings::instance().isLoadInactiveData())
         query = Session::SessionManager::instance().dboSession().find<Projects::ProjectTaskActivityType>();
@@ -214,8 +216,6 @@ void Views::DlgCreateAndEditActivityTemplateItem::_createCmbType()
         query = Session::SessionManager::instance().dboSession().find<Projects::ProjectTaskActivityType>().where("Active = ?").bind(true);
 
     _mdlCmbType->setQuery(query);
-
-    transaction.commit();
 
     _mdlCmbType->reload();
 
@@ -236,8 +236,6 @@ void Views::DlgCreateAndEditActivityTemplateItem::_createCmbStatus()
 
     _mdlCmbStatus = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatus>>();
 
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectWorkStatus>> query;
     if(AppSettings::instance().isLoadInactiveData())
         query = Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>();
@@ -245,8 +243,6 @@ void Views::DlgCreateAndEditActivityTemplateItem::_createCmbStatus()
         query = Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true);
 
     _mdlCmbStatus->setQuery(query);
-
-    transaction.commit();
 
     _mdlCmbStatus->reload();
 

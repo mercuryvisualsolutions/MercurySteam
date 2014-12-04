@@ -17,6 +17,8 @@ Wt::Dbo::ptr<Projects::ProjectTaskTemplate> Views::DlgSelectTaskTemplate::taskTe
 
 void Views::DlgSelectTaskTemplate::_prepareView()
 {
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
     this->setCaption("Select Template");
     this->rejectWhenEscapePressed();
 
@@ -46,6 +48,8 @@ void Views::DlgSelectTaskTemplate::_prepareView()
     _btnCancel = new Wt::WPushButton("Cancel", this->footer());
     _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
     _btnCancel->setFocus();
+
+    transaction.commit();
 }
 
 void Views::DlgSelectTaskTemplate::_btnOkClicked()
@@ -63,8 +67,6 @@ void Views::DlgSelectTaskTemplate::_createCmbTemplate()
 
     _mdlCmbTemplate = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectTaskTemplate>>();
 
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTaskTemplate>> query;
     if(AppSettings::instance().isLoadInactiveData())
         query = Session::SessionManager::instance().dboSession().find<Projects::ProjectTaskTemplate>();
@@ -72,8 +74,6 @@ void Views::DlgSelectTaskTemplate::_createCmbTemplate()
         query = Session::SessionManager::instance().dboSession().find<Projects::ProjectTaskTemplate>().where("Active = ?").bind(true);
 
     _mdlCmbTemplate->setQuery(query);
-
-    transaction.commit();
 
     _mdlCmbTemplate->reload();
 

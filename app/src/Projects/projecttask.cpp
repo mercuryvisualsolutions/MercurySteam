@@ -26,8 +26,6 @@ int Projects::ProjectTask::totalHours() const
 {
     int totalHours = 0;
 
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
     {
         if(!(*iter)->active())
@@ -36,16 +34,12 @@ int Projects::ProjectTask::totalHours() const
         totalHours += (*iter)->hours();
     }
 
-    transaction.commit();
-
     return totalHours;
 }
 
 int Projects::ProjectTask::doneHours() const
 {
     int finishedHours = 0;
-
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
     {
@@ -55,8 +49,6 @@ int Projects::ProjectTask::doneHours() const
         if((*iter)->status()->workStatusType()->workStatusType() == "Done")//finished task
             finishedHours += (*iter)->hours();
     }
-
-    transaction.commit();
 
     return finishedHours;
 }
@@ -133,8 +125,6 @@ void Projects::ProjectTask::setAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset)
 
 bool Projects::ProjectTask::hasActivity(Wt::Dbo::ptr<Projects::ProjectTaskActivity> activity) const
 {
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     bool result = false;
 
     for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
@@ -147,8 +137,6 @@ bool Projects::ProjectTask::hasActivity(Wt::Dbo::ptr<Projects::ProjectTaskActivi
         }
     }
 
-    transaction.commit();
-
     return result;
 }
 
@@ -156,11 +144,7 @@ bool Projects::ProjectTask::addActivity(Wt::Dbo::ptr<Projects::ProjectTaskActivi
 {
     if(!hasActivity(activity))
     {
-        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
         _activities.insert(activity);
-
-        transaction.commit();
 
         return true;
     }
@@ -172,11 +156,7 @@ bool Projects::ProjectTask::removeActivity(Wt::Dbo::ptr<Projects::ProjectTaskAct
 {
     if(hasActivity(activity))
     {
-        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
         _activities.erase(activity);
-
-        transaction.commit();
 
         return true;
     }
@@ -203,8 +183,6 @@ int Projects::ProjectTask::doneActivities() const
 {
     int doneActivities = 0;
 
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
     {
         if(!(*iter)->active())
@@ -213,8 +191,6 @@ int Projects::ProjectTask::doneActivities() const
         if((*iter)->status()->workStatusType()->workStatusType() == "Done")
             doneActivities++;
     }
-
-    transaction.commit();
 
     return doneActivities;
 }

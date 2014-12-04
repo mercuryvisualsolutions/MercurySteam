@@ -180,6 +180,8 @@ bool Views::DlgCreateAndEditTask::editedActive() const
 
 void Views::DlgCreateAndEditTask::_prepareView()
 {
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
     if(!_editing)
         this->setCaption("Create Task");
     else
@@ -299,6 +301,8 @@ void Views::DlgCreateAndEditTask::_prepareView()
     _btnCancel = new Wt::WPushButton("Cancel", this->footer());
     _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
     _btnCancel->setFocus();
+
+    transaction.commit();
 }
 
 void Views::DlgCreateAndEditTask::_btnOkClicked()
@@ -316,8 +320,6 @@ void Views::DlgCreateAndEditTask::_createCmbUser()
 
     _mdlCmbUser = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Users::User>>();
 
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     Wt::Dbo::Query<Wt::Dbo::ptr<Users::User>> query;
     if(AppSettings::instance().isLoadInactiveData())
         query = Session::SessionManager::instance().dboSession().find<Users::User>();
@@ -325,8 +327,6 @@ void Views::DlgCreateAndEditTask::_createCmbUser()
         query = Session::SessionManager::instance().dboSession().find<Users::User>().where("Active = ?").bind(true);
 
     _mdlCmbUser->setQuery(query);
-
-    transaction.commit();
 
     _mdlCmbUser->reload();
 
@@ -347,8 +347,6 @@ void Views::DlgCreateAndEditTask::_createCmbStatus()
 
     _mdlCmbStatus = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatus>>();
 
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectWorkStatus>> query;
     if(AppSettings::instance().isLoadInactiveData())
         query = Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>();
@@ -356,8 +354,6 @@ void Views::DlgCreateAndEditTask::_createCmbStatus()
         query = Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true);
 
     _mdlCmbStatus->setQuery(query);
-
-    transaction.commit();
 
     _mdlCmbStatus->reload();
 
@@ -378,8 +374,6 @@ void Views::DlgCreateAndEditTask::_createCmbType()
 
     _mdlCmbType = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectTaskType>>();
 
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTaskType>> query;
     if(AppSettings::instance().isLoadInactiveData())
         query = Session::SessionManager::instance().dboSession().find<Projects::ProjectTaskType>();
@@ -387,8 +381,6 @@ void Views::DlgCreateAndEditTask::_createCmbType()
         query = Session::SessionManager::instance().dboSession().find<Projects::ProjectTaskType>().where("Active = ?").bind(true);
 
     _mdlCmbType->setQuery(query);
-
-    transaction.commit();
 
     _mdlCmbType->reload();
 

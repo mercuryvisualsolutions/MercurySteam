@@ -32,8 +32,6 @@ void Projects::Project::setName(const std::string &name)
 
 bool Projects::Project::hasSequence(Wt::Dbo::ptr<Projects::ProjectSequence> sequence) const
 {
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     bool result = false;
 
     for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)
@@ -46,8 +44,6 @@ bool Projects::Project::hasSequence(Wt::Dbo::ptr<Projects::ProjectSequence> sequ
         }
     }
 
-    transaction.commit();
-
     return result;
 }
 
@@ -55,11 +51,7 @@ bool Projects::Project::addSequence(Wt::Dbo::ptr<Projects::ProjectSequence> sequ
 {
     if(!hasSequence(sequence))
     {
-        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
         _sequences.insert(sequence);
-
-        transaction.commit();
 
         return true;
     }
@@ -71,11 +63,7 @@ bool Projects::Project::removeSequence(Wt::Dbo::ptr<Projects::ProjectSequence> s
 {
     if(hasSequence(sequence))
     {
-        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
         _sequences.erase(sequence);
-
-        transaction.commit();
 
         return true;
     }
@@ -85,8 +73,6 @@ bool Projects::Project::removeSequence(Wt::Dbo::ptr<Projects::ProjectSequence> s
 
 bool Projects::Project::hasAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset) const
 {
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     bool result = false;
 
     for(auto iter = _assets.begin(); iter != _assets.end(); ++iter)
@@ -99,8 +85,6 @@ bool Projects::Project::hasAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset) con
         }
     }
 
-    transaction.commit();
-
     return result;
 }
 
@@ -108,11 +92,7 @@ bool Projects::Project::addAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset)
 {
     if(!hasAsset(asset))
     {
-        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
         _assets.insert(asset);
-
-        transaction.commit();
 
         return true;
     }
@@ -124,11 +104,7 @@ bool Projects::Project::removeAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset)
 {
     if(hasAsset(asset))
     {
-        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
         _assets.erase(asset);
-
-        transaction.commit();
 
         return true;
     }
@@ -188,8 +164,6 @@ int Projects::Project::totalHours() const
 {
     int totalHours = 0;
 
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)//count sequences hours
     {
         if(!(*iter)->active())
@@ -214,16 +188,12 @@ int Projects::Project::totalHours() const
         totalHours += (*iter)->totalHours();
     }
 
-    transaction.commit();
-
     return totalHours;
 }
 
 int Projects::Project::doneHours() const
 {
     int finishedHours = 0;
-
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)
     {
@@ -249,16 +219,12 @@ int Projects::Project::doneHours() const
         finishedHours += (*iter)->doneHours();
     }
 
-    transaction.commit();
-
     return finishedHours;
 }
 
 int Projects::Project::totalAssets() const
 {
     int totalAssets = 0;
-
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     for(auto iter = _assets.begin(); iter != _assets.end(); ++iter)
     {
@@ -268,16 +234,12 @@ int Projects::Project::totalAssets() const
         totalAssets++;
     }
 
-    transaction.commit();
-
     return totalAssets;
 }
 
 int Projects::Project::doneAssets() const
 {
     int doneAssets = 0;
-
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     for(auto iter = _assets.begin(); iter != _assets.end(); ++iter)
     {
@@ -290,16 +252,12 @@ int Projects::Project::doneAssets() const
         }
     }
 
-    transaction.commit();
-
     return doneAssets;
 }
 
 int Projects::Project::totalSequences() const
 {
     int totalSequences = 0;
-
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)
     {
@@ -309,16 +267,12 @@ int Projects::Project::totalSequences() const
         totalSequences++;
     }
 
-    transaction.commit();
-
     return totalSequences;
 }
 
 int Projects::Project::doneSequences() const
 {
     int doneSequences = 0;
-
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)
     {
@@ -331,16 +285,12 @@ int Projects::Project::doneSequences() const
         }
     }
 
-    transaction.commit();
-
     return doneSequences;
 }
 
 int Projects::Project::totalShots() const
 {
     int totalShots = 0;
-
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)
     {
@@ -350,16 +300,12 @@ int Projects::Project::totalShots() const
         totalShots+= (*iter)->totalShots();
     }
 
-    transaction.commit();
-
     return totalShots;
 }
 
 int Projects::Project::doneShots() const
 {
     int doneShots= 0;
-
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)
     {
@@ -369,16 +315,12 @@ int Projects::Project::doneShots() const
         doneShots+= (*iter)->doneShots();
     }
 
-    transaction.commit();
-
     return doneShots;
 }
 
 int Projects::Project::totalTasks() const
 {
     int totalTasks = 0;
-
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)//count sequences tasks
     {
@@ -404,16 +346,12 @@ int Projects::Project::totalTasks() const
         totalTasks += (*iter)->totalTasks();
     }
 
-    transaction.commit();
-
     return totalTasks;
 }
 
 int Projects::Project::doneTasks() const
 {
     int doneTasks = 0;
-
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)//project tasks
     {
@@ -448,16 +386,12 @@ int Projects::Project::doneTasks() const
         }
     }
 
-    transaction.commit();
-
     return doneTasks;
 }
 
 int Projects::Project::totalActivities() const
 {
     int totalActivities = 0;
-
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
     {
@@ -483,16 +417,12 @@ int Projects::Project::totalActivities() const
         totalActivities += (*iter)->totalActivities();
     }
 
-    transaction.commit();
-
     return totalActivities;
 }
 
 int Projects::Project::doneActivities() const
 {
     int doneActivities = 0;
-
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
     {
@@ -517,8 +447,6 @@ int Projects::Project::doneActivities() const
 
         doneActivities+= (*iter)->doneActivities();
     }
-
-    transaction.commit();
 
     return doneActivities;
 }

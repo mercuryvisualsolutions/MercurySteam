@@ -32,8 +32,6 @@ void Projects::ProjectActivityTemplate::setName(const std::string &name)
 
 bool Projects::ProjectActivityTemplate::hasItem(Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem> taskItem) const
 {
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     bool result = false;
 
     for(auto iter = _items.begin(); iter != _items.end(); ++iter)
@@ -46,8 +44,6 @@ bool Projects::ProjectActivityTemplate::hasItem(Wt::Dbo::ptr<Projects::ProjectAc
         }
     }
 
-    transaction.commit();
-
     return result;
 }
 
@@ -55,11 +51,7 @@ bool Projects::ProjectActivityTemplate::addItem(Wt::Dbo::ptr<Projects::ProjectAc
 {
     if(!hasItem(taskItem))
     {
-        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
         _items.insert(taskItem);
-
-        transaction.commit();
 
         return true;
     }
@@ -71,11 +63,7 @@ bool Projects::ProjectActivityTemplate::removeItem(Wt::Dbo::ptr<Projects::Projec
 {
     if(hasItem(taskItem))
     {
-        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
         _items.erase(taskItem);
-
-        transaction.commit();
 
         return true;
     }
@@ -85,8 +73,6 @@ bool Projects::ProjectActivityTemplate::removeItem(Wt::Dbo::ptr<Projects::Projec
 
 bool Projects::ProjectActivityTemplate::createActivitiesForProjectTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
 {
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     std::vector<Projects::ProjectTaskActivity*> activitiesVec;
 
     for(auto iter = _items.begin(); iter != _items.end(); ++iter)
@@ -109,8 +95,6 @@ bool Projects::ProjectActivityTemplate::createActivitiesForProjectTask(Wt::Dbo::
         if(!Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTaskActivity>(activity))
             delete activity;
     }
-
-    transaction.commit();
 
     return true;
 }

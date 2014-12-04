@@ -18,8 +18,7 @@ namespace Database
         }
     };
 
-    class Transaction : public Wt::Auth::AbstractUserDatabase::Transaction,
-            public Wt::Dbo::Transaction
+    class Transaction : public Wt::Auth::AbstractUserDatabase::Transaction, public Wt::Dbo::Transaction
     {
     public:
         Transaction(Wt::Dbo::Session &session) :

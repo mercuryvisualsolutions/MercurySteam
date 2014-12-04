@@ -56,8 +56,6 @@ void Views::ViewUsers::updateUsersView()
 
     _qtvUsers->setQuery(query);
 
-    transaction.commit();
-
     bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
     Wt::WFlags<Wt::ItemFlag> flags;
     if(canEdit)
@@ -94,6 +92,8 @@ void Views::ViewUsers::updateUsersView()
         _qtvUsers->addBaseColumns(flags, editRank);
     }
 
+    transaction.commit();
+
     _qtvUsers->updateView();
 }
 
@@ -112,8 +112,6 @@ void Views::ViewUsers::updateGroupsView()
 
     _qtvGroups->setQuery(query);
 
-    transaction.commit();
-
     bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
     Wt::WFlags<Wt::ItemFlag> flags;
     if(canEdit)
@@ -131,6 +129,8 @@ void Views::ViewUsers::updateGroupsView()
 
     if(AppSettings::instance().isShowExtraColumns())
         _qtvGroups->addBaseColumns(flags, editRank);
+
+    transaction.commit();
 
     _qtvGroups->updateView();
 }
@@ -277,6 +277,8 @@ void Views::ViewUsers::_btnUsersCreateClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             try
             {
                 if(!Session::SessionManager::instance().dboSession().dboExists<Users::User>(dlg->userName()))
@@ -313,6 +315,8 @@ void Views::ViewUsers::_btnUsersCreateClicked()
             {
                 _logger->log("Error occured while trying to add default work users", Ms::Log::LogMessageType::Error);
             }
+
+            transaction.commit();
         }
 
         delete dlg;
@@ -337,6 +341,8 @@ void Views::ViewUsers::_btnUsersChangePasswordClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             Wt::Dbo::ptr<Users::User> userPtr = _qtvUsers->selectedItems().at(0);
 
             if(editRank >= userPtr->editRank())
@@ -345,6 +351,8 @@ void Views::ViewUsers::_btnUsersChangePasswordClicked()
 
                 Auth::AuthManager::instance().passwordService().updatePassword(authUser, dlg->password());
             }
+
+            transaction.commit();
         }
 
         delete dlg;
@@ -387,58 +395,63 @@ void Views::ViewUsers::_btnUsersImportThumbnailsClicked()
     Ms::Widgets::Dialogs::MFilesUploadDialog *dlg = new Ms::Widgets::Dialogs::MFilesUploadDialog(true, true);
     dlg->finished().connect(std::bind([=]()
     {
-        std::vector<std::string> delFiles;//holds thumbnails files for later deletion
-        for(const std::pair<std::string,std::string> &pair : dlg->uploadedFilesMap())
+        if(dlg->result() == Wt::WDialog::Accepted)
         {
-            try
+            std::vector<std::string> delFiles;//holds thumbnails files for later deletion
+
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+            for(const std::pair<std::string,std::string> &pair : dlg->uploadedFilesMap())
             {
-                //get the original raw file name without the extension
-                int lastIndex = pair.second.find_last_of(".");
-                std::string rawFileName = pair.second.substr(0, lastIndex);
-
-                //match thumbnail by user name
-                Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
-                Wt::Dbo::ptr<Users::User> userPtr;
-
-                if(AppSettings::instance().isLoadInactiveData())
-                    userPtr = Session::SessionManager::instance().dboSession().find<Users::User>().where("Name = ?").bind(rawFileName);
-                else
-                    userPtr = Session::SessionManager::instance().dboSession().find<Users::User>().where("Name = ? AND Active = ?").bind(rawFileName).bind(true);
-
-                if(userPtr)//found a user that has the same name as the thumbnail ?
+                try
                 {
-                    std::string userDir = Users::UsersIO::getAbsoluteUserDir(userPtr->name());
-                    std::string localFile = userDir + Ms::IO::dirSeparator() + "thumbnails" + Ms::IO::dirSeparator() + pair.second;
+                    //get the original raw file name without the extension
+                    int lastIndex = pair.second.find_last_of(".");
+                    std::string rawFileName = pair.second.substr(0, lastIndex);
 
-                    if(Ms::IO::fileExists(localFile))//if thumbnail already exist
-                        Ms::IO::removeFile(localFile);//delete it
+                    //match thumbnail by user name
 
-                    if(Ms::IO::copyFile(pair.first, localFile))//copy and rename the file to the original name
+                    Wt::Dbo::ptr<Users::User> userPtr;
+
+                    if(AppSettings::instance().isLoadInactiveData())
+                        userPtr = Session::SessionManager::instance().dboSession().find<Users::User>().where("Name = ?").bind(rawFileName);
+                    else
+                        userPtr = Session::SessionManager::instance().dboSession().find<Users::User>().where("Name = ? AND Active = ?").bind(rawFileName).bind(true);
+
+                    if(userPtr)//found a user that has the same name as the thumbnail ?
                     {
-                        userPtr.modify()->modify()->setThumbnail(Users::UsersIO::getRelativeUserDir(userPtr->name()) + Ms::IO::dirSeparator() +
-                                                                 "thumbnails" + Ms::IO::dirSeparator() + pair.second);
+                        std::string userDir = Users::UsersIO::getAbsoluteUserDir(userPtr->name());
+                        std::string localFile = userDir + Ms::IO::dirSeparator() + "thumbnails" + Ms::IO::dirSeparator() + pair.second;
+
+                        if(Ms::IO::fileExists(localFile))//if thumbnail already exist
+                            Ms::IO::removeFile(localFile);//delete it
+
+                        if(Ms::IO::copyFile(pair.first, localFile))//copy and rename the file to the original name
+                        {
+                            userPtr.modify()->modify()->setThumbnail(Users::UsersIO::getRelativeUserDir(userPtr->name()) + Ms::IO::dirSeparator() +
+                                                                     "thumbnails" + Ms::IO::dirSeparator() + pair.second);
+                        }
                     }
                 }
+                catch(Wt::WException e)
+                {
+                    _logger->log(std::string("Error occured while trying to import thumbnails to table users") + e.what(),
+                                 Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
+                }
 
-                transaction.commit();
+                delFiles.push_back(pair.first);//cache it for later deletion
             }
-            catch(Wt::WException e)
+
+            transaction.commit();
+
+            for(std::vector<std::string>::size_type i = 0; i <delFiles.size(); ++i)
             {
-                _logger->log(std::string("Error occured while trying to import thumbnails to table users") + e.what(),
-                             Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
+                Ms::IO::removeFile(delFiles.at(i));//after finish processing, delete the uploaded thumbnails
+                _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
             }
 
-            delFiles.push_back(pair.first);//cache it for later deletion
+            _qtvUsers->updateView();
         }
-
-        for(std::vector<std::string>::size_type i = 0; i <delFiles.size(); ++i)
-        {
-            Ms::IO::removeFile(delFiles.at(i));//after finish processing, delete the uploaded thumbnails
-            _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
-        }
-
-        _qtvUsers->updateView();
 
         delete dlg;
     }));
@@ -479,6 +492,8 @@ void Views::ViewUsers::_btnGroupsCreateClicked()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
+            Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
             if(!Session::SessionManager::instance().dboSession().dboExists<Users::Group>(dlg->groupName()))
             {
                 Users::Group *group = new Users::Group(dlg->groupName(), dlg->rank());
@@ -501,6 +516,8 @@ void Views::ViewUsers::_btnGroupsCreateClicked()
             {
                 _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
             }
+
+            transaction.commit();
         }
 
         delete dlg;
@@ -578,6 +595,8 @@ void Views::ViewUsers::_mnuNavBarPropertiesPrivilegesItemTriggered()
 
 void Views::ViewUsers::_addDataRequested()
 {
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
     if(_stkMain->currentWidget() == _qtvUsers)
     {
         if(_qtvUsers->table()->selectedIndexes().size() != 1)
@@ -600,6 +619,8 @@ void Views::ViewUsers::_addDataRequested()
         else
             _addDataToDbo<Users::Group>(_qtvGroups->selectedItems());
     }
+
+    transaction.commit();
 }
 
 void Views::ViewUsers::_removeDataRequested(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec)
@@ -624,6 +645,8 @@ void Views::ViewUsers::_createTagRequested()
     {
        if(dlg->result() == Wt::WDialog::Accepted)
        {
+           Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
            Database::Tag *tag = new Database::Tag(dlg->tagName(), dlg->tagContent());
            tag->setType(tagType);
            tag->setActive(dlg->isActive());
@@ -642,6 +665,8 @@ void Views::ViewUsers::_createTagRequested()
 
                 _logger->log(std::string("Error creating " + tagType + " tag ") + dlg->tagName(), Ms::Log::LogMessageType::Error);
             }
+
+            transaction.commit();
        }
 
        delete dlg;
@@ -652,6 +677,8 @@ void Views::ViewUsers::_createTagRequested()
 
 void Views::ViewUsers::_assignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
     if(_stkMain->currentWidget() == _qtvUsers)
     {
         if(_qtvUsers->table()->selectedIndexes().size() > 0)
@@ -670,10 +697,14 @@ void Views::ViewUsers::_assignTagsRequested(const std::vector<Wt::Dbo::ptr<Datab
             _updatePropertiesAssignedTagsView();
         }
     }
+
+    transaction.commit();
 }
 
 void Views::ViewUsers::_unassignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
     if(_stkMain->currentWidget() == _qtvUsers)
     {
         if(_qtvUsers->table()->selectedIndexes().size() > 0)
@@ -692,10 +723,14 @@ void Views::ViewUsers::_unassignTagsRequested(const std::vector<Wt::Dbo::ptr<Dat
             _updatePropertiesAssignedTagsView();
         }
     }
+
+    transaction.commit();
 }
 
 void Views::ViewUsers::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec, bool exactSelection, bool inverse)
 {
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
     std::string strFilterQuery = "";
 
     if(tagVec.size() == 0)
@@ -723,6 +758,8 @@ void Views::ViewUsers::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<Dat
         _qtvGroups->setCustomFilterString(strFilterQuery);
         _qtvGroups->setCustomFilterActive(true);
     }
+
+    transaction.commit();
 }
 
 void Views::ViewUsers::_clearTagsFilterRequested()
@@ -741,6 +778,8 @@ void Views::ViewUsers::_clearTagsFilterRequested()
 
 void Views::ViewUsers::_addNoteRequested()
 {
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
     if(_stkMain->currentWidget() == _qtvUsers)
     {
         if(_qtvUsers->table()->selectedIndexes().size() != 1)
@@ -763,6 +802,8 @@ void Views::ViewUsers::_addNoteRequested()
         else
             _addNoteToDbo<Users::Group>(_qtvGroups->selectedItems());
     }
+
+    transaction.commit();
 }
 
 void Views::ViewUsers::_removeNotesRequested(const std::vector<Wt::Dbo::ptr<Database::Note>> &noteVec)
@@ -774,6 +815,8 @@ void Views::ViewUsers::_assignPrivilegesRequested(const std::vector<Wt::Dbo::ptr
 {
     if(_qtvGroups->table()->selectedIndexes().size() > 0)
     {
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
         for(auto &grpPtr : _qtvGroups->selectedItems())
         {
             for(auto &prvPtr : privVec)
@@ -781,6 +824,8 @@ void Views::ViewUsers::_assignPrivilegesRequested(const std::vector<Wt::Dbo::ptr
                 Session::SessionManager::instance().dboSession().modifyDbo<Users::Group>(grpPtr)->addPrivilege(prvPtr);
             }
         }
+
+        transaction.commit();
 
         _updatePropertiesAssignedPrivilegesView();
     }
@@ -790,6 +835,8 @@ void Views::ViewUsers::_unassignPrivilegesRequested(const std::vector<Wt::Dbo::p
 {
     if(_qtvGroups->table()->selectedIndexes().size() > 0)
     {
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
         for(auto &grpPtr : _qtvGroups->selectedItems())
         {
             for(auto &prvPtr : privVec)
@@ -798,12 +845,16 @@ void Views::ViewUsers::_unassignPrivilegesRequested(const std::vector<Wt::Dbo::p
             }
         }
 
+        transaction.commit();
+
         _updatePropertiesAssignedPrivilegesView();
     }
 }
 
 void Views::ViewUsers::_filterByPrivilegesRequested(const std::vector<Wt::Dbo::ptr<Users::Privilege>> &privVec, bool exactSelection, bool inverse)
 {
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
     std::string strFilterQuery = "";
 
     if(privVec.size() == 0)
@@ -819,6 +870,8 @@ void Views::ViewUsers::_filterByPrivilegesRequested(const std::vector<Wt::Dbo::p
 
     _qtvGroups->setCustomFilterString(strFilterQuery);
     _qtvGroups->setCustomFilterActive(true);
+
+    transaction.commit();
 }
 
 void Views::ViewUsers::_clearFilterPrivilegesFilterRequested()

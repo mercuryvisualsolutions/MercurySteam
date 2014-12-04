@@ -55,6 +55,8 @@ bool Views::DlgCreateUser::isActive() const
 
 void Views::DlgCreateUser::_prepareView()
 {
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
     this->setCaption("Create User");
     this->rejectWhenEscapePressed();
 
@@ -137,6 +139,8 @@ void Views::DlgCreateUser::_prepareView()
 
     _btnCancel = new Wt::WPushButton("Cancel", this->footer());
     _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
+
+    transaction.commit();
 }
 
 void Views::DlgCreateUser::_createCmbGroups()
@@ -148,8 +152,6 @@ void Views::DlgCreateUser::_createCmbGroups()
 
     _mdlCmbGroups = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Users::Group>>();
 
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     Wt::Dbo::Query<Wt::Dbo::ptr<Users::Group>> query;
     if(AppSettings::instance().isLoadInactiveData())
         query = Session::SessionManager::instance().dboSession().find<Users::Group>();
@@ -157,8 +159,6 @@ void Views::DlgCreateUser::_createCmbGroups()
         query = Session::SessionManager::instance().dboSession().find<Users::Group>().where("Active = ?").bind(true);
 
     _mdlCmbGroups->setQuery(query);
-
-    transaction.commit();
 
     _mdlCmbGroups->reload();
 
@@ -179,8 +179,6 @@ void Views::DlgCreateUser::_createCmbTitles()
 
     _mdlCmbTitles = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Users::UserTitle>>();
 
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     Wt::Dbo::Query<Wt::Dbo::ptr<Users::UserTitle>> query;
     if(AppSettings::instance().isLoadInactiveData())
         query = Session::SessionManager::instance().dboSession().find<Users::UserTitle>();
@@ -188,8 +186,6 @@ void Views::DlgCreateUser::_createCmbTitles()
         query = Session::SessionManager::instance().dboSession().find<Users::UserTitle>().where("Active = ?").bind(true);
 
     _mdlCmbTitles->setQuery(query);
-
-    transaction.commit();
 
     _mdlCmbTitles->reload();
 

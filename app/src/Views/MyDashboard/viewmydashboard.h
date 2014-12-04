@@ -1,6 +1,13 @@
 #ifndef VIEWMYDASHBOARD_H
 #define VIEWMYDASHBOARD_H
 
+#include "Database/dbtables.h"
+#include "../../Log/logger.h"
+#include "../../Session/sessionmanager.h"
+
+#include <Ms/Widgets/MQueryTableViewWidget.h>
+#include <Ms/Widgets/MContainerWidget.h>
+
 #include <Wt/WContainerWidget>
 #include <Wt/WVBoxLayout>
 #include <Wt/WHBoxLayout>
@@ -16,13 +23,6 @@
 #include <Wt/WSortFilterProxyModel>
 #include <Wt/WStandardItemModel>
 #include <Wt/Auth/User>
-
-#include "Database/dbtables.h"
-#include "../../Log/logger.h"
-#include "../../Session/sessionmanager.h"
-
-#include <Ms/Widgets/MQueryTableViewWidget.h>
-#include <Ms/Widgets/MContainerWidget.h>
 
 namespace Views
 {

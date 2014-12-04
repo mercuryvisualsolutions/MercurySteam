@@ -73,6 +73,8 @@ void Views::ViewApp::showSettingsView()
 
 void Views::ViewApp::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
 {
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
     bool hasViewProjectsPriv = user->hasPrivilege("View Projects");
     bool hasViewUsersAndGroupsPriv = user->hasPrivilege("View Users And Groups");
     bool hasViewSettingsPriv = user->hasPrivilege("View Settings");
@@ -88,6 +90,8 @@ void Views::ViewApp::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
     _viwProjects->adjustUIPrivileges(user);
     _viwSettings->adjustUIPrivileges(user);
     _viwMyDashboard->adjustUIPrivileges(user);
+
+    transaction.commit();
 }
 
 void Views::ViewApp::_globalAppKeyWentDown(Wt::WKeyEvent key)
@@ -197,6 +201,8 @@ void Views::ViewApp::_mnuSideMainSettingsItemTriggered()
 
 void Views::ViewApp::_prepareView()
 {
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
     /*******************--Application--********************/
     Wt::WApplication::instance()->globalKeyWentDown().connect(this, &Views::ViewApp::_globalAppKeyWentDown);
     Wt::WApplication::instance()->globalKeyWentUp().connect(this, &Views::ViewApp::_globalAppKeyWentUp);
@@ -326,8 +332,6 @@ void Views::ViewApp::_prepareView()
     //_mnuSideMain->setInternalPathEnabled();
     _cntMnuSideMain->addWidget(_mnuSideMain);
 
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     //_mnuSideMain->addSectionHeader("Management");
 
     Wt::WContainerWidget *cntProjectMnuItem = new Wt::WContainerWidget();
@@ -433,8 +437,6 @@ void Views::ViewApp::_prepareView()
 
 void Views::ViewApp::_prepareChildViews(Wt::WStackedWidget *widget)
 {
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     //requires "view" privilege
 
     _viwUsers = new ViewUsers();
@@ -453,6 +455,4 @@ void Views::ViewApp::_prepareChildViews(Wt::WStackedWidget *widget)
     _viwMyDashboard = new ViewMyDashboard();
 
     widget->addWidget(_viwMyDashboard);
-
-    transaction.commit();
 }
