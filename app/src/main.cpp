@@ -19,6 +19,8 @@ void addDefaultUser(Database::DboSession &session)
 {
     try
     {
+        Wt::Dbo::Transaction transaction(session);
+
         Users::User *user = new Users::User("Admin", "admin@mercuryvs.com");
         user->setCreateRank(INT_MAX);
         user->setViewRank(INT_MAX);
@@ -33,6 +35,8 @@ void addDefaultUser(Database::DboSession &session)
         Wt::Auth::User authUser = session.users().findWithIdentity(Wt::Auth::Identity::LoginName, userPtr->name());
 
         Auth::AuthManager::instance().passwordService().updatePassword(authUser, "admin");
+
+        transaction.commit();
 
         //create user directory structure
         Users::UsersIO::createUserDirectoryStructure(user->name());
@@ -105,6 +109,7 @@ bool initDatabase(Wt::Dbo::SqlConnectionPool &sqlConnectionPool)
 
             //set default schema attributes
             Log::LogManager::instance().getGlobalLogger()->log("Settings schema attributes..", Ms::Log::LogMessageType::Info);
+
             Wt::Dbo::Transaction schemaAttributesTransaction(session);
 
             for(const std::string &command : Database::sqlAttributesCommands)
