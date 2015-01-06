@@ -15,7 +15,7 @@ Ms::Widgets::Delegates::MDateFieldDelegate::MDateFieldDelegate() :
 Ms::Widgets::Delegates::MDateFieldDelegate::MDateFieldDelegate(int editRank) :
     MDateFieldDelegate()
 {
-    _editRank = editRank;
+    m_editRank = editRank;
 }
 
 void Ms::Widgets::Delegates::MDateFieldDelegate::doCloseEditor(Wt::WWidget *editor, bool save) const

@@ -28,13 +28,13 @@ namespace Ms
         private:
             //variables
             //ui
-            Wt::WStackedWidget *_stkMain;
+            Wt::WStackedWidget *m_stkMain;
 
             //different views
-            std::map<std::string,Wt::WWidget*> _views;
+            std::map<std::string,Wt::WWidget*> m_views;
 
             //functions
-            void _prepareView();
+            void prepareView();
         };
     }
 }

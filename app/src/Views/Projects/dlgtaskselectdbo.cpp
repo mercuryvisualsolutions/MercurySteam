@@ -5,44 +5,44 @@
 
 Views::DlgTaskSelectDbo::DlgTaskSelectDbo()
 {
-    _prepareView();
+    prepareView();
 }
 
 std::string Views::DlgTaskSelectDbo::type() const
 {
-    return _cmbType->currentText().toUTF8();
+    return m_cmbType->currentText().toUTF8();
 }
 
-void Views::DlgTaskSelectDbo::_prepareView()
+void Views::DlgTaskSelectDbo::prepareView()
 {
     this->setCaption("Select Task Dbo Type");
     this->rejectWhenEscapePressed();
 
-    _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(6);
+    m_layMain = new Wt::WVBoxLayout();
+    m_layMain->setContentsMargins(0,0,0,0);
+    m_layMain->setSpacing(6);
 
-    this->contents()->setLayout(_layMain);
+    this->contents()->setLayout(m_layMain);
 
-    _cmbType = new Wt::WComboBox();
-    _cmbType->addItem("Project");
-    _cmbType->addItem("Sequence");
-    _cmbType->addItem("Shot");
-    _cmbType->addItem("Asset");
+    m_cmbType = new Wt::WComboBox();
+    m_cmbType->addItem("Project");
+    m_cmbType->addItem("Sequence");
+    m_cmbType->addItem("Shot");
+    m_cmbType->addItem("Asset");
 
-    _cmbType->setCurrentIndex(0);
+    m_cmbType->setCurrentIndex(0);
 
-    _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Dbo Type", _cmbType, false));
+    m_layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Dbo Type", m_cmbType, false));
 
-    _btnOk = new Wt::WPushButton("Ok", this->footer());
-    _btnOk->setDefault(true);
-    _btnOk->clicked().connect(this, &Views::DlgTaskSelectDbo::_btnOkClicked);
+    m_btnOk = new Wt::WPushButton("Ok", this->footer());
+    m_btnOk->setDefault(true);
+    m_btnOk->clicked().connect(this, &Views::DlgTaskSelectDbo::btnOkClicked);
 
-    _btnCancel = new Wt::WPushButton("Cancel", this->footer());
-    _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
+    m_btnCancel = new Wt::WPushButton("Cancel", this->footer());
+    m_btnCancel->clicked().connect(this, &Wt::WDialog::reject);
 }
 
-void Views::DlgTaskSelectDbo::_btnOkClicked()
+void Views::DlgTaskSelectDbo::btnOkClicked()
 {
     this->accept();
 }

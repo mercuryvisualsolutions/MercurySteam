@@ -3,14 +3,14 @@
 Database::Tag::Tag() :
     Ms::Dbo::MDboBase()
 {
-    _init();
+    init();
 }
 
 Database::Tag::Tag(const std::string &name, const std::string &content) :
     Tag()
 {
-    _name = name;
-    _content = content;
+    m_name = name;
+    m_content = content;
 }
 
 Database::Tag *Database::Tag::modify()
@@ -22,107 +22,107 @@ Database::Tag *Database::Tag::modify()
 
 std::string Database::Tag::name() const
 {
-    return _name;
+    return m_name;
 }
 
 void Database::Tag::setName(const std::string &name)
 {
-    _name = name;
+    m_name = name;
 }
 
 std::string Database::Tag::content() const
 {
-    return _content;
+    return m_content;
 }
 
 void Database::Tag::setContent(const std::string &content)
 {
-    _content = content;
+    m_content = content;
 }
 
 std::string Database::Tag::type() const
 {
-    return _type;
+    return m_type;
 }
 
 void Database::Tag::setType(const std::string &type)
 {
-    _type = type;
+    m_type = type;
 }
 
 const Wt::Dbo::collection<Wt::Dbo::ptr<Users::User>> Database::Tag::users() const
 {
-    return _users;
+    return m_users;
 }
 
 const Wt::Dbo::collection<Wt::Dbo::ptr<Users::Group> > Database::Tag::groups() const
 {
-    return _groups;
+    return m_groups;
 }
 
 const Wt::Dbo::collection<Wt::Dbo::ptr<Projects::Project>> Database::Tag::projects() const
 {
-    return _projects;
+    return m_projects;
 }
 
 const Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectSequence>> Database::Tag::sequences() const
 {
-    return _sequences;
+    return m_sequences;
 }
 
 const Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectShot>> Database::Tag::shots() const
 {
-    return _shots;
+    return m_shots;
 }
 
 const Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectAsset> > Database::Tag::assets() const
 {
-    return _assets;
+    return m_assets;
 }
 
 const Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask> > Database::Tag::tasks() const
 {
-    return _tasks;
+    return m_tasks;
 }
 
 const Wt::Dbo::collection<Wt::Dbo::ptr<Users::User> > Database::Tag::usersAssignedTo() const
 {
-    return _usersAssignedTo;
+    return m_usersAssignedTo;
 }
 
 const Wt::Dbo::collection<Wt::Dbo::ptr<Users::Group> > Database::Tag::groupsAssignedTo() const
 {
-    return _groupsAssignedTo;
+    return m_groupsAssignedTo;
 }
 
 const Wt::Dbo::collection<Wt::Dbo::ptr<Projects::Project> > Database::Tag::projectsAssignedTo() const
 {
-    return _projectsAssignedTo;
+    return m_projectsAssignedTo;
 }
 
 const Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectSequence> > Database::Tag::sequencesAssignedTo() const
 {
-    return _sequencesAssignedTo;
+    return m_sequencesAssignedTo;
 }
 
 const Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectShot> > Database::Tag::shotsAssignedTo() const
 {
-    return _shotsAssignedTo;
+    return m_shotsAssignedTo;
 }
 
 const Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectAsset> > Database::Tag::assetsAssignedTo() const
 {
-    return _assetsAssignedTo;
+    return m_assetsAssignedTo;
 }
 
 const Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask> > Database::Tag::tasksAssignedTo() const
 {
-    return _tasksAssignedTo;
+    return m_tasksAssignedTo;
 }
 
 bool Database::Tag::operator ==(const Database::Tag &other) const
 {
-    return (_name == other.name()) && (_content == other.content()) && (_type == other.type());
+    return (m_name == other.name()) && (m_content == other.content()) && (m_type == other.type());
 }
 
 bool Database::Tag::operator !=(const Database::Tag &other) const
@@ -130,10 +130,10 @@ bool Database::Tag::operator !=(const Database::Tag &other) const
     return !operator ==(other);
 }
 
-void Database::Tag::_init()
+void Database::Tag::init()
 {
-    thumbnail_ = "pics/NoPreview.png";
-    _name = "New Tag";
-    _content = "";
-    _type = "Global";
+    m_thumbnail = "pics/NoPreview.png";
+    m_name = "New Tag";
+    m_content = "";
+    m_type = "Global";
 }

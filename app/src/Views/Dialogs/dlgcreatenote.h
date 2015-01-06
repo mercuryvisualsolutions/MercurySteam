@@ -28,18 +28,18 @@ namespace Views
     
         private:
             //variables
-            Wt::WVBoxLayout *_layMain;
-            Wt::WTextArea *_txtContent;
-            Wt::WComboBox *_cmbActive;
-            Wt::WPushButton *_btnOk;
-            Wt::WPushButton *_btnCancel;
+            Wt::WVBoxLayout *m_layMain;
+            Wt::WTextArea *m_txtContent;
+            Wt::WComboBox *m_cmbActive;
+            Wt::WPushButton *m_btnOk;
+            Wt::WPushButton *m_btnCancel;
     
             //functions
-            void _prepareView();
-            bool _validate();
+            void prepareView();
+            bool validate();
     
             //slots
-            void _btnOkClicked();
+            void btnOkClicked();
         };
     }
 }

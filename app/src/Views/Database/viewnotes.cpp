@@ -7,63 +7,63 @@
 
 Views::ViewNotes::ViewNotes()
 {
-    _prepareView();
+    prepareView();
 }
 
 Ms::Widgets::MQueryTableViewWidget<Database::Note> *Views::ViewNotes::qtvNotes()
 {
-    return _qtvNotes;
+    return m_qtvNotes;
 }
 
 void Views::ViewNotes::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
 {
     bool hasCreateDboPriv = user->hasPrivilege("Create DBO");
 
-    _btnCreateNote->setHidden(!hasCreateDboPriv);
+    m_btnCreateNote->setHidden(!hasCreateDboPriv);
 
-    _qtvNotes->setImportCSVFeatureEnabled(hasCreateDboPriv);
+    m_qtvNotes->setImportCSVFeatureEnabled(hasCreateDboPriv);
 }
 
 Wt::Signal<> &Views::ViewNotes::addNoteRequested()
 {
-    return _addNoteRequested;
+    return m_addNoteRequested;
 }
 
 Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Note>>> &Views::ViewNotes::removeNotesRequested()
 {
-    return _removeNotesRequested;
+    return m_removeNotesRequested;
 }
 
-void Views::ViewNotes::_btnCreateNoteClicked()
+void Views::ViewNotes::btnCreateNoteClicked()
 {
-    _addNoteRequested();
+    addNoteRequested();
 }
 
-void Views::ViewNotes::_btnRemoveNotesClicked()
+void Views::ViewNotes::btnRemoveNotesClicked()
 {
-    _removeNotesRequested(_qtvNotes->selectedItems());
+    m_removeNotesRequested(m_qtvNotes->selectedItems());
 }
 
-void Views::ViewNotes::_createNotesTableView()
+void Views::ViewNotes::createNotesTableView()
 {
-    _qtvNotes = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::Note>(Session::SessionManager::instance().dboSession());
+    m_qtvNotes = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::Note>(Session::SessionManager::instance().dboSession());
 
-    _btnCreateNote = _qtvNotes->createToolButton("", "icons/Add.png", "Add A New Note");
-    _btnCreateNote->clicked().connect(this, &Views::ViewNotes::_btnCreateNoteClicked);
+    m_btnCreateNote = m_qtvNotes->createToolButton("", "icons/Add.png", "Add A New Note");
+    m_btnCreateNote->clicked().connect(this, &Views::ViewNotes::btnCreateNoteClicked);
 
-//    Wt::WPushButton *btn = _qtvNotes->createToolButton("", "icons/Remove.png", "Remove Selected Notes");
-//    btn->clicked().connect(this, &Views::ViewNotes::_btnRemoveNotesClicked);
+//    Wt::WPushButton *btn = m_qtvNotes->createToolButton("", "icons/Remove.png", "Remove Selected Notes");
+//    btn->clicked().connect(this, &Views::ViewNotes::btnRemoveNotesClicked);
 }
 
-void Views::ViewNotes::_prepareView()
+void Views::ViewNotes::prepareView()
 {
-    _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(0);
+    m_layMain = new Wt::WVBoxLayout();
+    m_layMain->setContentsMargins(0,0,0,0);
+    m_layMain->setSpacing(0);
 
-    setLayout(_layMain);
+    setLayout(m_layMain);
 
-    _createNotesTableView();
+    createNotesTableView();
 
-    _layMain->addWidget(_qtvNotes);
+    m_layMain->addWidget(m_qtvNotes);
 }

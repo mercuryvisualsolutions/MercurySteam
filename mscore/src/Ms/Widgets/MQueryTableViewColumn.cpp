@@ -1,10 +1,10 @@
 #include "MQueryTableViewColumn.h"
 
 Ms::Widgets::MQueryTableViewColumn::MQueryTableViewColumn() :
-    _width(150),
-    _flags(Wt::ItemIsSelectable),
-    _isMandatory(false),
-    _ignored(false)
+    m_width(150),
+    m_flags(Wt::ItemIsSelectable),
+    m_isMandatory(false),
+    m_ignored(false)
 {
     setDelegate(new Ms::Widgets::Delegates::MItemDelegate);
 }
@@ -12,7 +12,7 @@ Ms::Widgets::MQueryTableViewColumn::MQueryTableViewColumn() :
 Ms::Widgets::MQueryTableViewColumn::MQueryTableViewColumn(const std::string &dbFieldName) :
     MQueryTableViewColumn()
 {
-    _dbFieldName = dbFieldName;
+    m_dbFieldName = dbFieldName;
 }
 
 Ms::Widgets::MQueryTableViewColumn::MQueryTableViewColumn(const std::string &dbFieldName, const std::string &displayName) :
@@ -58,75 +58,75 @@ Ms::Widgets::MQueryTableViewColumn::MQueryTableViewColumn(const std::string &dbF
 
 std::string Ms::Widgets::MQueryTableViewColumn::dbFieldName() const
 {
-    return _dbFieldName;
+    return m_dbFieldName;
 }
 
 void Ms::Widgets::MQueryTableViewColumn::setDbFieldName(const std::string &dbFieldName)
 {
-    _dbFieldName = dbFieldName;
+    m_dbFieldName = dbFieldName;
 }
 
 std::string Ms::Widgets::MQueryTableViewColumn::displayName() const
 {
-    return _displayName;
+    return m_displayName;
 }
 
 void Ms::Widgets::MQueryTableViewColumn::setDisplayName(const std::string &displayName)
 {
-    _displayName = displayName;
+    m_displayName = displayName;
 }
 
 int Ms::Widgets::MQueryTableViewColumn::width() const
 {
-    return _width;
+    return m_width;
 }
 
 void Ms::Widgets::MQueryTableViewColumn::setWidth(int width)
 {
-    _width = width;
+    m_width = width;
 }
 
 Wt::WFlags<Wt::ItemFlag> Ms::Widgets::MQueryTableViewColumn::flags() const
 {
-    return _flags;
+    return m_flags;
 }
 
 void Ms::Widgets::MQueryTableViewColumn::setFlags(Wt::WFlags<Wt::ItemFlag> flags)
 {
-    _flags = flags;
+    m_flags = flags;
 }
 
 Ms::Widgets::Delegates::MItemDelegate *Ms::Widgets::MQueryTableViewColumn::delegate() const
 {
-    return _delegate;
+    return m_delegate;
 }
 
 void Ms::Widgets::MQueryTableViewColumn::setDelegate(Ms::Widgets::Delegates::MItemDelegate *delegate)
 {
-    _delegate = delegate;
+    m_delegate = delegate;
 }
 
 bool Ms::Widgets::MQueryTableViewColumn::isMandatory() const
 {
-    return _isMandatory;
+    return m_isMandatory;
 }
 
 void Ms::Widgets::MQueryTableViewColumn::setMandatory(bool isMandatory)
 {
-    _isMandatory = isMandatory;
+    m_isMandatory = isMandatory;
 }
 
 bool Ms::Widgets::MQueryTableViewColumn::isIgnored() const
 {
-    return _ignored;
+    return m_ignored;
 }
 
 void Ms::Widgets::MQueryTableViewColumn::setIgnored(bool ignored)
 {
-    _ignored = ignored;
+    m_ignored = ignored;
 }
 
 bool Ms::Widgets::MQueryTableViewColumn::operator ==(const MQueryTableViewColumn &other) const
 {
-    return _dbFieldName == other.dbFieldName();
+    return m_dbFieldName == other.dbFieldName();
 }

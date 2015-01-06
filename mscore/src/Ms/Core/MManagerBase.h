@@ -24,15 +24,13 @@ namespace Ms
 
         protected:
             //variables
-            mutable std::string userName_;
-            Ms::Log::MLogger _logger;
+            mutable std::string m_userName;
+            Ms::Log::MLogger m_logger;
 
             //functions
-            void _init();
+            void init();
         };
     }
 }
-
-#include "MManagerBase_impl.h"
 
 #endif // MMANAGERBASE_H

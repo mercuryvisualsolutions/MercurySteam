@@ -5,36 +5,36 @@
 
 Ms::Widgets::MLogWidget::MLogWidget()
 {
-    _maxLogMessages = 2000;
-    _prepareView();
+    m_maxLogMessages = 2000;
+    prepareView();
 }
 
 Ms::Widgets::MLogWidget::~MLogWidget()
 {
-    _logMsgs.clear();
+    m_logMsgs.clear();
 }
 
 unsigned int Ms::Widgets::MLogWidget::maxLogMessages()
 {
-    return _maxLogMessages;
+    return m_maxLogMessages;
 }
 
 void Ms::Widgets::MLogWidget::setMaxLogMessages(unsigned int value)
 {
-    _maxLogMessages = value;
+    m_maxLogMessages = value;
 }
 
 void Ms::Widgets::MLogWidget::clearLog()
 {
-    for(auto iter = _logMsgs.begin(); iter != _logMsgs.end(); ++iter)
-        _layCntLogArea->removeWidget((*iter));
+    for(auto iter = m_logMsgs.begin(); iter != m_logMsgs.end(); ++iter)
+        m_layCntLogArea->removeWidget((*iter));
 
-    _logMsgs.clear();
+    m_logMsgs.clear();
 }
 
 void Ms::Widgets::MLogWidget::log(const std::string &message, Ms::Log::LogMessageType type)
 {
-    _checkMaxLogMessages();
+    checkMaxLogMessages();
 
     std::string str = "";
 
@@ -64,62 +64,62 @@ void Ms::Widgets::MLogWidget::log(const std::string &message, Ms::Log::LogMessag
     str += "[" + Wt::WDateTime::currentDateTime().toString().toUTF8() + "] -> " + message;
 
     txt->setText(str.c_str());
-    _layCntLogArea->addWidget(txt);
+    m_layCntLogArea->addWidget(txt);
 
-    _logMsgs.push_back(txt);
+    m_logMsgs.push_back(txt);
 }
 
-void Ms::Widgets::MLogWidget::_onBtnClearLogClicked()
+void Ms::Widgets::MLogWidget::onBtnClearLogClicked()
 {
     clearLog();
 }
 
-void Ms::Widgets::MLogWidget::_checkMaxLogMessages()
+void Ms::Widgets::MLogWidget::checkMaxLogMessages()
 {
-    if(_logMsgs.size() == _maxLogMessages)
+    if(m_logMsgs.size() == m_maxLogMessages)
     {
-        _layCntLogArea->removeWidget(_logMsgs.at(0));
-        _logMsgs.erase(_logMsgs.begin());
+        m_layCntLogArea->removeWidget(m_logMsgs.at(0));
+        m_logMsgs.erase(m_logMsgs.begin());
     }
 }
 
-void Ms::Widgets::MLogWidget::_prepareView()
+void Ms::Widgets::MLogWidget::prepareView()
 {
-    _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(4,4,4,4);
-    _layMain->setSpacing(0);
+    m_layMain = new Wt::WVBoxLayout();
+    m_layMain->setContentsMargins(4,4,4,4);
+    m_layMain->setSpacing(0);
 
-    setLayout(_layMain);
+    setLayout(m_layMain);
     setLineHeight(15);
     setMinimumSize(Wt::WLength::Auto, 100);
 
-    _layCntTbMain = new Wt::WVBoxLayout();
-    _layCntTbMain->setContentsMargins(0,0,0,4);
-    _layCntTbMain->setSpacing(0);
+    m_layCntTbMain = new Wt::WVBoxLayout();
+    m_layCntTbMain->setContentsMargins(0,0,0,4);
+    m_layCntTbMain->setSpacing(0);
 
-    _cntTbMain = new Wt::WContainerWidget();
-    _cntTbMain->setLayout(_layCntTbMain);
+    m_cntTbMain = new Wt::WContainerWidget();
+    m_cntTbMain->setLayout(m_layCntTbMain);
 
-    _layMain->addWidget(_cntTbMain);
+    m_layMain->addWidget(m_cntTbMain);
 
-    _tbMain = new Wt::WToolBar();
-    _tbMain->setMaximumSize(Wt::WLength::Auto, 30);
-    _layCntTbMain->addWidget(_tbMain);
+    m_tbMain = new Wt::WToolBar();
+    m_tbMain->setMaximumSize(Wt::WLength::Auto, 30);
+    m_layCntTbMain->addWidget(m_tbMain);
 
-    _btnClearLog = Ms::Widgets::MWidgetFactory::createButton("", "icons/Clear.png", "Clear log");
-    _btnClearLog->clicked().connect(this, &Ms::Widgets::MLogWidget::_onBtnClearLogClicked);
-    _tbMain->addButton(_btnClearLog);
+    m_btnClearLog = Ms::Widgets::MWidgetFactory::createButton("", "icons/Clear.png", "Clear log");
+    m_btnClearLog->clicked().connect(this, &Ms::Widgets::MLogWidget::onBtnClearLogClicked);
+    m_tbMain->addButton(m_btnClearLog);
 
-    _cntLogArea = new Wt::WContainerWidget();
+    m_cntLogArea = new Wt::WContainerWidget();
 
-    _layCntLogArea = new Wt::WVBoxLayout();
-    _layCntLogArea->setContentsMargins(0,0,0,0);
-    _layCntLogArea->setSpacing(0);
-    _cntLogArea->setLayout(_layCntLogArea);
+    m_layCntLogArea = new Wt::WVBoxLayout();
+    m_layCntLogArea->setContentsMargins(0,0,0,0);
+    m_layCntLogArea->setSpacing(0);
+    m_cntLogArea->setLayout(m_layCntLogArea);
 
-    _scrLog = new Wt::WScrollArea();
-    _scrLog->setScrollBarPolicy(Wt::WScrollArea::ScrollBarAsNeeded);
-    _scrLog->setWidget(_cntLogArea);
+    m_scrLog = new Wt::WScrollArea();
+    m_scrLog->setScrollBarPolicy(Wt::WScrollArea::ScrollBarAsNeeded);
+    m_scrLog->setWidget(m_cntLogArea);
 
-    _layMain->addWidget(_scrLog, 1);
+    m_layMain->addWidget(m_scrLog, 1);
 }

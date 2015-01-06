@@ -55,39 +55,39 @@ namespace Views
         //variables
         
         //UI
-        Wt::WHBoxLayout *_layMain;
-        Wt::WContainerWidget *_cntLeft;
-        Wt::WVBoxLayout *_layLeft;
-        Wt::WContainerWidget *_cntRight;
-        Wt::WVBoxLayout *_layRight;
-        Wt::WDateEdit *_datStartDate;
-        Wt::WDateEdit *_datEndDate;
-        Wt::WSpinBox *_spnPriority;
-        Wt::WComboBox *_cmbStatus;
-        Wt::WContainerWidget *_cntCmbStatus;
-        Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatus>> *_mdlCmbStatus;
-        Wt::WComboBox *_cmbThumbnail;
-        Wt::WComboBox *_cmbUser;
-        Wt::WContainerWidget *_cntCmbUser;
-        Wt::Dbo::QueryModel<Wt::Dbo::ptr<Users::User>> *_mdlCmbUser;
-        Wt::WComboBox *_cmbType;
-        Wt::WContainerWidget *_cntCmbType;
-        Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectTaskType>> *_mdlCmbType;
-        Wt::WTextArea *_txtDescription;
-        Wt::WComboBox *_cmbActive;
-        Wt::WPushButton *_btnOk;
-        Wt::WPushButton *_btnCancel;
+        Wt::WHBoxLayout *m_layMain;
+        Wt::WContainerWidget *m_cntLeft;
+        Wt::WVBoxLayout *m_layLeft;
+        Wt::WContainerWidget *m_cntRight;
+        Wt::WVBoxLayout *m_layRight;
+        Wt::WDateEdit *m_datStartDate;
+        Wt::WDateEdit *m_datEndDate;
+        Wt::WSpinBox *m_spnPriority;
+        Wt::WComboBox *m_cmbStatus;
+        Wt::WContainerWidget *m_cntCmbStatus;
+        Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatus>> *m_mdlCmbStatus;
+        Wt::WComboBox *m_cmbThumbnail;
+        Wt::WComboBox *m_cmbUser;
+        Wt::WContainerWidget *m_cntCmbUser;
+        Wt::Dbo::QueryModel<Wt::Dbo::ptr<Users::User>> *m_mdlCmbUser;
+        Wt::WComboBox *m_cmbType;
+        Wt::WContainerWidget *m_cntCmbType;
+        Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectTaskType>> *m_mdlCmbType;
+        Wt::WTextArea *m_txtDescription;
+        Wt::WComboBox *m_cmbActive;
+        Wt::WPushButton *m_btnOk;
+        Wt::WPushButton *m_btnCancel;
 
-        bool _editing;
+        bool m_editing;
 
-        void _prepareView();
-        void _createCmbUser();
-        void _createCmbStatus();
-        void _createCmbType();
-        bool _validate();
+        void prepareView();
+        void createCmbUser();
+        void createCmbStatus();
+        void createCmbType();
+        bool validate();
 
         //slots
-        void _btnOkClicked();
+        void btnOkClicked();
     };
 }
 

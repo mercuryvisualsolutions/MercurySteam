@@ -11,18 +11,18 @@ Ms::Widgets::Delegates::MComboBoxDelegate::MComboBoxDelegate() :
 Ms::Widgets::Delegates::MComboBoxDelegate::MComboBoxDelegate(std::vector<std::string> items, int editRank) :
     MComboBoxDelegate()
 {
-    _editRank = editRank;
-    _items = items;
+    m_editRank = editRank;
+    m_items = items;
 }
 
 void Ms::Widgets::Delegates::MComboBoxDelegate::setItems(std::vector<std::string> items)
 {
-    _items = items;
+    m_items = items;
 }
 
 std::vector<std::string> Ms::Widgets::Delegates::MComboBoxDelegate::items()
 {
-    return _items;
+    return m_items;
 }
 
 Wt::WWidget *Ms::Widgets::Delegates::MComboBoxDelegate::createEditor(const Wt::WModelIndex &index, Wt::WFlags<Wt::ViewItemRenderFlag> flags) const
@@ -42,7 +42,7 @@ Wt::WWidget *Ms::Widgets::Delegates::MComboBoxDelegate::createEditor(const Wt::W
 
     comboBox->setModel(model);
 
-    for(auto &item : _items)
+    for(auto &item : m_items)
         model->appendRow(new Wt::WStandardItem(item.c_str()));
         //comboBox->addItem(item.c_str());
 

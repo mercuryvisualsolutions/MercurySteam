@@ -4,71 +4,71 @@
 
 Views::Dialogs::DlgCreateTag::DlgCreateTag()
 {
-    _prepareView();
+    prepareView();
 }
 
 std::string Views::Dialogs::DlgCreateTag::tagName() const
 {
-    return _txtTagName->text().toUTF8();
+    return m_txtTagName->text().toUTF8();
 }
 
 std::string Views::Dialogs::DlgCreateTag::tagContent() const
 {
-    return _txtTagContent->text().toUTF8();
+    return m_txtTagContent->text().toUTF8();
 }
 
 bool Views::Dialogs::DlgCreateTag::isActive() const
 {
-    return _cmbActive->currentText() == "Yes" ? true : false;
+    return m_cmbActive->currentText() == "Yes" ? true : false;
 }
 
-void Views::Dialogs::DlgCreateTag::_prepareView()
+void Views::Dialogs::DlgCreateTag::prepareView()
 {
     this->setCaption("Add Tag");
     this->rejectWhenEscapePressed();
 
-    _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(2);
+    m_layMain = new Wt::WVBoxLayout();
+    m_layMain->setContentsMargins(0,0,0,0);
+    m_layMain->setSpacing(2);
 
-    this->contents()->setLayout(_layMain);
+    this->contents()->setLayout(m_layMain);
 
-    _txtTagName = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[A-Za-z0-9 _-]{2,255}", true);
-    _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Name:", _txtTagName));
+    m_txtTagName = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[A-Za-z0-9 _-]{2,255}", true);
+    m_layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Name:", m_txtTagName));
 
-    _layMain->addWidget(new Wt::WBreak());
+    m_layMain->addWidget(new Wt::WBreak());
 
-    _txtTagContent = Ms::Widgets::MWidgetFactory::createTextArea("", false);
-    _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Content:", _txtTagContent));
+    m_txtTagContent = Ms::Widgets::MWidgetFactory::createTextArea("", false);
+    m_layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Content:", m_txtTagContent));
 
-    _layMain->addWidget(new Wt::WBreak());
+    m_layMain->addWidget(new Wt::WBreak());
 
-    _cmbActive = new Wt::WComboBox();
-    _cmbActive->addItem("Yes");
-    _cmbActive->addItem("No");
-    _cmbActive->setCurrentIndex(0);
-    _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", _cmbActive), 1);
+    m_cmbActive = new Wt::WComboBox();
+    m_cmbActive->addItem("Yes");
+    m_cmbActive->addItem("No");
+    m_cmbActive->setCurrentIndex(0);
+    m_layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", m_cmbActive), 1);
 
-    _layMain->addWidget(new Wt::WBreak(), 1);
+    m_layMain->addWidget(new Wt::WBreak(), 1);
 
-    _btnOk = new Wt::WPushButton("Ok", this->footer());
-    _btnOk->clicked().connect(this, &Views::Dialogs::DlgCreateTag::_btnOkClicked);
+    m_btnOk = new Wt::WPushButton("Ok", this->footer());
+    m_btnOk->clicked().connect(this, &Views::Dialogs::DlgCreateTag::btnOkClicked);
 
-    _btnCancel = new Wt::WPushButton("Cancel", this->footer());
-    _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
+    m_btnCancel = new Wt::WPushButton("Cancel", this->footer());
+    m_btnCancel->clicked().connect(this, &Wt::WDialog::reject);
 }
 
-bool Views::Dialogs::DlgCreateTag::_validate()
+bool Views::Dialogs::DlgCreateTag::validate()
 {
-    if((_txtTagName->validate() != Wt::WValidator::Valid) ||
-            (_txtTagContent->validate() != Wt::WValidator::Valid))
+    if((m_txtTagName->validate() != Wt::WValidator::Valid) ||
+            (m_txtTagContent->validate() != Wt::WValidator::Valid))
         return false;
 
     return true;
 }
 
-void Views::Dialogs::DlgCreateTag::_btnOkClicked()
+void Views::Dialogs::DlgCreateTag::btnOkClicked()
 {
-    if(_validate())
+    if(validate())
         this->accept();
 }

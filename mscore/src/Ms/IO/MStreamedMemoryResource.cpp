@@ -10,7 +10,7 @@
 Ms::IO::MStreamedMemoryResource::MStreamedMemoryResource(const std::vector<unsigned char> data, WObject *parent) :
     Wt::WMemoryResource(parent)
 {
-    isInUse_ = true;
+    m_isInUse = true;
     setData(data);
 }
 
@@ -37,6 +37,6 @@ void Ms::IO::MStreamedMemoryResource::handleRequest(const Wt::Http::Request &req
     {
         response.out().flush();
 
-        isInUse_ = false;
+        m_isInUse = false;
     }
 }

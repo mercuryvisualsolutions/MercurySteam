@@ -22,28 +22,28 @@ namespace Views
     private:
         //variables
         /*******************--Reports--********************/
-        Wt::WVBoxLayout *_layMain;//main layout
-        Wt::WStackedWidget *_stkReports; //for switching reports
-        Wt::WNavigationBar *_navBarReports;//reports navigation bar
-        Wt::WContainerWidget *_cntNavBarReports;//container for navBarReports
-        Wt::WMenu *_mnuReports;//reports menu (holding, Projects, Users..etc)
-        Wt::WMenuItem *_mnuReportsProjectsItem;
-        Wt::WMenuItem *_mnuReportsUsersItem;
+        Wt::WVBoxLayout *m_layMain;//main layout
+        Wt::WStackedWidget *m_stkReports; //for switching reports
+        Wt::WNavigationBar *m_navBarReports;//reports navigation bar
+        Wt::WContainerWidget *m_cntNavBarReports;//container for navBarReports
+        Wt::WMenu *m_mnuReports;//reports menu (holding, Projects, Users..etc)
+        Wt::WMenuItem *m_mnuReportsProjectsItem;
+        Wt::WMenuItem *m_mnuReportsUsersItem;
 
         //Projects
-        Wt::WVBoxLayout *_layReportsProjects;
-        Wt::WContainerWidget *_cntReportsProjects;//container for projects reports view
+        Wt::WVBoxLayout *m_layReportsProjects;
+        Wt::WContainerWidget *m_cntReportsProjects;//container for projects reports view
 
         //users
-        Wt::WVBoxLayout *_layReportsUsers;
-        Wt::WContainerWidget *_cntReportsUsers;//container for users reports view
+        Wt::WVBoxLayout *m_layReportsUsers;
+        Wt::WContainerWidget *m_cntReportsUsers;//container for users reports view
 
         //functions
         //slots
         //general
-        void _mnuReportsProjectsItemTriggered();
-        void _mnuReportsUsersItemTriggered();
-        void _prepareView();
+        void mnuReportsProjectsItemTriggered();
+        void mnuReportsUsersItemTriggered();
+        void prepareView();
     };
 }
 

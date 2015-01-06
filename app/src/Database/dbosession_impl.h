@@ -19,7 +19,7 @@ bool Database::DboSession::dboHasData(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Database
     {
         bool result = false;
 
-        for(auto iter = dbo->data_.begin(); iter != dbo->data_.end(); ++iter)
+        for(auto iter = dbo->m_data.begin(); iter != dbo->m_data.end(); ++iter)
         {
             if((*iter).id() == dboData.id())
             {
@@ -52,7 +52,7 @@ bool Database::DboSession::addDataToDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Databa
     {
         if(!dboHasData(dbo, dboData))
         {
-            modifyDbo<T>(dbo)->data_.insert(dboData);
+            modifyDbo<T>(dbo)->m_data.insert(dboData);
 
             return true;
         }
@@ -78,7 +78,7 @@ bool Database::DboSession::removeDataFromDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<D
     {
         if(dboHasData(dbo, dboData))
         {
-            modifyDbo<T>(dbo)->data_.erase(dboData);
+            modifyDbo<T>(dbo)->m_data.erase(dboData);
 
             return true;
         }
@@ -104,7 +104,7 @@ bool Database::DboSession::dboHasNote(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Database
     {
         bool result = false;
 
-        for(auto iter = dbo->notes_.begin(); iter != dbo->notes_.end(); ++iter)
+        for(auto iter = dbo->m_notes.begin(); iter != dbo->m_notes.end(); ++iter)
         {
             if((*iter).id() == note.id())
             {
@@ -137,7 +137,7 @@ bool Database::DboSession::addNoteToDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Databa
     {
         if(!dboHasNote(dbo, note))
         {
-            modifyDbo<T>(dbo)->notes_.insert(note);
+            modifyDbo<T>(dbo)->m_notes.insert(note);
 
             return true;
         }
@@ -163,7 +163,7 @@ bool Database::DboSession::removeNoteFromDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<D
     {
         if(dboHasNote(dbo, note))
         {
-            modifyDbo<T>(dbo)->notes_.erase(note);
+            modifyDbo<T>(dbo)->m_notes.erase(note);
 
             return true;
         }
@@ -189,7 +189,7 @@ bool Database::DboSession::dboHasTag(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Database:
     {
         bool result = false;
 
-        for(auto iter = dbo->tags_.begin(); iter != dbo->tags_.end(); ++iter)
+        for(auto iter = dbo->m_tags.begin(); iter != dbo->m_tags.end(); ++iter)
         {
             if((*iter).id() == tag.id())
             {
@@ -222,7 +222,7 @@ bool Database::DboSession::addTagToDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Databas
     {
         if(!dboHasTag(dbo, tag))
         {
-            modifyDbo<T>(dbo)->tags_.insert(tag);
+            modifyDbo<T>(dbo)->m_tags.insert(tag);
 
             return true;
         }
@@ -248,7 +248,7 @@ bool Database::DboSession::removeTagFromDbo(Wt::Dbo::ptr<T> dbo, Wt::Dbo::ptr<Da
     {
         if(dboHasTag(dbo, tag))
         {
-            modifyDbo<T>(dbo)->tags_.erase(tag);
+            modifyDbo<T>(dbo)->m_tags.erase(tag);
 
             return true;
         }

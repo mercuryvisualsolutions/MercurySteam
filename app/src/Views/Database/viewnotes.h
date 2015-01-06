@@ -27,23 +27,23 @@ namespace Views
 
     private:
         //Variables
-        Ms::Widgets::MQueryTableViewWidget<Database::Note> *_qtvNotes;
+        Ms::Widgets::MQueryTableViewWidget<Database::Note> *m_qtvNotes;
         
         //UI variables
-        Wt::WVBoxLayout *_layMain;
-        Wt::WPushButton *_btnCreateNote;
+        Wt::WVBoxLayout *m_layMain;
+        Wt::WPushButton *m_btnCreateNote;
 
         //Signals
-        Wt::Signal<> _addNoteRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Note>>> _removeNotesRequested;
+        Wt::Signal<> m_addNoteRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Note>>> m_removeNotesRequested;
 
         //Slots
-        void _btnCreateNoteClicked();
-        void _btnRemoveNotesClicked();
+        void btnCreateNoteClicked();
+        void btnRemoveNotesClicked();
 
         //Functions
-        void _createNotesTableView();
-        void _prepareView();
+        void createNotesTableView();
+        void prepareView();
     };
 }
 

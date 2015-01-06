@@ -58,36 +58,36 @@ namespace Ms
 
         protected:
             //UI
-            Wt::WPushButton *_btnMnuTools;
-            Wt::WPopupMenu *_popMnuTools;
-            Wt::WPopupMenu *_popMnuSelection;
-            Wt::WMenuItem *_popMnuSelectAllItem;
-            Wt::WMenuItem *_popMnuSelectNoneItem;
-            Wt::WMenuItem *_popMnuInverseSelectionItem;
-            Wt::WPopupMenu *_popMnuIO;
-            Wt::WMenuItem *_popMnuIOImportCSVItem;
-            Wt::WMenuItem *_popMnuIOExportCSVItem;
-            Wt::WTableView *_table;
-            Wt::WStandardItemModel *_model;
-            Wt::WSortFilterProxyModel *_proxyModel;
-            Wt::WComboBox *_cmbFilterColumn;
-            Wt::WStandardItemModel *_mdlCmbFilterColumn;
-            Wt::WLineEdit *_lnFilter;
-            Wt::WToolBar *_tbMain;
-            Wt::WToolBar *_tbGlobal;
-            Wt::WSlider *_sldRowHeight;
-            Wt::WContainerWidget *_cntStatusBar;
-            Wt::WHBoxLayout *_layCntStatusBar;
-            Wt::WLabel *_lblStatus;
+            Wt::WPushButton *m_btnMnuTools;
+            Wt::WPopupMenu *m_popMnuTools;
+            Wt::WPopupMenu *m_popMnuSelection;
+            Wt::WMenuItem *m_popMnuSelectAllItem;
+            Wt::WMenuItem *m_popMnuSelectNoneItem;
+            Wt::WMenuItem *m_popMnuInverseSelectionItem;
+            Wt::WPopupMenu *m_popMnuIO;
+            Wt::WMenuItem *m_popMnuIOImportCSVItem;
+            Wt::WMenuItem *m_popMnuIOExportCSVItem;
+            Wt::WTableView *m_table;
+            Wt::WStandardItemModel *m_model;
+            Wt::WSortFilterProxyModel *m_proxyModel;
+            Wt::WComboBox *m_cmbFilterColumn;
+            Wt::WStandardItemModel *m_mdlCmbFilterColumn;
+            Wt::WLineEdit *m_lnFilter;
+            Wt::WToolBar *m_tbMain;
+            Wt::WToolBar *m_tbGlobal;
+            Wt::WSlider *m_sldRowHeight;
+            Wt::WContainerWidget *m_cntStatusBar;
+            Wt::WHBoxLayout *m_layCntStatusBar;
+            Wt::WLabel *m_lblStatus;
 
             //General
-            int _defaultFilterColumnIndex;
-            Wt::WString _filterRegExpression;
-            int _ignoreNumFilterColumns;//numbers of columns to ignore when filtering
-            mutable std::map<std::string,Ms::Core::MTableViewColumn> _columns;
+            int m_defaultFilterColumnIndex;
+            Wt::WString m_filterRegExpression;
+            int m_ignoreNumFilterColumns;//numbers of columns to ignore when filtering
+            mutable std::map<std::string,Ms::Core::MTableViewColumn> m_columns;
 
-            bool _importCSVFeatureEnabled;
-            bool _exportCSVFeatureEnabled;
+            bool m_importCSVFeatureEnabled;
+            bool m_exportCSVFeatureEnabled;
 
             //functions
             virtual std::string tableName() const;

@@ -40,7 +40,7 @@ namespace Ms
 
             protected:
                 //variables
-                Wt::Dbo::SqlConnectionPool &_connectionPool;
+                Wt::Dbo::SqlConnectionPool &m_connectionPool;
 
                 //functions
 

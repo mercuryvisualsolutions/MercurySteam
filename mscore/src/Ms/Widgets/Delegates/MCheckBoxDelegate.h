@@ -27,7 +27,7 @@ namespace Ms
                 void setEnabled(bool enabled);
 
             private:
-                bool _enabled;
+                bool m_enabled;
             };
         }
     }

@@ -2,39 +2,39 @@
 
 Ms::Widgets::Dialogs::MFilesUploadDialog::MFilesUploadDialog()
 {
-    _prepareView();
+    prepareView();
 }
 
 Ms::Widgets::Dialogs::MFilesUploadDialog::MFilesUploadDialog(bool selectMultipleFiles, bool keepFiles) :
     MFilesUploadDialog()
 {
-    _filesUpload->setMultiple(selectMultipleFiles);
+    m_filesUpload->setMultiple(selectMultipleFiles);
     _keepFiles = keepFiles;
 }
 
 const std::vector<Wt::Http::UploadedFile> Ms::Widgets::Dialogs::MFilesUploadDialog::httpUploadedFiles() const
 {
-    return _filesUpload->uploadedFiles();
+    return m_filesUpload->uploadedFiles();
 }
 
 const std::string Ms::Widgets::Dialogs::MFilesUploadDialog::spoolFileName() const
 {
-    return _filesUpload->spoolFileName();
+    return m_filesUpload->spoolFileName();
 }
 
 const std::string Ms::Widgets::Dialogs::MFilesUploadDialog::clientFileName() const
 {
-    return _filesUpload->clientFileName().toUTF8();
+    return m_filesUpload->clientFileName().toUTF8();
 }
 
 bool Ms::Widgets::Dialogs::MFilesUploadDialog::isMultibleSelectionEnabled()
 {
-    return _filesUpload->multiple();
+    return m_filesUpload->multiple();
 }
 
 void Ms::Widgets::Dialogs::MFilesUploadDialog::setMultibleSelectionEnabled(bool enabled)
 {
-    _filesUpload->setMultiple(enabled);
+    m_filesUpload->setMultiple(enabled);
 }
 
 bool Ms::Widgets::Dialogs::MFilesUploadDialog::keepFiles()
@@ -50,7 +50,7 @@ void Ms::Widgets::Dialogs::MFilesUploadDialog::setKeepFiles(bool keepFiles)
 const std::map<std::string, std::string> Ms::Widgets::Dialogs::MFilesUploadDialog::uploadedFilesMap() const
 {
     std::map<std::string,std::string> filesMap;
-    for(const Wt::Http::UploadedFile &file : _filesUpload->uploadedFiles())
+    for(const Wt::Http::UploadedFile &file : m_filesUpload->uploadedFiles())
     {
         filesMap[file.spoolFileName()] = file.clientFileName();
         std::cout << "uploaded file:" << file.spoolFileName() << std::endl;
@@ -59,70 +59,70 @@ const std::map<std::string, std::string> Ms::Widgets::Dialogs::MFilesUploadDialo
     return filesMap;
 }
 
-void Ms::Widgets::Dialogs::MFilesUploadDialog::_prepareView()
+void Ms::Widgets::Dialogs::MFilesUploadDialog::prepareView()
 {
     this->setCaption("Upload Files");
     this->rejectWhenEscapePressed(true);
 
-    _layContents = new Wt::WVBoxLayout();
-    _layContents->setContentsMargins(0,0,0,0);
-    _layContents->setSpacing(0);
+    m_layContents = new Wt::WVBoxLayout();
+    m_layContents->setContentsMargins(0,0,0,0);
+    m_layContents->setSpacing(0);
 
-    this->contents()->setLayout(_layContents);
+    this->contents()->setLayout(m_layContents);
 
-    _prgsBarUpload = new Wt::WProgressBar();
+    m_prgsBarUpload = new Wt::WProgressBar();
 
-    _filesUpload = new Wt::WFileUpload();
-    _filesUpload->stealSpooledFile();
-    _filesUpload->setFileTextSize(40);
-    _filesUpload->setProgressBar(_prgsBarUpload);
-    _filesUpload->uploaded().connect(this, &Dialogs::MFilesUploadDialog::_uploadSuccessfull);
-    _filesUpload->fileTooLarge().connect(this, &Dialogs::MFilesUploadDialog::_fileTooLarge);
+    m_filesUpload = new Wt::WFileUpload();
+    m_filesUpload->stealSpooledFile();
+    m_filesUpload->setFileTextSize(40);
+    m_filesUpload->setProgressBar(m_prgsBarUpload);
+    m_filesUpload->uploaded().connect(this, &Dialogs::MFilesUploadDialog::uploadSuccessfull);
+    m_filesUpload->fileTooLarge().connect(this, &Dialogs::MFilesUploadDialog::fileTooLarge);
 
-    _layContents->addWidget(_filesUpload);
+    m_layContents->addWidget(m_filesUpload);
 
-    _lblStatus = new Wt::WLabel();
-    _layContents->addWidget(_lblStatus);
+    m_lblStatus = new Wt::WLabel();
+    m_layContents->addWidget(m_lblStatus);
 
-    _btnUpload = new Wt::WPushButton("Upload", this->footer());
-    _btnUpload->clicked().connect(this, &Dialogs::MFilesUploadDialog::_btnUploadClicked);
+    m_btnUpload = new Wt::WPushButton("Upload", this->footer());
+    m_btnUpload->clicked().connect(this, &Dialogs::MFilesUploadDialog::btnUploadClicked);
 
-    _btnCancel = new Wt::WPushButton("Cancel", this->footer());
-    _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
+    m_btnCancel = new Wt::WPushButton("Cancel", this->footer());
+    m_btnCancel->clicked().connect(this, &Wt::WDialog::reject);
 }
 
-void Ms::Widgets::Dialogs::MFilesUploadDialog::_btnUploadClicked()
+void Ms::Widgets::Dialogs::MFilesUploadDialog::btnUploadClicked()
 {
-    _btnUpload->setDisabled(false);
-    _btnCancel->setDisabled(false);
+    m_btnUpload->setDisabled(false);
+    m_btnCancel->setDisabled(false);
 
-    _filesUpload->upload();
+    m_filesUpload->upload();
 
-    _lblStatus->setText("Uploading...");
+    m_lblStatus->setText("Uploading...");
 }
 
-void Ms::Widgets::Dialogs::MFilesUploadDialog::_uploadSuccessfull()
+void Ms::Widgets::Dialogs::MFilesUploadDialog::uploadSuccessfull()
 {
-    _lblStatus->setText("Upload successfull");
+    m_lblStatus->setText("Upload successfull");
     if(_keepFiles)
     {
-        for(const Wt::Http::UploadedFile &file : _filesUpload->uploadedFiles())
+        for(const Wt::Http::UploadedFile &file : m_filesUpload->uploadedFiles())
         {
             file.stealSpoolFile();
         }
     }
 
-    if(_filesUpload->uploadedFiles().size() > 0)
+    if(m_filesUpload->uploadedFiles().size() > 0)
         this->accept();
     else
         this->reject();
 }
 
-void Ms::Widgets::Dialogs::MFilesUploadDialog::_fileTooLarge()
+void Ms::Widgets::Dialogs::MFilesUploadDialog::fileTooLarge()
 {
     std::cerr << "One of the uploaded files is too large" << std::endl;
-    _lblStatus->setText("One of the uploaded files is too large");
+    m_lblStatus->setText("One of the uploaded files is too large");
 
-    _btnUpload->setDisabled(false);
-    _btnCancel->setDisabled(false);
+    m_btnUpload->setDisabled(false);
+    m_btnCancel->setDisabled(false);
 }

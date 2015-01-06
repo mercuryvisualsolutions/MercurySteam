@@ -27,16 +27,16 @@ namespace Ms
 
         private:
             //signals
-            Wt::Signal<> _onExposed;
-            Wt::Signal<> _onHidden;
+            Wt::Signal<> m_onExposed;
+            Wt::Signal<> m_onHidden;
 
             //variables
-            Wt::WVBoxLayout *_layMain;
-            Wt::WText *_txtViewTitle;
-            Wt::WContainerWidget *_cntTxtViewTitle;
+            Wt::WVBoxLayout *m_layMain;
+            Wt::WText *m_txtViewTitle;
+            Wt::WContainerWidget *m_cntTxtViewTitle;
 
             //funvtions
-            void _prepareView();
+            void prepareView();
         };
     }
 }

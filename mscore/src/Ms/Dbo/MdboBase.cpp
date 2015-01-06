@@ -2,16 +2,16 @@
 
 Ms::Dbo::MDboBase::MDboBase()
 {
-    _init();
+    init();
 }
 
 Ms::Dbo::MDboBase::MDboBase(bool active, int viewRank, int editRank, int removeRank) :
     MDboBase()
 {
-    active_ = active;
-    viewRank_ = viewRank;
-    editRank_ = editRank;
-    removeRank_ = removeRank;
+    m_active = active;
+    m_viewRank = viewRank;
+    m_editRank = editRank;
+    m_removeRank = removeRank;
 }
 
 Ms::Dbo::MDboBase::~MDboBase()
@@ -20,72 +20,72 @@ Ms::Dbo::MDboBase::~MDboBase()
 
 const std::string Ms::Dbo::MDboBase::thumbnail() const
 {
-    return thumbnail_;
+    return m_thumbnail;
 }
 
 void Ms::Dbo::MDboBase::setThumbnail(const std::string &path)
 {
-    thumbnail_ = path;
+    m_thumbnail = path;
 }
 
 const Wt::WDateTime Ms::Dbo::MDboBase::dateCreated() const
 {
-    return dateCreated_;
+    return m_dateCreated;
 }
 
 const Wt::WDateTime Ms::Dbo::MDboBase::lastModifiedDate() const
 {
-    return lastModifiedDate_;
+    return m_lastModifiedDate;
 }
 
 const std::string Ms::Dbo::MDboBase::createdBy() const
 {
-    return createdBy_;
+    return m_createdBy;
 }
 
 const std::string Ms::Dbo::MDboBase::lastModifiedBy() const
 {
-    return lastModifiedBy_;
+    return m_lastModifiedBy;
 }
 
 int Ms::Dbo::MDboBase::viewRank() const
 {
-    return viewRank_;
+    return m_viewRank;
 }
 
 void Ms::Dbo::MDboBase::setViewRank(int rank)
 {
-    viewRank_ = rank;
+    m_viewRank = rank;
 }
 
 int Ms::Dbo::MDboBase::editRank() const
 {
-    return editRank_;
+    return m_editRank;
 }
 
 void Ms::Dbo::MDboBase::setEditRank(int rank)
 {
-    editRank_ = rank;
+    m_editRank = rank;
 }
 
 int Ms::Dbo::MDboBase::removeRank() const
 {
-    return removeRank_;
+    return m_removeRank;
 }
 
 void Ms::Dbo::MDboBase::setRemoveRank(int rank)
 {
-    removeRank_ = rank;
+    m_removeRank = rank;
 }
 
 bool Ms::Dbo::MDboBase::active() const
 {
-    return active_;
+    return m_active;
 }
 
 void Ms::Dbo::MDboBase::setActive(bool active)
 {
-    active_ = active;
+    m_active = active;
 }
 
 Ms::Dbo::MDboBase *Ms::Dbo::MDboBase::modify()
@@ -95,19 +95,19 @@ Ms::Dbo::MDboBase *Ms::Dbo::MDboBase::modify()
 
 const Ms::Core::Dbo::MDboSession *Ms::Dbo::MDboBase::dboSession() const
 {
-    return dboSession_;
+    return m_dboSession;
 }
 
 void Ms::Dbo::MDboBase::setDboManager(const Core::Dbo::MDboSession *dboSession)
 {
-    dboSession_ = dboSession;
+    m_dboSession = dboSession;
 }
 
-void Ms::Dbo::MDboBase::_init()
+void Ms::Dbo::MDboBase::init()
 {
-    thumbnail_ = "pics/NoPreview.png";
-    active_ = true;
-    viewRank_ = 0;
-    editRank_ = 0;
-    removeRank_ = 0;
+    m_thumbnail = "pics/NoPreview.png";
+    m_active = true;
+    m_viewRank = 0;
+    m_editRank = 0;
+    m_removeRank = 0;
 }

@@ -13,14 +13,14 @@
 
 Views::ViewTaskActivity::ViewTaskActivity()
 {
-    _logger = Session::SessionManager::instance().logger();
+    m_logger = Session::SessionManager::instance().logger();
 
-    _prepareView();
+    prepareView();
 }
 
 Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskActivity> *Views::ViewTaskActivity::qtvTaskActivities() const
 {
-    return _qtvTaskActivities;
+    return m_qtvTaskActivities;
 }
 
 void Views::ViewTaskActivity::updateView(const std::vector<Wt::Dbo::ptr<Projects::ProjectTask>> &taskVec) const
@@ -48,7 +48,7 @@ void Views::ViewTaskActivity::updateView(const std::vector<Wt::Dbo::ptr<Projects
         else
             query.where("id = ?").bind(-1);//clear the view
 
-        _qtvTaskActivities->setQuery(query);
+        m_qtvTaskActivities->setQuery(query);
 
         bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
@@ -59,33 +59,33 @@ void Views::ViewTaskActivity::updateView(const std::vector<Wt::Dbo::ptr<Projects
 
         int editRank = Session::SessionManager::instance().user()->editRank();
 
-        _qtvTaskActivities->clearColumns();
+        m_qtvTaskActivities->clearColumns();
 
         //add columns
-        _qtvTaskActivities->addColumn(Ms::Widgets::MQueryTableViewColumn("id", "Id", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        m_qtvTaskActivities->addColumn(Ms::Widgets::MQueryTableViewColumn("id", "Id", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
-        _qtvTaskActivities->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Task_Activity_Type", "Type", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectTaskActivityType>(
+        m_qtvTaskActivities->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Task_Activity_Type", "Type", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectTaskActivityType>(
          &Session::SessionManager::instance().dboSession(),
          AppSettings::instance().isLoadInactiveData() ? Session::SessionManager::instance().dboSession().find<Projects::ProjectTaskActivityType>() :
          Session::SessionManager::instance().dboSession().find<Projects::ProjectTaskActivityType>().where("Active = ?").bind(true),
          "Type", editRank)));
 
-        _qtvTaskActivities->addColumn(Ms::Widgets::MQueryTableViewColumn("Current_Status", "Status", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectWorkStatus>(
+        m_qtvTaskActivities->addColumn(Ms::Widgets::MQueryTableViewColumn("Current_Status", "Status", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectWorkStatus>(
         &Session::SessionManager::instance().dboSession(),AppSettings::instance().isLoadInactiveData() ? Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>() :
          Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true), "Status", editRank)));
 
-        _qtvTaskActivities->addColumn(Ms::Widgets::MQueryTableViewColumn("Hours", "Hours", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
+        m_qtvTaskActivities->addColumn(Ms::Widgets::MQueryTableViewColumn("Hours", "Hours", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
 
-        _qtvTaskActivities->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Task_id", "Task Id", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        m_qtvTaskActivities->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Task_id", "Task Id", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
 
-        _qtvTaskActivities->addColumn(Ms::Widgets::MQueryTableViewColumn("Description", "Description", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
+        m_qtvTaskActivities->addColumn(Ms::Widgets::MQueryTableViewColumn("Description", "Description", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
 
         if(AppSettings::instance().isShowExtraColumns())
-            _qtvTaskActivities->addBaseColumns(flags, editRank);
+            m_qtvTaskActivities->addBaseColumns(flags, editRank);
 
         transaction.commit();
 
-        _qtvTaskActivities->updateView();
+        m_qtvTaskActivities->updateView();
     }
     catch(...)
     {
@@ -95,36 +95,36 @@ void Views::ViewTaskActivity::updateView(const std::vector<Wt::Dbo::ptr<Projects
 
 bool Views::ViewTaskActivity::isCreateOptionHidden()
 {
-    return _btnCreateTaskActivity->isHidden();
+    return m_btnCreateTaskActivity->isHidden();
 }
 
 void Views::ViewTaskActivity::setCreateOptionHidden(bool hidden) const
 {
-    _btnCreateTaskActivity->setHidden(hidden);
+    m_btnCreateTaskActivity->setHidden(hidden);
 }
 
 bool Views::ViewTaskActivity::isCreateForTemplateOptionHidden()
 {
-    return _btnCreateTaskActivitiesForTemplate->isHidden();
+    return m_btnCreateTaskActivitiesForTemplate->isHidden();
 }
 
 void Views::ViewTaskActivity::setCreateForTemplateOptionHidden(bool hidden) const
 {
-    _btnCreateTaskActivitiesForTemplate->setHidden(hidden);
+    m_btnCreateTaskActivitiesForTemplate->setHidden(hidden);
 }
 
 bool Views::ViewTaskActivity::isEditOptionHidden()
 {
-    if(_btnEditTaskActivities)
-        return _btnEditTaskActivities->isHidden();
+    if(m_btnEditTaskActivities)
+        return m_btnEditTaskActivities->isHidden();
 
     return false;
 }
 
 void Views::ViewTaskActivity::setEditOptionHidden(bool hidden) const
 {
-    if(_btnEditTaskActivities)
-        _btnEditTaskActivities->setHidden(hidden);
+    if(m_btnEditTaskActivities)
+        m_btnEditTaskActivities->setHidden(hidden);
 }
 
 void Views::ViewTaskActivity::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
@@ -132,62 +132,62 @@ void Views::ViewTaskActivity::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
     bool hasEditPriv = user->hasPrivilege("Edit");
     bool hasCreateProjectsPriv = user->hasPrivilege("Create Projects");
 
-    _btnCreateTaskActivity->setHidden(!hasCreateProjectsPriv);
-    _btnCreateTaskActivitiesForTemplate->setHidden(!hasCreateProjectsPriv);
-    _btnEditTaskActivities->setHidden(!hasEditPriv);
+    m_btnCreateTaskActivity->setHidden(!hasCreateProjectsPriv);
+    m_btnCreateTaskActivitiesForTemplate->setHidden(!hasCreateProjectsPriv);
+    m_btnEditTaskActivities->setHidden(!hasEditPriv);
 
-    _qtvTaskActivities->setImportCSVFeatureEnabled(hasCreateProjectsPriv);
+    m_qtvTaskActivities->setImportCSVFeatureEnabled(hasCreateProjectsPriv);
 }
 
 //bool Views::ViewTaskActivity::isRemoveOptionHidden()
 //{
-//    if(_btnRemoveTaskActivities)
-//        return _btnRemoveTaskActivities->isHidden();
+//    if(m_btnRemoveTaskActivities)
+//        return m_btnRemoveTaskActivities->isHidden();
 
 //    return false;
 //}
 
 //void Views::ViewTaskActivity::setRemoveOptionHidden(bool hidden) const
 //{
-//    if(_btnRemoveTaskActivities)
-//        _btnRemoveTaskActivities->setHidden(hidden);
+//    if(m_btnRemoveTaskActivities)
+//        m_btnRemoveTaskActivities->setHidden(hidden);
 //}
 
 Wt::Signal<> &Views::ViewTaskActivity::createTaskActivityRequested()
 {
-    return _createTaskActivityRequested;
+    return m_createTaskActivityRequested;
 }
 
 Wt::Signal<> &Views::ViewTaskActivity::createTaskActivitiesForTemplateRequested()
 {
-    return _createTaskActivitiesForTemplateRequested;
+    return m_createTaskActivitiesForTemplateRequested;
 }
 
 Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskActivity>>> &Views::ViewTaskActivity::removeTaskActivitiesRequested()
 {
-    return _removeTaskActivitiesRequested;
+    return m_removeTaskActivitiesRequested;
 }
 
-void Views::ViewTaskActivity::_btnCreateTaskActivityClicked()
+void Views::ViewTaskActivity::btnCreateTaskActivityClicked()
 {
-    _createTaskActivityRequested();
+    createTaskActivityRequested();
 }
 
-void Views::ViewTaskActivity::_btnCreateTaskActivitiesForTemplateClicked()
+void Views::ViewTaskActivity::btnCreateTaskActivitiesForTemplateClicked()
 {
-    _createTaskActivitiesForTemplateRequested();
+    createTaskActivitiesForTemplateRequested();
 }
 
-void Views::ViewTaskActivity::_btnRemoveTaskActivitiesClicked()
+void Views::ViewTaskActivity::btnRemoveTaskActivitiesClicked()
 {
-    _removeTaskActivitiesRequested(_qtvTaskActivities->selectedItems());
+    m_removeTaskActivitiesRequested(m_qtvTaskActivities->selectedItems());
 }
 
-void Views::ViewTaskActivity::_btnEditTaskActivitiesClicked()
+void Views::ViewTaskActivity::btnEditTaskActivitiesClicked()
 {
-    if(_qtvTaskActivities->table()->selectedIndexes().size() == 0)
+    if(m_qtvTaskActivities->table()->selectedIndexes().size() == 0)
     {
-        _logger->log("Please select at least one item.", Ms::Log::LogMessageType::Warning);
+        m_logger->log("Please select at least one item.", Ms::Log::LogMessageType::Warning);
 
         return;
     }
@@ -199,7 +199,7 @@ void Views::ViewTaskActivity::_btnEditTaskActivitiesClicked()
         {
             Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-            for(auto activityPtr : _qtvTaskActivities->selectedItems())
+            for(auto activityPtr : m_qtvTaskActivities->selectedItems())
             {
                 if(dlg->editedType())
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectTaskActivity>(activityPtr)->setType(dlg->type());
@@ -216,7 +216,7 @@ void Views::ViewTaskActivity::_btnEditTaskActivitiesClicked()
 
             transaction.commit();
 
-            _qtvTaskActivities->updateView();
+            m_qtvTaskActivities->updateView();
         }
 
         delete dlg;
@@ -225,32 +225,32 @@ void Views::ViewTaskActivity::_btnEditTaskActivitiesClicked()
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
-void Views::ViewTaskActivity::_createTaskActivitysTableView()
+void Views::ViewTaskActivity::createTaskActivitysTableView()
 {
-    _qtvTaskActivities = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectTaskActivity>(Session::SessionManager::instance().dboSession());
+    m_qtvTaskActivities = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectTaskActivity>(Session::SessionManager::instance().dboSession());
 
-    _btnCreateTaskActivity = _qtvTaskActivities->createToolButton("", "icons/Add.png", "Create A New Activity");
-    _btnCreateTaskActivity->clicked().connect(this, &Views::ViewTaskActivity::_btnCreateTaskActivityClicked);
+    m_btnCreateTaskActivity = m_qtvTaskActivities->createToolButton("", "icons/Add.png", "Create A New Activity");
+    m_btnCreateTaskActivity->clicked().connect(this, &Views::ViewTaskActivity::btnCreateTaskActivityClicked);
 
-    _btnCreateTaskActivitiesForTemplate = _qtvTaskActivities->createToolButton("", "icons/Template.png", "Create Activities Based On Template");
-    _btnCreateTaskActivitiesForTemplate->clicked().connect(this, &Views::ViewTaskActivity::_btnCreateTaskActivitiesForTemplateClicked);
+    m_btnCreateTaskActivitiesForTemplate = m_qtvTaskActivities->createToolButton("", "icons/Template.png", "Create Activities Based On Template");
+    m_btnCreateTaskActivitiesForTemplate->clicked().connect(this, &Views::ViewTaskActivity::btnCreateTaskActivitiesForTemplateClicked);
 
-    //_btnRemoveTaskActivities = _qtvTaskActivities->createToolButton("", "icons/Remove.png", "Remove Selected Task Activities");
-    //_btnRemoveTaskActivities->clicked().connect(this, &Views::ViewTaskActivity::_btnRemoveTaskActivitiesClicked);
+    //m_btnRemoveTaskActivities = m_qtvTaskActivities->createToolButton("", "icons/Remove.png", "Remove Selected Task Activities");
+    //m_btnRemoveTaskActivities->clicked().connect(this, &Views::ViewTaskActivity::btnRemoveTaskActivitiesClicked);
 
-    _btnEditTaskActivities = _qtvTaskActivities->createToolButton("", "icons/Edit.png", "Edit Selected Assets");
-    _btnEditTaskActivities->clicked().connect(this, &Views::ViewTaskActivity::_btnEditTaskActivitiesClicked);
+    m_btnEditTaskActivities = m_qtvTaskActivities->createToolButton("", "icons/Edit.png", "Edit Selected Assets");
+    m_btnEditTaskActivities->clicked().connect(this, &Views::ViewTaskActivity::btnEditTaskActivitiesClicked);
 }
 
-void Views::ViewTaskActivity::_prepareView()
+void Views::ViewTaskActivity::prepareView()
 {
-    _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(0);
+    m_layMain = new Wt::WVBoxLayout();
+    m_layMain->setContentsMargins(0,0,0,0);
+    m_layMain->setSpacing(0);
 
-    setLayout(_layMain);
+    setLayout(m_layMain);
 
-    _createTaskActivitysTableView();
+    createTaskActivitysTableView();
 
-    _layMain->addWidget(_qtvTaskActivities);
+    m_layMain->addWidget(m_qtvTaskActivities);
 }

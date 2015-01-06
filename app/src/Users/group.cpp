@@ -7,14 +7,14 @@
 Users::Group::Group() :
     Database::Dbo()
 {
-    _init();
+    init();
 }
 
 Users::Group::Group(const std::string &groupName, int rank) :
     Group()
 {
-    _name = groupName;
-    _rank = rank;
+    m_name = groupName;
+    m_rank = rank;
 }
 
 Users::Group *Users::Group::modify()
@@ -26,24 +26,24 @@ Users::Group *Users::Group::modify()
 
 std::string Users::Group::name() const
 {
-    return _name;
+    return m_name;
 }
 
 void Users::Group::setName(const std::string &name)
 {
-    _name = name;
+    m_name = name;
 }
 
 int Users::Group::rank() const
 {
-    return _rank;
+    return m_rank;
 }
 
 bool Users::Group::hasUser(Wt::Dbo::ptr<Users::User> user) const
 {
     bool result = false;
 
-    for(auto iter = _users.begin(); iter != _users.end(); ++iter)
+    for(auto iter = m_users.begin(); iter != m_users.end(); ++iter)
     {
         if((*iter).id() == user.id())
         {
@@ -60,7 +60,7 @@ bool Users::Group::addUser(Wt::Dbo::ptr<Users::User> user)
 {
     if(!hasUser(user))
     {
-        _users.insert(user);
+        m_users.insert(user);
         return true;
     }
 
@@ -71,7 +71,7 @@ bool Users::Group::removeUser(Wt::Dbo::ptr<User> user)
 {
     if(hasUser(user))
     {
-        _users.erase(user);
+        m_users.erase(user);
         return true;
     }
 
@@ -82,7 +82,7 @@ bool Users::Group::hasPrivilege(Wt::Dbo::ptr<Users::Privilege> privilege) const
 {
     bool result = false;
 
-    for(auto iter = _privileges.begin(); iter != _privileges.end(); ++iter)
+    for(auto iter = m_privileges.begin(); iter != m_privileges.end(); ++iter)
     {
         if((*iter).id() == privilege.id())
         {
@@ -99,7 +99,7 @@ bool Users::Group::hasPrivilege(const char *privilegeName) const
 {
     bool result = false;
 
-    for(auto iter = _privileges.begin(); iter != _privileges.end(); ++iter)
+    for(auto iter = m_privileges.begin(); iter != m_privileges.end(); ++iter)
     {
         if((*iter)->name() == privilegeName)
         {
@@ -116,7 +116,7 @@ bool Users::Group::addPrivilege(Wt::Dbo::ptr<Users::Privilege> privilege)
 {
     if(!hasPrivilege(privilege))
     {
-        _privileges.insert(privilege);
+        m_privileges.insert(privilege);
 
         return true;
     }
@@ -128,7 +128,7 @@ bool Users::Group::removePrivilege(Wt::Dbo::ptr<Users::Privilege> privilege)
 {
     if(hasPrivilege(privilege))
     {
-        _privileges.erase(privilege);
+        m_privileges.erase(privilege);
         return true;
     }
 
@@ -137,22 +137,22 @@ bool Users::Group::removePrivilege(Wt::Dbo::ptr<Users::Privilege> privilege)
 
 const Wt::Dbo::collection<Wt::Dbo::ptr<Users::Privilege> > Users::Group::privileges() const
 {
-    return _privileges;
+    return m_privileges;
 }
 
 const Wt::Dbo::collection<Wt::Dbo::ptr<Users::User> > Users::Group::users() const
 {
-    return _users;
+    return m_users;
 }
 
 void Users::Group::setRank(int rank)
 {
-    _rank = rank;
+    m_rank = rank;
 }
 
 bool Users::Group::operator ==(const Users::Group &other) const
 {
-    return _name == other.name();
+    return m_name == other.name();
 }
 
 bool Users::Group::operator !=(const Users::Group &other) const
@@ -160,8 +160,8 @@ bool Users::Group::operator !=(const Users::Group &other) const
     return !operator==(other);
 }
 
-void Users::Group::_init()
+void Users::Group::init()
 {
-    _name = "New Group";
-    _rank = 0;
+    m_name = "New Group";
+    m_rank = 0;
 }

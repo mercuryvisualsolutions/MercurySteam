@@ -4,13 +4,13 @@
 Projects::ProjectTaskActivityType::ProjectTaskActivityType() :
     Ms::Dbo::MDboBase()
 {
-    _init();
+    init();
 }
 
 Projects::ProjectTaskActivityType::ProjectTaskActivityType(const std::string &type) :
     ProjectTaskActivityType()
 {
-    _type = type;
+    m_type = type;
 }
 
 Projects::ProjectTaskActivityType *Projects::ProjectTaskActivityType::modify()
@@ -22,19 +22,19 @@ Projects::ProjectTaskActivityType *Projects::ProjectTaskActivityType::modify()
 
 std::string Projects::ProjectTaskActivityType::type() const
 {
-    return _type;
+    return m_type;
 }
 
 void Projects::ProjectTaskActivityType::setType(const std::string &type)
 {
-    _type = type;
+    m_type = type;
 }
 
 bool Projects::ProjectTaskActivityType::hasActivity(Wt::Dbo::ptr<Projects::ProjectTaskActivity> activity) const
 {
     bool result = true;
 
-    for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
+    for(auto iter = m_activities.begin(); iter != m_activities.end(); ++iter)
     {
         if((*iter).id() == activity.id())
         {
@@ -51,7 +51,7 @@ bool Projects::ProjectTaskActivityType::addActivity(Wt::Dbo::ptr<Projects::Proje
 {
     if(!hasActivity(activity))
     {
-        _activities.insert(activity);
+        m_activities.insert(activity);
 
         return true;
     }
@@ -63,7 +63,7 @@ bool Projects::ProjectTaskActivityType::removeActivity(Wt::Dbo::ptr<Projects::Pr
 {
     if(hasActivity(activity))
     {
-        _activities.erase(activity);
+        m_activities.erase(activity);
 
         return true;
     }
@@ -73,7 +73,7 @@ bool Projects::ProjectTaskActivityType::removeActivity(Wt::Dbo::ptr<Projects::Pr
 
 bool Projects::ProjectTaskActivityType::operator ==(const Projects::ProjectTaskActivityType &other) const
 {
-    return _type == other.type();
+    return m_type == other.type();
 }
 
 bool Projects::ProjectTaskActivityType::operator !=(const Projects::ProjectTaskActivityType &other) const
@@ -81,7 +81,7 @@ bool Projects::ProjectTaskActivityType::operator !=(const Projects::ProjectTaskA
     return !operator ==(other);
 }
 
-void Projects::ProjectTaskActivityType::_init()
+void Projects::ProjectTaskActivityType::init()
 {
-    _type = "";
+    m_type = "";
 }

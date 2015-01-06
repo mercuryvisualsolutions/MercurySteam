@@ -43,33 +43,33 @@ namespace Views
     private:
         //Variables
         
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectSequence> *_qtvSequences;
-        Log::Logger *_logger;
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectSequence> *m_qtvSequences;
+        Log::Logger *m_logger;
         //UI
-        Wt::WPushButton *_btnCreateSequence;
-        Wt::WPushButton *_btnRemoveSequences;
-        Wt::WPushButton *_btnEditSequences;
-        Wt::WPushButton *_btnImportThumbnails;
-        Wt::WPushButton *_btnOpenFilesView;
-        Wt::WVBoxLayout *_layMain;
+        Wt::WPushButton *m_btnCreateSequence;
+        Wt::WPushButton *m_btnRemoveSequences;
+        Wt::WPushButton *m_btnEditSequences;
+        Wt::WPushButton *m_btnImportThumbnails;
+        Wt::WPushButton *m_btnOpenFilesView;
+        Wt::WVBoxLayout *m_layMain;
 
         //Signals
-        Wt::Signal<> _createSequenceRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>>> _removeSequencesRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>>> _editSequencesRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>>> _openfilesViewRequested;
-        Wt::Signal<> _importThumbnailsRequested;
+        Wt::Signal<> m_createSequenceRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>>> m_removeSequencesRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>>> m_editSequencesRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>>> m_openfilesViewRequested;
+        Wt::Signal<> m_importThumbnailsRequested;
 
         //Slots
-        void _btnCreateSequenceClicked();
-        void _btnRemoveSequencesClicked();
-        void _btnEditSequencesClicked();
-        void _btnImportThumbnailsClicked();
-        void _btnOpenFilesViewClicked();
+        void btnCreateSequenceClicked();
+        void btnRemoveSequencesClicked();
+        void btnEditSequencesClicked();
+        void btnImportThumbnailsClicked();
+        void btnOpenFilesViewClicked();
 
         //Functions
-        void _createSequencesTableView();
-        void _prepareView();
+        void createSequencesTableView();
+        void prepareView();
     };
 }
 

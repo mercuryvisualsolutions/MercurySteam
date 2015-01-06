@@ -17,8 +17,8 @@ namespace Ms
 
                 if(dbo)
                 {
-                    dbo->createdBy_ = userName_;
-                    dbo->dateCreated_ = Wt::WDateTime::currentDateTime();
+                    dbo->m_createdBy = m_userName;
+                    dbo->m_dateCreated = Wt::WDateTime::currentDateTime();
 
                     try
                     {
@@ -38,8 +38,8 @@ namespace Ms
             {
                 if(dboPtr)
                 {
-                    dboPtr.modify()->modify()->lastModifiedDate_ = Wt::WDateTime::currentDateTime();
-                    dboPtr.modify()->modify()->lastModifiedBy_ = userName_;
+                    dboPtr.modify()->modify()->m_lastModifiedDate = Wt::WDateTime::currentDateTime();
+                    dboPtr.modify()->modify()->m_lastModifiedBy = m_userName;
                 }
 
                 return dboPtr.modify()->modify();

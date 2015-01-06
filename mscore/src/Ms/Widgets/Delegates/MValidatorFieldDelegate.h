@@ -22,8 +22,8 @@ namespace Ms
                 boost::any editState(Wt::WWidget *editor) const override;
                 void setEditState(Wt::WWidget *editor, const boost::any &value) const override;
             private:
-                std::string _validatorExp;
-                bool _validatorIsMandatory;
+                std::string m_validatorExp;
+                bool m_validatorIsMandatory;
             };
         }
     }

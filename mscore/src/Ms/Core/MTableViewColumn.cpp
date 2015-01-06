@@ -1,82 +1,82 @@
 #include "MTableViewColumn.h"
 
 Ms::Core::MTableViewColumn::MTableViewColumn() :
-    _name("New Column"), _width(150), _flags(Wt::ItemIsSelectable), _isMandatory(false), _isIgnored(false)
+    m_name("New Column"), m_width(150), m_flags(Wt::ItemIsSelectable), m_isMandatory(false), m_isIgnored(false)
 {
 }
 
 Ms::Core::MTableViewColumn::MTableViewColumn(const std::string &name, Widgets::Delegates::MItemDelegate *delegate, int width, Wt::WFlags<Wt::ItemFlag> flags, bool isMandatory, bool isIgnored) :
     MTableViewColumn()
 {
-    _name = name;
-    _delegate = delegate;
-    _width = width;
-    _flags = flags;
-    _isMandatory = isMandatory;
-    _isIgnored = isIgnored;
+    m_name = name;
+    m_delegate = delegate;
+    m_width = width;
+    m_flags = flags;
+    m_isMandatory = isMandatory;
+    m_isIgnored = isIgnored;
 }
 
 std::string Ms::Core::MTableViewColumn::name() const
 {
-    return _name;
+    return m_name;
 }
 
 void Ms::Core::MTableViewColumn::setName(std::string &name)
 {
-    _name = name;
+    m_name = name;
 }
 
 int Ms::Core::MTableViewColumn::width() const
 {
-    return _width;
+    return m_width;
 }
 
 void Ms::Core::MTableViewColumn::setWidth(int width)
 {
-    _width = width;
+    m_width = width;
 }
 
 Wt::WFlags<Wt::ItemFlag> Ms::Core::MTableViewColumn::flags() const
 {
-    return _flags;
+    return m_flags;
 }
 
 void Ms::Core::MTableViewColumn::setFlags(Wt::WFlags<Wt::ItemFlag> flags)
 {
-    _flags = flags;
+    m_flags = flags;
 }
 
 Ms::Widgets::Delegates::MItemDelegate *Ms::Core::MTableViewColumn::delegate() const
 {
-    return _delegate;
+    return m_delegate;
 }
 
 void Ms::Core::MTableViewColumn::setDelegate(Ms::Widgets::Delegates::MItemDelegate *delegate)
 {
-    _delegate = delegate;
+    m_delegate = delegate;
 }
 
 bool Ms::Core::MTableViewColumn::isMandatory() const
 {
-    return _isMandatory;
+    return m_isMandatory;
 }
 
 void Ms::Core::MTableViewColumn::setMandatory(bool isMandatory)
 {
-    _isMandatory = isMandatory;
+    m_isMandatory = isMandatory;
 }
 
 bool Ms::Core::MTableViewColumn::isIgnored() const
 {
-    return _isIgnored;
+    return m_isIgnored;
 }
 
 void Ms::Core::MTableViewColumn::setIgnored(bool isIgnored)
 {
-    _isIgnored = isIgnored;
+    m_isIgnored = isIgnored;
 }
 
 bool Ms::Core::MTableViewColumn::operator=(const Ms::Core::MTableViewColumn &other) const
 {
-    return _name == other.name();
+    return m_name == other.name();
 }

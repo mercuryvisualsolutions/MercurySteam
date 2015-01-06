@@ -2,48 +2,38 @@
 
 Ms::Core::MSettingsBase::MSettingsBase()
 {
-    settingsFileName_ = "Settings.xml";
+    m_settingsFileName = "Settings.xml";
 }
 
 std::string Ms::Core::MSettingsBase::settingsFileName()
 {
-    return settingsFileName_;
+    return m_settingsFileName;
 }
 
 void Ms::Core::MSettingsBase::setSettingsFileName(const std::string &fileName)
 {
-    settingsFileName_ = fileName;
+    m_settingsFileName = fileName;
 }
 
 void Ms::Core::MSettingsBase::saveSettings(const std::string &fileName, const boost::property_tree::ptree &pt)
 {
-    _saveSettings(fileName, pt);
+    boost::property_tree::write_xml(fileName, pt);
 }
 
 void Ms::Core::MSettingsBase::saveSettings(const boost::property_tree::ptree &pt)
 {
-    _saveSettings(settingsFileName_, pt);
+    saveSettings(m_settingsFileName, pt);
 }
 
 boost::property_tree::ptree Ms::Core::MSettingsBase::loadSettings(const std::string &fileName)
-{
-    return _loadSettings(fileName);
-}
-
-boost::property_tree::ptree Ms::Core::MSettingsBase::loadSettings()
-{
-    return _loadSettings(settingsFileName_);
-}
-
-void Ms::Core::MSettingsBase::_saveSettings(const std::string &fileName, const boost::property_tree::ptree &pt)
-{
-    boost::property_tree::write_xml(fileName, pt);
-}
-
-boost::property_tree::ptree Ms::Core::MSettingsBase::_loadSettings(const std::string &fileName)
 {
     boost::property_tree::ptree pt;
     boost::property_tree::read_xml(fileName, pt);
 
     return pt;
+}
+
+boost::property_tree::ptree Ms::Core::MSettingsBase::loadSettings()
+{
+    return loadSettings(m_settingsFileName);
 }

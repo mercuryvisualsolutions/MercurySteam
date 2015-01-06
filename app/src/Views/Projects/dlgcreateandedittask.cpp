@@ -6,66 +6,66 @@
 #include "../../Settings/appsettings.h"
 
 Views::DlgCreateAndEditTask::DlgCreateAndEditTask(bool editing) :
-    _editing(editing)
+    m_editing(editing)
 {
-    _prepareView();
+    prepareView();
 }
 
 Wt::Dbo::ptr<Projects::ProjectTaskType> Views::DlgCreateAndEditTask::type() const
 {
-    return _mdlCmbType->resultRow(_cmbType->currentIndex());
+    return m_mdlCmbType->resultRow(m_cmbType->currentIndex());
 }
 
 Wt::Dbo::ptr<Projects::ProjectWorkStatus> Views::DlgCreateAndEditTask::status() const
 {
-    return _mdlCmbStatus->resultRow(_cmbStatus->currentIndex());
+    return m_mdlCmbStatus->resultRow(m_cmbStatus->currentIndex());
 }
 
 std::string Views::DlgCreateAndEditTask::thumbnail() const
 {
-    return _cmbThumbnail->currentText().toUTF8();
+    return m_cmbThumbnail->currentText().toUTF8();
 }
 
 Wt::Dbo::ptr<Users::User> Views::DlgCreateAndEditTask::user() const
 {
-    return _mdlCmbUser->resultRow(_cmbUser->currentIndex());
+    return m_mdlCmbUser->resultRow(m_cmbUser->currentIndex());
 }
 
 Wt::WDate Views::DlgCreateAndEditTask::startDate() const
 {
-    return _datStartDate->date();
+    return m_datStartDate->date();
 }
 
 Wt::WDate Views::DlgCreateAndEditTask::endDate() const
 {
-    return _datEndDate->date();
+    return m_datEndDate->date();
 }
 
 int Views::DlgCreateAndEditTask::priority() const
 {
-    return _spnPriority->value();
+    return m_spnPriority->value();
 }
 
 std::string Views::DlgCreateAndEditTask::description() const
 {
-    return _txtDescription->text().toUTF8();
+    return m_txtDescription->text().toUTF8();
 }
 
 bool Views::DlgCreateAndEditTask::isActive() const
 {
-    return _cmbActive->currentText() == "Yes" ? true : false;
+    return m_cmbActive->currentText() == "Yes" ? true : false;
 }
 
 bool Views::DlgCreateAndEditTask::isEditing()
 {
-    return _editing;
+    return m_editing;
 }
 
 bool Views::DlgCreateAndEditTask::editedStartDate() const
 {
-    if(_editing)
+    if(m_editing)
     {
-        if(_datStartDate->isEnabled())
+        if(m_datStartDate->isEnabled())
             return true;
         else
             return false;
@@ -76,9 +76,9 @@ bool Views::DlgCreateAndEditTask::editedStartDate() const
 
 bool Views::DlgCreateAndEditTask::editedEndDate() const
 {
-    if(_editing)
+    if(m_editing)
     {
-        if(_datEndDate->isEnabled())
+        if(m_datEndDate->isEnabled())
             return true;
         else
             return false;
@@ -89,9 +89,9 @@ bool Views::DlgCreateAndEditTask::editedEndDate() const
 
 bool Views::DlgCreateAndEditTask::editedPriority() const
 {
-    if(_editing)
+    if(m_editing)
     {
-        if(_spnPriority->isEnabled())
+        if(m_spnPriority->isEnabled())
             return true;
         else
             return false;
@@ -102,9 +102,9 @@ bool Views::DlgCreateAndEditTask::editedPriority() const
 
 bool Views::DlgCreateAndEditTask::editedType() const
 {
-    if(_editing)
+    if(m_editing)
     {
-        if(_cmbType->isEnabled())
+        if(m_cmbType->isEnabled())
             return true;
         else
             return false;
@@ -115,9 +115,9 @@ bool Views::DlgCreateAndEditTask::editedType() const
 
 bool Views::DlgCreateAndEditTask::editedStatus() const
 {
-    if(_editing)
+    if(m_editing)
     {
-        if(_cmbStatus->isEnabled())
+        if(m_cmbStatus->isEnabled())
             return true;
         else
             return false;
@@ -128,9 +128,9 @@ bool Views::DlgCreateAndEditTask::editedStatus() const
 
 bool Views::DlgCreateAndEditTask::editedThumbnail() const
 {
-    if(_editing)
+    if(m_editing)
     {
-        if(_cmbThumbnail->isEnabled())
+        if(m_cmbThumbnail->isEnabled())
             return true;
         else
             return false;
@@ -141,9 +141,9 @@ bool Views::DlgCreateAndEditTask::editedThumbnail() const
 
 bool Views::DlgCreateAndEditTask::editedUser() const
 {
-    if(_editing)
+    if(m_editing)
     {
-        if(_cmbUser->isEnabled())
+        if(m_cmbUser->isEnabled())
             return true;
         else
             return false;
@@ -154,9 +154,9 @@ bool Views::DlgCreateAndEditTask::editedUser() const
 
 bool Views::DlgCreateAndEditTask::editedDescription() const
 {
-    if(_editing)
+    if(m_editing)
     {
-        if(_txtDescription->isEnabled())
+        if(m_txtDescription->isEnabled())
             return true;
         else
             return false;
@@ -167,9 +167,9 @@ bool Views::DlgCreateAndEditTask::editedDescription() const
 
 bool Views::DlgCreateAndEditTask::editedActive() const
 {
-    if(_editing)
+    if(m_editing)
     {
-        if(_cmbActive->isEnabled())
+        if(m_cmbActive->isEnabled())
             return true;
         else
             return false;
@@ -178,147 +178,147 @@ bool Views::DlgCreateAndEditTask::editedActive() const
         return false;
 }
 
-void Views::DlgCreateAndEditTask::_prepareView()
+void Views::DlgCreateAndEditTask::prepareView()
 {
     Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-    if(!_editing)
+    if(!m_editing)
         this->setCaption("Create Task");
     else
         this->setCaption("Edit Tasks");
 
     this->rejectWhenEscapePressed();
 
-    _layMain = new Wt::WHBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(2);
+    m_layMain = new Wt::WHBoxLayout();
+    m_layMain->setContentsMargins(0,0,0,0);
+    m_layMain->setSpacing(2);
 
-    this->contents()->setLayout(_layMain);
+    this->contents()->setLayout(m_layMain);
 
-    _layLeft = new Wt::WVBoxLayout();
-    _layLeft->setContentsMargins(0,0,0,0);
-    _layLeft->setSpacing(2);
+    m_layLeft = new Wt::WVBoxLayout();
+    m_layLeft->setContentsMargins(0,0,0,0);
+    m_layLeft->setSpacing(2);
 
-    _cntLeft = new Wt::WContainerWidget();
-    _cntLeft->setLayout(_layLeft);
+    m_cntLeft = new Wt::WContainerWidget();
+    m_cntLeft->setLayout(m_layLeft);
 
-    _layMain->addWidget(_cntLeft);
+    m_layMain->addWidget(m_cntLeft);
 
-    _layRight = new Wt::WVBoxLayout();
-    _layRight->setContentsMargins(16,0,0,0);
-    _layRight->setSpacing(1);
+    m_layRight = new Wt::WVBoxLayout();
+    m_layRight->setContentsMargins(16,0,0,0);
+    m_layRight->setSpacing(1);
 
-    _cntRight = new Wt::WContainerWidget();
-    _cntRight->setLayout(_layRight);
+    m_cntRight = new Wt::WContainerWidget();
+    m_cntRight->setLayout(m_layRight);
 
-    _layMain->addWidget(_cntRight);
+    m_layMain->addWidget(m_cntRight);
 
-    _datStartDate = Ms::Widgets::MWidgetFactory::createDateEdit();
-    if(_editing)
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Start Date:", _datStartDate));
+    m_datStartDate = Ms::Widgets::MWidgetFactory::createDateEdit();
+    if(m_editing)
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Start Date:", m_datStartDate));
     else
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Start Date:", _datStartDate));
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Start Date:", m_datStartDate));
 
-    _layLeft->addWidget(new Wt::WBreak());
+    m_layLeft->addWidget(new Wt::WBreak());
 
-    _datEndDate = Ms::Widgets::MWidgetFactory::createDateEdit();
-    if(_editing)
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("End Date:", _datEndDate));
+    m_datEndDate = Ms::Widgets::MWidgetFactory::createDateEdit();
+    if(m_editing)
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("End Date:", m_datEndDate));
     else
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("End Date:", _datEndDate));
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("End Date:", m_datEndDate));
 
-    _layLeft->addWidget(new Wt::WBreak());
+    m_layLeft->addWidget(new Wt::WBreak());
 
-    _spnPriority = Ms::Widgets::MWidgetFactory::createSpinBox(0, INT_MAX, 0);
-    if(_editing)
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Priority:", _spnPriority));
+    m_spnPriority = Ms::Widgets::MWidgetFactory::createSpinBox(0, INT_MAX, 0);
+    if(m_editing)
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Priority:", m_spnPriority));
     else
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Priority:", _spnPriority));
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Priority:", m_spnPriority));
 
-    _layLeft->addWidget(new Wt::WBreak());
+    m_layLeft->addWidget(new Wt::WBreak());
 
-    _createCmbType();
-    if(_editing)
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Type:", _cntCmbType));
+    createCmbType();
+    if(m_editing)
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Type:", m_cntCmbType));
     else
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Type:", _cntCmbType));
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Type:", m_cntCmbType));
 
-    _layLeft->addWidget(new Wt::WBreak());
+    m_layLeft->addWidget(new Wt::WBreak());
 
-    _createCmbStatus();
-    if(_editing)
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Status:", _cntCmbStatus));
+    createCmbStatus();
+    if(m_editing)
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Status:", m_cntCmbStatus));
     else
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Status:", _cntCmbStatus));
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Status:", m_cntCmbStatus));
 
-    _layLeft->addWidget(new Wt::WBreak());
+    m_layLeft->addWidget(new Wt::WBreak());
 
-    _cmbThumbnail = new Wt::WComboBox();
-    _cmbThumbnail->addItem("Project");
-    _cmbThumbnail->addItem("Sequence");
-    _cmbThumbnail->addItem("Asset");
-    _cmbThumbnail->addItem("Shot");
+    m_cmbThumbnail = new Wt::WComboBox();
+    m_cmbThumbnail->addItem("Project");
+    m_cmbThumbnail->addItem("Sequence");
+    m_cmbThumbnail->addItem("Asset");
+    m_cmbThumbnail->addItem("Shot");
 
-    _cmbThumbnail->setCurrentIndex(0);
+    m_cmbThumbnail->setCurrentIndex(0);
 
-    if(_editing)
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Thumbnail:", _cmbThumbnail));
+    if(m_editing)
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Thumbnail:", m_cmbThumbnail));
     else
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Thumbnail:", _cmbThumbnail));
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Thumbnail:", m_cmbThumbnail));
 
-    _layLeft->addWidget(new Wt::WBreak(), 1);
+    m_layLeft->addWidget(new Wt::WBreak(), 1);
 
-    _createCmbUser();
-    if(_editing)
-        _layRight->addWidget(Ms::Widgets::MWidgetFactory::createEditField("User:", _cntCmbUser));
+    createCmbUser();
+    if(m_editing)
+        m_layRight->addWidget(Ms::Widgets::MWidgetFactory::createEditField("User:", m_cntCmbUser));
     else
-        _layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("User:", _cntCmbUser));
+        m_layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("User:", m_cntCmbUser));
 
-    _layRight->addWidget(new Wt::WBreak());
+    m_layRight->addWidget(new Wt::WBreak());
 
-    _txtDescription = Ms::Widgets::MWidgetFactory::createTextArea("", false);
-    if(_editing)
-        _layRight->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Description:", _txtDescription));
+    m_txtDescription = Ms::Widgets::MWidgetFactory::createTextArea("", false);
+    if(m_editing)
+        m_layRight->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Description:", m_txtDescription));
     else
-        _layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Description:", _txtDescription));
+        m_layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Description:", m_txtDescription));
 
-    _layRight->addWidget(new Wt::WBreak());
+    m_layRight->addWidget(new Wt::WBreak());
 
-    _cmbActive = new Wt::WComboBox();
-    _cmbActive->addItem("Yes");
-    _cmbActive->addItem("No");
-    _cmbActive->setCurrentIndex(0);
-    if(_editing)
-        _layRight->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Active:", _cmbActive));
+    m_cmbActive = new Wt::WComboBox();
+    m_cmbActive->addItem("Yes");
+    m_cmbActive->addItem("No");
+    m_cmbActive->setCurrentIndex(0);
+    if(m_editing)
+        m_layRight->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Active:", m_cmbActive));
     else
-        _layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", _cmbActive));
+        m_layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", m_cmbActive));
 
-    _layRight->addWidget(new Wt::WBreak(), 1);
+    m_layRight->addWidget(new Wt::WBreak(), 1);
 
-    _btnOk = new Wt::WPushButton("Ok", this->footer());
-    _btnOk->clicked().connect(this, &Views::DlgCreateAndEditTask::_btnOkClicked);
+    m_btnOk = new Wt::WPushButton("Ok", this->footer());
+    m_btnOk->clicked().connect(this, &Views::DlgCreateAndEditTask::btnOkClicked);
 
-    _btnCancel = new Wt::WPushButton("Cancel", this->footer());
-    _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
-    _btnCancel->setFocus();
+    m_btnCancel = new Wt::WPushButton("Cancel", this->footer());
+    m_btnCancel->clicked().connect(this, &Wt::WDialog::reject);
+    m_btnCancel->setFocus();
 
     transaction.commit();
 }
 
-void Views::DlgCreateAndEditTask::_btnOkClicked()
+void Views::DlgCreateAndEditTask::btnOkClicked()
 {
-    if(_validate())
+    if(validate())
         this->accept();
 }
 
-void Views::DlgCreateAndEditTask::_createCmbUser()
+void Views::DlgCreateAndEditTask::createCmbUser()
 {
-    _cmbUser = new Wt::WComboBox();
-    _cmbUser->setMinimumSize(20, 30);
-    _cntCmbUser = new Wt::WContainerWidget();
-    _cntCmbUser->addWidget(_cmbUser);
+    m_cmbUser = new Wt::WComboBox();
+    m_cmbUser->setMinimumSize(20, 30);
+    m_cntCmbUser = new Wt::WContainerWidget();
+    m_cntCmbUser->addWidget(m_cmbUser);
 
-    _mdlCmbUser = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Users::User>>();
+    m_mdlCmbUser = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Users::User>>();
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Users::User>> query;
     if(AppSettings::instance().isLoadInactiveData())
@@ -326,26 +326,26 @@ void Views::DlgCreateAndEditTask::_createCmbUser()
     else
         query = Session::SessionManager::instance().dboSession().find<Users::User>().where("Active = ?").bind(true);
 
-    _mdlCmbUser->setQuery(query);
+    m_mdlCmbUser->setQuery(query);
 
-    _mdlCmbUser->reload();
+    m_mdlCmbUser->reload();
 
-    _mdlCmbUser->addColumn("Name", Wt::ItemIsSelectable);
+    m_mdlCmbUser->addColumn("Name", Wt::ItemIsSelectable);
 
-    _cmbUser->setModel(_mdlCmbUser);
+    m_cmbUser->setModel(m_mdlCmbUser);
 
-    if(_mdlCmbUser->rowCount() > 0)
-        _cmbUser->setCurrentIndex(0);
+    if(m_mdlCmbUser->rowCount() > 0)
+        m_cmbUser->setCurrentIndex(0);
 }
 
-void Views::DlgCreateAndEditTask::_createCmbStatus()
+void Views::DlgCreateAndEditTask::createCmbStatus()
 {
-    _cmbStatus = new Wt::WComboBox();
-    _cmbStatus->setMinimumSize(20, 30);
-    _cntCmbStatus = new Wt::WContainerWidget();
-    _cntCmbStatus->addWidget(_cmbStatus);
+    m_cmbStatus = new Wt::WComboBox();
+    m_cmbStatus->setMinimumSize(20, 30);
+    m_cntCmbStatus = new Wt::WContainerWidget();
+    m_cntCmbStatus->addWidget(m_cmbStatus);
 
-    _mdlCmbStatus = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatus>>();
+    m_mdlCmbStatus = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatus>>();
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectWorkStatus>> query;
     if(AppSettings::instance().isLoadInactiveData())
@@ -353,26 +353,26 @@ void Views::DlgCreateAndEditTask::_createCmbStatus()
     else
         query = Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true);
 
-    _mdlCmbStatus->setQuery(query);
+    m_mdlCmbStatus->setQuery(query);
 
-    _mdlCmbStatus->reload();
+    m_mdlCmbStatus->reload();
 
-    _mdlCmbStatus->addColumn("Status", Wt::ItemIsSelectable);
+    m_mdlCmbStatus->addColumn("Status", Wt::ItemIsSelectable);
 
-    _cmbStatus->setModel(_mdlCmbStatus);
+    m_cmbStatus->setModel(m_mdlCmbStatus);
 
-    if(_mdlCmbStatus->rowCount() > 0)
-        _cmbStatus->setCurrentIndex(0);
+    if(m_mdlCmbStatus->rowCount() > 0)
+        m_cmbStatus->setCurrentIndex(0);
 }
 
-void Views::DlgCreateAndEditTask::_createCmbType()
+void Views::DlgCreateAndEditTask::createCmbType()
 {
-    _cmbType = new Wt::WComboBox();
-    _cmbType->setMinimumSize(20, 30);
-    _cntCmbType = new Wt::WContainerWidget();
-    _cntCmbType->addWidget(_cmbType);
+    m_cmbType = new Wt::WComboBox();
+    m_cmbType->setMinimumSize(20, 30);
+    m_cntCmbType = new Wt::WContainerWidget();
+    m_cntCmbType->addWidget(m_cmbType);
 
-    _mdlCmbType = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectTaskType>>();
+    m_mdlCmbType = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectTaskType>>();
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectTaskType>> query;
     if(AppSettings::instance().isLoadInactiveData())
@@ -380,42 +380,42 @@ void Views::DlgCreateAndEditTask::_createCmbType()
     else
         query = Session::SessionManager::instance().dboSession().find<Projects::ProjectTaskType>().where("Active = ?").bind(true);
 
-    _mdlCmbType->setQuery(query);
+    m_mdlCmbType->setQuery(query);
 
-    _mdlCmbType->reload();
+    m_mdlCmbType->reload();
 
-    _mdlCmbType->addColumn("Type", Wt::ItemIsSelectable);
+    m_mdlCmbType->addColumn("Type", Wt::ItemIsSelectable);
 
-    _cmbType->setModel(_mdlCmbType);
+    m_cmbType->setModel(m_mdlCmbType);
 
-    if(_mdlCmbType->rowCount() > 0)
-        _cmbType->setCurrentIndex(0);
+    if(m_mdlCmbType->rowCount() > 0)
+        m_cmbType->setCurrentIndex(0);
 }
 
-bool Views::DlgCreateAndEditTask::_validate()
+bool Views::DlgCreateAndEditTask::validate()
 {
     bool result = true;
 
-    if(!_editing)
+    if(!m_editing)
     {
-        if((_datStartDate->validate() != Wt::WDateValidator::Valid) ||
-                (_datEndDate->validate() != Wt::WDateValidator::Valid) ||
-                (_spnPriority->validate() != Wt::WIntValidator::Valid) ||
-                (_cmbUser->currentIndex() == -1) ||
-                (_cmbType->currentIndex() == -1) ||
-                (_cmbStatus->currentIndex() == -1))
+        if((m_datStartDate->validate() != Wt::WDateValidator::Valid) ||
+                (m_datEndDate->validate() != Wt::WDateValidator::Valid) ||
+                (m_spnPriority->validate() != Wt::WIntValidator::Valid) ||
+                (m_cmbUser->currentIndex() == -1) ||
+                (m_cmbType->currentIndex() == -1) ||
+                (m_cmbStatus->currentIndex() == -1))
         {
             result = false;
         }
     }
     else
     {
-        if(((_datStartDate->isEnabled()) && (_datStartDate->validate() != Wt::WValidator::Valid)) ||
-                ((_datEndDate->isEnabled()) && (_datEndDate->validate() != Wt::WValidator::Valid)) ||
-                ((_datEndDate->isEnabled()) && (_spnPriority->validate() != Wt::WIntValidator::Valid)) ||
-                ((_cmbUser->isEnabled()) && (_cmbUser->currentIndex() == -1)) ||
-                ((_cmbType->isEnabled()) && (_cmbType->currentIndex() == -1)) ||
-                ((_cmbStatus->isEnabled()) && (_cmbStatus->currentIndex() == -1)))
+        if(((m_datStartDate->isEnabled()) && (m_datStartDate->validate() != Wt::WValidator::Valid)) ||
+                ((m_datEndDate->isEnabled()) && (m_datEndDate->validate() != Wt::WValidator::Valid)) ||
+                ((m_datEndDate->isEnabled()) && (m_spnPriority->validate() != Wt::WIntValidator::Valid)) ||
+                ((m_cmbUser->isEnabled()) && (m_cmbUser->currentIndex() == -1)) ||
+                ((m_cmbType->isEnabled()) && (m_cmbType->currentIndex() == -1)) ||
+                ((m_cmbStatus->isEnabled()) && (m_cmbStatus->currentIndex() == -1)))
         {
             result = false;
         }

@@ -32,26 +32,26 @@ namespace Ms
 	private:
 	    //variables
 	    //Wt's
-	    Wt::WVBoxLayout *_layMain;
-	    Wt::WScrollArea *_scrLog;
-	    Wt::WContainerWidget *_cntLogWidget;
-	    Wt::WVBoxLayout *_layCntLogWidget;
-	    Wt::WContainerWidget *_cntLogArea;
-	    Wt::WVBoxLayout *_layCntLogArea;
-	    Wt::WToolBar *_tbMain;
-        Wt::WContainerWidget *_cntTbMain;
-        Wt::WVBoxLayout *_layCntTbMain;
-	    Wt::WPushButton *_btnClearLog;
+	    Wt::WVBoxLayout *m_layMain;
+        Wt::WScrollArea *m_scrLog;
+        Wt::WContainerWidget *m_cntLogWidget;
+        Wt::WVBoxLayout *m_layCntLogWidget;
+        Wt::WContainerWidget *m_cntLogArea;
+        Wt::WVBoxLayout *m_layCntLogArea;
+	    Wt::WToolBar *m_tbMain;
+        Wt::WContainerWidget *m_cntTbMain;
+        Wt::WVBoxLayout *m_layCntTbMain;
+        Wt::WPushButton *m_btnClearLog;
 
-	    unsigned int _maxLogMessages;
-	    std::vector<Wt::WText*> _logMsgs;
+        unsigned int m_maxLogMessages;
+        std::vector<Wt::WText*> m_logMsgs;
 
 	    //functions
 	    //slots
-	    void _onBtnClearLogClicked();
+        void onBtnClearLogClicked();
 
-	    void _checkMaxLogMessages();
-	    void _prepareView();
+        void checkMaxLogMessages();
+	    void prepareView();
 	};
     }
 }

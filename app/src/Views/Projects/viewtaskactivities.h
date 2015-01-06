@@ -39,30 +39,30 @@ namespace Views
     private:
         //Variables
         
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskActivity> *_qtvTaskActivities;
-        Log::Logger *_logger;
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskActivity> *m_qtvTaskActivities;
+        Log::Logger *m_logger;
         //UI
-        Wt::WPushButton *_btnCreateTaskActivity;
-        Wt::WPushButton *_btnCreateTaskActivitiesForTemplate;
-        Wt::WPushButton *_btnRemoveTaskActivities;
-        Wt::WPushButton *_btnEditTaskActivities;
-        Wt::WVBoxLayout *_layMain;
+        Wt::WPushButton *m_btnCreateTaskActivity;
+        Wt::WPushButton *m_btnCreateTaskActivitiesForTemplate;
+        Wt::WPushButton *m_btnRemoveTaskActivities;
+        Wt::WPushButton *m_btnEditTaskActivities;
+        Wt::WVBoxLayout *m_layMain;
 
         //Signals
-        Wt::Signal<> _createTaskActivityRequested;
-        Wt::Signal<> _createTaskActivitiesForTemplateRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskActivity>>> _removeTaskActivitiesRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskActivity>>> _openfilesViewRequested;
+        Wt::Signal<> m_createTaskActivityRequested;
+        Wt::Signal<> m_createTaskActivitiesForTemplateRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskActivity>>> m_removeTaskActivitiesRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskActivity>>> m_openfilesViewRequested;
 
         //Slots
-        void _btnCreateTaskActivityClicked();
-        void _btnCreateTaskActivitiesForTemplateClicked();
-        void _btnRemoveTaskActivitiesClicked();
-        void _btnEditTaskActivitiesClicked();
+        void btnCreateTaskActivityClicked();
+        void btnCreateTaskActivitiesForTemplateClicked();
+        void btnRemoveTaskActivitiesClicked();
+        void btnEditTaskActivitiesClicked();
 
         //Functions
-        void _createTaskActivitysTableView();
-        void _prepareView();
+        void createTaskActivitysTableView();
+        void prepareView();
     };
 }
 

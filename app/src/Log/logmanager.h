@@ -28,10 +28,10 @@ namespace Log
 
     private:
         //variables
-        Ms::Log::MLogger *_globalLogger;
+        Ms::Log::MLogger *m_globalLogger;
 
         //functions
-        void _init();
+        void init();
 
     };
 }

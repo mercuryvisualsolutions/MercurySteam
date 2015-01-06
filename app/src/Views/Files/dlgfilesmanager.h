@@ -42,56 +42,56 @@ namespace Views
     private:
         //variables
         //Wt
-        Wt::WVBoxLayout *_layMain;
-        Wt::WToolBar *_tbMain;
-        Wt::WContainerWidget *_cntTbMain;
-        Wt::WHBoxLayout *_layCntTbMain;
-        Wt::WPushButton *_btnCreate;
-        Wt::WPushButton *_btnCheckIn;
-        Wt::WPushButton *_btnCheckOut;
-        Wt::WPushButton *_btnRefresh;
-        Wt::WPushButton *_btnView;
-        Wt::WContainerWidget *_cntFiles;
-        Wt::WHBoxLayout *_layFiles;
-        Wt::WTree *_trDirs;
-        Ms::Widgets::MTableViewWidget *_tblFiles;
-        Wt::WPushButton *_btnClose;
+        Wt::WVBoxLayout *m_layMain;
+        Wt::WToolBar *m_tbMain;
+        Wt::WContainerWidget *m_cntTbMain;
+        Wt::WHBoxLayout *m_layCntTbMain;
+        Wt::WPushButton *m_btnCreate;
+        Wt::WPushButton *m_btnCheckIn;
+        Wt::WPushButton *m_btnCheckOut;
+        Wt::WPushButton *m_btnRefresh;
+        Wt::WPushButton *m_btnView;
+        Wt::WContainerWidget *m_cntFiles;
+        Wt::WHBoxLayout *m_layFiles;
+        Wt::WTree *m_trDirs;
+        Ms::Widgets::MTableViewWidget *m_tblFiles;
+        Wt::WPushButton *m_btnClose;
 
         //variables
         
-        Log::Logger *_logger;
-        std::string _rootPath;
-        std::string _absoluteRootPath;
-        bool _createEnabled;
-        bool _checkInEnabled;
-        bool _checkOutEnabled;
-        bool _isViewDisabled;
+        Log::Logger *m_logger;
+        std::string m_rootPath;
+        std::string m_absoluteRootPath;
+        bool m_createEnabled;
+        bool m_checkInEnabled;
+        bool m_checkOutEnabled;
+        bool m_isViewDisabled;
 
-        std::vector<Ms::IO::MStreamedFileResource*> _downloadedFiles;
+        std::vector<Ms::IO::MStreamedFileResource*> m_downloadedFiles;
 
         //slots
-        void _btnCreateClicked();
-        void _btnCheckInClicked();
-        void _btnCheckOutClicked();
-        void _btnRefreshClicked();
-        void _btnViewClicked();
-        void _btnCloseClicked();
-        void _trDirsItemSelectionChanged();
+        void btnCreateClicked();
+        void btnCheckInClicked();
+        void btnCheckOutClicked();
+        void btnRefreshClicked();
+        void btnViewClicked();
+        void btnCloseClicked();
+        void trDirsItemSelectionChanged();
         void tblFilesItemDoubleClicked(Wt::WModelIndex index);
 
         //functions
         void viewItem(Wt::WModelIndex index);
-        void _createDirTree();
-        void _populateDirTree();
-        void _createFilesTable();
-        std::string _formatSize(u_int64_t size);
-        void _refresh();
-        std::string _createNewVersionDir(const std::string &path);
-        std::string _generateDownloadUrl();
-        std::string _getUniqueTmpFileName();
-        bool _isDownloadingFiles();
-        void _closeDownloadedFiles();
-        void _prepareView();
+        void createDirTree();
+        void populateDirTree();
+        void createFilesTable();
+        std::string formatSize(u_int64_t size);
+        void refresh();
+        std::string createNewVersionDir(const std::string &path);
+        std::string generateDownloadUrl();
+        std::string getUniqueTmpFileName();
+        bool isDownloadingFiles();
+        void closeDownloadedFiles();
+        void prepareView();
     };
 }
 

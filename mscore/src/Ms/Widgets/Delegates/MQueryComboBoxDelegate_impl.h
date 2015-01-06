@@ -22,7 +22,7 @@ namespace Ms
             template<typename T>
             Ms::Widgets::Delegates::MQueryComboBoxDelegate<T>::MQueryComboBoxDelegate(Wt::Dbo::Session *session, Wt::Dbo::Query<Wt::Dbo::ptr<T>> comboBoxQuery,
                                                                                    const std::string &displayColumn, int editRank) :
-                _session(session), _displayColumn(displayColumn), _query(comboBoxQuery)
+                m_session(session), m_displayColumn(displayColumn), m_query(comboBoxQuery)
             {
                 setEditRank(editRank);
             }
@@ -30,25 +30,25 @@ namespace Ms
             template<typename T>
             Wt::Dbo::Query<Wt::Dbo::ptr<T>> Ms::Widgets::Delegates::MQueryComboBoxDelegate<T>::query()
             {
-                return _query;
+                return m_query;
             }
 
             template<typename T>
             void Ms::Widgets::Delegates::MQueryComboBoxDelegate<T>::setQuery(Wt::Dbo::Query<Wt::Dbo::ptr<T>> query)
             {
-                _query = query;
+                m_query = query;
             }
 
             template<typename T>
             Wt::Dbo::Session* Ms::Widgets::Delegates::MQueryComboBoxDelegate<T>::session()
             {
-                return _session;
+                return m_session;
             }
 
             template<typename T>
             void Ms::Widgets::Delegates::MQueryComboBoxDelegate<T>::setSession(Wt::Dbo::Session *session)
             {
-                _session = session;
+                m_session = session;
             }
 
             template<typename T>
@@ -62,7 +62,7 @@ namespace Ms
 
                 Wt::WComboBox *cmbQuery;
 
-                cmbQuery = _createCmbQuery();
+                cmbQuery = createCmbQuery();
 
                 boost::any data = index.data(Wt::EditRole);
 
@@ -112,32 +112,32 @@ namespace Ms
             template<typename T>
             void Ms::Widgets::Delegates::MQueryComboBoxDelegate<T>::setDisplayColumn(const std::string &columnName)
             {
-                _displayColumn = columnName;
+                m_displayColumn = columnName;
             }
 
             template<typename T>
             std::string Ms::Widgets::Delegates::MQueryComboBoxDelegate<T>::displayColumn()
             {
-                return _displayColumn;
+                return m_displayColumn;
             }
 
             template<typename T>
-            Wt::WComboBox *Ms::Widgets::Delegates::MQueryComboBoxDelegate<T>::_createCmbQuery() const
+            Wt::WComboBox *Ms::Widgets::Delegates::MQueryComboBoxDelegate<T>::createCmbQuery() const
             {
                 Wt::WComboBox *cmbQuery = new Wt::WComboBox();
                 try
                 {
-                    Wt::Dbo::Transaction transaction(*_session);
+                    Wt::Dbo::Transaction transaction(*m_session);
 
                     Wt::Dbo::QueryModel<Wt::Dbo::ptr<T>> *mdlCmbQuery = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<T>>();
 
-                    mdlCmbQuery->setQuery(_query);
+                    mdlCmbQuery->setQuery(m_query);
 
                     transaction.commit();
 
                     mdlCmbQuery->reload();
 
-                    mdlCmbQuery->addColumn(_displayColumn, Wt::ItemIsSelectable);
+                    mdlCmbQuery->addColumn(m_displayColumn, Wt::ItemIsSelectable);
 
                     cmbQuery->setModel(mdlCmbQuery);
                 }

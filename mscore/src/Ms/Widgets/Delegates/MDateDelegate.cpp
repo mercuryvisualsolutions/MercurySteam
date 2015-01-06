@@ -14,7 +14,7 @@ Ms::Widgets::Delegates::MDateDelegate::MDateDelegate() :
 Ms::Widgets::Delegates::MDateDelegate::MDateDelegate(int editRank) :
     MDateDelegate()
 {
-    _editRank = editRank;
+    m_editRank = editRank;
 }
 
 void Ms::Widgets::Delegates::MDateDelegate::doCloseEditor(Wt::WWidget *editor, bool save) const

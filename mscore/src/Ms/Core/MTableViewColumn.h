@@ -36,12 +36,12 @@ namespace Ms
 
 
         protected:
-            std::string _name;
-            int _width;
-            Wt::WFlags<Wt::ItemFlag> _flags;
-            bool _isMandatory;
-            bool _isIgnored;
-            Ms::Widgets::Delegates::MItemDelegate *_delegate;
+            std::string m_name;
+            int m_width;
+            Wt::WFlags<Wt::ItemFlag> m_flags;
+            bool m_isMandatory;
+            bool m_isIgnored;
+            Ms::Widgets::Delegates::MItemDelegate *m_delegate;
         };
     }
 }

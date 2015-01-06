@@ -7,65 +7,65 @@
 
 Views::DlgSelectActivityTemplate::DlgSelectActivityTemplate()
 {
-    _prepareView();
+    prepareView();
 }
 
 Wt::Dbo::ptr<Projects::ProjectActivityTemplate> Views::DlgSelectActivityTemplate::activityTemplate()
 {
-    return _mdlCmbTemplate->resultRow(_cmbTemplate->currentIndex());
+    return m_mdlCmbTemplate->resultRow(m_cmbTemplate->currentIndex());
 }
 
-void Views::DlgSelectActivityTemplate::_prepareView()
+void Views::DlgSelectActivityTemplate::prepareView()
 {
     Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     this->setCaption("Select Template");
     this->rejectWhenEscapePressed();
 
-    _layMain = new Wt::WHBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(2);
+    m_layMain = new Wt::WHBoxLayout();
+    m_layMain->setContentsMargins(0,0,0,0);
+    m_layMain->setSpacing(2);
 
-    this->contents()->setLayout(_layMain);
+    this->contents()->setLayout(m_layMain);
 
-    _layLeft = new Wt::WVBoxLayout();
-    _layLeft->setContentsMargins(0,0,0,0);
-    _layLeft->setSpacing(2);
+    m_layLeft = new Wt::WVBoxLayout();
+    m_layLeft->setContentsMargins(0,0,0,0);
+    m_layLeft->setSpacing(2);
 
-    _cntLeft = new Wt::WContainerWidget();
-    _cntLeft->setLayout(_layLeft);
+    m_cntLeft = new Wt::WContainerWidget();
+    m_cntLeft->setLayout(m_layLeft);
 
-    _layMain->addWidget(_cntLeft);
+    m_layMain->addWidget(m_cntLeft);
 
-    _createCmbTemplate();
-    _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Template:", _cntCmbTemplate));
+    createCmbTemplate();
+    m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Template:", m_cntCmbTemplate));
 
-    _layLeft->addWidget(new Wt::WBreak());
+    m_layLeft->addWidget(new Wt::WBreak());
 
-    _btnOk = new Wt::WPushButton("Ok", this->footer());
-    _btnOk->clicked().connect(this, &Views::DlgSelectActivityTemplate::_btnOkClicked);
+    m_btnOk = new Wt::WPushButton("Ok", this->footer());
+    m_btnOk->clicked().connect(this, &Views::DlgSelectActivityTemplate::btnOkClicked);
 
-    _btnCancel = new Wt::WPushButton("Cancel", this->footer());
-    _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
-    _btnCancel->setFocus();
+    m_btnCancel = new Wt::WPushButton("Cancel", this->footer());
+    m_btnCancel->clicked().connect(this, &Wt::WDialog::reject);
+    m_btnCancel->setFocus();
 
     transaction.commit();
 }
 
-void Views::DlgSelectActivityTemplate::_btnOkClicked()
+void Views::DlgSelectActivityTemplate::btnOkClicked()
 {
-    if(_validate())
+    if(validate())
         this->accept();
 }
 
-void Views::DlgSelectActivityTemplate::_createCmbTemplate()
+void Views::DlgSelectActivityTemplate::createCmbTemplate()
 {
-    _cmbTemplate = new Wt::WComboBox();
-    _cmbTemplate->setMinimumSize(20, 30);
-    _cntCmbTemplate = new Wt::WContainerWidget();
-    _cntCmbTemplate->addWidget(_cmbTemplate);
+    m_cmbTemplate = new Wt::WComboBox();
+    m_cmbTemplate->setMinimumSize(20, 30);
+    m_cntCmbTemplate = new Wt::WContainerWidget();
+    m_cntCmbTemplate->addWidget(m_cmbTemplate);
 
-    _mdlCmbTemplate = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>>();
+    m_mdlCmbTemplate = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>>();
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>> query;
     if(AppSettings::instance().isLoadInactiveData())
@@ -73,21 +73,21 @@ void Views::DlgSelectActivityTemplate::_createCmbTemplate()
     else
         query = Session::SessionManager::instance().dboSession().find<Projects::ProjectActivityTemplate>().where("Active = ?").bind(true);
 
-    _mdlCmbTemplate->setQuery(query);
+    m_mdlCmbTemplate->setQuery(query);
 
-    _mdlCmbTemplate->reload();
+    m_mdlCmbTemplate->reload();
 
-    _mdlCmbTemplate->addColumn("Name", Wt::ItemIsSelectable);
+    m_mdlCmbTemplate->addColumn("Name", Wt::ItemIsSelectable);
 
-    _cmbTemplate->setModel(_mdlCmbTemplate);
+    m_cmbTemplate->setModel(m_mdlCmbTemplate);
 
-    if(_mdlCmbTemplate->rowCount() > 0)
-        _cmbTemplate->setCurrentIndex(0);
+    if(m_mdlCmbTemplate->rowCount() > 0)
+        m_cmbTemplate->setCurrentIndex(0);
 }
 
-bool Views::DlgSelectActivityTemplate::_validate()
+bool Views::DlgSelectActivityTemplate::validate()
 {
-    if(_cmbTemplate->currentIndex() == -1)
+    if(m_cmbTemplate->currentIndex() == -1)
 	return false;
     
     return true;

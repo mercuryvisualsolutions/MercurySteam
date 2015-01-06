@@ -37,7 +37,7 @@ namespace Ms
             //functions
 
             //variables
-            std::string _userName;
+            std::string m_userName;
         };
     }
 }

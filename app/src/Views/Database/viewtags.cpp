@@ -7,31 +7,31 @@
 
 Views::ViewTags::ViewTags()
 {
-    _prepareView();
+    prepareView();
 }
 
 Ms::Widgets::MQueryTableViewWidget<Database::Tag> *Views::ViewTags::qtvTags()
 {
-    return _qtvTags;
+    return m_qtvTags;
 }
 
 Ms::Widgets::MQueryTableViewWidget<Database::Tag> *Views::ViewTags::qtvAssignedTags()
 {
-    return _qtvAssignedTags;
+    return m_qtvAssignedTags;
 }
 
 bool Views::ViewTags::isCreateOptionHidden() const
 {
-    if(_btnCreateTag)
-        return _btnCreateTag->isHidden();
+    if(m_btnCreateTag)
+        return m_btnCreateTag->isHidden();
 
     return false;
 }
 
 void Views::ViewTags::setCreateOptionHidden(bool hidden)
 {
-    if(_btnCreateTag)
-        _btnCreateTag->setHidden(hidden);
+    if(m_btnCreateTag)
+        m_btnCreateTag->setHidden(hidden);
 }
 
 void Views::ViewTags::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
@@ -39,152 +39,152 @@ void Views::ViewTags::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
     bool hasCreateDboPriv = user->hasPrivilege("Create DBO");
     bool hasEditPriv = user->hasPrivilege("Edit");
 
-    _btnCreateTag->setHidden(!hasCreateDboPriv);
-    _btnAssignTags->setHidden(!hasEditPriv);
-    _btnUnassignTags->setHidden(!hasEditPriv);
+    m_btnCreateTag->setHidden(!hasCreateDboPriv);
+    m_btnAssignTags->setHidden(!hasEditPriv);
+    m_btnUnassignTags->setHidden(!hasEditPriv);
 }
 
 Wt::Signal<> &Views::ViewTags::createTagRequested()
 {
-    return _createTagRequested;
+    return m_createTagRequested;
 }
 
 Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> &Views::ViewTags::assignTagsRequested()
 {
-    return _assignTagsRequested;
+    return m_assignTagsRequested;
 }
 
 Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> &Views::ViewTags::unassignTagsRequested()
 {
-    return _unassignTagsRequested;
+    return m_unassignTagsRequested;
 }
 
 Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag> >, bool, bool> &Views::ViewTags::filterByTagsRequested()
 {
-    return _filterByTagsRequested;
+    return m_filterByTagsRequested;
 }
 
 Wt::Signal<> &Views::ViewTags::clearTagsFilterRequested()
 {
-    return _clearTagsFilterRequested;
+    return m_clearTagsFilterRequested;
 }
 
-void Views::ViewTags::_btnCreateTagClicked()
+void Views::ViewTags::btnCreateTagClicked()
 {
-    _createTagRequested();
+    createTagRequested();
 }
 
-void Views::ViewTags::_btnAssignTagsClicked()
+void Views::ViewTags::btnAssignTagsClicked()
 {
-    _assignTagsRequested(_qtvTags->selectedItems());
+    m_assignTagsRequested(m_qtvTags->selectedItems());
 }
 
-void Views::ViewTags::_btnUnassignTagsClicked()
+void Views::ViewTags::btnUnassignTagsClicked()
 {
-    _unassignTagsRequested(_qtvAssignedTags->selectedItems());
+    m_unassignTagsRequested(m_qtvAssignedTags->selectedItems());
 }
 
-void Views::ViewTags::_btnClearTagsFilterClicked()
+void Views::ViewTags::btnClearTagsFilterClicked()
 {
-    _clearTagsFilterRequested();
+    clearTagsFilterRequested();
 }
 
-void Views::ViewTags::_mnuFilterByTagsExactSelectionItemTriggered()
+void Views::ViewTags::mnuFilterByTagsExactSelectionItemTriggered()
 {
-    _filterByTagsRequested(_qtvTags->selectedItems(), true, false);
+    m_filterByTagsRequested(m_qtvTags->selectedItems(), true, false);
 }
 
-void Views::ViewTags::_mnuFilterByTagsAnyOfSelectionItemTriggered()
+void Views::ViewTags::mnuFilterByTagsAnyOfSelectionItemTriggered()
 {
-    _filterByTagsRequested(_qtvTags->selectedItems(), false, false);
+    m_filterByTagsRequested(m_qtvTags->selectedItems(), false, false);
 }
 
-void Views::ViewTags::_mnuFilterByTagsNotInSelectionItemTriggered()
+void Views::ViewTags::mnuFilterByTagsNotInSelectionItemTriggered()
 {
-    _filterByTagsRequested(_qtvTags->selectedItems(), false, true);
+    m_filterByTagsRequested(m_qtvTags->selectedItems(), false, true);
 }
 
-void Views::ViewTags::_createTagsTableView()
+void Views::ViewTags::createTagsTableView()
 {
-    _qtvTags = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::Tag>(Session::SessionManager::instance().dboSession());
-    _qtvTags->setImportCSVFeatureEnabled(false);
+    m_qtvTags = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::Tag>(Session::SessionManager::instance().dboSession());
+    m_qtvTags->setImportCSVFeatureEnabled(false);
 
-    _btnCreateTag = _qtvTags->createToolButton("", "icons/Add.png", "Create A Custom Tag");
-    _btnCreateTag->clicked().connect(this, &Views::ViewTags::_btnCreateTagClicked);
+    m_btnCreateTag = m_qtvTags->createToolButton("", "icons/Add.png", "Create A Custom Tag");
+    m_btnCreateTag->clicked().connect(this, &Views::ViewTags::btnCreateTagClicked);
 
-    _btnAssignTags = _qtvTags->createToolButton("", "icons/AddTo.png", "Add selected tags to selected items");
-    _btnAssignTags->clicked().connect(this, &Views::ViewTags::_btnAssignTagsClicked);
+    m_btnAssignTags = m_qtvTags->createToolButton("", "icons/AddTo.png", "Add selected tags to selected items");
+    m_btnAssignTags->clicked().connect(this, &Views::ViewTags::btnAssignTagsClicked);
 
-    _btnFilterByTags = _qtvTags->createToolButton("", "icons/Filter.png", "Filter active view by selected tags");
+    m_btnFilterByTags = m_qtvTags->createToolButton("", "icons/Filter.png", "Filter active view by selected tags");
 
-    _mnuFilterByTags = new Wt::WPopupMenu();
+    m_mnuFilterByTags = new Wt::WPopupMenu();
 
-    _mnuFilterByTagsExactSelectionItem = new Wt::WPopupMenuItem("Exact Selection");
-    _mnuFilterByTagsExactSelectionItem->triggered().connect(this, &Views::ViewTags::_mnuFilterByTagsExactSelectionItemTriggered);
-    _mnuFilterByTags->addItem(_mnuFilterByTagsExactSelectionItem);
+    m_mnuFilterByTagsExactSelectionItem = new Wt::WPopupMenuItem("Exact Selection");
+    m_mnuFilterByTagsExactSelectionItem->triggered().connect(this, &Views::ViewTags::mnuFilterByTagsExactSelectionItemTriggered);
+    m_mnuFilterByTags->addItem(m_mnuFilterByTagsExactSelectionItem);
 
-    _mnuFilterByTagsAnyOfSelectionItem = new Wt::WPopupMenuItem("Any Of Selection");
-    _mnuFilterByTagsAnyOfSelectionItem->triggered().connect(this, &Views::ViewTags::_mnuFilterByTagsAnyOfSelectionItemTriggered);
-    _mnuFilterByTags->addItem(_mnuFilterByTagsAnyOfSelectionItem);
+    m_mnuFilterByTagsAnyOfSelectionItem = new Wt::WPopupMenuItem("Any Of Selection");
+    m_mnuFilterByTagsAnyOfSelectionItem->triggered().connect(this, &Views::ViewTags::mnuFilterByTagsAnyOfSelectionItemTriggered);
+    m_mnuFilterByTags->addItem(m_mnuFilterByTagsAnyOfSelectionItem);
 
-    _mnuFilterByTagsNotInSelectionItem = new Wt::WPopupMenuItem("Not In Selection");
-    _mnuFilterByTagsNotInSelectionItem->triggered().connect(this, &Views::ViewTags::_mnuFilterByTagsNotInSelectionItemTriggered);
-    _mnuFilterByTags->addItem(_mnuFilterByTagsNotInSelectionItem);
+    m_mnuFilterByTagsNotInSelectionItem = new Wt::WPopupMenuItem("Not In Selection");
+    m_mnuFilterByTagsNotInSelectionItem->triggered().connect(this, &Views::ViewTags::mnuFilterByTagsNotInSelectionItemTriggered);
+    m_mnuFilterByTags->addItem(m_mnuFilterByTagsNotInSelectionItem);
 
-    _btnFilterByTags->setMenu(_mnuFilterByTags);
+    m_btnFilterByTags->setMenu(m_mnuFilterByTags);
 
-    _btnClearTagsFilter = _qtvTags->createToolButton("", "icons/ClearFilter.png", "Clear tags filter on the active view");
-    _btnClearTagsFilter->clicked().connect(this, &Views::ViewTags::_btnClearTagsFilterClicked);
+    m_btnClearTagsFilter = m_qtvTags->createToolButton("", "icons/ClearFilter.png", "Clear tags filter on the active view");
+    m_btnClearTagsFilter->clicked().connect(this, &Views::ViewTags::btnClearTagsFilterClicked);
 }
 
-void Views::ViewTags::_createAssignedTagsTableView()
+void Views::ViewTags::createAssignedTagsTableView()
 {
-    _qtvAssignedTags = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::Tag>(Session::SessionManager::instance().dboSession());
-    _qtvAssignedTags->setImportCSVFeatureEnabled(false);
+    m_qtvAssignedTags = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::Tag>(Session::SessionManager::instance().dboSession());
+    m_qtvAssignedTags->setImportCSVFeatureEnabled(false);
 
-    _btnUnassignTags = _qtvAssignedTags->createToolButton("", "icons/RemoveFrom.png", "Remove selected tags from selected items");
-    _btnUnassignTags->clicked().connect(this, &Views::ViewTags::_btnUnassignTagsClicked);
+    m_btnUnassignTags = m_qtvAssignedTags->createToolButton("", "icons/RemoveFrom.png", "Remove selected tags from selected items");
+    m_btnUnassignTags->clicked().connect(this, &Views::ViewTags::btnUnassignTagsClicked);
 }
 
-void Views::ViewTags::_prepareView()
+void Views::ViewTags::prepareView()
 {
-    _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(0);
+    m_layMain = new Wt::WVBoxLayout();
+    m_layMain->setContentsMargins(0,0,0,0);
+    m_layMain->setSpacing(0);
 
-    setLayout(_layMain);
+    setLayout(m_layMain);
 
     //Tags/AssignedTags Table Views
-    _cntTags = new Wt::WContainerWidget();
-    _layMain->addWidget(_cntTags);
+    m_cntTags = new Wt::WContainerWidget();
+    m_layMain->addWidget(m_cntTags);
 
-    _layCntTags = new Wt::WVBoxLayout();
-    _layCntTags->setContentsMargins(0,0,0,0);
-    _layCntTags->setSpacing(6);
+    m_layCntTags = new Wt::WVBoxLayout();
+    m_layCntTags->setContentsMargins(0,0,0,0);
+    m_layCntTags->setSpacing(6);
 
-    _cntTags->setLayout(_layCntTags);
+    m_cntTags->setLayout(m_layCntTags);
 
-    _cntAssignedTags = new Ms::Widgets::MContainerWidget();
-    _cntAssignedTags->setTitle("<b><i>Assigned Tags</i></b>");
+    m_cntAssignedTags = new Ms::Widgets::MContainerWidget();
+    m_cntAssignedTags->setTitle("<b><i>Assigned Tags</i></b>");
 
-    _layCntTags->addWidget(_cntAssignedTags);
+    m_layCntTags->addWidget(m_cntAssignedTags);
 
-    Wt::WVBoxLayout *_layCntAssignedTags = dynamic_cast<Wt::WVBoxLayout*>(_cntAssignedTags->layout());
+    Wt::WVBoxLayout *_layCntAssignedTags = dynamic_cast<Wt::WVBoxLayout*>(m_cntAssignedTags->layout());
 
-    _createAssignedTagsTableView();
-    _layCntAssignedTags->addWidget(_qtvAssignedTags, 1);
+    createAssignedTagsTableView();
+    _layCntAssignedTags->addWidget(m_qtvAssignedTags, 1);
 
     //Available Tags
-    _cntAvailableTags = new Ms::Widgets::MContainerWidget();
-    _cntAvailableTags->setTitle("<b><i>Available Tags</i></b>");
+    m_cntAvailableTags = new Ms::Widgets::MContainerWidget();
+    m_cntAvailableTags->setTitle("<b><i>Available Tags</i></b>");
 
-    _layCntTags->addWidget(_cntAvailableTags);
+    m_layCntTags->addWidget(m_cntAvailableTags);
 
-     Wt::WVBoxLayout *_layCntAvailableTags = dynamic_cast<Wt::WVBoxLayout*>(_cntAvailableTags->layout());
+     Wt::WVBoxLayout *_layCntAvailableTags = dynamic_cast<Wt::WVBoxLayout*>(m_cntAvailableTags->layout());
 
     //Tags Table View
-    _createTagsTableView();
-    _layCntAvailableTags->addWidget(_qtvTags, 1);
+    createTagsTableView();
+    _layCntAvailableTags->addWidget(m_qtvTags, 1);
 
-    _layCntTags->setResizable(0, true);
+    m_layCntTags->setResizable(0, true);
 }

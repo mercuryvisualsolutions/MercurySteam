@@ -2,15 +2,15 @@
 
 Views::ViewSearch::ViewSearch()
 {
-    _prepareView();
+    prepareView();
 }
 
-void Views::ViewSearch::_mnuSearchProjectsItemTriggered()
+void Views::ViewSearch::mnuSearchProjectsItemTriggered()
 {
     showView("projects");
 }
 
-void Views::ViewSearch::_mnuSearchUsersItemTriggered()
+void Views::ViewSearch::mnuSearchUsersItemTriggered()
 {
     showView("users");
 }
@@ -19,67 +19,67 @@ void Views::ViewSearch::showView(const std::string &view)
 {
     if(view == "projects")
     {
-        _stkSearch->setCurrentWidget(_cntSearchProjects);
-        _mnuSearch->select(_mnuSearchProjectsItem);
+        m_stkSearch->setCurrentWidget(m_cntSearchProjects);
+        m_mnuSearch->select(m_mnuSearchProjectsItem);
     }
     else if(view == "users")
     {
-        _stkSearch->setCurrentWidget(_cntSearchUsers);
-        _mnuSearch->select(_mnuSearchUsersItem);
+        m_stkSearch->setCurrentWidget(m_cntSearchUsers);
+        m_mnuSearch->select(m_mnuSearchUsersItem);
     }
 }
 
-void Views::ViewSearch::_prepareView()
+void Views::ViewSearch::prepareView()
 {
     /*******************--Search--********************/
-    _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(0);
+    m_layMain = new Wt::WVBoxLayout();
+    m_layMain->setContentsMargins(0,0,0,0);
+    m_layMain->setSpacing(0);
 
-    setLayout(_layMain);
+    setLayout(m_layMain);
 
-    _navBarSearch = new Wt::WNavigationBar();
-    _navBarSearch->setTitle("Search");
-    _cntNavBarSearch = new Wt::WContainerWidget();
-    _cntNavBarSearch->addWidget(_navBarSearch);
+    m_navBarSearch = new Wt::WNavigationBar();
+    m_navBarSearch->setTitle("Search");
+    m_cntNavBarSearch = new Wt::WContainerWidget();
+    m_cntNavBarSearch->addWidget(m_navBarSearch);
 
     //add our navigation bar to the view
-    _layMain->addWidget(_cntNavBarSearch);
+    m_layMain->addWidget(m_cntNavBarSearch);
 
-    _mnuSearch = new Wt::WMenu(Wt::Horizontal);
-    _navBarSearch->addMenu(_mnuSearch);
+    m_mnuSearch = new Wt::WMenu(Wt::Horizontal);
+    m_navBarSearch->addMenu(m_mnuSearch);
 
-    _mnuSearchProjectsItem = new Wt::WMenuItem("Projects");
-    _mnuSearchProjectsItem->triggered().connect(this, &Views::ViewSearch::_mnuSearchProjectsItemTriggered);
-    _mnuSearch->addItem(_mnuSearchProjectsItem);
+    m_mnuSearchProjectsItem = new Wt::WMenuItem("Projects");
+    m_mnuSearchProjectsItem->triggered().connect(this, &Views::ViewSearch::mnuSearchProjectsItemTriggered);
+    m_mnuSearch->addItem(m_mnuSearchProjectsItem);
 
-    _mnuSearchUsersItem = new Wt::WMenuItem("Users");
-    _mnuSearchUsersItem->triggered().connect(this, &Views::ViewSearch::_mnuSearchUsersItemTriggered);
-    _mnuSearch->addItem(_mnuSearchUsersItem);
+    m_mnuSearchUsersItem = new Wt::WMenuItem("Users");
+    m_mnuSearchUsersItem->triggered().connect(this, &Views::ViewSearch::mnuSearchUsersItemTriggered);
+    m_mnuSearch->addItem(m_mnuSearchUsersItem);
 
-    _stkSearch = new Wt::WStackedWidget();
-    _layMain->addWidget(_stkSearch, 1);//stack Projects view
+    m_stkSearch = new Wt::WStackedWidget();
+    m_layMain->addWidget(m_stkSearch, 1);//stack Projects view
 
     //Projects//////////////////////////////////////
-    _laySearchProjects = new Wt::WVBoxLayout();
-    _laySearchProjects->setContentsMargins(0,0,0,0);
-    _laySearchProjects->setSpacing(0);
+    m_laySearchProjects = new Wt::WVBoxLayout();
+    m_laySearchProjects->setContentsMargins(0,0,0,0);
+    m_laySearchProjects->setSpacing(0);
 
-    _cntSearchProjects = new Wt::WContainerWidget();
-    _cntSearchProjects->setLayout(_laySearchProjects);
+    m_cntSearchProjects = new Wt::WContainerWidget();
+    m_cntSearchProjects->setLayout(m_laySearchProjects);
 
     //add our Projects view to the Search view
-    _stkSearch->addWidget(_cntSearchProjects);
+    m_stkSearch->addWidget(m_cntSearchProjects);
 
 
     //users//////////////////////////////////////
-    _laySearchUsers = new Wt::WVBoxLayout();
-    _laySearchUsers->setContentsMargins(0,0,0,0);
-    _laySearchUsers->setSpacing(0);
+    m_laySearchUsers = new Wt::WVBoxLayout();
+    m_laySearchUsers->setContentsMargins(0,0,0,0);
+    m_laySearchUsers->setSpacing(0);
 
-    _cntSearchUsers = new Wt::WContainerWidget();
-    _cntSearchUsers->setLayout(_laySearchUsers);
+    m_cntSearchUsers = new Wt::WContainerWidget();
+    m_cntSearchUsers->setLayout(m_laySearchUsers);
 
     //add our Projects view to the Search view
-    _stkSearch->addWidget(_cntSearchUsers);
+    m_stkSearch->addWidget(m_cntSearchUsers);
 }

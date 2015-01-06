@@ -28,9 +28,9 @@ namespace App
         Log::Logger *logger();
 
     private:
-        Database::DboSession _dboSession;
-        Ms::Widgets::MPropertiesPanel *_propertiesPanel;
-        Log::Logger *_logger;
+        Database::DboSession m_dboSession;
+        Ms::Widgets::MPropertiesPanel *m_propertiesPanel;
+        Log::Logger *m_logger;
     };
 }
 

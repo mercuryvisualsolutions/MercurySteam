@@ -43,32 +43,32 @@ namespace Views
     private:
         //Variables
         
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectAsset> *_qtvAssets;
-        Log::Logger *_logger;
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectAsset> *m_qtvAssets;
+        Log::Logger *m_logger;
         //UI
-        Wt::WPushButton *_btnCreateAsset;
-        Wt::WPushButton *_btnRemoveAssets;
-        Wt::WPushButton *_btnEditAssets;
-        Wt::WPushButton *_btnImportThumbnails;
-        Wt::WPushButton *_btnOpenFilesView;
-        Wt::WVBoxLayout *_layMain;
+        Wt::WPushButton *m_btnCreateAsset;
+        Wt::WPushButton *m_btnRemoveAssets;
+        Wt::WPushButton *m_btnEditAssets;
+        Wt::WPushButton *m_btnImportThumbnails;
+        Wt::WPushButton *m_btnOpenFilesView;
+        Wt::WVBoxLayout *m_layMain;
 
         //Signals
-        Wt::Signal<> _createAssetRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectAsset>>> _removeAssetsRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectAsset>>> _openfilesViewRequested;
-        Wt::Signal<> _importThumbnailsRequested;
+        Wt::Signal<> m_createAssetRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectAsset>>> m_removeAssetsRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectAsset>>> m_openfilesViewRequested;
+        Wt::Signal<> m_importThumbnailsRequested;
 
         //Slots
-        void _btnCreateAssetClicked();
-        void _btnRemoveAssetsClicked();
-        void _btnEditAssetsClicked();
-        void _btnImportThumbnailsClicked();
-        void _btnOpenFilesViewClicked();
+        void btnCreateAssetClicked();
+        void btnRemoveAssetsClicked();
+        void btnEditAssetsClicked();
+        void btnImportThumbnailsClicked();
+        void btnOpenFilesViewClicked();
 
         //Functions
-        void _createAssetsTableView();
-        void _prepareView();
+        void createAssetsTableView();
+        void prepareView();
     };
 }
 

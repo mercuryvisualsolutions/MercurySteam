@@ -2,7 +2,7 @@
 
 Ms::Core::MManagerBase::MManagerBase()
 {
-    _init();
+    init();
 }
 
 Ms::Core::MManagerBase::~MManagerBase()
@@ -11,15 +11,15 @@ Ms::Core::MManagerBase::~MManagerBase()
 
 std::string Ms::Core::MManagerBase::userName() const
 {
-    return userName_;
+    return m_userName;
 }
 
 void Ms::Core::MManagerBase::setUserName(const std::string &userName) const
 {
-    userName_ = userName;
+    m_userName = userName;
 }
 
-void Ms::Core::MManagerBase::_init()
+void Ms::Core::MManagerBase::init()
 {
-    userName_ = "SYSTEM";
+    m_userName = "SYSTEM";
 }

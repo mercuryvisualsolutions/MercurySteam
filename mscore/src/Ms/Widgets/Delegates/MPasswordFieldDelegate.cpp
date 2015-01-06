@@ -11,16 +11,16 @@
 Ms::Widgets::Delegates::MPasswordFieldDelegate::MPasswordFieldDelegate() :
     MItemDelegate()
 {
-    _validatorExp = "[A-Za-z0-9_-]{6,14}";
-    _validatorIsMandatory = true;
+    m_validatorExp = "[A-Za-z0-9_-]{6,14}";
+    m_validatorIsMandatory = true;
 }
 
 Ms::Widgets::Delegates::MPasswordFieldDelegate::MPasswordFieldDelegate(const std::string &validatorExp, bool validatorIsMandatory, int editRank) :
     MPasswordFieldDelegate()
 {
-    _validatorExp = validatorExp;
-    _validatorIsMandatory = validatorIsMandatory;
-    _editRank = editRank;
+    m_validatorExp = validatorExp;
+    m_validatorIsMandatory = validatorIsMandatory;
+    m_editRank = editRank;
 }
 
 void Ms::Widgets::Delegates::MPasswordFieldDelegate::doCloseEditor(Wt::WWidget *editor, bool save) const
@@ -40,7 +40,7 @@ Wt::WWidget *Ms::Widgets::Delegates::MPasswordFieldDelegate::createEditor(const 
     result->setSelectable(true);
 
     boost::any data = index.data(Wt::EditRole);
-    Wt::WLineEdit *lineEdit = Ms::Widgets::MWidgetFactory::createLineEdit("", true, _validatorExp, _validatorIsMandatory);
+    Wt::WLineEdit *lineEdit = Ms::Widgets::MWidgetFactory::createLineEdit("", true, m_validatorExp, m_validatorIsMandatory);
 
     if(!data.empty())
         lineEdit->setText(boost::any_cast<std::string>(data));

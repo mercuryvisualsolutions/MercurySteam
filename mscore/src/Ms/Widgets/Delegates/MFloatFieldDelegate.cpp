@@ -17,7 +17,7 @@ Ms::Widgets::Delegates::MFloatFieldDelegate::MFloatFieldDelegate() :
 Ms::Widgets::Delegates::MFloatFieldDelegate::MFloatFieldDelegate(int editRank) :
     MFloatFieldDelegate()
 {
-    _editRank = editRank;
+    m_editRank = editRank;
 }
 
 void Ms::Widgets::Delegates::MFloatFieldDelegate::doCloseEditor(Wt::WWidget *editor, bool save) const

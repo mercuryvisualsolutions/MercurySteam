@@ -3,7 +3,7 @@
 
 Ms::Core::Dbo::MDboSession::MDboSession(Wt::Dbo::SqlConnectionPool &connectionPool) :
     Ms::Core::MManagerBase(),
-    _connectionPool(connectionPool)
+    m_connectionPool(connectionPool)
 {
     setConnectionPool(connectionPool);
 }

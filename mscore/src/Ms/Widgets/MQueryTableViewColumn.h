@@ -56,13 +56,13 @@ namespace Ms
 
 
         private:
-            std::string _dbFieldName;
-            std::string _displayName;
-            int _width;
-            Wt::WFlags<Wt::ItemFlag> _flags;
-            Ms::Widgets::Delegates::MItemDelegate *_delegate;
-            bool _isMandatory;
-            bool _ignored;
+            std::string m_dbFieldName;
+            std::string m_displayName;
+            int m_width;
+            Wt::WFlags<Wt::ItemFlag> m_flags;
+            Ms::Widgets::Delegates::MItemDelegate *m_delegate;
+            bool m_isMandatory;
+            bool m_ignored;
         };
     }
 }

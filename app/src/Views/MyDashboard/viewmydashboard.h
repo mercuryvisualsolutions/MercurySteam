@@ -48,40 +48,40 @@ namespace Views
     private:
         //variables
         
-        Log::Logger *_logger;
-        Ms::Widgets::MPropertiesPanel *_propertiesPanel;
+        Log::Logger *m_logger;
+        Ms::Widgets::MPropertiesPanel *m_propertiesPanel;
 
         //Signals
-        Wt::Signal<> _onTabMyTasksSelected;
+        Wt::Signal<> m_onTabMyTasksSelected;
 
         /*******************--Main--********************/
-        Wt::WNavigationBar *_navBarMain;
-        Wt::WContainerWidget *_cntNavBarMain;
-        Wt::WMenu *_mnuNavBarMain;
-        Wt::WMenuItem *_mnuNavBarMainMyTasksItem;
-        Wt::WStackedWidget *_stkMain;
+        Wt::WNavigationBar *m_navBarMain;
+        Wt::WContainerWidget *m_cntNavBarMain;
+        Wt::WMenu *m_mnuNavBarMain;
+        Wt::WMenuItem *m_mnuNavBarMainMyTasksItem;
+        Wt::WStackedWidget *m_stkMain;
 
         /*******************--MyTasks--********************/
-        Wt::WVBoxLayout *_layTasks;
-        Wt::WContainerWidget *_cntTasks;//container for task view
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *_qtvTasks;
-        Wt::WPushButton *_btnTaskFiles;
+        Wt::WVBoxLayout *m_layTasks;
+        Wt::WContainerWidget *m_cntTasks;//container for task view
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *m_qtvTasks;
+        Wt::WPushButton *m_btnTaskFiles;
 
         /*******************--Properties--********************/
-        Wt::WContainerWidget *_cntPropertiesMain;
+        Wt::WContainerWidget *m_cntPropertiesMain;
 
         /*******************--Tasks--********************/
         //functions
-        void _createTasksTableView();
+        void createTasksTableView();
 
         //slots
-        void _btnTasksFilesClicked();
-        void _mnuNavBarMainMyTasksItemTriggered();
+        void btnTasksFilesClicked();
+        void mnuNavBarMainMyTasksItemTriggered();
 
         /*******************--Properties--********************/
-        void _createPropertiesView();
+        void createPropertiesView();
 
-        void _prepareView();
+        void prepareView();
     };
 }
 

@@ -39,56 +39,56 @@ namespace Ms
         template<typename T>
         Ms::Widgets::MQueryTableViewWidget<T>::MQueryTableViewWidget(Ms::Core::Dbo::MDboSession &dboSession, Wt::WContainerWidget *parent) :
             Wt::WContainerWidget(parent),
-            _dboSession(dboSession)
+            m_dboSession(dboSession)
         {
-            _defaultFilterColumnIndex = 0;
-            _ignoreNumFilterColumns = 0;
-            _advancedFilterActive = false;
-            _customFilterActive = false;
-            _customFilterString = "";
-            _advancedFilterString = "";
-            _filterRegExpression = "[^$]{0,255}";
+            m_defaultFilterColumnIndex = 0;
+            m_ignoreNumFilterColumns = 0;
+            m_advancedFilterActive = false;
+            m_customFilterActive = false;
+            m_customFilterString = "";
+            m_advancedFilterString = "";
+            m_filterRegExpression = "[^$]{0,255}";
 
             //features
-            _importCSVFeatureEnabled = true;
-            _exportCSVFeatureEnabled = true;
-            _advancedFilterFeatureEnabled = true;
+            m_importCSVFeatureEnabled = true;
+            m_exportCSVFeatureEnabled = true;
+            m_advancedFilterFeatureEnabled = true;
 
-            _prepareView();
+            prepareView();
 
-            _setModelUserName(dboSession.userName());
+            setModelUserName(dboSession.userName());
         }
 
         template<typename T>
         Ms::Widgets::MQueryTableViewWidget<T>::~MQueryTableViewWidget()
         {
-            delete _model;
-            delete _proxyModel;
+            delete m_model;
+            delete m_proxyModel;
         }
 
         //functions
         template<typename T>
         const Ms::Dbo::MDboQueryModel<Wt::Dbo::ptr<T>> *Ms::Widgets::MQueryTableViewWidget<T>::model() const
         {
-            return _model;
+            return m_model;
         }
 
         template<typename T>
         const Wt::WSortFilterProxyModel *Ms::Widgets::MQueryTableViewWidget<T>::proxyModel() const
         {
-            return _proxyModel;
+            return m_proxyModel;
         }
 
         template<typename T>
         Wt::WTableView *Ms::Widgets::MQueryTableViewWidget<T>::table() const
         {
-            return _tblMain;
+            return m_tblMain;
         }
 
         template<typename T>
         const std::string Ms::Widgets::MQueryTableViewWidget<T>::tableName() const
         {
-            return _dboSession.tableName<T>();
+            return m_dboSession.tableName<T>();
         }
 
         template<typename T>
@@ -98,7 +98,7 @@ namespace Ms
             btn->setToolTip(toolTip);
             btn->setIcon(Wt::WLink(iconPath));
 
-            _tbMain->addButton(btn);
+            m_tbMain->addButton(btn);
 
             return btn;
         }
@@ -106,138 +106,138 @@ namespace Ms
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::setRowHeight(int height)
         {
-            _sldRowHeight->setValue(height);
-            _tblMain->setRowHeight(height);
+            m_sldRowHeight->setValue(height);
+            m_tblMain->setRowHeight(height);
         }
 
         template<typename T>
         int Ms::Widgets::MQueryTableViewWidget<T>::rowHeight() const
         {
-            return _tblMain->rowHeight().value();
+            return m_tblMain->rowHeight().value();
         }
 
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::setHeaderHeight(const Wt::WLength &height)
         {
-            _tblMain->setHeaderHeight(height);
+            m_tblMain->setHeaderHeight(height);
         }
 
         template<typename T>
         const Wt::WLength Ms::Widgets::MQueryTableViewWidget<T>::headerHeight() const
         {
-            return _tblMain->headerHeight();
+            return m_tblMain->headerHeight();
         }
 
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::setQuery(Wt::Dbo::Query<Wt::Dbo::ptr<T> > &query) const
         {
-            _query = query;
+            m_query = query;
         }
 
         template<typename T>
         Wt::Dbo::Query<Wt::Dbo::ptr<T>> &Ms::Widgets::MQueryTableViewWidget<T>::query() const
         {
-            return _query;
+            return m_query;
         }
 
         template<typename T>
         const Ms::Core::Dbo::MDboSession *Ms::Widgets::MQueryTableViewWidget<T>::dboSession() const
         {
-            return _dboSession;
+            return m_dboSession;
         }
 
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::setDboSession(Ms::Core::Dbo::MDboSession &dboSession)
         {
-            _dboSession = dboSession;
+            m_dboSession = dboSession;
 
-            _setModelUserName(dboSession.userName());
+            setModelUserName(dboSession.userName());
         }
 
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::setDefaultFilterColumnIndex(int columnIndex)
         {
-            _defaultFilterColumnIndex = columnIndex;
-            _proxyModel->setFilterKeyColumn(columnIndex);
+            m_defaultFilterColumnIndex = columnIndex;
+            m_proxyModel->setFilterKeyColumn(columnIndex);
         }
 
         template<typename T>
         int Ms::Widgets::MQueryTableViewWidget<T>::defaultFilterColumnIndex()
         {
-            return _defaultFilterColumnIndex;
+            return m_defaultFilterColumnIndex;
         }
 
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::setSelectionMode(Wt::SelectionMode mode)
         {
-            _tblMain->setSelectionMode(mode);
+            m_tblMain->setSelectionMode(mode);
         }
 
         template<typename T>
         Wt::SelectionMode Ms::Widgets::MQueryTableViewWidget<T>::selectionMode()
         {
-            return _tblMain->selectionMode();
+            return m_tblMain->selectionMode();
         }
 
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::setDynamicSortFilter(bool enable)
         {
-            _proxyModel->setDynamicSortFilter(enable);
+            m_proxyModel->setDynamicSortFilter(enable);
         }
 
         template<typename T>
         bool Ms::Widgets::MQueryTableViewWidget<T>::dynamicSortFilter() const
         {
-            return _proxyModel->dynamicSortFilter();
+            return m_proxyModel->dynamicSortFilter();
         }
 
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::setFilterRole(int role)
         {
-            _proxyModel->setFilterRole(role);
+            m_proxyModel->setFilterRole(role);
         }
 
         template<typename T>
         int Ms::Widgets::MQueryTableViewWidget<T>::filterRole()
         {
-            return _proxyModel->filterRole();
+            return m_proxyModel->filterRole();
         }
 
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::setFilterRegExp(const Wt::WString &regExpression)
         {
-            _filterRegExpression = regExpression;
-            _proxyModel->setFilterRegExp(regExpression);
+            m_filterRegExpression = regExpression;
+            m_proxyModel->setFilterRegExp(regExpression);
         }
 
         template<typename T>
         Wt::WString Ms::Widgets::MQueryTableViewWidget<T>::filterRegExp() const
         {
-            return _filterRegExpression;
+            return m_filterRegExpression;
         }
 
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::setColumnResizeEnabled(bool enabled)
         {
-            _tblMain->setColumnResizeEnabled(enabled);
+            m_tblMain->setColumnResizeEnabled(enabled);
         }
 
         template<typename T>
         bool Ms::Widgets::MQueryTableViewWidget<T>::isColumnResizeEnabled() const
         {
-            return _tblMain->isColumnResizeEnabled();
+            return m_tblMain->isColumnResizeEnabled();
         }
 
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::setAlternatingRowColors(bool enable)
         {
-            _tblMain->setAlternatingRowColors(enable);
+            m_tblMain->setAlternatingRowColors(enable);
         }
 
         template<typename T>
         bool Ms::Widgets::MQueryTableViewWidget<T>::alternatingRowColors() const
         {
-            return _tblMain->alternatingRowColors();
+            return m_tblMain->alternatingRowColors();
         }
 
         template<typename T>
@@ -245,24 +245,24 @@ namespace Ms
         {
             try
             {
-                if(_tblMain->selectionMode() != Wt::ExtendedSelection)
+                if(m_tblMain->selectionMode() != Wt::ExtendedSelection)
                 {
-                    _popMnuSelectAllItem->setDisabled(true);
-                    _popMnuSelectNoneItem->setDisabled(true);
-                    _popMnuInverseSelectionItem->setDisabled(true);
+                    m_popMnuSelectAllItem->setDisabled(true);
+                    m_popMnuSelectNoneItem->setDisabled(true);
+                    m_popMnuInverseSelectionItem->setDisabled(true);
                 }
 
                 saveSelection();
 
-                _updateModel();
-                _updateTable();
+                updateModel();
+                updateTable();
 
-                if(!_cntAdvancedFilter->isHidden())
-                    _updateAdvancedFilterTable();
+                if(!m_cntAdvancedFilter->isHidden())
+                    updateAdvancedFilterTable();
 
                 loadSelection();
 
-                _updateStatusBar();
+                updateStatusBar();
             }
             catch(Wt::Dbo::Exception ex)
             {
@@ -274,10 +274,10 @@ namespace Ms
         void Ms::Widgets::MQueryTableViewWidget<T>::saveSelection() const
         {
             //save selection by id
-            _selection.clear();
+            m_selection.clear();
 
-            for(const Wt::WModelIndex &index : _tblMain->selectedIndexes())
-                _selection.push_back(_model->resultRow(_proxyModel->mapToSource(index).row()).id());
+            for(const Wt::WModelIndex &index : m_tblMain->selectedIndexes())
+                m_selection.push_back(m_model->resultRow(m_proxyModel->mapToSource(index).row()).id());
         }
 
         template<typename T>
@@ -286,19 +286,19 @@ namespace Ms
             //load selection by id
             Wt::WModelIndexSet indexSet;
 
-            for(const typename Wt::Dbo::dbo_traits<T>::IdType &id : _selection)
+            for(const typename Wt::Dbo::dbo_traits<T>::IdType &id : m_selection)
             {
-                for(int row = 0; row < _proxyModel->rowCount(); ++row)
+                for(int row = 0; row < m_proxyModel->rowCount(); ++row)
                 {
-                    if((_model->resultRow(_proxyModel->mapToSource(_proxyModel->index(row,0)).row()).id() == id))
+                    if((m_model->resultRow(m_proxyModel->mapToSource(m_proxyModel->index(row,0)).row()).id() == id))
                     {
-                        indexSet.insert(_proxyModel->index(row,0));
-                        //_tblMain->select(_proxyModel->index(row,0));
+                        indexSet.insert(m_proxyModel->index(row,0));
+                        //m_tblMain->select(m_proxyModel->index(row,0));
                     }
                 }
             }
 
-            _tblMain->setSelectedIndexes(indexSet);
+            m_tblMain->setSelectedIndexes(indexSet);
         }
 
         template<typename T>
@@ -306,19 +306,19 @@ namespace Ms
         {
             Wt::WModelIndexSet indexSet;
 
-            for(int row = 0; row < _proxyModel->rowCount(); ++row)
+            for(int row = 0; row < m_proxyModel->rowCount(); ++row)
             {
-                indexSet.insert(_proxyModel->index(row,0));
+                indexSet.insert(m_proxyModel->index(row,0));
             }
 
-            _tblMain->setSelectedIndexes(indexSet);
+            m_tblMain->setSelectedIndexes(indexSet);
         }
 
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::selectNone() const
         {
             Wt::WModelIndexSet indexSet;
-            _tblMain->setSelectedIndexes(indexSet);
+            m_tblMain->setSelectedIndexes(indexSet);
         }
 
         template<typename T>
@@ -326,29 +326,29 @@ namespace Ms
         {
             Wt::WModelIndexSet indexSet;
 
-            for(int row = 0; row < _proxyModel->rowCount(); ++row)
+            for(int row = 0; row < m_proxyModel->rowCount(); ++row)
             {
-                if(!_tblMain->selectionModel()->isSelected(_proxyModel->index(row,0)))
-                    indexSet.insert(_proxyModel->index(row,0));
+                if(!m_tblMain->selectionModel()->isSelected(m_proxyModel->index(row,0)))
+                    indexSet.insert(m_proxyModel->index(row,0));
             }
 
-            _tblMain->setSelectedIndexes(indexSet);
+            m_tblMain->setSelectedIndexes(indexSet);
         }
 
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::addColumn(const Ms::Widgets::MQueryTableViewColumn &column) const
         {
-            _columns.push_back(column);
+            m_columns.push_back(column);
         }
 
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::removeColumn(const Ms::Widgets::MQueryTableViewColumn &column) const
         {
-            for(std::vector<Ms::Widgets::MQueryTableViewColumn>::iterator iter = _columns.begin(); iter != _columns.end(); ++iter)
+            for(std::vector<Ms::Widgets::MQueryTableViewColumn>::iterator iter = m_columns.begin(); iter != m_columns.end(); ++iter)
             {
                 if((*iter) == column)
                 {
-                    _columns.erase(iter);
+                    m_columns.erase(iter);
 
                     break;
                 }
@@ -358,65 +358,65 @@ namespace Ms
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::clearColumns() const
         {
-            _columns.clear();
+            m_columns.clear();
         }
 
         template<typename T>
         bool Ms::Widgets::MQueryTableViewWidget<T>::dbColumnExist(const std::string &dbColumnName) const//searches for real column DB name
         {
-            return std::find_if(_columns.begin(), _columns.end(), [dbColumnName](const Ms::Widgets::MQueryTableViewColumn &col){
+            return std::find_if(m_columns.begin(), m_columns.end(), [dbColumnName](const Ms::Widgets::MQueryTableViewColumn &col){
                 return col.dbFieldName() == dbColumnName;
-            }) != _columns.end();
+            }) != m_columns.end();
         }
 
         template<typename T>
         bool Ms::Widgets::MQueryTableViewWidget<T>::columnExist(const std::string &columnDisplayName) const//searches for column display name
         {
-            return std::find_if(_columns.begin(), _columns.end(), [columnDisplayName](const Ms::Widgets::MQueryTableViewColumn &col){
+            return std::find_if(m_columns.begin(), m_columns.end(), [columnDisplayName](const Ms::Widgets::MQueryTableViewColumn &col){
                 return col.displayName() == columnDisplayName;
-            }) != _columns.end();
+            }) != m_columns.end();
         }
 
         template<typename T>
         bool Ms::Widgets::MQueryTableViewWidget<T>::columnIsIgnored(const std::string &columnDisplayName) const
         {
-            auto iter = std::find_if(_columns.begin(), _columns.end(), [columnDisplayName](const Ms::Widgets::MQueryTableViewColumn &col){
+            auto iter = std::find_if(m_columns.begin(), m_columns.end(), [columnDisplayName](const Ms::Widgets::MQueryTableViewColumn &col){
                 return col.displayName() == columnDisplayName;
             });
 
-            return (iter != _columns.end()) && (*iter).isIgnored();
+            return (iter != m_columns.end()) && (*iter).isIgnored();
         }
 
         template<typename T>
         std::string Ms::Widgets::MQueryTableViewWidget<T>::columnName(const std::string &columnDisplayName) const
         {
-            auto iter = std::find_if(_columns.begin(), _columns.end(), [columnDisplayName](const Ms::Widgets::MQueryTableViewColumn &col){
+            auto iter = std::find_if(m_columns.begin(), m_columns.end(), [columnDisplayName](const Ms::Widgets::MQueryTableViewColumn &col){
                 return col.displayName() == columnDisplayName;
             });
 
-            return iter != _columns.end() ? (*iter).dbFieldName() : "";
+            return iter != m_columns.end() ? (*iter).dbFieldName() : "";
         }
 
         template<typename T>
         std::string Ms::Widgets::MQueryTableViewWidget<T>::columnDisplayName(const std::string &dboName) const
         {
-            auto iter = std::find_if(_columns.begin(), _columns.end(), [dboName](const Ms::Widgets::MQueryTableViewColumn &col){
+            auto iter = std::find_if(m_columns.begin(), m_columns.end(), [dboName](const Ms::Widgets::MQueryTableViewColumn &col){
                 return col.dbFieldName() == dboName;
             });
 
-            return iter != _columns.end() ? (*iter).displayName() : "";
+            return iter != m_columns.end() ? (*iter).displayName() : "";
         }
 
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::setIgnoreNumFilterColumns(int numColumns)
         {
-            _ignoreNumFilterColumns = numColumns;
+            m_ignoreNumFilterColumns = numColumns;
         }
 
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::ignoredNumFilterColumns() const
         {
-            return _ignoreNumFilterColumns;
+            return m_ignoreNumFilterColumns;
         }
 
         template<typename T>
@@ -424,9 +424,9 @@ namespace Ms
         {
             std::vector<Wt::Dbo::ptr<T>> vec;
 
-            for(const Wt::WModelIndex &index : _tblMain->selectedIndexes())
+            for(const Wt::WModelIndex &index : m_tblMain->selectedIndexes())
             {
-                Wt::Dbo::ptr<T> dboPtr = _model->resultRow(_proxyModel->mapToSource(index).row());
+                Wt::Dbo::ptr<T> dboPtr = m_model->resultRow(m_proxyModel->mapToSource(index).row());
 
                 vec.push_back(dboPtr);
             }
@@ -439,11 +439,11 @@ namespace Ms
         {
             std::vector<Wt::Dbo::ptr<T>> vec;
 
-            for(int row = 0; row < _proxyModel->rowCount(); ++row)
+            for(int row = 0; row < m_proxyModel->rowCount(); ++row)
             {
-                const Wt::WModelIndex index = _proxyModel->mapToSource(_proxyModel->index(row, 0));
+                const Wt::WModelIndex index = m_proxyModel->mapToSource(m_proxyModel->index(row, 0));
 
-                Wt::Dbo::ptr<T> dboPtr = _model->resultRow(index.row());
+                Wt::Dbo::ptr<T> dboPtr = m_model->resultRow(index.row());
 
                 vec.push_back(dboPtr);
             }
@@ -454,103 +454,103 @@ namespace Ms
         template<typename T>
         bool Ms::Widgets::MQueryTableViewWidget<T>::isImportCSVFeatureEnabled() const
         {
-            return _importCSVFeatureEnabled;
+            return m_importCSVFeatureEnabled;
         }
 
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::setImportCSVFeatureEnabled(bool enabled)
         {
-            _importCSVFeatureEnabled = enabled;
+            m_importCSVFeatureEnabled = enabled;
 
-            _popMnuIOImportCSVItem->setHidden(!enabled);
+            m_popMnuIOImportCSVItem->setHidden(!enabled);
         }
 
         template<typename T>
         bool Ms::Widgets::MQueryTableViewWidget<T>::isExportCSVFeatureEnabled() const
         {
-            return _exportCSVFeatureEnabled;
+            return m_exportCSVFeatureEnabled;
         }
 
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::setExportCSVFeatureEnabled(bool enabled)
         {
-            _exportCSVFeatureEnabled = enabled;
+            m_exportCSVFeatureEnabled = enabled;
 
-            _popMnuIOExportCSVItem->setHidden(!enabled);
+            m_popMnuIOExportCSVItem->setHidden(!enabled);
         }
 
         template<typename T>
         bool Ms::Widgets::MQueryTableViewWidget<T>::isAdvancedFilterFeatureEnabled() const
         {
-            return _advancedFilterFeatureEnabled;
+            return m_advancedFilterFeatureEnabled;
         }
 
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::setAdvancedFilterFeatureEnabled(bool enabled)
         {
-            _advancedFilterFeatureEnabled = enabled;
+            m_advancedFilterFeatureEnabled = enabled;
 
-            _popMnuViewAdvancedFilterItem->setHidden(!enabled);
+            m_popMnuViewAdvancedFilterItem->setHidden(!enabled);
 
             if(enabled)
             {
-                if(_popMnuViewAdvancedFilterItem->isChecked())
-                    _cntAdvancedFilter->show();
+                if(m_popMnuViewAdvancedFilterItem->isChecked())
+                    m_cntAdvancedFilter->show();
                 else
-                    _cntAdvancedFilter->hide();
+                    m_cntAdvancedFilter->hide();
             }
             else
-                _cntAdvancedFilter->hide();
+                m_cntAdvancedFilter->hide();
         }
 
         template<typename T>
         std::string Ms::Widgets::MQueryTableViewWidget<T>::advancedFilterString() const
         {
-            return _advancedFilterString;
+            return m_advancedFilterString;
         }
 
         template<typename T>
         bool Ms::Widgets::MQueryTableViewWidget<T>::isAdvancedFilterActive() const
         {
-            return _advancedFilterActive;
+            return m_advancedFilterActive;
         }
 
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::setAdvancedFilterActive(bool active)
         {
-            _advancedFilterActive = active;
+            m_advancedFilterActive = active;
 
-            _chkAdvancedFilterActive->setChecked(active);
+            m_chkAdvancedFilterActive->setChecked(active);
 
-            _updateModel();
+            updateModel();
         }
 
         template<typename T>
         bool Ms::Widgets::MQueryTableViewWidget<T>::isCustomFilterActive() const
         {
-            return _customFilterActive;
+            return m_customFilterActive;
         }
 
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::setCustomFilterActive(bool active)
         {
-            _customFilterActive = active;
+            m_customFilterActive = active;
 
-            _chkCustomFilterActive->setChecked(active);
+            m_chkCustomFilterActive->setChecked(active);
 
-            _updateModel();
+            updateModel();
         }
 
         template<typename T>
         std::string Ms::Widgets::MQueryTableViewWidget<T>::customFilterString() const
         {
-            return _customFilterString;
+            return m_customFilterString;
         }
 
         template<typename T>
         void Ms::Widgets::MQueryTableViewWidget<T>::setCustomFilterString(const std::string &customFilterString)
         {
-            _customFilterString = customFilterString;
+            m_customFilterString = customFilterString;
         }
 
         template<typename T>
@@ -570,39 +570,39 @@ namespace Ms
         template<typename T>
         Wt::Signal<> &Ms::Widgets::MQueryTableViewWidget<T>::tableSelectionChanged()
         {
-            return _tableSelectionChanged;
+            return m_tableSelectionChanged;
         }
 
         template<typename T>
         Wt::Signal<Wt::Dbo::ptr<T>> &Ms::Widgets::MQueryTableViewWidget<T>::itemImported()
         {
-            return _itemImported;
+            return m_itemImported;
         }
 
         //slots
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_mainTableSelectionChanged()
+        void Ms::Widgets::MQueryTableViewWidget<T>::mainTableSelectionChanged()
         {
-            _updateStatusBar();
+            updateStatusBar();
 
-            _tableSelectionChanged();
+            m_tableSelectionChanged();
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_cmbColumnFilterChanged()
+        void Ms::Widgets::MQueryTableViewWidget<T>::cmbColumnFilterChanged()
         {
-            _proxyModel->setFilterKeyColumn(_cmbColumnFilter->currentIndex() + _ignoreNumFilterColumns);
-            _refilter();
+            m_proxyModel->setFilterKeyColumn(m_cmbColumnFilter->currentIndex() + m_ignoreNumFilterColumns);
+            refilter();
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_lnFilterKeyWentUp()
+        void Ms::Widgets::MQueryTableViewWidget<T>::lnFilterKeyWentUp()
         {
-            _refilter();
+            refilter();
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_cntTblMainKeyWentDown(Wt::WKeyEvent key)
+        void Ms::Widgets::MQueryTableViewWidget<T>::cntTblMainKeyWentDown(Wt::WKeyEvent key)
         {
             if(((key.modifiers() & Wt::KeyboardModifier::ShiftModifier) == Wt::KeyboardModifier::ShiftModifier) && key.key() == Wt::Key::Key_A)
             {
@@ -618,8 +618,8 @@ namespace Ms
             }
             else if(((key.modifiers() & Wt::KeyboardModifier::ShiftModifier) == Wt::KeyboardModifier::ShiftModifier) && key.key() == Wt::Key::Key_F)
             {
-                _popMnuViewAdvancedFilterItem->setChecked(!_popMnuViewAdvancedFilterItem->isChecked());
-                _toggleAdvancedFilterView();
+                m_popMnuViewAdvancedFilterItem->setChecked(!m_popMnuViewAdvancedFilterItem->isChecked());
+                toggleAdvancedFilterView();
             }
             else if(((key.modifiers() & Wt::KeyboardModifier::ShiftModifier) == Wt::KeyboardModifier::ShiftModifier) && key.key() == Wt::Key::Key_R)
             {
@@ -628,31 +628,31 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_popMnuSelectAllItemTriggered()
+        void Ms::Widgets::MQueryTableViewWidget<T>::popMnuSelectAllItemTriggered()
         {
             selectAll();
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_popMnuSelectNoneItemTriggered()
+        void Ms::Widgets::MQueryTableViewWidget<T>::popMnuSelectNoneItemTriggered()
         {
             selectNone();
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_popMnuInverseSelectionItemTriggered()
+        void Ms::Widgets::MQueryTableViewWidget<T>::popMnuInverseSelectionItemTriggered()
         {
             inverseSelection();
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_popMnuIOImportCSVItemTriggered()
+        void Ms::Widgets::MQueryTableViewWidget<T>::popMnuIOImportCSVItemTriggered()
         {
             Ms::Widgets::Dialogs::MFilesUploadDialog *dlg = new Ms::Widgets::Dialogs::MFilesUploadDialog(false, true);
             dlg->finished().connect(std::bind([=]()
             {
                 if(dlg->result() == Wt::WDialog::Accepted)
-                    _importCSV(dlg->spoolFileName());
+                    importCSV(dlg->spoolFileName());
 
                 remove(dlg->spoolFileName().c_str());//delete the temp csv file
                 delete dlg;
@@ -662,14 +662,14 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_popMnuIOExportCSVItemTriggered()
+        void Ms::Widgets::MQueryTableViewWidget<T>::popMnuIOExportCSVItemTriggered()
         {
-            if(_model->rowCount() == 0)
+            if(m_model->rowCount() == 0)
                 return;
 
             bool linkClicked = false;
 
-            std::string csvData = _generateCSVData();
+            std::string csvData = generateCSVData();
 
             Ms::IO::MStreamedMemoryResource *csvResource = new Ms::IO::MStreamedMemoryResource(std::vector<unsigned char>(csvData.begin(), csvData.end()), this);
             csvResource->setMimeType("text/plain");
@@ -699,13 +699,13 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_popMnuViewAdvancedFilterItemTriggered()
+        void Ms::Widgets::MQueryTableViewWidget<T>::popMnuViewAdvancedFilterItemTriggered()
         {
-            _toggleAdvancedFilterView();
+            toggleAdvancedFilterView();
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_btnAdvancedFilterAddClicked()
+        void Ms::Widgets::MQueryTableViewWidget<T>::btnAdvancedFilterAddClicked()
         {
             std::vector<Wt::WStandardItem*> items;
 
@@ -713,49 +713,49 @@ namespace Ms
             item->setData(true, Wt::EditRole);
             items.push_back(item);
 
-            for(unsigned int i = 1; i < _mdlAdvancedFilter->columnCount(); ++i)
+            for(int i = 1; i < m_mdlAdvancedFilter->columnCount(); ++i)
             {
                 Wt::WStandardItem *item = new Wt::WStandardItem("");
                 item->setFlags(Wt::ItemIsSelectable | Wt::ItemIsEditable);
                 items.push_back(item);
             }
 
-            _mdlAdvancedFilter->appendRow(items);
+            m_mdlAdvancedFilter->appendRow(items);
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_btnAdvancedFilterRemoveClicked()
+        void Ms::Widgets::MQueryTableViewWidget<T>::btnAdvancedFilterRemoveClicked()
         {
-            while(_tblAdvancedFilter->selectedIndexes().size() > 0)
+            while(m_tblAdvancedFilter->selectedIndexes().size() > 0)
             {
-                _mdlAdvancedFilter->removeRows((*_tblAdvancedFilter->selectedIndexes().cbegin()).row(), 1);
+                m_mdlAdvancedFilter->removeRows((*m_tblAdvancedFilter->selectedIndexes().cbegin()).row(), 1);
             }
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_btnAdvancedFilterApplyClicked()
+        void Ms::Widgets::MQueryTableViewWidget<T>::btnAdvancedFilterApplyClicked()
         {
-            _advancedFilterActive = true;
+            m_advancedFilterActive = true;
 
-            _advancedFilterString = "";
+            m_advancedFilterString = "";
 
             bool openBracket = false;
 
             std::vector<std::tuple<std::string, std::string, std::string, std::string, std::string>> vecValidItems;
 
             //gather valid columns
-            for(unsigned int row = 0; row < _mdlAdvancedFilter->rowCount(); ++row)
+            for(int row = 0; row < m_mdlAdvancedFilter->rowCount(); ++row)
             {
-                bool colActive = boost::any_cast<bool>(_mdlAdvancedFilter->data(row, 0, Wt::EditRole));
+                bool colActive = boost::any_cast<bool>(m_mdlAdvancedFilter->data(row, 0, Wt::EditRole));
 
                 if(!colActive)
                     continue;
 
-                std::string colDispName = boost::any_cast<Wt::WString>(_mdlAdvancedFilter->data(row, 1)).toUTF8();
-                std::string op1 = boost::any_cast<Wt::WString>(_mdlAdvancedFilter->data(row, 2)).toUTF8();
-                std::string value = boost::any_cast<Wt::WString>(_mdlAdvancedFilter->data(row, 3)).toUTF8();
-                std::string op2 = boost::any_cast<Wt::WString>(_mdlAdvancedFilter->data(row, 4)).toUTF8();
-                std::string combine = boost::any_cast<Wt::WString>(_mdlAdvancedFilter->data(row, 5)).toUTF8();
+                std::string colDispName = boost::any_cast<Wt::WString>(m_mdlAdvancedFilter->data(row, 1)).toUTF8();
+                std::string op1 = boost::any_cast<Wt::WString>(m_mdlAdvancedFilter->data(row, 2)).toUTF8();
+                std::string value = boost::any_cast<Wt::WString>(m_mdlAdvancedFilter->data(row, 3)).toUTF8();
+                std::string op2 = boost::any_cast<Wt::WString>(m_mdlAdvancedFilter->data(row, 4)).toUTF8();
+                std::string combine = boost::any_cast<Wt::WString>(m_mdlAdvancedFilter->data(row, 5)).toUTF8();
 
                 if((colDispName == "" || op1 == "" || value == ""))
                     continue;
@@ -799,41 +799,41 @@ namespace Ms
                 if(hasMoreRows)
                     subQueryStr += " " + op2 + " ";
 
-                _advancedFilterString += subQueryStr;
+                m_advancedFilterString += subQueryStr;
             }
 
-            std::cout << _advancedFilterString << std::endl;
+            std::cout << m_advancedFilterString << std::endl;
 
             setAdvancedFilterActive(true);
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_btnAdvancedFilterClearClicked()
+        void Ms::Widgets::MQueryTableViewWidget<T>::btnAdvancedFilterClearClicked()
         {
             setAdvancedFilterActive(false);
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_popMnuReloadItemTriggered()
+        void Ms::Widgets::MQueryTableViewWidget<T>::popMnuReloadItemTriggered()
         {
             updateView();
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_sldRowHeightValueChanged()
+        void Ms::Widgets::MQueryTableViewWidget<T>::sldRowHeightValueChanged()
         {
-            _tblMain->setRowHeight(_sldRowHeight->value());
+            m_tblMain->setRowHeight(m_sldRowHeight->value());
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_importCSV(const std::string &fileName)
+        void Ms::Widgets::MQueryTableViewWidget<T>::importCSV(const std::string &fileName)
         {
             Ms::IO::Data::MDataCSV csvData;
             if(!Ms::IO::readCsv(fileName, csvData))
                 return;
 
             //scan for mandatory columns before import
-            for(auto iter = _columns.begin(); iter != _columns.end(); ++iter)
+            for(auto iter = m_columns.begin(); iter != m_columns.end(); ++iter)
             {
                 if((*iter).isMandatory())
                 {
@@ -887,22 +887,22 @@ namespace Ms
                         std::to_string(Wt::WDateTime::currentDateTime().time().hour()) + ":" +
                         std::to_string(Wt::WDateTime::currentDateTime().time().minute()) + ":" +
                         std::to_string(Wt::WDateTime::currentDateTime().time().second()) +
-                                                   "','" + _dboSession.userName() + "'";
+                                                   "','" + m_dboSession.userName() + "'";
 
                 if(columnsSql != "" && valuesSql != "")//found some columns and values ?
                 {
                     //try to import
                     try
                     {
-                        Wt::Dbo::Transaction transaction(_dboSession);
+                        Wt::Dbo::Transaction transaction(m_dboSession);
 
                         std::string sqlCommand = "INSERT INTO " + tableName() + " (" + columnsSql + ") VALUES (" + valuesSql + ")";
 
-                        _dboSession.execute(sqlCommand);
+                        m_dboSession.execute(sqlCommand);
 
                         transaction.commit();
 
-                        //_itemImported(dboPtr);//emit the itemImported signal
+                        //m_itemImported(dboPtr);//emit the itemImported signal
                     }
                     catch(Wt::Dbo::NoUniqueResultException e)
                     {
@@ -923,61 +923,61 @@ namespace Ms
         }
 
         template<typename T>
-        std::string Ms::Widgets::MQueryTableViewWidget<T>::_generateCSVData() const
+        std::string Ms::Widgets::MQueryTableViewWidget<T>::generateCSVData() const
         {
             std::string data = "";
-            int i = 0;
+            unsigned int i = 0;
 
             //headers
-            for(auto iter = _columns.begin(); iter != _columns.end(); ++iter)
+            for(auto iter = m_columns.begin(); iter != m_columns.end(); ++iter)
             {
                 data += (*iter).displayName();
 
-                if(i++ < _columns.size() -1)
+                if(i++ < m_columns.size() -1)
                     data +=",";
             }
 
             data += "\n";
 
             //data
-            if(_tblMain->selectedIndexes().size() > 0)//export selected
+            if(m_tblMain->selectedIndexes().size() > 0)//export selected
             {
-                int row = 0;
-                for(const Wt::WModelIndex &index : _tblMain->selectedIndexes())
+                unsigned int row = 0;
+                for(const Wt::WModelIndex &index : m_tblMain->selectedIndexes())
                 {
-                    for(int col = 0; col < _proxyModel->columnCount(); ++col)
+                    for(int col = 0; col < m_proxyModel->columnCount(); ++col)
                     {
-                        boost::any indexData = _proxyModel->mapToSource(_proxyModel->index(index.row(), col)).data(Wt::DisplayRole);
+                        boost::any indexData = m_proxyModel->mapToSource(m_proxyModel->index(index.row(), col)).data(Wt::DisplayRole);
 
                         if(indexData.type() == typeid(bool))//format bool to 0 and 1 to be able to import exported files to database
                             boost::any_cast<bool>(indexData) ? data += "1" : data += "0";
                         else
                             data += Wt::asString(indexData).toUTF8();
 
-                        if(col < _proxyModel->columnCount() -1)
+                        if(col < m_proxyModel->columnCount() -1)
                             data +=",";
                     }
-                    if(row++ < _tblMain->selectedIndexes().size() - 1)
+                    if(row++ < m_tblMain->selectedIndexes().size() - 1)
                         data +="\n";
                 }
             }
             else//export all, taking in account filtering
             {
-                for(int row = 0; row < _proxyModel->rowCount(); ++row)
+                for(int row = 0; row < m_proxyModel->rowCount(); ++row)
                 {
-                    for(int col = 0; col < _proxyModel->columnCount(); ++col)
+                    for(int col = 0; col < m_proxyModel->columnCount(); ++col)
                     {
-                        boost::any indexData = _proxyModel->mapToSource(_proxyModel->index(row, col)).data(Wt::DisplayRole);
+                        boost::any indexData = m_proxyModel->mapToSource(m_proxyModel->index(row, col)).data(Wt::DisplayRole);
 
                         if(indexData.type() == typeid(bool))//format bool to 0 and 1 to be able to import exported files to database
                             boost::any_cast<bool>(indexData) ? data += "1" : data += "0";
                         else
                             data += Wt::asString(indexData).toUTF8();
 
-                        if(col < _proxyModel->columnCount() -1)
+                        if(col < m_proxyModel->columnCount() -1)
                             data +=",";
                     }
-                    if(row < _proxyModel->rowCount() -1)
+                    if(row < m_proxyModel->rowCount() -1)
                         data +="\n";
                 }
             }
@@ -986,122 +986,122 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_setModelUserName(const std::string &name) const
+        void Ms::Widgets::MQueryTableViewWidget<T>::setModelUserName(const std::string &name) const
         {
-            if(_model)
-                _model->setUserName(name);
+            if(m_model)
+                m_model->setUserName(name);
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_refilter() const
+        void Ms::Widgets::MQueryTableViewWidget<T>::refilter() const
         {
-            _proxyModel->setFilterRegExp(_filterRegExpression + "(?i)" + _lnFilter->text() + "(?-i)" + _filterRegExpression);
+            m_proxyModel->setFilterRegExp(m_filterRegExpression + "(?i)" + m_lnFilter->text() + "(?-i)" + m_filterRegExpression);
 
-            _updateStatusBar();
+            updateStatusBar();
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_createMainTable()
+        void Ms::Widgets::MQueryTableViewWidget<T>::createMainTable()
         {
-            _tblMain = new Wt::WTableView();
-            _tblMain->setColumnResizeEnabled(true);
-            _tblMain->setAlternatingRowColors(true);
-            _tblMain->setRowHeight(30);
-            _tblMain->setHeaderHeight(30);
-            _tblMain->setSelectionMode(Wt::ExtendedSelection);
-            _tblMain->selectionChanged().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_mainTableSelectionChanged);
+            m_tblMain = new Wt::WTableView();
+            m_tblMain->setColumnResizeEnabled(true);
+            m_tblMain->setAlternatingRowColors(true);
+            m_tblMain->setRowHeight(30);
+            m_tblMain->setHeaderHeight(30);
+            m_tblMain->setSelectionMode(Wt::ExtendedSelection);
+            m_tblMain->selectionChanged().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::mainTableSelectionChanged);
 
-            _model = new Ms::Dbo::MDboQueryModel<Wt::Dbo::ptr<T>>();
+            m_model = new Ms::Dbo::MDboQueryModel<Wt::Dbo::ptr<T>>();
 
-            _proxyModel = new Wt::WSortFilterProxyModel();
-            _proxyModel->setDynamicSortFilter(true);
-            _proxyModel->setFilterRole(Wt::DisplayRole);
-            _proxyModel->setFilterRegExp(_filterRegExpression);
-            _proxyModel->setSourceModel(_model);
+            m_proxyModel = new Wt::WSortFilterProxyModel();
+            m_proxyModel->setDynamicSortFilter(true);
+            m_proxyModel->setFilterRole(Wt::DisplayRole);
+            m_proxyModel->setFilterRegExp(m_filterRegExpression);
+            m_proxyModel->setSourceModel(m_model);
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_createAdvancedFilterView()
+        void Ms::Widgets::MQueryTableViewWidget<T>::createAdvancedFilterView()
         {
-            _cntAdvancedFilter = new Ms::Widgets::MContainerWidget();
-            _cntAdvancedFilter->setTitle("<b><i>Advanced Filter</i></b>");
-            _cntAdvancedFilter->setMinimumSize(Wt::WLength::Auto, 300);
-            _cntAdvancedFilter->setMaximumSize(Wt::WLength::Auto, 300);
+            m_cntAdvancedFilter = new Ms::Widgets::MContainerWidget();
+            m_cntAdvancedFilter->setTitle("<b><i>Advanced Filter</i></b>");
+            m_cntAdvancedFilter->setMinimumSize(Wt::WLength::Auto, 300);
+            m_cntAdvancedFilter->setMaximumSize(Wt::WLength::Auto, 300);
 
-            _layCntAdvancedFilter = dynamic_cast<Wt::WVBoxLayout*>(_cntAdvancedFilter->layout());
-            _layCntAdvancedFilter->setContentsMargins(14,0,14,14);
+            m_layCntAdvancedFilter = dynamic_cast<Wt::WVBoxLayout*>(m_cntAdvancedFilter->layout());
+            m_layCntAdvancedFilter->setContentsMargins(14,0,14,14);
 
-            _cntTbAdvancedFilter = new Wt::WContainerWidget();
+            m_cntTbAdvancedFilter = new Wt::WContainerWidget();
 
-            _layCntAdvancedFilter->addWidget(_cntTbAdvancedFilter);
+            m_layCntAdvancedFilter->addWidget(m_cntTbAdvancedFilter);
 
-            _layCntTbAdvancedFilter = new Wt::WVBoxLayout();
-            _layCntTbAdvancedFilter->setContentsMargins(0,10,0,10);
-            _layCntTbAdvancedFilter->setSpacing(0);
+            m_layCntTbAdvancedFilter = new Wt::WVBoxLayout();
+            m_layCntTbAdvancedFilter->setContentsMargins(0,10,0,10);
+            m_layCntTbAdvancedFilter->setSpacing(0);
 
-            _cntTbAdvancedFilter->setLayout(_layCntTbAdvancedFilter);
+            m_cntTbAdvancedFilter->setLayout(m_layCntTbAdvancedFilter);
 
-            _tbAdvancedFilter = new Wt::WToolBar();
+            m_tbAdvancedFilter = new Wt::WToolBar();
 
-            _layCntTbAdvancedFilter->addWidget(_tbAdvancedFilter);
+            m_layCntTbAdvancedFilter->addWidget(m_tbAdvancedFilter);
 
             Wt::WPushButton *btnFilterAdd = new Wt::WPushButton("");
             btnFilterAdd->setToolTip("Add Filter");
             btnFilterAdd->setIcon(Wt::WLink("icons/Add.png"));
-            btnFilterAdd->clicked().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_btnAdvancedFilterAddClicked);
+            btnFilterAdd->clicked().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::btnAdvancedFilterAddClicked);
 
-            _tbAdvancedFilter->addButton(btnFilterAdd);
+            m_tbAdvancedFilter->addButton(btnFilterAdd);
 
             Wt::WPushButton *btnFilterRemove = new Wt::WPushButton("");
             btnFilterRemove->setToolTip("Remove Filter");
             btnFilterRemove->setIcon(Wt::WLink("icons/Remove.png"));
-            btnFilterRemove->clicked().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_btnAdvancedFilterRemoveClicked);
+            btnFilterRemove->clicked().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::btnAdvancedFilterRemoveClicked);
 
-            _tbAdvancedFilter->addButton(btnFilterRemove);
+            m_tbAdvancedFilter->addButton(btnFilterRemove);
 
             Wt::WPushButton *btnFilterApply = new Wt::WPushButton("");
             btnFilterApply->setToolTip("Apply Filter");
             btnFilterApply->setIcon(Wt::WLink("icons/Apply.png"));
-            btnFilterApply->clicked().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_btnAdvancedFilterApplyClicked);
+            btnFilterApply->clicked().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::btnAdvancedFilterApplyClicked);
 
-            _tbAdvancedFilter->addButton(btnFilterApply);
+            m_tbAdvancedFilter->addButton(btnFilterApply);
 
             Wt::WPushButton *btnFilterClear = new Wt::WPushButton("");
             btnFilterClear->setToolTip("Clear Filter");
             btnFilterClear->setIcon(Wt::WLink("icons/Clear.png"));
-            btnFilterClear->clicked().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_btnAdvancedFilterClearClicked);
+            btnFilterClear->clicked().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::btnAdvancedFilterClearClicked);
 
-            _tbAdvancedFilter->addButton(btnFilterClear);
+            m_tbAdvancedFilter->addButton(btnFilterClear);
 
 
-            _tblAdvancedFilter = new Wt::WTableView();
-            _tblAdvancedFilter->setColumnResizeEnabled(true);
-            _tblAdvancedFilter->setAlternatingRowColors(true);
-            _tblAdvancedFilter->setRowHeight(25);
-            _tblAdvancedFilter->setHeaderHeight(25);
-            _tblAdvancedFilter->setSelectionMode(Wt::ExtendedSelection);
+            m_tblAdvancedFilter = new Wt::WTableView();
+            m_tblAdvancedFilter->setColumnResizeEnabled(true);
+            m_tblAdvancedFilter->setAlternatingRowColors(true);
+            m_tblAdvancedFilter->setRowHeight(25);
+            m_tblAdvancedFilter->setHeaderHeight(25);
+            m_tblAdvancedFilter->setSelectionMode(Wt::ExtendedSelection);
 
-            _layCntAdvancedFilter->addWidget(_tblAdvancedFilter, 1);
+            m_layCntAdvancedFilter->addWidget(m_tblAdvancedFilter, 1);
 
-            _mdlAdvancedFilter = new Wt::WStandardItemModel(0,6);
+            m_mdlAdvancedFilter = new Wt::WStandardItemModel(0,6);
 
-            _tblAdvancedFilter->setModel(_mdlAdvancedFilter);
+            m_tblAdvancedFilter->setModel(m_mdlAdvancedFilter);
 
-            _mdlAdvancedFilter->setHeaderData(0, std::string("Active"));
-            _mdlAdvancedFilter->setHeaderData(1, std::string("Column Name"));
-            _mdlAdvancedFilter->setHeaderData(2, std::string("Operator"));
-            _mdlAdvancedFilter->setHeaderData(3, std::string("Value"));
-            _mdlAdvancedFilter->setHeaderData(4, std::string("Operator"));
-            _mdlAdvancedFilter->setHeaderData(5, std::string("Combine With Next"));
+            m_mdlAdvancedFilter->setHeaderData(0, std::string("Active"));
+            m_mdlAdvancedFilter->setHeaderData(1, std::string("Column Name"));
+            m_mdlAdvancedFilter->setHeaderData(2, std::string("Operator"));
+            m_mdlAdvancedFilter->setHeaderData(3, std::string("Value"));
+            m_mdlAdvancedFilter->setHeaderData(4, std::string("Operator"));
+            m_mdlAdvancedFilter->setHeaderData(5, std::string("Combine With Next"));
 
             std::vector<std::string> delegateColNameItems;
             int i = 0;
 
             Ms::Widgets::Delegates::MCheckBoxDelegate *colActiveDelegate = new Ms::Widgets::Delegates::MCheckBoxDelegate();
 
-            for(auto iter = _columns.begin(); iter != _columns.end(); ++iter)
+            for(auto iter = m_columns.begin(); iter != m_columns.end(); ++iter)
             {
-                if(++i > _ignoreNumFilterColumns)
+                if(++i > m_ignoreNumFilterColumns)
                     delegateColNameItems.push_back((*iter).displayName());
             }
 
@@ -1117,61 +1117,61 @@ namespace Ms
             Ms::Widgets::Delegates::MComboBoxDelegate *colCombineWithNextDelegate = new Ms::Widgets::Delegates::MComboBoxDelegate(delegateCombineWithNextItems);
 
 
-            _tblAdvancedFilter->setItemDelegateForColumn(0, colActiveDelegate);
-            _tblAdvancedFilter->setItemDelegateForColumn(1, colNameDelegate);
-            _tblAdvancedFilter->setItemDelegateForColumn(2, colOperator1Delegate);
-            _tblAdvancedFilter->setItemDelegateForColumn(3, new Ms::Widgets::Delegates::MItemDelegate());
-            _tblAdvancedFilter->setItemDelegateForColumn(4, colOperator2Delegate);
-            _tblAdvancedFilter->setItemDelegateForColumn(5, colCombineWithNextDelegate);
+            m_tblAdvancedFilter->setItemDelegateForColumn(0, colActiveDelegate);
+            m_tblAdvancedFilter->setItemDelegateForColumn(1, colNameDelegate);
+            m_tblAdvancedFilter->setItemDelegateForColumn(2, colOperator1Delegate);
+            m_tblAdvancedFilter->setItemDelegateForColumn(3, new Ms::Widgets::Delegates::MItemDelegate());
+            m_tblAdvancedFilter->setItemDelegateForColumn(4, colOperator2Delegate);
+            m_tblAdvancedFilter->setItemDelegateForColumn(5, colCombineWithNextDelegate);
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_updateModel()
+        void Ms::Widgets::MQueryTableViewWidget<T>::updateModel()
         {
             try
             {
-                Wt::Dbo::Transaction transaction(_dboSession);
+                Wt::Dbo::Transaction transaction(m_dboSession);
 
-                _queryFilter = _query;
+                m_queryFilter = m_query;
 
-                if(_customFilterActive)
+                if(m_customFilterActive)
                 {
-                    if(_customFilterString != "")
-                        _queryFilter.where(std::string("(") + _customFilterString + ")");
+                    if(m_customFilterString != "")
+                        m_queryFilter.where(std::string("(") + m_customFilterString + ")");
                 }
 
-                if(_advancedFilterActive)
+                if(m_advancedFilterActive)
                 {
-                    if(_advancedFilterString != "")
-                        _queryFilter.where(std::string("(") + _advancedFilterString + ")");
+                    if(m_advancedFilterString != "")
+                        m_queryFilter.where(std::string("(") + m_advancedFilterString + ")");
                 }
 
-                _model->setQuery(_queryFilter);
+                m_model->setQuery(m_queryFilter);
 
                 transaction.commit();
 
-                _model->reload();
+                m_model->reload();
 
                 //int i = 0;
 
-                for(auto iter = _columns.begin(); iter != _columns.end(); ++iter)
+                for(auto iter = m_columns.begin(); iter != m_columns.end(); ++iter)
                 {
-                    _model->addColumn((*iter).dbFieldName(), (*iter).displayName(), (*iter).flags());
-                    //_tblMain->setColumnWidth(i++, (*iter).width());
+                    m_model->addColumn((*iter).dbFieldName(), (*iter).displayName(), (*iter).flags());
+                    //m_tblMain->setColumnWidth(i++, (*iter).width());
                 }
 
-                _cmbColumnFilter->clear();
+                m_cmbColumnFilter->clear();
 
                 int i = 0;
-                //populate _cmbColumnFilter
-                for(auto iter = _columns.begin(); iter != _columns.end(); ++iter)
+                //populate m_cmbColumnFilter
+                for(auto iter = m_columns.begin(); iter != m_columns.end(); ++iter)
                 {
-                    if(++i > _ignoreNumFilterColumns)
-                        _cmbColumnFilter->addItem((*iter).displayName());
+                    if(++i > m_ignoreNumFilterColumns)
+                        m_cmbColumnFilter->addItem((*iter).displayName());
                 }
 
-                if(_model->columnCount() >= _defaultFilterColumnIndex)
-                    _proxyModel->setFilterKeyColumn(_defaultFilterColumnIndex);//reset the model filter column
+                if(m_model->columnCount() >= m_defaultFilterColumnIndex)
+                    m_proxyModel->setFilterKeyColumn(m_defaultFilterColumnIndex);//reset the model filter column
             }
             catch(Wt::Dbo::Exception ex)
             {
@@ -1184,50 +1184,50 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_updateTable() const
+        void Ms::Widgets::MQueryTableViewWidget<T>::updateTable() const
         {
-            _tblMain->setModel(_proxyModel);
+            m_tblMain->setModel(m_proxyModel);
 
             int i = 0;
-            for(auto iter = _columns.begin(); iter != _columns.end(); ++iter)
+            for(auto iter = m_columns.begin(); iter != m_columns.end(); ++iter)
             {
-                _tblMain->setItemDelegateForColumn(i++, (*iter).delegate());
+                m_tblMain->setItemDelegateForColumn(i++, (*iter).delegate());
             }
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_updateAdvancedFilterTable() const
+        void Ms::Widgets::MQueryTableViewWidget<T>::updateAdvancedFilterTable() const
         {
             std::vector<std::string> delegateColNameItems;
             int i = 0;
 
-            for(auto iter = _columns.begin(); iter != _columns.end(); ++iter)
+            for(auto iter = m_columns.begin(); iter != m_columns.end(); ++iter)
             {
-                if(++i > _ignoreNumFilterColumns)
+                if(++i > m_ignoreNumFilterColumns)
                     delegateColNameItems.push_back((*iter).displayName());
             }
 
-            Ms::Widgets::Delegates::MComboBoxDelegate *delegate = dynamic_cast<Ms::Widgets::Delegates::MComboBoxDelegate*>(_tblAdvancedFilter->itemDelegateForColumn(1));
+            Ms::Widgets::Delegates::MComboBoxDelegate *delegate = dynamic_cast<Ms::Widgets::Delegates::MComboBoxDelegate*>(m_tblAdvancedFilter->itemDelegateForColumn(1));
             delegate->setItems(delegateColNameItems); //update delegate columnName column with new columns (if any)
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_toggleAdvancedFilterView() const
+        void Ms::Widgets::MQueryTableViewWidget<T>::toggleAdvancedFilterView() const
         {
-            if(_popMnuViewAdvancedFilterItem->isChecked())
-                _updateAdvancedFilterTable();
+            if(m_popMnuViewAdvancedFilterItem->isChecked())
+                updateAdvancedFilterTable();
 
-            _cntAdvancedFilter->setHidden(!_popMnuViewAdvancedFilterItem->isChecked());
+            m_cntAdvancedFilter->setHidden(!m_popMnuViewAdvancedFilterItem->isChecked());
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_updateStatusBar() const
+        void Ms::Widgets::MQueryTableViewWidget<T>::updateStatusBar() const
         {
-            _lblStatus->setText(std::to_string(_tblMain->selectedIndexes().size()) + " Item(s) selected, " + std::to_string(_proxyModel->rowCount()) + " Total items.");
+            m_lblStatus->setText(std::to_string(m_tblMain->selectedIndexes().size()) + " Item(s) selected, " + std::to_string(m_proxyModel->rowCount()) + " Total items.");
         }
 
         template<typename T>
-        void Ms::Widgets::MQueryTableViewWidget<T>::_prepareView()
+        void Ms::Widgets::MQueryTableViewWidget<T>::prepareView()
         {
             Wt::WHBoxLayout *layMain = new Wt::WHBoxLayout();
             layMain->setContentsMargins(0,0,0,0);
@@ -1257,67 +1257,67 @@ namespace Ms
 
             layCntMainView->addWidget(cntTbGlobal);
 
-            _tbGlobal = new Wt::WToolBar();
-            layCntTbGlobal->addWidget(_tbGlobal, 1);
+            m_tbGlobal = new Wt::WToolBar();
+            layCntTbGlobal->addWidget(m_tbGlobal, 1);
 
-            _btnMnuTools = new Wt::WPushButton("");
-            _btnMnuTools->setToolTip("Tools");
+            m_btnMnuTools = new Wt::WPushButton("");
+            m_btnMnuTools->setToolTip("Tools");
             Wt::WLink lnkBtnIcon("icons/Tools.png");
-            _btnMnuTools->setIcon(lnkBtnIcon);
+            m_btnMnuTools->setIcon(lnkBtnIcon);
 
-            layCntTbGlobal->addWidget(_btnMnuTools);
+            layCntTbGlobal->addWidget(m_btnMnuTools);
 
-            _popMnuTools = new Wt::WPopupMenu();
-            _btnMnuTools->setMenu(_popMnuTools);
+            m_popMnuTools = new Wt::WPopupMenu();
+            m_btnMnuTools->setMenu(m_popMnuTools);
 
-            _popMnuSelection = new Wt::WPopupMenu();
-            _popMnuTools->addMenu("Selection", _popMnuSelection);
+            m_popMnuSelection = new Wt::WPopupMenu();
+            m_popMnuTools->addMenu("Selection", m_popMnuSelection);
 
-            _popMnuSelectAllItem = _popMnuSelection->addItem("Select All - Shift+A");
-            _popMnuSelectAllItem->triggered().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_popMnuSelectAllItemTriggered);
+            m_popMnuSelectAllItem = m_popMnuSelection->addItem("Select All - Shift+A");
+            m_popMnuSelectAllItem->triggered().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::popMnuSelectAllItemTriggered);
 
-            _popMnuSelectNoneItem = _popMnuSelection->addItem("Select None - Shift+D");
-            _popMnuSelectNoneItem->triggered().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_popMnuSelectNoneItemTriggered);
+            m_popMnuSelectNoneItem = m_popMnuSelection->addItem("Select None - Shift+D");
+            m_popMnuSelectNoneItem->triggered().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::popMnuSelectNoneItemTriggered);
 
-            _popMnuInverseSelectionItem = _popMnuSelection->addItem("Inverse Selection - Shift+I");
-            _popMnuInverseSelectionItem->triggered().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_popMnuInverseSelectionItemTriggered);
+            m_popMnuInverseSelectionItem = m_popMnuSelection->addItem("Inverse Selection - Shift+I");
+            m_popMnuInverseSelectionItem->triggered().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::popMnuInverseSelectionItemTriggered);
 
-            _popMnuIO = new Wt::WPopupMenu();
-            _popMnuTools->addMenu("IO", _popMnuIO);
+            m_popMnuIO = new Wt::WPopupMenu();
+            m_popMnuTools->addMenu("IO", m_popMnuIO);
 
-            _popMnuIOImportCSVItem = _popMnuIO->addItem("Import CSV");
-            _popMnuIOImportCSVItem->triggered().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_popMnuIOImportCSVItemTriggered);
+            m_popMnuIOImportCSVItem = m_popMnuIO->addItem("Import CSV");
+            m_popMnuIOImportCSVItem->triggered().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::popMnuIOImportCSVItemTriggered);
 
-            _popMnuIOExportCSVItem = _popMnuIO->addItem("Export CSV");
-            _popMnuIOExportCSVItem->triggered().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_popMnuIOExportCSVItemTriggered);
+            m_popMnuIOExportCSVItem = m_popMnuIO->addItem("Export CSV");
+            m_popMnuIOExportCSVItem->triggered().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::popMnuIOExportCSVItemTriggered);
 
-            _popMnuView = new Wt::WPopupMenu();
-            _popMnuTools->addMenu("View", _popMnuView);
+            m_popMnuView = new Wt::WPopupMenu();
+            m_popMnuTools->addMenu("View", m_popMnuView);
 
-            _popMnuViewAdvancedFilterItem = _popMnuView->addItem("Advanced Filter - Shift+F");
-            _popMnuViewAdvancedFilterItem->setCheckable(true);
-            _popMnuViewAdvancedFilterItem->triggered().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_popMnuViewAdvancedFilterItemTriggered);
+            m_popMnuViewAdvancedFilterItem = m_popMnuView->addItem("Advanced Filter - Shift+F");
+            m_popMnuViewAdvancedFilterItem->setCheckable(true);
+            m_popMnuViewAdvancedFilterItem->triggered().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::popMnuViewAdvancedFilterItemTriggered);
 
-            _popMnuTools->addSeparator();
+            m_popMnuTools->addSeparator();
 
-            _popMnuReloadItem = _popMnuTools->addItem("Reload - Shift+R");
-            _popMnuReloadItem->triggered().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_popMnuReloadItemTriggered);
+            m_popMnuReloadItem = m_popMnuTools->addItem("Reload - Shift+R");
+            m_popMnuReloadItem->triggered().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::popMnuReloadItemTriggered);
 
-            _cmbColumnFilter = new Wt::WComboBox();
-            _cmbColumnFilter->setMinimumSize(220, 30);
-            _cmbColumnFilter->setMaximumSize(220, 30);
-            _cmbColumnFilter->changed().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_cmbColumnFilterChanged);
-            _mdlCmbColumnFilter = new Wt::WStandardItemModel();
-            _cmbColumnFilter->setModel(_mdlCmbColumnFilter);
-            layCntTbGlobal->addWidget(_cmbColumnFilter);
+            m_cmbColumnFilter = new Wt::WComboBox();
+            m_cmbColumnFilter->setMinimumSize(220, 30);
+            m_cmbColumnFilter->setMaximumSize(220, 30);
+            m_cmbColumnFilter->changed().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::cmbColumnFilterChanged);
+            m_mdlCmbColumnFilter = new Wt::WStandardItemModel();
+            m_cmbColumnFilter->setModel(m_mdlCmbColumnFilter);
+            layCntTbGlobal->addWidget(m_cmbColumnFilter);
 
-            _lnFilter = new Wt::WLineEdit();
-            _lnFilter->setMinimumSize(220, 30);
-            _lnFilter->setMaximumSize(220, 30);
-            _lnFilter->setEmptyText("Filter");
-            _lnFilter->keyWentUp().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_lnFilterKeyWentUp);
+            m_lnFilter = new Wt::WLineEdit();
+            m_lnFilter->setMinimumSize(220, 30);
+            m_lnFilter->setMaximumSize(220, 30);
+            m_lnFilter->setEmptyText("Filter");
+            m_lnFilter->keyWentUp().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::lnFilterKeyWentUp);
 
-            layCntTbGlobal-> addWidget(_lnFilter);
+            layCntTbGlobal-> addWidget(m_lnFilter);
 
             //Main Table View
             Wt::WVBoxLayout *layCntTblMain = new Wt::WVBoxLayout();
@@ -1327,11 +1327,11 @@ namespace Ms
             Wt::WContainerWidget *cntTblMain = new Wt::WContainerWidget();
             cntTblMain->setLayout(layCntTblMain);
             cntTblMain->setAttributeValue("tabindex", "0");
-            cntTblMain->keyWentDown().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_cntTblMainKeyWentDown);
+            cntTblMain->keyWentDown().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::cntTblMainKeyWentDown);
 
-            _createMainTable();
+            createMainTable();
 
-            layCntTblMain->addWidget(_tblMain, 1);
+            layCntTblMain->addWidget(m_tblMain, 1);
 
             layCntMainView->addWidget(cntTblMain, 1);
 
@@ -1345,34 +1345,34 @@ namespace Ms
 
             layCntMainView->addWidget(cntTbMain);
 
-            _tbMain = new Wt::WToolBar();
-            layTbMain->addWidget(_tbMain, 1);
+            m_tbMain = new Wt::WToolBar();
+            layTbMain->addWidget(m_tbMain, 1);
 
-            _sldRowHeight = new Wt::WSlider(Wt::Horizontal);
-            _sldRowHeight->resize(100, 20);
-            _sldRowHeight->setRange(25,300);
-            _sldRowHeight->setValue(25);
-            _sldRowHeight->setTickInterval(10);
-            _sldRowHeight->setHandleWidth(10);
-            _sldRowHeight->setTickPosition(Wt::WSlider::TicksAbove);
-            _sldRowHeight->valueChanged().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::_sldRowHeightValueChanged);
+            m_sldRowHeight = new Wt::WSlider(Wt::Horizontal);
+            m_sldRowHeight->resize(100, 20);
+            m_sldRowHeight->setRange(25,300);
+            m_sldRowHeight->setValue(25);
+            m_sldRowHeight->setTickInterval(10);
+            m_sldRowHeight->setHandleWidth(10);
+            m_sldRowHeight->setTickPosition(Wt::WSlider::TicksAbove);
+            m_sldRowHeight->valueChanged().connect(this, &Ms::Widgets::MQueryTableViewWidget<T>::sldRowHeightValueChanged);
 
-            layTbMain->addWidget(_sldRowHeight);
+            layTbMain->addWidget(m_sldRowHeight);
 
             //Status bar
-            _cntStatusBar = new Wt::WContainerWidget();
+            m_cntStatusBar = new Wt::WContainerWidget();
 
-            layCntMainView->addWidget(_cntStatusBar);
+            layCntMainView->addWidget(m_cntStatusBar);
 
-            _layCntStatusBar = new Wt::WHBoxLayout();
-            _layCntStatusBar->setContentsMargins(4,0,4,0);
-            _layCntStatusBar->setSpacing(2);
+            m_layCntStatusBar = new Wt::WHBoxLayout();
+            m_layCntStatusBar->setContentsMargins(4,0,4,0);
+            m_layCntStatusBar->setSpacing(2);
 
-            _cntStatusBar->setLayout(_layCntStatusBar);
+            m_cntStatusBar->setLayout(m_layCntStatusBar);
 
-            _lblStatus = new Wt::WLabel("");
+            m_lblStatus = new Wt::WLabel("");
 
-            _layCntStatusBar->addWidget(_lblStatus, 1);
+            m_layCntStatusBar->addWidget(m_lblStatus, 1);
 
             Wt::WHBoxLayout *layCntActiveFilters = new Wt::WHBoxLayout();
             layCntActiveFilters->setContentsMargins(8,0,8,0);
@@ -1381,26 +1381,26 @@ namespace Ms
             Wt::WContainerWidget *cntActiveFilters = new Wt::WContainerWidget();
             cntActiveFilters->setLayout(layCntActiveFilters);
 
-            _layCntStatusBar->addWidget(cntActiveFilters);
+            m_layCntStatusBar->addWidget(cntActiveFilters);
 
-            _chkCustomFilterActive = new Wt::WCheckBox("CF");
-            _chkCustomFilterActive->setInline(true);
-            _chkCustomFilterActive->setToolTip("Custom Filter");
-            _chkCustomFilterActive->setDisabled(true);
+            m_chkCustomFilterActive = new Wt::WCheckBox("CF");
+            m_chkCustomFilterActive->setInline(true);
+            m_chkCustomFilterActive->setToolTip("Custom Filter");
+            m_chkCustomFilterActive->setDisabled(true);
 
-            layCntActiveFilters->addWidget(_chkCustomFilterActive);
+            layCntActiveFilters->addWidget(m_chkCustomFilterActive);
 
-            _chkAdvancedFilterActive = new Wt::WCheckBox("AF");
-            _chkAdvancedFilterActive->setInline(true);
-            _chkAdvancedFilterActive->setToolTip("Advanced Filter");
-            _chkAdvancedFilterActive->setDisabled(true);
+            m_chkAdvancedFilterActive = new Wt::WCheckBox("AF");
+            m_chkAdvancedFilterActive->setInline(true);
+            m_chkAdvancedFilterActive->setToolTip("Advanced Filter");
+            m_chkAdvancedFilterActive->setDisabled(true);
 
-            layCntActiveFilters->addWidget(_chkAdvancedFilterActive);
+            layCntActiveFilters->addWidget(m_chkAdvancedFilterActive);
 
             //advancedFilter
-            _createAdvancedFilterView();
-            _cntAdvancedFilter->hide();//set advanced filter panel initially hidden
-            layCntMainView->addWidget(_cntAdvancedFilter);
+            createAdvancedFilterView();
+            m_cntAdvancedFilter->hide();//set advanced filter panel initially hidden
+            layCntMainView->addWidget(m_cntAdvancedFilter);
         }
     }
 }

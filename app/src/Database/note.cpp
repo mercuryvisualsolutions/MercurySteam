@@ -3,13 +3,13 @@
 Database::Note::Note() :
     Ms::Dbo::MDboBase()
 {
-    _init();
+    init();
 }
 
 Database::Note::Note(const std::string &content) :
     Note()
 {
-    _content = content;
+    m_content = content;
 }
 
 Database::Note *Database::Note::modify()
@@ -21,93 +21,93 @@ Database::Note *Database::Note::modify()
 
 std::string Database::Note::content() const
 {
-    return _content;
+    return m_content;
 }
 
 void Database::Note::setContent(const std::string &content)
 {
-    _content = content;
+    m_content = content;
 }
 
 Wt::Dbo::ptr<Users::User> Database::Note::user() const
 {
-    return _user;
+    return m_user;
 }
 
 void Database::Note::setUser(Wt::Dbo::ptr<Users::User> user)
 {
-    _user = user;
+    m_user = user;
 }
 
 Wt::Dbo::ptr<Users::Group> Database::Note::group() const
 {
-    return _group;
+    return m_group;
 }
 
 void Database::Note::setGroup(Wt::Dbo::ptr<Users::Group> group)
 {
-    _group = group;
+    m_group = group;
 }
 
 Wt::Dbo::ptr<Projects::Project> Database::Note::project() const
 {
-    return _project;
+    return m_project;
 }
 
 void Database::Note::setProject(Wt::Dbo::ptr<Projects::Project> project)
 {
-    _project = project;
+    m_project = project;
 }
 
 Wt::Dbo::ptr<Projects::ProjectSequence> Database::Note::sequence() const
 {
-    return _sequence;
+    return m_sequence;
 }
 
 void Database::Note::setSequence(Wt::Dbo::ptr<Projects::ProjectSequence> sequence)
 {
-    _sequence = _sequence;
+    m_sequence = m_sequence;
 }
 
 Wt::Dbo::ptr<Projects::ProjectShot> Database::Note::shot() const
 {
-    return _shot;
+    return m_shot;
 }
 
 void Database::Note::setShot(Wt::Dbo::ptr<Projects::ProjectShot> shot)
 {
-    _shot = shot;
+    m_shot = shot;
 }
 
 Wt::Dbo::ptr<Projects::ProjectAsset> Database::Note::asset() const
 {
-    return _asset;
+    return m_asset;
 }
 
 void Database::Note::setAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset)
 {
-    _asset = asset;
+    m_asset = asset;
 }
 
 Wt::Dbo::ptr<Projects::ProjectTask> Database::Note::task() const
 {
-    return _task;
+    return m_task;
 }
 
 void Database::Note::setTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
 {
-    _task = task;
+    m_task = task;
 }
 
 bool Database::Note::operator ==(const Database::Note &other) const
 {
-    return _content == other.content() &&
-            _user == other.user() &&
-            _project == other.project() &&
-            _sequence == other.sequence() &&
-            _shot == other.shot() &&
-            _asset == other.asset() &&
-            _task == other.task();
+    return m_content == other.content() &&
+            m_user == other.user() &&
+            m_project == other.project() &&
+            m_sequence == other.sequence() &&
+            m_shot == other.shot() &&
+            m_asset == other.asset() &&
+            m_task == other.task();
 }
 
 bool Database::Note::operator !=(const Database::Note &other) const
@@ -115,8 +115,8 @@ bool Database::Note::operator !=(const Database::Note &other) const
     return !operator ==(other);
 }
 
-void Database::Note::_init()
+void Database::Note::init()
 {
-    thumbnail_ = "pics/NoPreview.png";
-    _content = "";
+    m_thumbnail = "pics/NoPreview.png";
+    m_content = "";
 }

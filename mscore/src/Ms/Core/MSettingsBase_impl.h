@@ -11,29 +11,11 @@ namespace Ms
         template<typename T>
         T Ms::Core::MSettingsBase::getSetting(const std::string &keyPath)
         {
-            return _getSetting<T>(settingsFileName_, keyPath);
+            return getSetting<T>(m_settingsFileName, keyPath);
         }
 
         template<typename T>
         T Ms::Core::MSettingsBase::getSetting(const std::string &fileName, const std::string &keyPath)
-        {
-            return _getSetting<T>(fileName, keyPath);
-        }
-
-        template<typename T>
-        void Ms::Core::MSettingsBase::putSetting(const std::string &keyPath, const T &value)
-        {
-            _putSetting(settingsFileName_, keyPath, value);
-        }
-
-        template<typename T>
-        void Ms::Core::MSettingsBase::putSetting(const std::string &fileName, const std::string &keyPath, const T &value)
-        {
-            _putSetting(fileName, keyPath, value);
-        }
-
-        template<typename T>
-        T Ms::Core::MSettingsBase::_getSetting(const std::string &fileName, const std::string &keyPath)
         {
             boost::property_tree::ptree pt;
 
@@ -43,7 +25,13 @@ namespace Ms
         }
 
         template<typename T>
-        void Ms::Core::MSettingsBase::_putSetting(const std::string &fileName, const std::string &keyPath, const T &value)
+        void Ms::Core::MSettingsBase::putSetting(const std::string &keyPath, const T &value)
+        {
+            putSetting(m_settingsFileName, keyPath, value);
+        }
+
+        template<typename T>
+        void Ms::Core::MSettingsBase::putSetting(const std::string &fileName, const std::string &keyPath, const T &value)
         {
             boost::property_tree::ptree pt;
             boost::property_tree::read_xml(fileName, pt);

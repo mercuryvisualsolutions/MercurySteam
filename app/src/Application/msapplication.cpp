@@ -12,7 +12,7 @@
 
 App::MSApplication::MSApplication(const Wt::WEnvironment &env, Wt::Dbo::SqlConnectionPool &sqlConnectionPool) :
     Wt::WApplication(env),
-    _dboSession(sqlConnectionPool)
+    m_dboSession(sqlConnectionPool)
 {
     //load settings with each new session, in case admin changes settings anytime
     AppSettings::instance().loadAppSettings();
@@ -73,32 +73,32 @@ App::MSApplication::MSApplication(const Wt::WEnvironment &env, Wt::Dbo::SqlConne
 
 App::MSApplication::~MSApplication()
 {
-    delete _logger;
+    delete m_logger;
 }
 
 void App::MSApplication::createGlobalWidgets()
 {
-    _propertiesPanel = new Ms::Widgets::MPropertiesPanel();
-    _logger = new Log::Logger();
+    m_propertiesPanel = new Ms::Widgets::MPropertiesPanel();
+    m_logger = new Log::Logger();
 }
 
 void App::MSApplication::destroyGlobalWidgets()
 {
-    delete _propertiesPanel;
-    delete _logger;
+    delete m_propertiesPanel;
+    delete m_logger;
 }
 
 Database::DboSession &App::MSApplication::dboSession()
 {
-    return _dboSession;
+    return m_dboSession;
 }
 
 Ms::Widgets::MPropertiesPanel *App::MSApplication::propertiesPanel()
 {
-    return _propertiesPanel;
+    return m_propertiesPanel;
 }
 
 Log::Logger *App::MSApplication::logger()
 {
-    return _logger;
+    return m_logger;
 }

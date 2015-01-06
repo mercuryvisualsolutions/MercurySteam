@@ -4,14 +4,14 @@
 Database::DboData::DboData() :
     Ms::Dbo::MDboBase()
 {
-    _init();
+    init();
 }
 
 Database::DboData::DboData(const std::string &key, const std::string &value) :
     DboData()
 {
-    _dboKey = key;
-    _dboValue = value;
+    m_dboKey = key;
+    m_dboValue = value;
 }
 
 Database::DboData *Database::DboData::modify()
@@ -23,104 +23,104 @@ Database::DboData *Database::DboData::modify()
 
 std::string Database::DboData::key() const
 {
-    return _dboKey;
+    return m_dboKey;
 }
 
 void Database::DboData::setKey(const std::string &key)
 {
-    _dboKey = key;
+    m_dboKey = key;
 }
 
 std::string Database::DboData::value() const
 {
-    return _dboValue;
+    return m_dboValue;
 }
 
 void Database::DboData::setValue(const std::string &value)
 {
-    _dboValue = value;
+    m_dboValue = value;
 }
 
 Wt::Dbo::ptr<Users::User> Database::DboData::user() const
 {
-    return _user;
+    return m_user;
 }
 
 void Database::DboData::setUser(Wt::Dbo::ptr<Users::User> user)
 {
-    _user = user;
+    m_user = user;
 }
 
 Wt::Dbo::ptr<Users::Group> Database::DboData::group() const
 {
-    return _group;
+    return m_group;
 }
 
 void Database::DboData::setGroup(Wt::Dbo::ptr<Users::Group> group)
 {
-    _group = group;
+    m_group = group;
 }
 
 Wt::Dbo::ptr<Projects::Project> Database::DboData::project() const
 {
-    return _project;
+    return m_project;
 }
 
 void Database::DboData::setProject(Wt::Dbo::ptr<Projects::Project> project)
 {
-    _project = project;
+    m_project = project;
 }
 
 Wt::Dbo::ptr<Projects::ProjectSequence> Database::DboData::sequence() const
 {
-    return _sequence;
+    return m_sequence;
 }
 
 void Database::DboData::setSequence(Wt::Dbo::ptr<Projects::ProjectSequence> sequence)
 {
-    _sequence = _sequence;
+    m_sequence = m_sequence;
 }
 
 Wt::Dbo::ptr<Projects::ProjectShot> Database::DboData::shot() const
 {
-    return _shot;
+    return m_shot;
 }
 
 void Database::DboData::setShot(Wt::Dbo::ptr<Projects::ProjectShot> shot)
 {
-    _shot = shot;
+    m_shot = shot;
 }
 
 Wt::Dbo::ptr<Projects::ProjectAsset> Database::DboData::asset() const
 {
-    return _asset;
+    return m_asset;
 }
 
 void Database::DboData::setAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset)
 {
-    _asset = asset;
+    m_asset = asset;
 }
 
 Wt::Dbo::ptr<Projects::ProjectTask> Database::DboData::task() const
 {
-    return _task;
+    return m_task;
 }
 
 void Database::DboData::setTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
 {
-    _task = task;
+    m_task = task;
 }
 
 bool Database::DboData::operator ==(const Database::DboData &other) const
 {
-    return _dboKey == other.key() &&
-            _dboValue == other.value() &&
-            _user == other.user() &&
-            _project == other.project() &&
-            _sequence == other.sequence() &&
-            _shot == other.shot() &&
-            _asset == other.asset() &&
-            _task == other.task();
+    return m_dboKey == other.key() &&
+            m_dboValue == other.value() &&
+            m_user == other.user() &&
+            m_project == other.project() &&
+            m_sequence == other.sequence() &&
+            m_shot == other.shot() &&
+            m_asset == other.asset() &&
+            m_task == other.task();
 }
 
 bool Database::DboData::operator !=(const Database::DboData &other) const
@@ -128,9 +128,9 @@ bool Database::DboData::operator !=(const Database::DboData &other) const
     return !operator ==(other);
 }
 
-void Database::DboData::_init()
+void Database::DboData::init()
 {
-    thumbnail_ = "pics/NoPreview.png";
-    _dboKey = "";
-    _dboValue = "";
+    m_thumbnail = "pics/NoPreview.png";
+    m_dboKey = "";
+    m_dboValue = "";
 }

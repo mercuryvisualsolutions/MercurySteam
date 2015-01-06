@@ -45,9 +45,9 @@ namespace Auth
         //variables
 
         //auth stuff
-        Wt::Auth::AuthService _authService;
-        Wt::Auth::PasswordService _passwordService;
-        std::vector<const Wt::Auth::OAuthService*> _oAuthService;
+        Wt::Auth::AuthService m_authService;
+        Wt::Auth::PasswordService m_passwordService;
+        std::vector<const Wt::Auth::OAuthService*> m_oAuthService;
     };
 }
 

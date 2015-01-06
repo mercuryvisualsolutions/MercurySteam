@@ -5,152 +5,152 @@
 
 Views::DlgCreateUser::DlgCreateUser()
 {
-    _prepareView();
+    prepareView();
 }
 
 std::string Views::DlgCreateUser::userName() const
 {
-    return _txtUserName->text().toUTF8();
+    return m_txtUserName->text().toUTF8();
 }
 
 std::string Views::DlgCreateUser::password() const
 {
-    return _txtPassword->text().toUTF8();
+    return m_txtPassword->text().toUTF8();
 }
 
 std::string Views::DlgCreateUser::emailAddress() const
 {
-    return _txtEmailAddress->text().toUTF8();
+    return m_txtEmailAddress->text().toUTF8();
 }
 
 std::string Views::DlgCreateUser::phoneNumber() const
 {
-    return _txtPhoneNumber->text().toUTF8();
+    return m_txtPhoneNumber->text().toUTF8();
 }
 
 std::string Views::DlgCreateUser::idNumber() const
 {
-    return _txtIdNumber->text().toUTF8();
+    return m_txtIdNumber->text().toUTF8();
 }
 
 std::string Views::DlgCreateUser::address() const
 {
-    return _txtAddress->text().toUTF8();
+    return m_txtAddress->text().toUTF8();
 }
 
 Wt::Dbo::ptr<Users::Group> Views::DlgCreateUser::group() const
 {
-    return _mdlCmbGroups->resultRow(_cmbGroups->currentIndex());
+    return m_mdlCmbGroups->resultRow(m_cmbGroups->currentIndex());
 }
 
 Wt::Dbo::ptr<Users::UserTitle> Views::DlgCreateUser::title() const
 {
-    return _mdlCmbTitles->resultRow(_cmbTitles->currentIndex());
+    return m_mdlCmbTitles->resultRow(m_cmbTitles->currentIndex());
 }
 
 bool Views::DlgCreateUser::isActive() const
 {
-    return _cmbActive->currentText() == "Yes" ? true : false;
+    return m_cmbActive->currentText() == "Yes" ? true : false;
 }
 
-void Views::DlgCreateUser::_prepareView()
+void Views::DlgCreateUser::prepareView()
 {
     Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     this->setCaption("Create User");
     this->rejectWhenEscapePressed();
 
-    _layMain = new Wt::WHBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(0);
+    m_layMain = new Wt::WHBoxLayout();
+    m_layMain->setContentsMargins(0,0,0,0);
+    m_layMain->setSpacing(0);
 
-    this->contents()->setLayout(_layMain);
+    this->contents()->setLayout(m_layMain);
 
-    _layLeft = new Wt::WVBoxLayout();
-    _layLeft->setContentsMargins(0,0,0,0);
-    _layLeft->setSpacing(2);
+    m_layLeft = new Wt::WVBoxLayout();
+    m_layLeft->setContentsMargins(0,0,0,0);
+    m_layLeft->setSpacing(2);
 
-    _cntLeft = new Wt::WContainerWidget();
-    _cntLeft->setLayout(_layLeft);
+    m_cntLeft = new Wt::WContainerWidget();
+    m_cntLeft->setLayout(m_layLeft);
 
-    _layMain->addWidget(_cntLeft);
+    m_layMain->addWidget(m_cntLeft);
 
-    _layRight = new Wt::WVBoxLayout();
-    _layRight->setContentsMargins(16,0,0,0);
-    _layRight->setSpacing(2);
+    m_layRight = new Wt::WVBoxLayout();
+    m_layRight->setContentsMargins(16,0,0,0);
+    m_layRight->setSpacing(2);
 
-    _cntRight = new Wt::WContainerWidget();
-    _cntRight->setLayout(_layRight);
+    m_cntRight = new Wt::WContainerWidget();
+    m_cntRight->setLayout(m_layRight);
 
-    _layMain->addWidget(_cntRight);
+    m_layMain->addWidget(m_cntRight);
 
-    _txtUserName = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[A-Za-z0-9 _-]{3,150}");
-    _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Name:", _txtUserName));
+    m_txtUserName = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[A-Za-z0-9 _-]{3,150}");
+    m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Name:", m_txtUserName));
 
-    _layLeft->addWidget(new Wt::WBreak());
+    m_layLeft->addWidget(new Wt::WBreak());
 
-    _txtPassword = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[A-Za-z0-9_-]{6,14}");
-    _txtPassword->setEchoMode(Wt::WLineEdit::Password);
-    _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Password:", _txtPassword));
+    m_txtPassword = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[A-Za-z0-9_-]{6,14}");
+    m_txtPassword->setEchoMode(Wt::WLineEdit::Password);
+    m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Password:", m_txtPassword));
 
-    _layLeft->addWidget(new Wt::WBreak());
+    m_layLeft->addWidget(new Wt::WBreak());
 
-    _txtEmailAddress = Ms::Widgets::MWidgetFactory::createLineEdit("", false);
-    _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Email:", _txtEmailAddress));
+    m_txtEmailAddress = Ms::Widgets::MWidgetFactory::createLineEdit("", false);
+    m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Email:", m_txtEmailAddress));
 
-    _layLeft->addWidget(new Wt::WBreak());
+    m_layLeft->addWidget(new Wt::WBreak());
 
-    _txtPhoneNumber = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[0-9]{7,255}", false);
-    _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Phone Number:", _txtPhoneNumber));
+    m_txtPhoneNumber = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[0-9]{7,255}", false);
+    m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Phone Number:", m_txtPhoneNumber));
 
-    _layLeft->addWidget(new Wt::WBreak());
+    m_layLeft->addWidget(new Wt::WBreak());
 
-    _txtIdNumber = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[0-9]{1,255}", false);
-    _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Id Number:", _txtIdNumber));
+    m_txtIdNumber = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[0-9]{1,255}", false);
+    m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Id Number:", m_txtIdNumber));
 
-    _layMain->addWidget(new Wt::WBreak());
+    m_layMain->addWidget(new Wt::WBreak());
 
-    _txtAddress = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[A-Za-z0-9 _-]{6,255}", false);
-    _layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Address:", _txtAddress));
+    m_txtAddress = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[A-Za-z0-9 _-]{6,255}", false);
+    m_layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Address:", m_txtAddress));
 
-    _layRight->addWidget(new Wt::WBreak());
+    m_layRight->addWidget(new Wt::WBreak());
 
-    _createCmbGroups();
-    _layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Group:", _cntCmbGroups));
+    createCmbGroups();
+    m_layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Group:", m_cntCmbGroups));
 
-    _layRight->addWidget(new Wt::WBreak());
+    m_layRight->addWidget(new Wt::WBreak());
 
-    _createCmbTitles();
-    _layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Title:", _cntCmbTitles));
+    createCmbTitles();
+    m_layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Title:", m_cntCmbTitles));
 
-    _layRight->addWidget(new Wt::WBreak());
+    m_layRight->addWidget(new Wt::WBreak());
 
-    _cmbActive = new Wt::WComboBox();
-    _cmbActive->addItem("Yes");
-    _cmbActive->addItem("No");
-    _cmbActive->setCurrentIndex(0);
-    _layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", _cmbActive));
+    m_cmbActive = new Wt::WComboBox();
+    m_cmbActive->addItem("Yes");
+    m_cmbActive->addItem("No");
+    m_cmbActive->setCurrentIndex(0);
+    m_layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", m_cmbActive));
 
-    _layRight->addWidget(new Wt::WBreak(), 1);
+    m_layRight->addWidget(new Wt::WBreak(), 1);
 
-    _btnOk = new Wt::WPushButton("Ok", this->footer());
-    _btnOk->setDefault(true);
-    _btnOk->clicked().connect(this, &Views::DlgCreateUser::_btnOkClicked);
+    m_btnOk = new Wt::WPushButton("Ok", this->footer());
+    m_btnOk->setDefault(true);
+    m_btnOk->clicked().connect(this, &Views::DlgCreateUser::btnOkClicked);
 
-    _btnCancel = new Wt::WPushButton("Cancel", this->footer());
-    _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
+    m_btnCancel = new Wt::WPushButton("Cancel", this->footer());
+    m_btnCancel->clicked().connect(this, &Wt::WDialog::reject);
 
     transaction.commit();
 }
 
-void Views::DlgCreateUser::_createCmbGroups()
+void Views::DlgCreateUser::createCmbGroups()
 {
-    _cmbGroups = new Wt::WComboBox();
-    _cmbGroups->setMinimumSize(20, 30);
-    _cntCmbGroups = new Wt::WContainerWidget();
-    _cntCmbGroups->addWidget(_cmbGroups);
+    m_cmbGroups = new Wt::WComboBox();
+    m_cmbGroups->setMinimumSize(20, 30);
+    m_cntCmbGroups = new Wt::WContainerWidget();
+    m_cntCmbGroups->addWidget(m_cmbGroups);
 
-    _mdlCmbGroups = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Users::Group>>();
+    m_mdlCmbGroups = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Users::Group>>();
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Users::Group>> query;
     if(AppSettings::instance().isLoadInactiveData())
@@ -158,26 +158,26 @@ void Views::DlgCreateUser::_createCmbGroups()
     else
         query = Session::SessionManager::instance().dboSession().find<Users::Group>().where("Active = ?").bind(true);
 
-    _mdlCmbGroups->setQuery(query);
+    m_mdlCmbGroups->setQuery(query);
 
-    _mdlCmbGroups->reload();
+    m_mdlCmbGroups->reload();
 
-    _mdlCmbGroups->addColumn("Name", Wt::ItemIsSelectable);
+    m_mdlCmbGroups->addColumn("Name", Wt::ItemIsSelectable);
 
-    _cmbGroups->setModel(_mdlCmbGroups);
+    m_cmbGroups->setModel(m_mdlCmbGroups);
 
-    if(_mdlCmbGroups->rowCount() > 0)
-        _cmbGroups->setCurrentIndex(0);
+    if(m_mdlCmbGroups->rowCount() > 0)
+        m_cmbGroups->setCurrentIndex(0);
 }
 
-void Views::DlgCreateUser::_createCmbTitles()
+void Views::DlgCreateUser::createCmbTitles()
 {
-    _cmbTitles = new Wt::WComboBox();
-    _cmbTitles->setMinimumSize(20, 30);
-    _cntCmbTitles = new Wt::WContainerWidget();
-    _cntCmbTitles->addWidget(_cmbTitles);
+    m_cmbTitles = new Wt::WComboBox();
+    m_cmbTitles->setMinimumSize(20, 30);
+    m_cntCmbTitles = new Wt::WContainerWidget();
+    m_cntCmbTitles->addWidget(m_cmbTitles);
 
-    _mdlCmbTitles = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Users::UserTitle>>();
+    m_mdlCmbTitles = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Users::UserTitle>>();
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Users::UserTitle>> query;
     if(AppSettings::instance().isLoadInactiveData())
@@ -185,32 +185,32 @@ void Views::DlgCreateUser::_createCmbTitles()
     else
         query = Session::SessionManager::instance().dboSession().find<Users::UserTitle>().where("Active = ?").bind(true);
 
-    _mdlCmbTitles->setQuery(query);
+    m_mdlCmbTitles->setQuery(query);
 
-    _mdlCmbTitles->reload();
+    m_mdlCmbTitles->reload();
 
-    _mdlCmbTitles->addColumn("Name", Wt::ItemIsSelectable);
+    m_mdlCmbTitles->addColumn("Name", Wt::ItemIsSelectable);
 
-    _cmbTitles->setModel(_mdlCmbTitles);
+    m_cmbTitles->setModel(m_mdlCmbTitles);
 
-    if(_mdlCmbTitles->rowCount() > 0)
-        _cmbTitles->setCurrentIndex(0);
+    if(m_mdlCmbTitles->rowCount() > 0)
+        m_cmbTitles->setCurrentIndex(0);
 }
 
-bool Views::DlgCreateUser::_validate()
+bool Views::DlgCreateUser::validate()
 {
-    if((_txtUserName->validate() != Wt::WValidator::Valid) ||
-            (_txtPassword->validate() != Wt::WValidator::Valid) ||
-            (_txtIdNumber->validate() != Wt::WValidator::Valid) ||
-            (_txtAddress->validate() != Wt::WValidator::Valid) ||
-            (_cmbGroups->currentIndex() == -1))
+    if((m_txtUserName->validate() != Wt::WValidator::Valid) ||
+            (m_txtPassword->validate() != Wt::WValidator::Valid) ||
+            (m_txtIdNumber->validate() != Wt::WValidator::Valid) ||
+            (m_txtAddress->validate() != Wt::WValidator::Valid) ||
+            (m_cmbGroups->currentIndex() == -1))
         return false;
 
     return true;
 }
 
-void Views::DlgCreateUser::_btnOkClicked()
+void Views::DlgCreateUser::btnOkClicked()
 {
-    if(_validate())
+    if(validate())
         this->accept();
 }

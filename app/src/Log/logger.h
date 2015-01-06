@@ -30,12 +30,12 @@ namespace Log
 
     private:
         //variables
-        Ms::Log::MLogger *_globalLogger;
-        Ms::Widgets::MLogWidget *_logWidget;
-        std::string _sessionId;
+        Ms::Log::MLogger *m_globalLogger;
+        Ms::Widgets::MLogWidget *m_logWidget;
+        std::string m_sessionId;
 
         //functions
-        void _init();
+        void init();
     };
 }
 

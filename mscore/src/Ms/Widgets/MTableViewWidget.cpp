@@ -9,79 +9,79 @@
 Ms::Widgets::MTableViewWidget::MTableViewWidget()
 {
     _tableName = "table";
-    _filterRegExpression = "[^$]{0,255}";
-    _ignoreNumFilterColumns = 0;
-    _importCSVFeatureEnabled = true;
-    _exportCSVFeatureEnabled = true;
+    m_filterRegExpression = "[^$]{0,255}";
+    m_ignoreNumFilterColumns = 0;
+    m_importCSVFeatureEnabled = true;
+    m_exportCSVFeatureEnabled = true;
 
     prepareView();
 }
 
 Ms::Widgets::MTableViewWidget::~MTableViewWidget()
 {
-    delete _model;
-    delete _proxyModel;
+    delete m_model;
+    delete m_proxyModel;
 }
 
 Wt::WTableView *Ms::Widgets::MTableViewWidget::table() const
 {
-    return _table;
+    return m_table;
 }
 
 Wt::WStandardItemModel *Ms::Widgets::MTableViewWidget::model() const
 {
-    return _model;
+    return m_model;
 }
 
 Wt::WSortFilterProxyModel *Ms::Widgets::MTableViewWidget::proxyModel() const
 {
-    return _proxyModel;
+    return m_proxyModel;
 }
 
 const std::map<std::string,Ms::Core::MTableViewColumn> &Ms::Widgets::MTableViewWidget::columns() const
 {
-    return _columns;
+    return m_columns;
 }
 
 const Wt::WToolBar *Ms::Widgets::MTableViewWidget::tbMain() const
 {
-    return _tbMain;
+    return m_tbMain;
 }
 
 const Wt::WToolBar *Ms::Widgets::MTableViewWidget::tbGlobal() const
 {
-    return _tbGlobal;
+    return m_tbGlobal;
 }
 
 void Ms::Widgets::MTableViewWidget::selectAll() const
 {
     Wt::WModelIndexSet indexSet;
 
-    for(int row = 0; row < _proxyModel->rowCount(); ++row)
+    for(int row = 0; row < m_proxyModel->rowCount(); ++row)
     {
-        indexSet.insert(_proxyModel->index(row,0));
+        indexSet.insert(m_proxyModel->index(row,0));
     }
 
-    _table->setSelectedIndexes(indexSet);
+    m_table->setSelectedIndexes(indexSet);
 }
 
 void Ms::Widgets::MTableViewWidget::selectNone() const
 {
     Wt::WModelIndexSet indexSet;
-    _table->setSelectedIndexes(indexSet);
+    m_table->setSelectedIndexes(indexSet);
 }
 
 void Ms::Widgets::MTableViewWidget::inverseSelection() const
 {
     Wt::WModelIndexSet indexSet;
 
-    for(int row = 0; row < _proxyModel->rowCount(); ++row)
+    for(int row = 0; row < m_proxyModel->rowCount(); ++row)
     {
-        if(!_table->selectionModel()->isSelected(_proxyModel->index(row,0)))
-            indexSet.insert(_proxyModel->index(row,0));
+        if(!m_table->selectionModel()->isSelected(m_proxyModel->index(row,0)))
+            indexSet.insert(m_proxyModel->index(row,0));
     }
 
-    _table->setSelectedIndexes(indexSet);
+    m_table->setSelectedIndexes(indexSet);
 }
 
 void Ms::Widgets::MTableViewWidget::importCSV(const std::string &/*fileName*/) const
@@ -92,21 +92,21 @@ void Ms::Widgets::MTableViewWidget::importCSV(const std::string &/*fileName*/) c
 //    item->setData(true, Wt::EditRole);
 //    items.push_back(item);
 
-//    for(unsigned int i = 1; i < _model->columnCount(); ++i)
+//    for(unsigned int i = 1; i < m_model->columnCount(); ++i)
 //    {
 //        Wt::WStandardItem *item = new Wt::WStandardItem("");
 //        item->setFlags(Wt::ItemIsSelectable | Wt::ItemIsEditable);
 //        items.push_back(item);
 //    }
 
-//    _mdlAdvancedFilter->appendRow(items);
+//    m_mdlAdvancedFilter->appendRow(items);
 
 //    Ms::IO::Data::MDataCSV csvData;
 //    if(!Ms::IO::readCsv(fileName, csvData))
 //        return;
 
 //    //scan for mandatory columns before import
-//    for(auto iter = _columns.begin(); iter != _columns.end(); ++iter)
+//    for(auto iter = m_columns.begin(); iter != m_columns.end(); ++iter)
 //    {
 //        if((*iter).second.isMandatory())
 //        {
@@ -137,7 +137,7 @@ void Ms::Widgets::MTableViewWidget::importCSV(const std::string &/*fileName*/) c
 //        {
 //            if(columnExists(csvData[0][col]))//only import columns that exist in table and not ignored
 //            {
-//                if(!_columns[csvData[0][col]].isIgnored())
+//                if(!m_columns[csvData[0][col]].isIgnored())
 //                {
 //                    //generate columns and values sql
 //                    if(csvData[row][col] != "")//if the column has data
@@ -159,7 +159,7 @@ void Ms::Widgets::MTableViewWidget::importCSV(const std::string &/*fileName*/) c
 
 void Ms::Widgets::MTableViewWidget::exportCSV()
 {
-    if(_model->rowCount() == 0)
+    if(m_model->rowCount() == 0)
         return;
 
     bool linkClicked = false;
@@ -195,19 +195,19 @@ void Ms::Widgets::MTableViewWidget::exportCSV()
 
 bool Ms::Widgets::MTableViewWidget::columnExists(const std::string &name) const
 {
-    return _columns.find(name) != _columns.end();
+    return m_columns.find(name) != m_columns.end();
 }
 
 void Ms::Widgets::MTableViewWidget::addColumn(const Ms::Core::MTableViewColumn &column) const
 {
      if(!columnExists(column.name()))
      {
-        _columns[column.name()] = column;
-        _cmbFilterColumn->addItem(column.name());
+        m_columns[column.name()] = column;
+        m_cmbFilterColumn->addItem(column.name());
 
-        _model->insertColumns(_columns.size() - 1, 1);
-        _model->setHeaderData(_columns.size() - 1, Wt::Orientation::Horizontal, column.name());
-        _table->setItemDelegateForColumn(_columns.size() - 1, column.delegate());
+        m_model->insertColumns(m_columns.size() - 1, 1);
+        m_model->setHeaderData(m_columns.size() - 1, Wt::Orientation::Horizontal, column.name());
+        m_table->setItemDelegateForColumn(m_columns.size() - 1, column.delegate());
      }
 }
 
@@ -215,15 +215,15 @@ void Ms::Widgets::MTableViewWidget::removeColumn(const std::string &name) const
 {
     if(columnExists(name))
     {
-        _columns.erase(name);
+        m_columns.erase(name);
 
-        for(int i = 0; i < _model->columnCount(); ++i)
+        for(int i = 0; i < m_model->columnCount(); ++i)
         {
-            std::string header = boost::any_cast<std::string>(_model->headerData(i));
+            std::string header = boost::any_cast<std::string>(m_model->headerData(i));
             if(header == name)
             {
-                _model->removeColumn(i);
-                _cmbFilterColumn->removeItem(i);
+                m_model->removeColumn(i);
+                m_cmbFilterColumn->removeItem(i);
 
                 break;
             }
@@ -233,45 +233,45 @@ void Ms::Widgets::MTableViewWidget::removeColumn(const std::string &name) const
 
 void Ms::Widgets::MTableViewWidget::clear()
 {
-    _columns.clear();
-    _model->clear();
+    m_columns.clear();
+    m_model->clear();
 
-    _cmbFilterColumn->clear();
+    m_cmbFilterColumn->clear();
 }
 
 Wt::WString Ms::Widgets::MTableViewWidget::filterRegExpression() const
 {
-    return _filterRegExpression;
+    return m_filterRegExpression;
 }
 
 void Ms::Widgets::MTableViewWidget::setFilterRegExpression(const Wt::WString &exp)
 {
-    _filterRegExpression = exp;
-    _proxyModel->setFilterRegExp(exp);
+    m_filterRegExpression = exp;
+    m_proxyModel->setFilterRegExp(exp);
 }
 
 bool Ms::Widgets::MTableViewWidget::isImportCSVFeatureEnabled() const
 {
-    return _importCSVFeatureEnabled;
+    return m_importCSVFeatureEnabled;
 }
 
 void Ms::Widgets::MTableViewWidget::setImportCSVFeatureEnabled(bool enabled)
 {
-    _importCSVFeatureEnabled = enabled;
+    m_importCSVFeatureEnabled = enabled;
 
-    _popMnuIOImportCSVItem->setHidden(!enabled);
+    m_popMnuIOImportCSVItem->setHidden(!enabled);
 }
 
 bool Ms::Widgets::MTableViewWidget::isExportCSVFeatureEnabled() const
 {
-    return _exportCSVFeatureEnabled;
+    return m_exportCSVFeatureEnabled;
 }
 
 void Ms::Widgets::MTableViewWidget::setExportCSVFeatureEnabled(bool enabled)
 {
-    _exportCSVFeatureEnabled = enabled;
+    m_exportCSVFeatureEnabled = enabled;
 
-    _popMnuIOExportCSVItem->setHidden(!enabled);
+    m_popMnuIOExportCSVItem->setHidden(!enabled);
 }
 
 std::string Ms::Widgets::MTableViewWidget::tableName() const
@@ -286,30 +286,30 @@ void Ms::Widgets::MTableViewWidget::setTableName(const std::string &name)
 
 void Ms::Widgets::MTableViewWidget::createMainTable()
 {
-    _table = new Wt::WTableView();
-    _table->setColumnResizeEnabled(true);
-    _table->setAlternatingRowColors(true);
-    _table->setRowHeight(25);
-    _table->setHeaderHeight(25);
-    _table->setSelectionMode(Wt::ExtendedSelection);
-    _table->selectionChanged().connect(this, &Ms::Widgets::MTableViewWidget::mainTableSelectionChanged);
+    m_table = new Wt::WTableView();
+    m_table->setColumnResizeEnabled(true);
+    m_table->setAlternatingRowColors(true);
+    m_table->setRowHeight(25);
+    m_table->setHeaderHeight(25);
+    m_table->setSelectionMode(Wt::ExtendedSelection);
+    m_table->selectionChanged().connect(this, &Ms::Widgets::MTableViewWidget::mainTableSelectionChanged);
 
-    _model = new Wt::WStandardItemModel();
-    _model->rowsInserted().connect(this, &Ms::Widgets::MTableViewWidget::modelRowsInserted);
-    _model->rowsRemoved().connect(this, &Ms::Widgets::MTableViewWidget::modelRowsRemoved);
+    m_model = new Wt::WStandardItemModel();
+    m_model->rowsInserted().connect(this, &Ms::Widgets::MTableViewWidget::modelRowsInserted);
+    m_model->rowsRemoved().connect(this, &Ms::Widgets::MTableViewWidget::modelRowsRemoved);
 
-    _proxyModel = new Wt::WSortFilterProxyModel();
-    _proxyModel->setDynamicSortFilter(true);
-    _proxyModel->setFilterRole(Wt::DisplayRole);
-    _proxyModel->setFilterRegExp(_filterRegExpression);
-    _proxyModel->setSourceModel(_model);
+    m_proxyModel = new Wt::WSortFilterProxyModel();
+    m_proxyModel->setDynamicSortFilter(true);
+    m_proxyModel->setFilterRole(Wt::DisplayRole);
+    m_proxyModel->setFilterRegExp(m_filterRegExpression);
+    m_proxyModel->setSourceModel(m_model);
 
-    _table->setModel(_proxyModel);
+    m_table->setModel(m_proxyModel);
 }
 
 void Ms::Widgets::MTableViewWidget::refilter() const
 {
-    _proxyModel->setFilterRegExp(_lnFilter->text() + _filterRegExpression);
+    m_proxyModel->setFilterRegExp(m_lnFilter->text() + m_filterRegExpression);
 
     updateStatusBar();
 }
@@ -320,55 +320,55 @@ std::string Ms::Widgets::MTableViewWidget::generateCSVData() const
     std::vector<Ms::Core::MTableViewColumn>::size_type i = 0;
 
     //headers
-    for(auto iter = _columns.begin(); iter != _columns.end(); ++iter)
+    for(auto iter = m_columns.begin(); iter != m_columns.end(); ++iter)
     {
         data += (*iter).first;
 
-        if(i++ < _columns.size() -1)
+        if(i++ < m_columns.size() -1)
             data +=",";
     }
 
     data += "\n";
 
     //data
-    if(_table->selectedIndexes().size() > 0)//export selected
+    if(m_table->selectedIndexes().size() > 0)//export selected
     {
         Wt::WModelIndexSet::size_type row = 0;
-        for(const Wt::WModelIndex &index : _table->selectedIndexes())
+        for(const Wt::WModelIndex &index : m_table->selectedIndexes())
         {
-            for(int col = 0; col < _proxyModel->columnCount(); ++col)
+            for(int col = 0; col < m_proxyModel->columnCount(); ++col)
             {
-                boost::any indexData = _proxyModel->mapToSource(_proxyModel->index(index.row(), col)).data(Wt::DisplayRole);
+                boost::any indexData = m_proxyModel->mapToSource(m_proxyModel->index(index.row(), col)).data(Wt::DisplayRole);
 
                 if(indexData.type() == typeid(bool))//format bool to 0 and 1 to be able to import exported files to database
                     boost::any_cast<bool>(indexData) ? data += "1" : data += "0";
                 else
                     data += Wt::asString(indexData).toUTF8();
 
-                if(col < _proxyModel->columnCount() -1)
+                if(col < m_proxyModel->columnCount() -1)
                     data +=",";
             }
-            if(row++ < _table->selectedIndexes().size() - 1)
+            if(row++ < m_table->selectedIndexes().size() - 1)
                 data +="\n";
         }
     }
     else//export all, taking in account filtering
     {
-        for(int row = 0; row < _proxyModel->rowCount(); ++row)
+        for(int row = 0; row < m_proxyModel->rowCount(); ++row)
         {
-            for(int col = 0; col < _proxyModel->columnCount(); ++col)
+            for(int col = 0; col < m_proxyModel->columnCount(); ++col)
             {
-                boost::any indexData = _proxyModel->mapToSource(_proxyModel->index(row, col)).data(Wt::DisplayRole);
+                boost::any indexData = m_proxyModel->mapToSource(m_proxyModel->index(row, col)).data(Wt::DisplayRole);
 
                 if(indexData.type() == typeid(bool))//format bool to 0 and 1 to be able to import exported files to database
                     boost::any_cast<bool>(indexData) ? data += "1" : data += "0";
                 else
                     data += Wt::asString(indexData).toUTF8();
 
-                if(col < _proxyModel->columnCount() -1)
+                if(col < m_proxyModel->columnCount() -1)
                     data +=",";
             }
-            if(row < _proxyModel->rowCount() -1)
+            if(row < m_proxyModel->rowCount() -1)
                 data +="\n";
         }
     }
@@ -378,7 +378,7 @@ std::string Ms::Widgets::MTableViewWidget::generateCSVData() const
 
 void Ms::Widgets::MTableViewWidget::updateStatusBar() const
 {
-    _lblStatus->setText(std::to_string(_table->selectedIndexes().size()) + " Item(s) selected, " + std::to_string(_proxyModel->rowCount()) + " Total items.");
+    m_lblStatus->setText(std::to_string(m_table->selectedIndexes().size()) + " Item(s) selected, " + std::to_string(m_proxyModel->rowCount()) + " Total items.");
 }
 
 //Slots
@@ -389,7 +389,7 @@ void Ms::Widgets::MTableViewWidget::lnFilterKeyWentUp()
 
 void Ms::Widgets::MTableViewWidget::cmbFilterColumnChanged()
 {
-    _proxyModel->setFilterKeyColumn(_cmbFilterColumn->currentIndex() + _ignoreNumFilterColumns);
+    m_proxyModel->setFilterKeyColumn(m_cmbFilterColumn->currentIndex() + m_ignoreNumFilterColumns);
     refilter();
 }
 
@@ -446,7 +446,7 @@ void Ms::Widgets::MTableViewWidget::popMnuIOExportCSVItemTriggered()
 
 void Ms::Widgets::MTableViewWidget::sldRowHeightValueChanged()
 {
-    _table->setRowHeight(_sldRowHeight->value());
+    m_table->setRowHeight(m_sldRowHeight->value());
 }
 
 void Ms::Widgets::MTableViewWidget::mainTableSelectionChanged()
@@ -494,55 +494,55 @@ void Ms::Widgets::MTableViewWidget::prepareView()
 
     layCntMainView->addWidget(cntTbGlobal);
 
-    _tbGlobal = new Wt::WToolBar();
-    layCntTbGlobal->addWidget(_tbGlobal, 1);
+    m_tbGlobal = new Wt::WToolBar();
+    layCntTbGlobal->addWidget(m_tbGlobal, 1);
 
-    _btnMnuTools = new Wt::WPushButton("");
-    _btnMnuTools->setToolTip("Tools");
+    m_btnMnuTools = new Wt::WPushButton("");
+    m_btnMnuTools->setToolTip("Tools");
     Wt::WLink lnkBtnIcon("icons/Tools.png");
-    _btnMnuTools->setIcon(lnkBtnIcon);
+    m_btnMnuTools->setIcon(lnkBtnIcon);
 
-    layCntTbGlobal->addWidget(_btnMnuTools);
+    layCntTbGlobal->addWidget(m_btnMnuTools);
 
-    _popMnuTools = new Wt::WPopupMenu();
-    _btnMnuTools->setMenu(_popMnuTools);
+    m_popMnuTools = new Wt::WPopupMenu();
+    m_btnMnuTools->setMenu(m_popMnuTools);
 
-    _popMnuSelection = new Wt::WPopupMenu();
-    _popMnuTools->addMenu("Selection", _popMnuSelection);
+    m_popMnuSelection = new Wt::WPopupMenu();
+    m_popMnuTools->addMenu("Selection", m_popMnuSelection);
 
-    _popMnuSelectAllItem = _popMnuSelection->addItem("Select All - Shift+A");
-    _popMnuSelectAllItem->triggered().connect(this, &Ms::Widgets::MTableViewWidget::popMnuSelectAllItemTriggered);
+    m_popMnuSelectAllItem = m_popMnuSelection->addItem("Select All - Shift+A");
+    m_popMnuSelectAllItem->triggered().connect(this, &Ms::Widgets::MTableViewWidget::popMnuSelectAllItemTriggered);
 
-    _popMnuSelectNoneItem = _popMnuSelection->addItem("Select None - Shift+D");
-    _popMnuSelectNoneItem->triggered().connect(this, &Ms::Widgets::MTableViewWidget::popMnuSelectNoneItemTriggered);
+    m_popMnuSelectNoneItem = m_popMnuSelection->addItem("Select None - Shift+D");
+    m_popMnuSelectNoneItem->triggered().connect(this, &Ms::Widgets::MTableViewWidget::popMnuSelectNoneItemTriggered);
 
-    _popMnuInverseSelectionItem = _popMnuSelection->addItem("Inverse Selection - Shift+I");
-    _popMnuInverseSelectionItem->triggered().connect(this, &Ms::Widgets::MTableViewWidget::popMnuInverseSelectionItemTriggered);
+    m_popMnuInverseSelectionItem = m_popMnuSelection->addItem("Inverse Selection - Shift+I");
+    m_popMnuInverseSelectionItem->triggered().connect(this, &Ms::Widgets::MTableViewWidget::popMnuInverseSelectionItemTriggered);
 
-    _popMnuIO = new Wt::WPopupMenu();
-    _popMnuTools->addMenu("IO", _popMnuIO);
+    m_popMnuIO = new Wt::WPopupMenu();
+    m_popMnuTools->addMenu("IO", m_popMnuIO);
 
-    _popMnuIOImportCSVItem = _popMnuIO->addItem("Import CSV");
-    _popMnuIOImportCSVItem->triggered().connect(this, &Ms::Widgets::MTableViewWidget::popMnuIOImportCSVItemTriggered);
+    m_popMnuIOImportCSVItem = m_popMnuIO->addItem("Import CSV");
+    m_popMnuIOImportCSVItem->triggered().connect(this, &Ms::Widgets::MTableViewWidget::popMnuIOImportCSVItemTriggered);
 
-    _popMnuIOExportCSVItem = _popMnuIO->addItem("Export CSV");
-    _popMnuIOExportCSVItem->triggered().connect(this, &Ms::Widgets::MTableViewWidget::popMnuIOExportCSVItemTriggered);
+    m_popMnuIOExportCSVItem = m_popMnuIO->addItem("Export CSV");
+    m_popMnuIOExportCSVItem->triggered().connect(this, &Ms::Widgets::MTableViewWidget::popMnuIOExportCSVItemTriggered);
 
-    _cmbFilterColumn = new Wt::WComboBox();
-    _cmbFilterColumn->setMinimumSize(220, 30);
-    _cmbFilterColumn->setMaximumSize(220, 30);
-    _cmbFilterColumn->changed().connect(this, &Ms::Widgets::MTableViewWidget::cmbFilterColumnChanged);
-    _mdlCmbFilterColumn = new Wt::WStandardItemModel();
-    _cmbFilterColumn->setModel(_mdlCmbFilterColumn);
-    layCntTbGlobal->addWidget(_cmbFilterColumn);
+    m_cmbFilterColumn = new Wt::WComboBox();
+    m_cmbFilterColumn->setMinimumSize(220, 30);
+    m_cmbFilterColumn->setMaximumSize(220, 30);
+    m_cmbFilterColumn->changed().connect(this, &Ms::Widgets::MTableViewWidget::cmbFilterColumnChanged);
+    m_mdlCmbFilterColumn = new Wt::WStandardItemModel();
+    m_cmbFilterColumn->setModel(m_mdlCmbFilterColumn);
+    layCntTbGlobal->addWidget(m_cmbFilterColumn);
 
-    _lnFilter = new Wt::WLineEdit();
-    _lnFilter->setMinimumSize(220, 30);
-    _lnFilter->setMaximumSize(220, 30);
-    _lnFilter->setEmptyText("Filter");
-    _lnFilter->keyWentUp().connect(this, &Ms::Widgets::MTableViewWidget::lnFilterKeyWentUp);
+    m_lnFilter = new Wt::WLineEdit();
+    m_lnFilter->setMinimumSize(220, 30);
+    m_lnFilter->setMaximumSize(220, 30);
+    m_lnFilter->setEmptyText("Filter");
+    m_lnFilter->keyWentUp().connect(this, &Ms::Widgets::MTableViewWidget::lnFilterKeyWentUp);
 
-    layCntTbGlobal-> addWidget(_lnFilter);
+    layCntTbGlobal-> addWidget(m_lnFilter);
 
     //Main Table View
     Wt::WVBoxLayout *layCntTblMain = new Wt::WVBoxLayout();
@@ -556,7 +556,7 @@ void Ms::Widgets::MTableViewWidget::prepareView()
 
     createMainTable();
 
-    layCntTblMain->addWidget(_table, 1);
+    layCntTblMain->addWidget(m_table, 1);
 
     layCntMainView->addWidget(cntTblMain, 1);
 
@@ -570,32 +570,32 @@ void Ms::Widgets::MTableViewWidget::prepareView()
 
     layCntMainView->addWidget(cntTbMain);
 
-    _tbMain = new Wt::WToolBar();
-    layTbMain->addWidget(_tbMain, 1);
+    m_tbMain = new Wt::WToolBar();
+    layTbMain->addWidget(m_tbMain, 1);
 
-    _sldRowHeight = new Wt::WSlider(Wt::Horizontal);
-    _sldRowHeight->resize(100, 20);
-    _sldRowHeight->setRange(25,300);
-    _sldRowHeight->setValue(25);
-    _sldRowHeight->setTickInterval(10);
-    _sldRowHeight->setHandleWidth(10);
-    //_sldRowHeight->setTickPosition(Wt::WSlider::TicksAbove);
-    _sldRowHeight->valueChanged().connect(this, &Ms::Widgets::MTableViewWidget::sldRowHeightValueChanged);
+    m_sldRowHeight = new Wt::WSlider(Wt::Horizontal);
+    m_sldRowHeight->resize(100, 20);
+    m_sldRowHeight->setRange(25,300);
+    m_sldRowHeight->setValue(25);
+    m_sldRowHeight->setTickInterval(10);
+    m_sldRowHeight->setHandleWidth(10);
+    //m_sldRowHeight->setTickPosition(Wt::WSlider::TicksAbove);
+    m_sldRowHeight->valueChanged().connect(this, &Ms::Widgets::MTableViewWidget::sldRowHeightValueChanged);
 
-    layTbMain->addWidget(_sldRowHeight);
+    layTbMain->addWidget(m_sldRowHeight);
 
     //Status bar
-    _cntStatusBar = new Wt::WContainerWidget();
+    m_cntStatusBar = new Wt::WContainerWidget();
 
-    layCntMainView->addWidget(_cntStatusBar);
+    layCntMainView->addWidget(m_cntStatusBar);
 
-    _layCntStatusBar = new Wt::WHBoxLayout();
-    _layCntStatusBar->setContentsMargins(4,0,4,0);
-    _layCntStatusBar->setSpacing(2);
+    m_layCntStatusBar = new Wt::WHBoxLayout();
+    m_layCntStatusBar->setContentsMargins(4,0,4,0);
+    m_layCntStatusBar->setSpacing(2);
 
-    _cntStatusBar->setLayout(_layCntStatusBar);
+    m_cntStatusBar->setLayout(m_layCntStatusBar);
 
-    _lblStatus = new Wt::WLabel("");
+    m_lblStatus = new Wt::WLabel("");
 
-    _layCntStatusBar->addWidget(_lblStatus);
+    m_layCntStatusBar->addWidget(m_lblStatus);
 }

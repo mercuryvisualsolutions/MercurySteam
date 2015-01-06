@@ -47,7 +47,6 @@ SOURCES += \
 
 HEADERS +=\
     Mscore_global.h \
-    Core/MManagerBase_impl.h \
     Dbo/MDboQueryModel.h \
     Dbo/MDboQueryModel.h \
     Dbo/MDboQueryModel_impl.h \

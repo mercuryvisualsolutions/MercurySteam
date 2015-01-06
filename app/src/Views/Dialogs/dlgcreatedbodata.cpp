@@ -4,71 +4,71 @@
 
 Views::Dialogs::DlgCreateDBOData::DlgCreateDBOData()
 {
-    _prepareView();
+    prepareView();
 }
 
 std::string Views::Dialogs::DlgCreateDBOData::key() const
 {
-    return _txtKey->text().toUTF8();
+    return m_txtKey->text().toUTF8();
 }
 
 std::string Views::Dialogs::DlgCreateDBOData::value() const
 {
-    return _txtValue->text().toUTF8();
+    return m_txtValue->text().toUTF8();
 }
 
 bool Views::Dialogs::DlgCreateDBOData::isActive() const
 {
-    return _cmbActive->currentText() == "Yes" ? true : false;
+    return m_cmbActive->currentText() == "Yes" ? true : false;
 }
 
-void Views::Dialogs::DlgCreateDBOData::_prepareView()
+void Views::Dialogs::DlgCreateDBOData::prepareView()
 {
     this->setCaption("Create Data");
     this->rejectWhenEscapePressed();
 
-    _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(2);
+    m_layMain = new Wt::WVBoxLayout();
+    m_layMain->setContentsMargins(0,0,0,0);
+    m_layMain->setSpacing(2);
 
-    this->contents()->setLayout(_layMain);
+    this->contents()->setLayout(m_layMain);
 
-    _txtKey = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[^$]{0,255}");
-    _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Key:", _txtKey));
+    m_txtKey = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[^$]{0,255}");
+    m_layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Key:", m_txtKey));
 
-    _layMain->addWidget(new Wt::WBreak());
+    m_layMain->addWidget(new Wt::WBreak());
 
-    _txtValue = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[^$]{0,255}");
-    _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Value:", _txtValue));
+    m_txtValue = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[^$]{0,255}");
+    m_layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Value:", m_txtValue));
 
-    _layMain->addWidget(new Wt::WBreak());
+    m_layMain->addWidget(new Wt::WBreak());
 
-    _cmbActive = new Wt::WComboBox();
-    _cmbActive->addItem("Yes");
-    _cmbActive->addItem("No");
-    _cmbActive->setCurrentIndex(0);
-    _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", _cmbActive), 1);
+    m_cmbActive = new Wt::WComboBox();
+    m_cmbActive->addItem("Yes");
+    m_cmbActive->addItem("No");
+    m_cmbActive->setCurrentIndex(0);
+    m_layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", m_cmbActive), 1);
 
-    _layMain->addWidget(new Wt::WBreak(), 1);
+    m_layMain->addWidget(new Wt::WBreak(), 1);
 
-    _btnOk = new Wt::WPushButton("Ok", this->footer());
-    _btnOk->clicked().connect(this, &Views::Dialogs::DlgCreateDBOData::_btnOkClicked);
+    m_btnOk = new Wt::WPushButton("Ok", this->footer());
+    m_btnOk->clicked().connect(this, &Views::Dialogs::DlgCreateDBOData::btnOkClicked);
 
-    _btnCancel = new Wt::WPushButton("Cancel", this->footer());
-    _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
+    m_btnCancel = new Wt::WPushButton("Cancel", this->footer());
+    m_btnCancel->clicked().connect(this, &Wt::WDialog::reject);
 }
 
-bool Views::Dialogs::DlgCreateDBOData::_validate()
+bool Views::Dialogs::DlgCreateDBOData::validate()
 {
-    if((_txtKey->validate() != Wt::WValidator::Valid) ||
-            (_txtValue->validate() != Wt::WValidator::Valid))
+    if((m_txtKey->validate() != Wt::WValidator::Valid) ||
+            (m_txtValue->validate() != Wt::WValidator::Valid))
         return false;
 
     return true;
 }
 
-void Views::Dialogs::DlgCreateDBOData::_btnOkClicked()
+void Views::Dialogs::DlgCreateDBOData::btnOkClicked()
 {
-    if(_validate())
+    if(validate())
         this->accept();
 }

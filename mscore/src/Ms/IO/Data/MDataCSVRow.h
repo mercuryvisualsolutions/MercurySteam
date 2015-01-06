@@ -30,7 +30,7 @@ namespace Ms
                 std::string &operator[](std::size_t index);
 
             private:
-                std::vector<std::string> _data;
+                std::vector<std::string> m_data;
             };
         }
     }

@@ -2,10 +2,10 @@
 
 Ms::IO::MResource::MResource()
 {
-    isInUse_ = true;
+    m_isInUse = true;
 }
 
 bool Ms::IO::MResource::isInUse()
 {
-    return isInUse_;
+    return m_isInUse;
 }

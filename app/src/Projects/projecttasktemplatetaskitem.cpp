@@ -4,7 +4,7 @@
 Projects::ProjectTaskTemplateTaskItem::ProjectTaskTemplateTaskItem() :
     Ms::Dbo::MDboBase()
 {
-    _init();
+    init();
 }
 
 Projects::ProjectTaskTemplateTaskItem::~ProjectTaskTemplateTaskItem()
@@ -20,22 +20,22 @@ Projects::ProjectTaskTemplateTaskItem *Projects::ProjectTaskTemplateTaskItem::mo
 
 const Wt::Dbo::ptr<Projects::ProjectTaskType> Projects::ProjectTaskTemplateTaskItem::type() const
 {
-    return _type;
+    return m_type;
 }
 
 void Projects::ProjectTaskTemplateTaskItem::setType(Wt::Dbo::ptr<ProjectTaskType> type)
 {
-    _type = type;
+    m_type = type;
 }
 
 Wt::Dbo::ptr<Projects::ProjectWorkStatus> Projects::ProjectTaskTemplateTaskItem::status() const
 {
-    return _status;
+    return m_status;
 }
 
 void Projects::ProjectTaskTemplateTaskItem::setStatus(Wt::Dbo::ptr<Projects::ProjectWorkStatus> status)
 {
-    _status = status;
+    m_status = status;
 }
 
 const Wt::Dbo::ptr<Projects::ProjectTaskTemplate> Projects::ProjectTaskTemplateTaskItem::taskTemplate() const
@@ -50,15 +50,15 @@ void Projects::ProjectTaskTemplateTaskItem::setTaskTemplate(Wt::Dbo::ptr<Project
 
 std::string Projects::ProjectTaskTemplateTaskItem::description() const
 {
-    return _description;
+    return m_description;
 }
 
 void Projects::ProjectTaskTemplateTaskItem::setDescription(const std::string &description)
 {
-    _description = description;
+    m_description = description;
 }
 
-void Projects::ProjectTaskTemplateTaskItem::_init()
+void Projects::ProjectTaskTemplateTaskItem::init()
 {
-    _description = "";
+    m_description = "";
 }

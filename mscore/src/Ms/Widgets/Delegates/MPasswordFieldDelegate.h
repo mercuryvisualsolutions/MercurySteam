@@ -23,8 +23,8 @@ namespace Ms
                 void setEditState(Wt::WWidget *editor, const boost::any &value) const override;
                 Wt::WWidget *update(Wt::WWidget *widget, const Wt::WModelIndex &index, Wt::WFlags<Wt::ViewItemRenderFlag> flags) override;
             private:
-                std::string _validatorExp;
-                bool _validatorIsMandatory;
+                std::string m_validatorExp;
+                bool m_validatorIsMandatory;
             };
         }
     }

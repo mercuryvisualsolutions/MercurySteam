@@ -4,7 +4,7 @@
 Projects::ProjectTask::ProjectTask() :
     ProjectDbo()
 {
-    _init();
+    init();
 }
 
 Projects::ProjectTask *Projects::ProjectTask::modify()
@@ -26,7 +26,7 @@ int Projects::ProjectTask::totalHours() const
 {
     int totalHours = 0;
 
-    for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
+    for(auto iter = m_activities.begin(); iter != m_activities.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -41,7 +41,7 @@ int Projects::ProjectTask::doneHours() const
 {
     int finishedHours = 0;
 
-    for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
+    for(auto iter = m_activities.begin(); iter != m_activities.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -55,79 +55,79 @@ int Projects::ProjectTask::doneHours() const
 
 Wt::Dbo::ptr<Projects::ProjectTaskType> Projects::ProjectTask::type() const
 {
-    return _type;
+    return m_type;
 }
 
 void Projects::ProjectTask::setType(Wt::Dbo::ptr<Projects::ProjectTaskType> type)
 {
-    _type = type;
+    m_type = type;
 }
 
 Wt::Dbo::ptr<Projects::ProjectWorkStatus> Projects::ProjectTask::status() const
 {
-    return _status;
+    return m_status;
 }
 
 void Projects::ProjectTask::setStatus(Wt::Dbo::ptr<Projects::ProjectWorkStatus> status)
 {
-    _status = status;
+    m_status = status;
 }
 
 Wt::Dbo::ptr<Users::User> Projects::ProjectTask::user() const
 {
-    return _user;
+    return m_user;
 }
 
 void Projects::ProjectTask::setUser(Wt::Dbo::ptr<Users::User> user)
 {
-    _user = user;
+    m_user = user;
 }
 
 Wt::Dbo::ptr<Projects::Project> Projects::ProjectTask::project() const
 {
-    return _project;
+    return m_project;
 }
 
 void Projects::ProjectTask::setProject(Wt::Dbo::ptr<Projects::Project> project)
 {
-    _project = project;
+    m_project = project;
 }
 
 Wt::Dbo::ptr<Projects::ProjectSequence> Projects::ProjectTask::sequence() const
 {
-    return _sequence;
+    return m_sequence;
 }
 
 void Projects::ProjectTask::setSequence(Wt::Dbo::ptr<Projects::ProjectSequence> sequence)
 {
-    _sequence = sequence;
+    m_sequence = sequence;
 }
 
 Wt::Dbo::ptr<Projects::ProjectShot> Projects::ProjectTask::shot() const
 {
-    return _shot;
+    return m_shot;
 }
 
 void Projects::ProjectTask::setShot(Wt::Dbo::ptr<Projects::ProjectShot> shot)
 {
-    _shot = shot;
+    m_shot = shot;
 }
 
 const Wt::Dbo::ptr<Projects::ProjectAsset> Projects::ProjectTask::asset() const
 {
-    return _asset;
+    return m_asset;
 }
 
 void Projects::ProjectTask::setAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset)
 {
-    _asset = asset;
+    m_asset = asset;
 }
 
 bool Projects::ProjectTask::hasActivity(Wt::Dbo::ptr<Projects::ProjectTaskActivity> activity) const
 {
     bool result = false;
 
-    for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
+    for(auto iter = m_activities.begin(); iter != m_activities.end(); ++iter)
     {
         if((*iter).id() == activity.id())
         {
@@ -144,7 +144,7 @@ bool Projects::ProjectTask::addActivity(Wt::Dbo::ptr<Projects::ProjectTaskActivi
 {
     if(!hasActivity(activity))
     {
-        _activities.insert(activity);
+        m_activities.insert(activity);
 
         return true;
     }
@@ -156,7 +156,7 @@ bool Projects::ProjectTask::removeActivity(Wt::Dbo::ptr<Projects::ProjectTaskAct
 {
     if(hasActivity(activity))
     {
-        _activities.erase(activity);
+        m_activities.erase(activity);
 
         return true;
     }
@@ -166,24 +166,24 @@ bool Projects::ProjectTask::removeActivity(Wt::Dbo::ptr<Projects::ProjectTaskAct
 
 bool Projects::ProjectTask::isAcceptedByUser()
 {
-    return _acceptedByUser;
+    return m_acceptedByUser;
 }
 
 void Projects::ProjectTask::setAcceptedByUser(bool accepted)
 {
-    _acceptedByUser = accepted;
+    m_acceptedByUser = accepted;
 }
 
 int Projects::ProjectTask::totalActivities() const
 {
-    return _activities.size();
+    return m_activities.size();
 }
 
 int Projects::ProjectTask::doneActivities() const
 {
     int doneActivities = 0;
 
-    for(auto iter = _activities.begin(); iter != _activities.end(); ++iter)
+    for(auto iter = m_activities.begin(); iter != m_activities.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -195,8 +195,8 @@ int Projects::ProjectTask::doneActivities() const
     return doneActivities;
 }
 
-void Projects::ProjectTask::_init()
+void Projects::ProjectTask::init()
 {
-    thumbnail_ = "pics/NoPreviewBig.png";
-    _acceptedByUser = false;
+    m_thumbnail = "pics/NoPreviewBig.png";
+    m_acceptedByUser = false;
 }

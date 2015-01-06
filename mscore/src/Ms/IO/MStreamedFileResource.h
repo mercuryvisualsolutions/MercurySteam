@@ -27,8 +27,8 @@ namespace Ms
 
         private:
             //variables
-            char _buffer[BUFFER_SIZE];
-            bool _deleteWhenFinished;
+            char m_buffer[BUFFER_SIZE];
+            bool m_deleteWhenFinished;
 
             //functions
 

@@ -14,14 +14,14 @@ Ms::Widgets::Delegates::MThumbnailDelegate::MThumbnailDelegate() :
 Ms::Widgets::Delegates::MThumbnailDelegate::MThumbnailDelegate(unsigned int width, unsigned int height, const std::string &defaultImagePath) :
     MThumbnailDelegate()
 {
-    _width = width;
-    _height = height;
-    _defaultImagePath = defaultImagePath;
+    m_width = width;
+    m_height = height;
+    m_defaultImagePath = defaultImagePath;
 }
 
 unsigned int Ms::Widgets::Delegates::MThumbnailDelegate::width()
 {
-    return _width;
+    return m_width;
 }
 
 void Ms::Widgets::Delegates::MThumbnailDelegate::setWidth(unsigned int width)
@@ -31,22 +31,22 @@ void Ms::Widgets::Delegates::MThumbnailDelegate::setWidth(unsigned int width)
 
 unsigned int Ms::Widgets::Delegates::MThumbnailDelegate::height()
 {
-    return _height;
+    return m_height;
 }
 
 void Ms::Widgets::Delegates::MThumbnailDelegate::setHeight(unsigned int height)
 {
-    _height = height;
+    m_height = height;
 }
 
 const std::string Ms::Widgets::Delegates::MThumbnailDelegate::defaultImagePath()
 {
-    return _defaultImagePath;
+    return m_defaultImagePath;
 }
 
 void Ms::Widgets::Delegates::MThumbnailDelegate::setDefaultImagePath(const std::string &defaultImagePath)
 {
-    _defaultImagePath = defaultImagePath;
+    m_defaultImagePath = defaultImagePath;
 }
 
 Wt::WWidget *Ms::Widgets::Delegates::MThumbnailDelegate::update(Wt::WWidget *widget, const Wt::WModelIndex &index, Wt::WFlags<Wt::ViewItemRenderFlag>)
@@ -58,7 +58,7 @@ Wt::WWidget *Ms::Widgets::Delegates::MThumbnailDelegate::update(Wt::WWidget *wid
         result = new Wt::WContainerWidget();
         result->setLayout(new Wt::WVBoxLayout());
         thumbnail = new Wt::WImage();
-        thumbnail->setAlternateText(_defaultImagePath);
+        thumbnail->setAlternateText(m_defaultImagePath);
         result->layout()->addWidget(thumbnail);
     }
     else
@@ -73,7 +73,7 @@ Wt::WWidget *Ms::Widgets::Delegates::MThumbnailDelegate::update(Wt::WWidget *wid
     if(!data.empty())
     {
         thumbnail->setImageLink(Wt::WLink(boost::any_cast<std::string>(data)));
-        thumbnail->resize(_width, _height);
+        thumbnail->resize(m_width, m_height);
     }
 
     return result;

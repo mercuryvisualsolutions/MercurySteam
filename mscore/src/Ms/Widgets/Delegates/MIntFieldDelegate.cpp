@@ -17,7 +17,7 @@ Ms::Widgets::Delegates::MIntFieldDelegate::MIntFieldDelegate() :
 Ms::Widgets::Delegates::MIntFieldDelegate::MIntFieldDelegate(int editRank) :
     MIntFieldDelegate()
 {
-    _editRank = editRank;
+    m_editRank = editRank;
 }
 
 void Ms::Widgets::Delegates::MIntFieldDelegate::doCloseEditor(Wt::WWidget *editor, bool save) const

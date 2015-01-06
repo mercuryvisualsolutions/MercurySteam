@@ -50,16 +50,16 @@ namespace Ms
             void setDboManager(const Ms::Core::Dbo::MDboSession *dboSession);
 
         protected:
-            std::string thumbnail_;
-            Wt::WDateTime dateCreated_;
-            std::string createdBy_;
-            Wt::WDateTime lastModifiedDate_;
-            std::string lastModifiedBy_;
-            bool active_;
-            int viewRank_;
-            int editRank_;
-            int removeRank_;
-            const Ms::Core::Dbo::MDboSession *dboSession_;
+            std::string m_thumbnail;
+            Wt::WDateTime m_dateCreated;
+            std::string m_createdBy;
+            Wt::WDateTime m_lastModifiedDate;
+            std::string m_lastModifiedBy;
+            bool m_active;
+            int m_viewRank;
+            int m_editRank;
+            int m_removeRank;
+            const Ms::Core::Dbo::MDboSession *m_dboSession;
 
             //functions
             template<class Action>
@@ -67,7 +67,7 @@ namespace Ms
 
         private:
             //functions
-            void _init();
+            void init();
 
         };
     }

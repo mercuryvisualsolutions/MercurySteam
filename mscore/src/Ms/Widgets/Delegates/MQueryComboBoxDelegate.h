@@ -39,11 +39,11 @@ namespace Ms
                 std::string displayColumn();
 
             private:
-                Wt::WComboBox *_createCmbQuery() const;
+                Wt::WComboBox *createCmbQuery() const;
 
-                Wt::Dbo::Session *_session;
-                std::string _displayColumn;
-                Wt::Dbo::Query<Wt::Dbo::ptr<T>> _query;
+                Wt::Dbo::Session *m_session;
+                std::string m_displayColumn;
+                Wt::Dbo::Query<Wt::Dbo::ptr<T>> m_query;
             };
         }
     }

@@ -60,8 +60,8 @@ namespace Database
 
     private:
         //variables
-        Database::UserDatabase _users;
-        Wt::Auth::Login _login;
+        Database::UserDatabase m_users;
+        Wt::Auth::Login m_login;
 
         //functions
         void mapClasses();

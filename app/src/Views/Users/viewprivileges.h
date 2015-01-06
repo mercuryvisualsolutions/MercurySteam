@@ -30,42 +30,42 @@ namespace Views
     private:
         //Variables
         
-        Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *_qtvPrivileges;
-        Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *_qtvAssignedPrivileges;
+        Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *m_qtvPrivileges;
+        Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *m_qtvAssignedPrivileges;
 
         //UI variables
-        Wt::WVBoxLayout *_layMain;
-        Wt::WContainerWidget *_cntPrivileges;
-        Wt::WVBoxLayout *_layCntPrivileges;
-        Ms::Widgets::MContainerWidget *_cntAssignedPrivileges;
-        Ms::Widgets::MContainerWidget *_cntAvailablePrivileges;
-        Wt::WPushButton *_btnAssignPrivileges;
-        Wt::WPushButton *_btnUnassignPrivileges;
-        Wt::WPushButton *_btnFilterByPrivileges;
-        Wt::WPushButton *_btnClearPrivilegeFilter;
-        Wt::WPopupMenu *_mnuFilterByPrivileges;
-        Wt::WPopupMenuItem *_mnuFilterByPrivilegesExactSelectionItem;
-        Wt::WPopupMenuItem *_mnuFilterByPrivilegesAnyOfSelectionItem;
-        Wt::WPopupMenuItem *_mnuFilterByPrivilegesNotInSelectionItem;
+        Wt::WVBoxLayout *m_layMain;
+        Wt::WContainerWidget *m_cntPrivileges;
+        Wt::WVBoxLayout *m_layCntPrivileges;
+        Ms::Widgets::MContainerWidget *m_cntAssignedPrivileges;
+        Ms::Widgets::MContainerWidget *m_cntAvailablePrivileges;
+        Wt::WPushButton *m_btnAssignPrivileges;
+        Wt::WPushButton *m_btnUnassignPrivileges;
+        Wt::WPushButton *m_btnFilterByPrivileges;
+        Wt::WPushButton *m_btnClearPrivilegeFilter;
+        Wt::WPopupMenu *m_mnuFilterByPrivileges;
+        Wt::WPopupMenuItem *m_mnuFilterByPrivilegesExactSelectionItem;
+        Wt::WPopupMenuItem *m_mnuFilterByPrivilegesAnyOfSelectionItem;
+        Wt::WPopupMenuItem *m_mnuFilterByPrivilegesNotInSelectionItem;
 
         //Signals
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> _assignPrivilegesRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> _unassignPrivilegesRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>,bool,bool> _filterByPrivilegesRequested;
-        Wt::Signal<> _clearPrivilegesFilterRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> m_assignPrivilegesRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> m_unassignPrivilegesRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>,bool,bool> m_filterByPrivilegesRequested;
+        Wt::Signal<> m_clearPrivilegesFilterRequested;
 
         //Slots
-        void _btnAssignPrivilegesClicked();
-        void _btnUnassignPrivilegesClicked();
-        void _btnClearPrivilegesFilterClicked();
-        void _mnuFilterByPrivilegesExactSelectionItemTriggered();
-        void _mnuFilterByPrivilegesAnyOfSelectionItemTriggered();
-        void _mnuFilterByPrivilegesNotInSelectionItemTriggered();
+        void btnAssignPrivilegesClicked();
+        void btnUnassignPrivilegesClicked();
+        void btnClearPrivilegesFilterClicked();
+        void mnuFilterByPrivilegesExactSelectionItemTriggered();
+        void mnuFilterByPrivilegesAnyOfSelectionItemTriggered();
+        void mnuFilterByPrivilegesNotInSelectionItemTriggered();
 
         //Functions
-        void _createPrivilegesTableView();
-        void _createAssignedPrivilegesTableView();
-        void _prepareView();
+        void createPrivilegesTableView();
+        void createAssignedPrivilegesTableView();
+        void prepareView();
     };
 }
 

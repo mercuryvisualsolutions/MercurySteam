@@ -7,63 +7,63 @@
 
 Views::ViewDboData::ViewDboData()
 {
-    _prepareView();
+    prepareView();
 }
 
 Ms::Widgets::MQueryTableViewWidget<Database::DboData> *Views::ViewDboData::qtvData()
 {
-    return _qtvData;
+    return m_qtvData;
 }
 
 void Views::ViewDboData::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
 {
     bool hasCreateDboPriv = user->hasPrivilege("Create DBO");
 
-    _btnCreateData->setHidden(!hasCreateDboPriv);
+    m_btnCreateData->setHidden(!hasCreateDboPriv);
 
-    _qtvData->setImportCSVFeatureEnabled(hasCreateDboPriv);
+    m_qtvData->setImportCSVFeatureEnabled(hasCreateDboPriv);
 }
 
 Wt::Signal<> &Views::ViewDboData::addDataRequested()
 {
-    return _addDataRequested;
+    return m_addDataRequested;
 }
 
 Wt::Signal<std::vector<Wt::Dbo::ptr<Database::DboData>>> &Views::ViewDboData::removeDataRequested()
 {
-    return _removeDataRequested;
+    return m_removeDataRequested;
 }
 
-void Views::ViewDboData::_btnCreateDataClicked()
+void Views::ViewDboData::btnCreateDataClicked()
 {
-    _addDataRequested();
+    addDataRequested();
 }
 
-void Views::ViewDboData::_btnRemoveDataClicked()
+void Views::ViewDboData::btnRemoveDataClicked()
 {
-    _removeDataRequested(_qtvData->selectedItems());
+    m_removeDataRequested(m_qtvData->selectedItems());
 }
 
-void Views::ViewDboData::_createDataTableView()
+void Views::ViewDboData::createDataTableView()
 {
-    _qtvData = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::DboData>(Session::SessionManager::instance().dboSession());
+    m_qtvData = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Database::DboData>(Session::SessionManager::instance().dboSession());
 
-    _btnCreateData = _qtvData->createToolButton("", "icons/Add.png", "Add A New Field");
-    _btnCreateData->clicked().connect(this, &Views::ViewDboData::_btnCreateDataClicked);
+    m_btnCreateData = m_qtvData->createToolButton("", "icons/Add.png", "Add A New Field");
+    m_btnCreateData->clicked().connect(this, &Views::ViewDboData::btnCreateDataClicked);
 
-//    Wt::WPushButton *btn = _qtvData->createToolButton("", "icons/Remove.png", "Remove Selected Fields");
-//    btn->clicked().connect(this, &Views::ViewDboData::_btnRemoveDataClicked);
+//    Wt::WPushButton *btn = m_qtvData->createToolButton("", "icons/Remove.png", "Remove Selected Fields");
+//    btn->clicked().connect(this, &Views::ViewDboData::btnRemoveDataClicked);
 }
 
-void Views::ViewDboData::_prepareView()
+void Views::ViewDboData::prepareView()
 {
-    _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(0);
+    m_layMain = new Wt::WVBoxLayout();
+    m_layMain->setContentsMargins(0,0,0,0);
+    m_layMain->setSpacing(0);
 
-    setLayout(_layMain);
+    setLayout(m_layMain);
 
-    _createDataTableView();
+    createDataTableView();
 
-    _layMain->addWidget(_qtvData);
+    m_layMain->addWidget(m_qtvData);
 }

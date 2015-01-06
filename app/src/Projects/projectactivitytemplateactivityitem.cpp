@@ -4,7 +4,7 @@
 Projects::ProjectActivityTemplateActivityItem::ProjectActivityTemplateActivityItem() :
     Ms::Dbo::MDboBase()
 {
-    _init();
+    init();
 }
 
 Projects::ProjectActivityTemplateActivityItem::~ProjectActivityTemplateActivityItem()
@@ -20,56 +20,56 @@ Projects::ProjectActivityTemplateActivityItem *Projects::ProjectActivityTemplate
 
 const Wt::Dbo::ptr<Projects::ProjectTaskActivityType> Projects::ProjectActivityTemplateActivityItem::type() const
 {
-    return _type;
+    return m_type;
 }
 
 void Projects::ProjectActivityTemplateActivityItem::setType(Wt::Dbo::ptr<ProjectTaskActivityType> type)
 {
-    _type = type;
+    m_type = type;
 }
 
 Wt::Dbo::ptr<Projects::ProjectWorkStatus> Projects::ProjectActivityTemplateActivityItem::status() const
 {
-    return _status;
+    return m_status;
 }
 
 void Projects::ProjectActivityTemplateActivityItem::setStatus(Wt::Dbo::ptr<Projects::ProjectWorkStatus> status)
 {
-    _status = status;
+    m_status = status;
 }
 
 const Wt::Dbo::ptr<Projects::ProjectActivityTemplate> Projects::ProjectActivityTemplateActivityItem::activityTemplate() const
 {
-    return _activityTemplate;
+    return m_activityTemplate;
 }
 
 void Projects::ProjectActivityTemplateActivityItem::setActivityTemplate(Wt::Dbo::ptr<Projects::ProjectActivityTemplate> activityTemplate)
 {
-    _activityTemplate = activityTemplate;
+    m_activityTemplate = activityTemplate;
 }
 
 std::string Projects::ProjectActivityTemplateActivityItem::description() const
 {
-    return _description;
+    return m_description;
 }
 
 void Projects::ProjectActivityTemplateActivityItem::setDescription(const std::string &description)
 {
-    _description = description;
+    m_description = description;
 }
 
 int Projects::ProjectActivityTemplateActivityItem::hours() const
 {
-    return _hours;
+    return m_hours;
 }
 
 void Projects::ProjectActivityTemplateActivityItem::setHours(int hours)
 {
-    _hours = hours;
+    m_hours = hours;
 }
 
-void Projects::ProjectActivityTemplateActivityItem::_init()
+void Projects::ProjectActivityTemplateActivityItem::init()
 {
-    _hours = 0;
-    _description = "";
+    m_hours = 0;
+    m_description = "";
 }

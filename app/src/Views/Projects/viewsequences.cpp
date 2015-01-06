@@ -13,14 +13,14 @@
 
 Views::ViewSequences::ViewSequences()
 {
-    _logger = Session::SessionManager::instance().logger();
+    m_logger = Session::SessionManager::instance().logger();
 
-    _prepareView();
+    prepareView();
 }
 
 Ms::Widgets::MQueryTableViewWidget<Projects::ProjectSequence> *Views::ViewSequences::qtvSequences() const
 {
-    return _qtvSequences;
+    return m_qtvSequences;
 }
 
 void Views::ViewSequences::updateView(const std::vector<Wt::Dbo::ptr<Projects::Project>> &prjVec) const
@@ -48,7 +48,7 @@ void Views::ViewSequences::updateView(const std::vector<Wt::Dbo::ptr<Projects::P
         else
             query.where("Sequence_Name = ?").bind("");//clear the view
 
-        _qtvSequences->setQuery(query);
+        m_qtvSequences->setQuery(query);
 
         bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
@@ -59,33 +59,33 @@ void Views::ViewSequences::updateView(const std::vector<Wt::Dbo::ptr<Projects::P
 
         int editRank = Session::SessionManager::instance().user()->editRank();
 
-        _qtvSequences->clearColumns();
+        m_qtvSequences->clearColumns();
 
         //add columns
-        _qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Thumbnail", "Thumbnail", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MThumbnailDelegate(256, 160, "pics/NoPreviewBig.png"), false, true, 256));
-        _qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Sequence_Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-        _qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Sequence_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-        _qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Start_Date", "Start Date", flags, new Ms::Widgets::Delegates::MDateDelegate(editRank)));
-        _qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("End_Date", "End Date", flags, new Ms::Widgets::Delegates::MDateDelegate(editRank)));
-        _qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Duration_In_Frames", "Duration In Frames", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
-        _qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("FPS", "FPS", flags, new Ms::Widgets::Delegates::MFloatFieldDelegate(editRank)));
-        _qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Frame_Width", "Frame Width", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
-        _qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Frame_Height", "Frame Height", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
-        _qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Current_Status", "Status", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectWorkStatus>(
+        m_qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Thumbnail", "Thumbnail", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MThumbnailDelegate(256, 160, "pics/NoPreviewBig.png"), false, true, 256));
+        m_qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Sequence_Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        m_qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Sequence_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        m_qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Start_Date", "Start Date", flags, new Ms::Widgets::Delegates::MDateDelegate(editRank)));
+        m_qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("End_Date", "End Date", flags, new Ms::Widgets::Delegates::MDateDelegate(editRank)));
+        m_qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Duration_In_Frames", "Duration In Frames", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
+        m_qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("FPS", "FPS", flags, new Ms::Widgets::Delegates::MFloatFieldDelegate(editRank)));
+        m_qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Frame_Width", "Frame Width", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
+        m_qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Frame_Height", "Frame Height", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
+        m_qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Current_Status", "Status", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Projects::ProjectWorkStatus>(
          &Session::SessionManager::instance().dboSession(),
          AppSettings::instance().isLoadInactiveData() ? Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>() :
          Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true),
          "Status", editRank)));
-        _qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Description", "Description", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
-        _qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Priority", "Priority", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
+        m_qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Description", "Description", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
+        m_qtvSequences->addColumn(Ms::Widgets::MQueryTableViewColumn("Priority", "Priority", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
 
 
         if(AppSettings::instance().isShowExtraColumns())
-            _qtvSequences->addBaseColumns(flags, editRank);
+            m_qtvSequences->addBaseColumns(flags, editRank);
 
         transaction.commit();
 
-        _qtvSequences->updateView();
+        m_qtvSequences->updateView();
     }
     catch(...)
     {
@@ -95,68 +95,68 @@ void Views::ViewSequences::updateView(const std::vector<Wt::Dbo::ptr<Projects::P
 
 bool Views::ViewSequences::isCreateOptionHidden()
 {
-    if(_btnCreateSequence)
-        return _btnCreateSequence->isHidden();
+    if(m_btnCreateSequence)
+        return m_btnCreateSequence->isHidden();
 
     return false;
 }
 
 void Views::ViewSequences::setCreateOptionHidden(bool hidden) const
 {
-    if(_btnCreateSequence)
-        _btnCreateSequence->setHidden(hidden);
+    if(m_btnCreateSequence)
+        m_btnCreateSequence->setHidden(hidden);
 }
 
 bool Views::ViewSequences::isEditOptionHidden()
 {
-    if(_btnEditSequences)
-        return _btnEditSequences->isHidden();
+    if(m_btnEditSequences)
+        return m_btnEditSequences->isHidden();
 
     return false;
 }
 
 void Views::ViewSequences::setEditOptionHidden(bool hidden) const
 {
-    if(_btnEditSequences)
-        _btnEditSequences->setHidden(hidden);
+    if(m_btnEditSequences)
+        m_btnEditSequences->setHidden(hidden);
 }
 
 //bool Views::ViewSequences::isRemoveOptionHidden()
 //{
-//    return _btnRemoveSequences->isHidden();
+//    return m_btnRemoveSequences->isHidden();
 //}
 
 //void Views::ViewSequences::setRemoveOptionHidden(bool hidden) const
 //{
-//    _btnRemoveSequences->setHidden(hidden);
+//    m_btnRemoveSequences->setHidden(hidden);
 //}
 
 bool Views::ViewSequences::isImportThumbnailsOptionHidden()
 {
-    if(_btnImportThumbnails)
-        return _btnImportThumbnails->isHidden();
+    if(m_btnImportThumbnails)
+        return m_btnImportThumbnails->isHidden();
 
     return false;
 }
 
 void Views::ViewSequences::setImportThumbnailsOptionHidden(bool hidden) const
 {
-    if(_btnImportThumbnails)
-        _btnImportThumbnails->setHidden(hidden);
+    if(m_btnImportThumbnails)
+        m_btnImportThumbnails->setHidden(hidden);
 }
 
 bool Views::ViewSequences::isOpenFilesOptionHidden()
 {
-    if(_btnOpenFilesView)
-        return _btnOpenFilesView->isHidden();
+    if(m_btnOpenFilesView)
+        return m_btnOpenFilesView->isHidden();
 
     return false;
 }
 
 void Views::ViewSequences::setOpenFilesOptionHidden(bool hidden) const
 {
-    if(_btnOpenFilesView)
-        _btnOpenFilesView->setHidden(hidden);
+    if(m_btnOpenFilesView)
+        m_btnOpenFilesView->setHidden(hidden);
 }
 
 void Views::ViewSequences::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
@@ -168,56 +168,56 @@ void Views::ViewSequences::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
     bool hasCheckOutPriv = user->hasPrivilege("Check Out");
     bool hasCreateRepoPriv = user->hasPrivilege("Create Repositories");
 
-    _btnCreateSequence->setHidden(!hasCreateProjectsPriv);
-    _btnImportThumbnails->setHidden(!hasEditPriv);
-    _btnEditSequences->setHidden(!hasEditPriv);
+    m_btnCreateSequence->setHidden(!hasCreateProjectsPriv);
+    m_btnImportThumbnails->setHidden(!hasEditPriv);
+    m_btnEditSequences->setHidden(!hasEditPriv);
 
-    _qtvSequences->setImportCSVFeatureEnabled(hasCreateProjectsPriv);
+    m_qtvSequences->setImportCSVFeatureEnabled(hasCreateProjectsPriv);
 
     bool showTaskFilesButton = hasViewFilesPriv || hasCheckInPriv || hasCheckOutPriv || hasCreateRepoPriv;//if have any of the privileges
-    _btnOpenFilesView->setHidden(!showTaskFilesButton);
+    m_btnOpenFilesView->setHidden(!showTaskFilesButton);
 }
 
 Wt::Signal<> &Views::ViewSequences::createSequenceRequested()
 {
-    return _createSequenceRequested;
+    return m_createSequenceRequested;
 }
 
 Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>>> &Views::ViewSequences::removeSequencesRequested()
 {
-    return _removeSequencesRequested;
+    return m_removeSequencesRequested;
 }
 
 Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>>> &Views::ViewSequences::editSequencesRequested()
 {
-    return _editSequencesRequested;
+    return m_editSequencesRequested;
 }
 
 Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>>> &Views::ViewSequences::openfilesViewRequested()
 {
-    return _openfilesViewRequested;
+    return m_openfilesViewRequested;
 }
 
 Wt::Signal<> &Views::ViewSequences::importThumbnailsRequested()
 {
-    return _importThumbnailsRequested;
+    return m_importThumbnailsRequested;
 }
 
-void Views::ViewSequences::_btnCreateSequenceClicked()
+void Views::ViewSequences::btnCreateSequenceClicked()
 {
-    _createSequenceRequested();
+    createSequenceRequested();
 }
 
-void Views::ViewSequences::_btnRemoveSequencesClicked()
+void Views::ViewSequences::btnRemoveSequencesClicked()
 {
-    _removeSequencesRequested(_qtvSequences->selectedItems());
+    m_removeSequencesRequested(m_qtvSequences->selectedItems());
 }
 
-void Views::ViewSequences::_btnEditSequencesClicked()
+void Views::ViewSequences::btnEditSequencesClicked()
 {
-    if(_qtvSequences->table()->selectedIndexes().size() == 0)
+    if(m_qtvSequences->table()->selectedIndexes().size() == 0)
     {
-        _logger->log("Please select at least one item.", Ms::Log::LogMessageType::Warning);
+        m_logger->log("Please select at least one item.", Ms::Log::LogMessageType::Warning);
 
         return;
     }
@@ -229,7 +229,7 @@ void Views::ViewSequences::_btnEditSequencesClicked()
         {
             Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-            for(auto seqPtr : _qtvSequences->selectedItems())
+            for(auto seqPtr : m_qtvSequences->selectedItems())
             {
                 if(dlg->editedStartDate())
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setStartDate(dlg->startDate());
@@ -264,7 +264,7 @@ void Views::ViewSequences::_btnEditSequencesClicked()
 
             transaction.commit();
 
-            _qtvSequences->updateView();
+            m_qtvSequences->updateView();
         }
 
         delete dlg;
@@ -273,9 +273,9 @@ void Views::ViewSequences::_btnEditSequencesClicked()
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
-void Views::ViewSequences::_btnImportThumbnailsClicked()
+void Views::ViewSequences::btnImportThumbnailsClicked()
 {
-    if(_qtvSequences->model()->rowCount() == 0)
+    if(m_qtvSequences->model()->rowCount() == 0)
         return;
 
     Ms::Widgets::Dialogs::MFilesUploadDialog *dlg = new Ms::Widgets::Dialogs::MFilesUploadDialog(true, true);
@@ -297,9 +297,9 @@ void Views::ViewSequences::_btnImportThumbnailsClicked()
 
                     //match thumbnail by sequence name
                     //loop for all sequences
-                    for(int i = 0; i < _qtvSequences->model()->rowCount(); ++i)
+                    for(int i = 0; i < m_qtvSequences->model()->rowCount(); ++i)
                     {
-                        Wt::Dbo::ptr<Projects::ProjectSequence> seqPtr = _qtvSequences->model()->resultRow(i);
+                        Wt::Dbo::ptr<Projects::ProjectSequence> seqPtr = m_qtvSequences->model()->resultRow(i);
 
                         if(seqPtr->name() == rawFileName)//sequence has the same name of the thumbnail ?
                         {
@@ -324,7 +324,7 @@ void Views::ViewSequences::_btnImportThumbnailsClicked()
                 }
                 catch(Wt::WException e)
                 {
-                    _logger->log(std::string("Error occured while trying to import thumbnails to table sequences") + e.what(),
+                    m_logger->log(std::string("Error occured while trying to import thumbnails to table sequences") + e.what(),
                                  Ms::Log::LogMessageType::Error);
                 }
 
@@ -336,10 +336,10 @@ void Views::ViewSequences::_btnImportThumbnailsClicked()
             for(std::vector<std::string>::size_type i = 0; i < delFiles.size(); ++i)
             {
                 Ms::IO::removeFile(delFiles.at(i));//after finish processing, delete the uploaded thumbnails
-                _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
+                m_logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
             }
 
-            _qtvSequences->updateView();
+            m_qtvSequences->updateView();
         }
 
         delete dlg;
@@ -347,21 +347,21 @@ void Views::ViewSequences::_btnImportThumbnailsClicked()
 
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 
-    _importThumbnailsRequested();
+    m_importThumbnailsRequested();
 }
 
-void Views::ViewSequences::_btnOpenFilesViewClicked()
+void Views::ViewSequences::btnOpenFilesViewClicked()
 {
     Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-    if(_qtvSequences->table()->selectedIndexes().size() != 1)
+    if(m_qtvSequences->table()->selectedIndexes().size() != 1)
     {
-        _logger->log("Please select only one item.", Ms::Log::LogMessageType::Warning);
+        m_logger->log("Please select only one item.", Ms::Log::LogMessageType::Warning);
 
         return;
     }
 
-    Wt::Dbo::ptr<Projects::ProjectSequence> seqPtr = _qtvSequences->selectedItems().at(0);
+    Wt::Dbo::ptr<Projects::ProjectSequence> seqPtr = m_qtvSequences->selectedItems().at(0);
 
     DlgFilesManager *dlgFiles = new DlgFilesManager(Projects::ProjectsIO::getRelativeSequenceDir(seqPtr->projectName(), seqPtr->name()) + Ms::IO::dirSeparator() + "files");
     dlgFiles->finished().connect(std::bind([=]()
@@ -385,41 +385,41 @@ void Views::ViewSequences::_btnOpenFilesViewClicked()
 
     dlgFiles->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 
-    _openfilesViewRequested(_qtvSequences->selectedItems());
+    m_openfilesViewRequested(m_qtvSequences->selectedItems());
 }
 
-void Views::ViewSequences::_createSequencesTableView()
+void Views::ViewSequences::createSequencesTableView()
 {
-    _qtvSequences = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectSequence>(Session::SessionManager::instance().dboSession());
-    _qtvSequences->setRowHeight(160);
-    _qtvSequences->setDefaultFilterColumnIndex(1);
-    _qtvSequences->setIgnoreNumFilterColumns(1);
+    m_qtvSequences = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectSequence>(Session::SessionManager::instance().dboSession());
+    m_qtvSequences->setRowHeight(160);
+    m_qtvSequences->setDefaultFilterColumnIndex(1);
+    m_qtvSequences->setIgnoreNumFilterColumns(1);
 
-    _btnCreateSequence = _qtvSequences->createToolButton("", "icons/Add.png", "Create A New Sequence");
-    _btnCreateSequence->clicked().connect(this, &Views::ViewSequences::_btnCreateSequenceClicked);
+    m_btnCreateSequence = m_qtvSequences->createToolButton("", "icons/Add.png", "Create A New Sequence");
+    m_btnCreateSequence->clicked().connect(this, &Views::ViewSequences::btnCreateSequenceClicked);
 
-    //_btnRemoveSequences = _qtvSequences->createToolButton("", "icons/Remove.png", "Remove Selected Sequences");
-    //_btnRemoveSequences->clicked().connect(this, &Views::ViewSequences::_btnRemoveSequencesClicked);
+    //m_btnRemoveSequences = m_qtvSequences->createToolButton("", "icons/Remove.png", "Remove Selected Sequences");
+    //m_btnRemoveSequences->clicked().connect(this, &Views::ViewSequences::btnRemoveSequencesClicked);
 
-    _btnEditSequences = _qtvSequences->createToolButton("", "icons/Edit.png", "Edit Selected Sequences");
-    _btnEditSequences->clicked().connect(this, &Views::ViewSequences::_btnEditSequencesClicked);
+    m_btnEditSequences = m_qtvSequences->createToolButton("", "icons/Edit.png", "Edit Selected Sequences");
+    m_btnEditSequences->clicked().connect(this, &Views::ViewSequences::btnEditSequencesClicked);
 
-    _btnImportThumbnails= _qtvSequences->createToolButton("", "icons/Thumbnail.png", "Import Thumbnails");
-    _btnImportThumbnails->clicked().connect(this, &Views::ViewSequences::_btnImportThumbnailsClicked);
+    m_btnImportThumbnails= m_qtvSequences->createToolButton("", "icons/Thumbnail.png", "Import Thumbnails");
+    m_btnImportThumbnails->clicked().connect(this, &Views::ViewSequences::btnImportThumbnailsClicked);
 
-    _btnOpenFilesView = _qtvSequences->createToolButton("", "icons/Files.png", "Files Manager");
-    _btnOpenFilesView->clicked().connect(this, &Views::ViewSequences::_btnOpenFilesViewClicked);
+    m_btnOpenFilesView = m_qtvSequences->createToolButton("", "icons/Files.png", "Files Manager");
+    m_btnOpenFilesView->clicked().connect(this, &Views::ViewSequences::btnOpenFilesViewClicked);
 }
 
-void Views::ViewSequences::_prepareView()
+void Views::ViewSequences::prepareView()
 {
-    _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(0);
+    m_layMain = new Wt::WVBoxLayout();
+    m_layMain->setContentsMargins(0,0,0,0);
+    m_layMain->setSpacing(0);
 
-    setLayout(_layMain);
+    setLayout(m_layMain);
 
-    _createSequencesTableView();
+    createSequencesTableView();
 
-    _layMain->addWidget(_qtvSequences);
+    m_layMain->addWidget(m_qtvSequences);
 }

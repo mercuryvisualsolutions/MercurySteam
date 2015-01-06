@@ -28,9 +28,9 @@ namespace Ms
                 Wt::WWidget *update(Wt::WWidget *widget, const Wt::WModelIndex &index, Wt::WFlags<Wt::ViewItemRenderFlag>) override;
 
             private:
-                unsigned int _width;
-                unsigned int _height;
-                std::string _defaultImagePath;
+                unsigned int m_width;
+                unsigned int m_height;
+                std::string m_defaultImagePath;
             };
         }
     }

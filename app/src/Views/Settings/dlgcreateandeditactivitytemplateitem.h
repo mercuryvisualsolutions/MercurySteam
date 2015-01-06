@@ -48,33 +48,33 @@ namespace Views
         //variables
         
         //UI
-        Wt::WHBoxLayout *_layMain;
-        Wt::WContainerWidget *_cntLeft;
-        Wt::WVBoxLayout *_layLeft;
-        Wt::WContainerWidget *_cntRight;
-        Wt::WVBoxLayout *_layRight;
-        Wt::WComboBox *_cmbStatus;
-        Wt::WContainerWidget *_cntCmbStatus;
-        Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatus>> *_mdlCmbStatus;
-        Wt::WComboBox *_cmbType;
-        Wt::WContainerWidget *_cntCmbType;
-        Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectTaskActivityType>> *_mdlCmbType;
-        Wt::WSpinBox *_spnHours;
-        Wt::WTextArea *_txtDescription;
-        Wt::WComboBox *_cmbActive;
-        Wt::WPushButton *_btnOk;
-        Wt::WPushButton *_btnCancel;
+        Wt::WHBoxLayout *m_layMain;
+        Wt::WContainerWidget *m_cntLeft;
+        Wt::WVBoxLayout *m_layLeft;
+        Wt::WContainerWidget *m_cntRight;
+        Wt::WVBoxLayout *m_layRight;
+        Wt::WComboBox *m_cmbStatus;
+        Wt::WContainerWidget *m_cntCmbStatus;
+        Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatus>> *m_mdlCmbStatus;
+        Wt::WComboBox *m_cmbType;
+        Wt::WContainerWidget *m_cntCmbType;
+        Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectTaskActivityType>> *m_mdlCmbType;
+        Wt::WSpinBox *m_spnHours;
+        Wt::WTextArea *m_txtDescription;
+        Wt::WComboBox *m_cmbActive;
+        Wt::WPushButton *m_btnOk;
+        Wt::WPushButton *m_btnCancel;
 
-        bool _editing;
+        bool m_editing;
 
         //functions
-        void _prepareView();
-        void _createCmbType();
-        void _createCmbStatus();
-        bool _validate();
+        void prepareView();
+        void createCmbType();
+        void createCmbStatus();
+        bool validate();
 
         //slots
-        void _btnOkClicked();
+        void btnOkClicked();
     };
 }
 

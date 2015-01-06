@@ -2,20 +2,20 @@
 
 Log::LogManager::LogManager()
 {
-    _init();
+    init();
 }
 
 Log::LogManager::~LogManager()
 {
-    delete _globalLogger;
+    delete m_globalLogger;
 }
 
 Ms::Log::MLogger *Log::LogManager::getGlobalLogger()
 {
-    return _globalLogger;
+    return m_globalLogger;
 }
 
-void Log::LogManager::_init()
+void Log::LogManager::init()
 {
-    _globalLogger = new Ms::Log::MLogger();
+    m_globalLogger = new Ms::Log::MLogger();
 }

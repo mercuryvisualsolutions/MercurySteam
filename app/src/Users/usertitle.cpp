@@ -5,13 +5,13 @@
 Users::UserTitle::UserTitle() :
     Ms::Dbo::MDboBase()
 {
-    _init();
+    init();
 }
 
 Users::UserTitle::UserTitle(const std::string &titleName) :
     UserTitle()
 {
-    _name = titleName;
+    m_name = titleName;
 }
 
 Users::UserTitle *Users::UserTitle::modify()
@@ -23,22 +23,22 @@ Users::UserTitle *Users::UserTitle::modify()
 
 std::string Users::UserTitle::name() const
 {
-    return _name;
+    return m_name;
 }
 
 void Users::UserTitle::setName(const std::string &name)
 {
-    _name = name;
+    m_name = name;
 }
 
 const Wt::Dbo::collection<Wt::Dbo::ptr<Users::User> > Users::UserTitle::users() const
 {
-    return _users;
+    return m_users;
 }
 
 bool Users::UserTitle::operator ==(const Users::UserTitle &other) const
 {
-    return _name == other.name();
+    return m_name == other.name();
 }
 
 bool Users::UserTitle::operator !=(const Users::UserTitle &other) const
@@ -46,7 +46,7 @@ bool Users::UserTitle::operator !=(const Users::UserTitle &other) const
     return !operator==(other);
 }
 
-void Users::UserTitle::_init()
+void Users::UserTitle::init()
 {
-    _name = "New User Title";
+    m_name = "New User Title";
 }

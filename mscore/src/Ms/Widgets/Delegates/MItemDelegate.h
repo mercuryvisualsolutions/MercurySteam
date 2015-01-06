@@ -33,7 +33,7 @@ namespace Ms
                 void doCloseEditor(Wt::WWidget *editor, bool save) const;
 
             protected:
-                int _editRank;
+                int m_editRank;
                 virtual Wt::WWidget *createEditor(const Wt::WModelIndex &index, Wt::WFlags<Wt::ViewItemRenderFlag> flags) const;
             };
         }

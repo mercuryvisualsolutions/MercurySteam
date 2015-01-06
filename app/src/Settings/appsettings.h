@@ -51,21 +51,21 @@ public:
 
 private:
     //general
-    bool _loadInactiveData;
-    bool _showExtraColumns;
-    std::string _dataDir;
+    bool m_loadInactiveData;
+    bool m_showExtraColumns;
+    std::string m_dataDir;
 
     //database
-    std::string _databaseBackEnd;
-    std::string _databaseHost;
-    std::string _databasePort;
-    std::string _databaseSchema;
-    std::string _databaseUsername;
-    std::string _databasePassword;
+    std::string m_databaseBackEnd;
+    std::string m_databaseHost;
+    std::string m_databasePort;
+    std::string m_databaseSchema;
+    std::string m_databaseUsername;
+    std::string m_databasePassword;
 
     //Wt
-    std::string _appRoot;
-    std::string _docRoot;
+    std::string m_appRoot;
+    std::string m_docRoot;
 };
 
 #endif // APPSETTINGS_H

@@ -2,15 +2,15 @@
 
 Views::ViewReports::ViewReports()
 {
-    _prepareView();
+    prepareView();
 }
 
-void Views::ViewReports::_mnuReportsProjectsItemTriggered()
+void Views::ViewReports::mnuReportsProjectsItemTriggered()
 {
     showView("projects");
 }
 
-void Views::ViewReports::_mnuReportsUsersItemTriggered()
+void Views::ViewReports::mnuReportsUsersItemTriggered()
 {
     showView("users");
 }
@@ -19,67 +19,67 @@ void Views::ViewReports::showView(const std::string &view)
 {
     if(view == "projects")
     {
-        _stkReports->setCurrentWidget(_cntReportsProjects);
-        _mnuReports->select(_mnuReportsProjectsItem);
+        m_stkReports->setCurrentWidget(m_cntReportsProjects);
+        m_mnuReports->select(m_mnuReportsProjectsItem);
     }
     else if(view == "users")
     {
-        _stkReports->setCurrentWidget(_cntReportsUsers);
-        _mnuReports->select(_mnuReportsUsersItem);
+        m_stkReports->setCurrentWidget(m_cntReportsUsers);
+        m_mnuReports->select(m_mnuReportsUsersItem);
     }
 }
 
-void Views::ViewReports::_prepareView()
+void Views::ViewReports::prepareView()
 {
     /*******************--Reports--********************/
-    _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(0);
+    m_layMain = new Wt::WVBoxLayout();
+    m_layMain->setContentsMargins(0,0,0,0);
+    m_layMain->setSpacing(0);
 
-    setLayout(_layMain);
+    setLayout(m_layMain);
 
-    _navBarReports = new Wt::WNavigationBar();
-    _navBarReports->setTitle("Reports");
-    _cntNavBarReports = new Wt::WContainerWidget();
-    _cntNavBarReports->addWidget(_navBarReports);
+    m_navBarReports = new Wt::WNavigationBar();
+    m_navBarReports->setTitle("Reports");
+    m_cntNavBarReports = new Wt::WContainerWidget();
+    m_cntNavBarReports->addWidget(m_navBarReports);
 
     //add our navigation bar to the view
-    _layMain->addWidget(_cntNavBarReports);
+    m_layMain->addWidget(m_cntNavBarReports);
 
-    _mnuReports = new Wt::WMenu(Wt::Horizontal);
-    _navBarReports->addMenu(_mnuReports);
+    m_mnuReports = new Wt::WMenu(Wt::Horizontal);
+    m_navBarReports->addMenu(m_mnuReports);
 
-    _mnuReportsProjectsItem = new Wt::WMenuItem("Projects");
-    _mnuReportsProjectsItem->triggered().connect(this, &Views::ViewReports::_mnuReportsProjectsItemTriggered);
-    _mnuReports->addItem(_mnuReportsProjectsItem);
+    m_mnuReportsProjectsItem = new Wt::WMenuItem("Projects");
+    m_mnuReportsProjectsItem->triggered().connect(this, &Views::ViewReports::mnuReportsProjectsItemTriggered);
+    m_mnuReports->addItem(m_mnuReportsProjectsItem);
 
-    _mnuReportsUsersItem = new Wt::WMenuItem("Users");
-    _mnuReportsUsersItem->triggered().connect(this, &Views::ViewReports::_mnuReportsUsersItemTriggered);
-    _mnuReports->addItem(_mnuReportsUsersItem);
+    m_mnuReportsUsersItem = new Wt::WMenuItem("Users");
+    m_mnuReportsUsersItem->triggered().connect(this, &Views::ViewReports::mnuReportsUsersItemTriggered);
+    m_mnuReports->addItem(m_mnuReportsUsersItem);
 
-    _stkReports = new Wt::WStackedWidget();
-    _layMain->addWidget(_stkReports, 1);//stack Projects view
+    m_stkReports = new Wt::WStackedWidget();
+    m_layMain->addWidget(m_stkReports, 1);//stack Projects view
 
     //Projects//////////////////////////////////////
-    _layReportsProjects = new Wt::WVBoxLayout();
-    _layReportsProjects->setContentsMargins(0,0,0,0);
-    _layReportsProjects->setSpacing(0);
+    m_layReportsProjects = new Wt::WVBoxLayout();
+    m_layReportsProjects->setContentsMargins(0,0,0,0);
+    m_layReportsProjects->setSpacing(0);
 
-    _cntReportsProjects = new Wt::WContainerWidget();
-    _cntReportsProjects->setLayout(_layReportsProjects);
+    m_cntReportsProjects = new Wt::WContainerWidget();
+    m_cntReportsProjects->setLayout(m_layReportsProjects);
 
     //add our Projects view to the Reports view
-    _stkReports->addWidget(_cntReportsProjects);
+    m_stkReports->addWidget(m_cntReportsProjects);
 
 
     //users//////////////////////////////////////
-    _layReportsUsers = new Wt::WVBoxLayout();
-    _layReportsUsers->setContentsMargins(0,0,0,0);
-    _layReportsUsers->setSpacing(0);
+    m_layReportsUsers = new Wt::WVBoxLayout();
+    m_layReportsUsers->setContentsMargins(0,0,0,0);
+    m_layReportsUsers->setSpacing(0);
 
-    _cntReportsUsers = new Wt::WContainerWidget();
-    _cntReportsUsers->setLayout(_layReportsUsers);
+    m_cntReportsUsers = new Wt::WContainerWidget();
+    m_cntReportsUsers->setLayout(m_layReportsUsers);
 
     //add our Projects view to the Reports view
-    _stkReports->addWidget(_cntReportsUsers);
+    m_stkReports->addWidget(m_cntReportsUsers);
 }

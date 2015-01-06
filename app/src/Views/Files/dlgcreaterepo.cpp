@@ -6,48 +6,48 @@
 
 Views::DlgCreateRepo::DlgCreateRepo()
 {
-    _prepareView();
+    prepareView();
 }
 
 const std::string Views::DlgCreateRepo::text() const
 {
-    return _lnEdit->text().toUTF8();
+    return m_lnEdit->text().toUTF8();
 }
 
-void Views::DlgCreateRepo::_prepareView()
+void Views::DlgCreateRepo::prepareView()
 {
     this->setCaption("Create New");
     this->rejectWhenEscapePressed();
 
-    _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(6);
+    m_layMain = new Wt::WVBoxLayout();
+    m_layMain->setContentsMargins(0,0,0,0);
+    m_layMain->setSpacing(6);
 
-    this->contents()->setLayout(_layMain);
+    this->contents()->setLayout(m_layMain);
 
-    _lnEdit = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[A-Za-z0-9 _-]{2,255}", true);
-    _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Name:", _lnEdit));
+    m_lnEdit = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[A-Za-z0-9 _-]{2,255}", true);
+    m_layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Name:", m_lnEdit));
 
-    _layMain->addWidget(new Wt::WBreak());
+    m_layMain->addWidget(new Wt::WBreak());
 
-    _btnOk = new Wt::WPushButton("Ok", this->footer());
-    _btnOk->setDefault(true);
-    _btnOk->clicked().connect(this, &Views::DlgCreateRepo::_btnOkClicked);
+    m_btnOk = new Wt::WPushButton("Ok", this->footer());
+    m_btnOk->setDefault(true);
+    m_btnOk->clicked().connect(this, &Views::DlgCreateRepo::btnOkClicked);
 
-    _btnCancel = new Wt::WPushButton("Cancel", this->footer());
-    _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
+    m_btnCancel = new Wt::WPushButton("Cancel", this->footer());
+    m_btnCancel->clicked().connect(this, &Wt::WDialog::reject);
 }
 
-bool Views::DlgCreateRepo::_validate()
+bool Views::DlgCreateRepo::validate()
 {
-    if(_lnEdit->validate() != Wt::WValidator::Valid)
+    if(m_lnEdit->validate() != Wt::WValidator::Valid)
         return false;
 
     return true;
 }
 
-void Views::DlgCreateRepo::_btnOkClicked()
+void Views::DlgCreateRepo::btnOkClicked()
 {
-    if(_validate())
+    if(validate())
         this->accept();
 }

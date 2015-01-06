@@ -5,48 +5,48 @@
 
 Views::DlgChangeUserPassword::DlgChangeUserPassword()
 {
-    _prepareView();
+    prepareView();
 }
 
 const std::string Views::DlgChangeUserPassword::password() const
 {
-    return _txtPass->text().toUTF8();
+    return m_txtPass->text().toUTF8();
 }
 
-void Views::DlgChangeUserPassword::_prepareView()
+void Views::DlgChangeUserPassword::prepareView()
 {
     this->setCaption("Change Password");
     this->rejectWhenEscapePressed();
 
-    _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(6);
+    m_layMain = new Wt::WVBoxLayout();
+    m_layMain->setContentsMargins(0,0,0,0);
+    m_layMain->setSpacing(6);
 
-    this->contents()->setLayout(_layMain);
+    this->contents()->setLayout(m_layMain);
 
-    _txtPass = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[A-Za-z0-9_-]{6,14}");
-    _txtPass->setEchoMode(Wt::WLineEdit::Password);
-    _layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Password:", _txtPass));
+    m_txtPass = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[A-Za-z0-9_-]{6,14}");
+    m_txtPass->setEchoMode(Wt::WLineEdit::Password);
+    m_layMain->addWidget(Ms::Widgets::MWidgetFactory::createField("Password:", m_txtPass));
 
-    _btnOk = new Wt::WPushButton("Ok", this->footer());
-    _btnOk->setDefault(true);
-    _btnOk->clicked().connect(this, &Views::DlgChangeUserPassword::_btnOkClicked);
+    m_btnOk = new Wt::WPushButton("Ok", this->footer());
+    m_btnOk->setDefault(true);
+    m_btnOk->clicked().connect(this, &Views::DlgChangeUserPassword::btnOkClicked);
 
-    _btnCancel = new Wt::WPushButton("Cancel", this->footer());
-    _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
+    m_btnCancel = new Wt::WPushButton("Cancel", this->footer());
+    m_btnCancel->clicked().connect(this, &Wt::WDialog::reject);
 
 }
 
-bool Views::DlgChangeUserPassword::_validate()
+bool Views::DlgChangeUserPassword::validate()
 {
-    if(_txtPass->validate() != Wt::WValidator::Valid)
+    if(m_txtPass->validate() != Wt::WValidator::Valid)
         return false;
 
     return true;
 }
 
-void Views::DlgChangeUserPassword::_btnOkClicked()
+void Views::DlgChangeUserPassword::btnOkClicked()
 {
-    if(_validate())
+    if(validate())
         this->accept();
 }

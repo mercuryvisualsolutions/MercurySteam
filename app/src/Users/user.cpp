@@ -6,19 +6,19 @@
 Users::User::User() :
     Database::Dbo()
 {
-    _init();
+    init();
 }
 
 Users::User::User(const std::string &name) :
     User()
 {
-    _name = name;
+    m_name = name;
 }
 
 Users::User::User(const std::string &name, const std::string &emailAddress) :
     User(name)
 {
-    _emailAddress = emailAddress;
+    m_emailAddress = emailAddress;
 }
 
 Users::User *Users::User::modify()
@@ -30,99 +30,99 @@ Users::User *Users::User::modify()
 
 std::string Users::User::name() const
 {
-    return _name;
+    return m_name;
 }
 
 void Users::User::setName(const std::string &name)
 {
-    _name = name;
+    m_name = name;
 }
 
 std::string Users::User::password() const
 {
-    return _password;
+    return m_password;
 }
 
 void Users::User::setPassword(const std::string &password)
 {
-    _password = password;
+    m_password = password;
 }
 
 std::string Users::User::passwordMethod() const
 {
-    return _passwordMethod;
+    return m_passwordMethod;
 }
 
 void Users::User::setPasswordMethod(const std::string &passwordMethod)
 {
-    _passwordMethod = passwordMethod;
+    m_passwordMethod = passwordMethod;
 }
 
 std::string Users::User::passwordSalt() const
 {
-    return _passwordSalt;
+    return m_passwordSalt;
 }
 
 void Users::User::setPasswordSalt(const std::string &passwordSalt)
 {
-    _passwordSalt = passwordSalt;
+    m_passwordSalt = passwordSalt;
 }
 
 int Users::User::failedLoginAttempts() const
 {
-    return _failedLoginAttempts;
+    return m_failedLoginAttempts;
 }
 
 void Users::User::setFailedLoginAttempts(int failedLoginAttempts)
 {
-    _failedLoginAttempts = failedLoginAttempts;
+    m_failedLoginAttempts = failedLoginAttempts;
 }
 
 Wt::WDateTime Users::User::lastLoginAttempt() const
 {
-    return _lastLoginAttempt;
+    return m_lastLoginAttempt;
 }
 
 void Users::User::setLastLoginAttempt(const Wt::WDateTime &lastLoginAttempt)
 {
-    _lastLoginAttempt = lastLoginAttempt;
+    m_lastLoginAttempt = lastLoginAttempt;
 }
 
 std::string Users::User::oAuthId() const
 {
-    return _oAuthId;
+    return m_oAuthId;
 }
 
 void Users::User::setOAuthId(const std::string &oAuthId)
 {
-    _oAuthId = oAuthId;
+    m_oAuthId = oAuthId;
 }
 
 std::string Users::User::oAuthProvider() const
 {
-    return _oAuthProvider;
+    return m_oAuthProvider;
 }
 
 void Users::User::setOAuthProvider(const std::string &oAuthProvider)
 {
-    _oAuthProvider = oAuthProvider;
+    m_oAuthProvider = oAuthProvider;
 }
 
 bool Users::User::hasPrivilege(Wt::Dbo::ptr<Users::Privilege> privilege) const
 {
-    return _group->hasPrivilege(privilege);
+    return m_group->hasPrivilege(privilege);
 }
 
 bool Users::User::hasPrivilege(const char *privilegeName) const
 {
-    return _group->hasPrivilege(privilegeName);
+    return m_group->hasPrivilege(privilegeName);
 }
 
 bool Users::User::hasTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const
 {
     bool result = false;
 
-    for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+    for(auto iter = m_tasks.begin(); iter != m_tasks.end(); ++iter)
     {
         if((*iter).id() == task.id())
         {
@@ -139,7 +139,7 @@ bool Users::User::addTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
 {
     if(!hasTask(task))
     {
-        _tasks.insert(task);
+        m_tasks.insert(task);
 
         return true;
     }
@@ -151,7 +151,7 @@ bool Users::User::removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
 {
     if(hasTask(task))
     {
-        _tasks.erase(task);
+        m_tasks.erase(task);
 
         return true;
     }
@@ -161,97 +161,97 @@ bool Users::User::removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
 
 int Users::User::createRank() const
 {
-    return _createRank;
+    return m_createRank;
 }
 
 void Users::User::setCreateRank(int rank)
 {
-    _createRank = rank;
+    m_createRank = rank;
 }
 
 std::string Users::User::idNumber() const
 {
-    return _idNumber;
+    return m_idNumber;
 }
 
 void Users::User::setIdNumber(const std::string &idNumber)
 {
-    _idNumber = idNumber;
+    m_idNumber = idNumber;
 }
 
 std::string Users::User::phoneNumber() const
 {
-    return _phoneNumber;
+    return m_phoneNumber;
 }
 
 void Users::User::setPhoneNumber(const std::string &phoneNumber)
 {
-    _phoneNumber = phoneNumber;
+    m_phoneNumber = phoneNumber;
 }
 
 std::string Users::User::emailAddress() const
 {
-    return _emailAddress;
+    return m_emailAddress;
 }
 
 void Users::User::setEmailAddress(const std::string &emailAddress)
 {
-    _emailAddress = emailAddress;
+    m_emailAddress = emailAddress;
 }
 
 std::string Users::User::address() const
 {
-    return _address;
+    return m_address;
 }
 
 void Users::User::setAddress(const std::string &address)
 {
-    _address = address;
+    m_address = address;
 }
 
 Wt::Dbo::ptr<Users::Group> Users::User::group() const
 {
-    return _group;
+    return m_group;
 }
 
 void Users::User::setGroup(Wt::Dbo::ptr<Group> group)
 {
-    _group = group;
+    m_group = group;
 }
 
 Wt::Dbo::ptr<Users::UserTitle> Users::User::title() const
 {
-    return _title;
+    return m_title;
 }
 
 void Users::User::setTitle(Wt::Dbo::ptr<Users::UserTitle> title)
 {
-    _title = title;
+    m_title = title;
 }
 
 Wt::Dbo::weak_ptr<Projects::Project> Users::User::project() const
 {
-    return _project;
+    return m_project;
 }
 
 void Users::User::setProject(Wt::Dbo::weak_ptr<Projects::Project> project)
 {
-    _project = project;
+    m_project = project;
 }
 
 Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask> > Users::User::tasks()
 {
-    return _tasks;
+    return m_tasks;
 }
 
 Wt::Dbo::collection<Wt::Dbo::ptr<Database::Token> > Users::User::authTokens() const
 {
-    return _authTokens;
+    return m_authTokens;
 }
 
 bool Users::User::operator ==(const Users::User &other) const
 {
-    return _name == other.name();
+    return m_name == other.name();
 }
 
 bool Users::User::operator !=(const Users::User &other) const
@@ -259,20 +259,20 @@ bool Users::User::operator !=(const Users::User &other) const
     return !operator==(other);
 }
 
-void Users::User::_init()
+void Users::User::init()
 {
-    thumbnail_ = "pics/NoPreview.png";
-    _name = "New User";
-    _password = "";
-    _passwordMethod = "";
-    _passwordSalt = "";
-    _failedLoginAttempts = 0;
-    _lastLoginAttempt = Wt::WDateTime::currentDateTime();
-    _oAuthId = "";
-    _oAuthProvider = "";
-    _idNumber = "";
-    _phoneNumber = "";
-    _emailAddress = "";
-    _address = "";
-    _createRank = 0;
+    m_thumbnail = "pics/NoPreview.png";
+    m_name = "New User";
+    m_password = "";
+    m_passwordMethod = "";
+    m_passwordSalt = "";
+    m_failedLoginAttempts = 0;
+    m_lastLoginAttempt = Wt::WDateTime::currentDateTime();
+    m_oAuthId = "";
+    m_oAuthProvider = "";
+    m_idNumber = "";
+    m_phoneNumber = "";
+    m_emailAddress = "";
+    m_address = "";
+    m_createRank = 0;
 }

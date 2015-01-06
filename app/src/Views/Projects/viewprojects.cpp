@@ -25,28 +25,28 @@
 Views::ViewProjects::ViewProjects()
     : Ms::Widgets::MContainerWidget()
 {
-    _logger = Session::SessionManager::instance().logger();
-    _propertiesPanel = Session::SessionManager::instance().propertiesPanel();
+    m_logger = Session::SessionManager::instance().logger();
+    m_propertiesPanel = Session::SessionManager::instance().propertiesPanel();
 
-    _prepareView();
+    prepareView();
 
-    _mnuMain->select(_mnuMainProjectsItem);
+    m_mnuMain->select(m_mnuMainProjectsItem);
 
     updateProjectsView();
-    _stkMain->setCurrentWidget(_cntProjects);
+    m_stkMain->setCurrentWidget(m_cntProjects);
 }
 
 void Views::ViewProjects::updateView()
 {
-    if(_mnuMain->currentItem() == _mnuMainProjectsItem)
+    if(m_mnuMain->currentItem() == m_mnuMainProjectsItem)
         updateProjectsView();
-    else if(_mnuMain->currentItem() == _mnuMainSequencesItem)
+    else if(m_mnuMain->currentItem() == m_mnuMainSequencesItem)
         updateSequencesView();
-    else if(_mnuMain->currentItem() == _mnuMainShotsItem)
+    else if(m_mnuMain->currentItem() == m_mnuMainShotsItem)
         updateShotsView();
-    else if(_mnuMain->currentItem() == _mnuMainAssetsItem)
+    else if(m_mnuMain->currentItem() == m_mnuMainAssetsItem)
         updateAssetsView();
-    else if(_mnuMain->currentItem() == _mnuMainTasksItem)
+    else if(m_mnuMain->currentItem() == m_mnuMainTasksItem)
         updateTasksView();
 }
 
@@ -65,7 +65,7 @@ void Views::ViewProjects::updateProjectsView()
         else
             query = Session::SessionManager::instance().dboSession().find<Projects::Project>().where("View_Rank <= ? AND Active = ?").bind(viewRank).bind(true);
 
-        _qtvProjects->setQuery(query);
+        m_qtvProjects->setQuery(query);
 
         bool canEdit = Session::SessionManager::instance().user()->hasPrivilege("Edit");
         Wt::WFlags<Wt::ItemFlag> flags;
@@ -76,36 +76,36 @@ void Views::ViewProjects::updateProjectsView()
 
         int editRank = Session::SessionManager::instance().user()->editRank();
 
-        _qtvProjects->clearColumns();
+        m_qtvProjects->clearColumns();
 
         //add columns
-        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Thumbnail", "Thumbnail", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MThumbnailDelegate(256, 160, "pics/NoPreviewBig.png"), false, true, 256));
-        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
-        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Start_Date", "Start Date", flags, new Ms::Widgets::Delegates::MDateDelegate(editRank)));
-        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("End_Date", "End Date", flags, new Ms::Widgets::Delegates::MDateDelegate(editRank)));
-        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Duration_In_Frames", "Duration In Frames", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
-        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("FPS", "FPS", flags, new Ms::Widgets::Delegates::MFloatFieldDelegate(editRank)));
-        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Frame_Width", "Frame Width", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
-        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Frame_Height", "Frame Height", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
-        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Current_Status", "Status", flags, new Widgets::Delegates::WorkStatusQueryComboBoxDelegate<Projects::ProjectWorkStatus>(
+        m_qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Thumbnail", "Thumbnail", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MThumbnailDelegate(256, 160, "pics/NoPreviewBig.png"), false, true, 256));
+        m_qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Name", "Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
+        m_qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Start_Date", "Start Date", flags, new Ms::Widgets::Delegates::MDateDelegate(editRank)));
+        m_qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("End_Date", "End Date", flags, new Ms::Widgets::Delegates::MDateDelegate(editRank)));
+        m_qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Duration_In_Frames", "Duration In Frames", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
+        m_qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("FPS", "FPS", flags, new Ms::Widgets::Delegates::MFloatFieldDelegate(editRank)));
+        m_qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Frame_Width", "Frame Width", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
+        m_qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Frame_Height", "Frame Height", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank)));
+        m_qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Current_Status", "Status", flags, new Widgets::Delegates::WorkStatusQueryComboBoxDelegate<Projects::ProjectWorkStatus>(
          &Session::SessionManager::instance().dboSession(),
          AppSettings::instance().isLoadInactiveData() ? Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>() :
          Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true),
          "Status", editRank)));
-        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Manager_Name", "Manager", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Users::User>(
+        m_qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Manager_Name", "Manager", flags, new Ms::Widgets::Delegates::MQueryComboBoxDelegate<Users::User>(
          &Session::SessionManager::instance().dboSession(),
          AppSettings::instance().isLoadInactiveData() ? Session::SessionManager::instance().dboSession().find<Users::User>() :
          Session::SessionManager::instance().dboSession().find<Users::User>().where("Active = ?").bind(true),
          "Name", editRank)));
-        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Description", "Description", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
-        _qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Priority", "Priority", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
+        m_qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Description", "Description", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
+        m_qtvProjects->addColumn(Ms::Widgets::MQueryTableViewColumn("Priority", "Priority", flags, new Ms::Widgets::Delegates::MIntFieldDelegate(editRank), false));
 
         if(AppSettings::instance().isShowExtraColumns())
-            _qtvProjects->addBaseColumns(flags, editRank);
+            m_qtvProjects->addBaseColumns(flags, editRank);
 
         transaction.commit();
 
-        _qtvProjects->updateView();
+        m_qtvProjects->updateView();
     }
     catch(...)
     {
@@ -115,18 +115,18 @@ void Views::ViewProjects::updateProjectsView()
 
 void Views::ViewProjects::updateSequencesView()
 {
-    _viewSequences->updateView(_qtvProjects->selectedItems());
+    m_viewSequences->updateView(m_qtvProjects->selectedItems());
 }
 
 void Views::ViewProjects::updateShotsView()
 {
-    _viewShots->updateView(_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0 ?
-                               _viewSequences->qtvSequences()->selectedItems() : _viewSequences->qtvSequences()->items());
+    m_viewShots->updateView(m_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0 ?
+                               m_viewSequences->qtvSequences()->selectedItems() : m_viewSequences->qtvSequences()->items());
 }
 
 void Views::ViewProjects::updateAssetsView()
 {
-    _viewAssets->updateView(_qtvProjects->selectedItems());
+    m_viewAssets->updateView(m_qtvProjects->selectedItems());
 }
 
 void Views::ViewProjects::updateTasksView()
@@ -136,112 +136,112 @@ void Views::ViewProjects::updateTasksView()
     std::vector<Wt::Dbo::ptr<Projects::ProjectShot>> shotVec;
     std::vector<Wt::Dbo::ptr<Projects::ProjectAsset>> assetVec;
 
-    if(_qtvProjects->table()->selectedIndexes().size() > 0)
+    if(m_qtvProjects->table()->selectedIndexes().size() > 0)
     {
-        prjVec = _qtvProjects->selectedItems();
+        prjVec = m_qtvProjects->selectedItems();
 
-        seqVec = _viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0 ?
-                    _viewSequences->qtvSequences()->selectedItems() : _viewSequences->qtvSequences()->items();
+        seqVec = m_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0 ?
+                    m_viewSequences->qtvSequences()->selectedItems() : m_viewSequences->qtvSequences()->items();
 
-        shotVec = _viewShots->qtvShots()->table()->selectedIndexes().size() > 0 ?
-                    _viewShots->qtvShots()->selectedItems() : _viewShots->qtvShots()->items();
+        shotVec = m_viewShots->qtvShots()->table()->selectedIndexes().size() > 0 ?
+                    m_viewShots->qtvShots()->selectedItems() : m_viewShots->qtvShots()->items();
 
-        assetVec = _viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0 ?
-                    _viewAssets->qtvAssets()->selectedItems() : _viewAssets->qtvAssets()->items();
+        assetVec = m_viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0 ?
+                    m_viewAssets->qtvAssets()->selectedItems() : m_viewAssets->qtvAssets()->items();
     }
 
-    _viewTasks->updateView(prjVec, seqVec, shotVec, assetVec);
+    m_viewTasks->updateView(prjVec, seqVec, shotVec, assetVec);
 }
 
 void Views::ViewProjects::updatePropertiesView()
 {
-    if(_stkProperties->currentWidget() == _viewPropertiesData)
+    if(m_stkProperties->currentWidget() == m_viewPropertiesData)
     {
-        _updatePropertiesDataView();
+        updatePropertiesDataView();
     }
-    else if(_stkProperties->currentWidget() == _viewPropertiesTags)
+    else if(m_stkProperties->currentWidget() == m_viewPropertiesTags)
     {
-        _updatePropertiesTagsView();
-        _updatePropertiesAssignedTagsView();
+        updatePropertiesTagsView();
+        updatePropertiesAssignedTagsView();
     }
-    else if(_stkProperties->currentWidget() == _viewPropertiesNotes)
+    else if(m_stkProperties->currentWidget() == m_viewPropertiesNotes)
     {
-        _updatePropertiesNotesView();
+        updatePropertiesNotesView();
     }
-    else if(_stkProperties->currentWidget() == _viewPropertiesSequences)
+    else if(m_stkProperties->currentWidget() == m_viewPropertiesSequences)
     {
-        _updatePropertiesSequencesView();
+        updatePropertiesSequencesView();
     }
-    else if(_stkProperties->currentWidget() == _viewPropertiesShots)
+    else if(m_stkProperties->currentWidget() == m_viewPropertiesShots)
     {
-        _updatePropertiesShotsView();
+        updatePropertiesShotsView();
     }
-    else if(_stkProperties->currentWidget() == _viewPropertiesAssets)
+    else if(m_stkProperties->currentWidget() == m_viewPropertiesAssets)
     {
-        _updatePropertiesAssetsView();
+        updatePropertiesAssetsView();
     }
-    else if(_stkProperties->currentWidget() == _viewPropertiesTasks)
+    else if(m_stkProperties->currentWidget() == m_viewPropertiesTasks)
     {
-        _updatePropertiesTasksView();
+        updatePropertiesTasksView();
     }
-    else if(_stkProperties->currentWidget() == _viewPropertiesTaskActivities)
+    else if(m_stkProperties->currentWidget() == m_viewPropertiesTaskActivities)
     {
-        _updatePropertiesTaskActivitiesView();
+        updatePropertiesTaskActivitiesView();
     }
-    else if(_stkProperties->currentWidget() == _viewPropertiesStatistics)
+    else if(m_stkProperties->currentWidget() == m_viewPropertiesStatistics)
     {
-        _updatePropertiesStatisticsView();
+        updatePropertiesStatisticsView();
     }
 }
 
 bool Views::ViewProjects::isProjectsViewShown()
 {
-    return _mnuMain->currentItem() == _mnuMainProjectsItem;
+    return m_mnuMain->currentItem() == m_mnuMainProjectsItem;
 }
 
 bool Views::ViewProjects::isSequencesViewShown()
 {
-    return _mnuMain->currentItem() == _mnuMainSequencesItem;
+    return m_mnuMain->currentItem() == m_mnuMainSequencesItem;
 }
 
 bool Views::ViewProjects::isShotsViewShown()
 {
-    return _mnuMain->currentItem() == _mnuMainShotsItem;
+    return m_mnuMain->currentItem() == m_mnuMainShotsItem;
 }
 
 bool Views::ViewProjects::isAssetsViewShown()
 {
-    return _mnuMain->currentItem() == _mnuMainAssetsItem;
+    return m_mnuMain->currentItem() == m_mnuMainAssetsItem;
 }
 
 bool Views::ViewProjects::isTasksViewShown()
 {
-    return _mnuMain->currentItem() == _mnuMainTasksItem;
+    return m_mnuMain->currentItem() == m_mnuMainTasksItem;
 }
 
 const Ms::Widgets::MQueryTableViewWidget<Projects::Project> *Views::ViewProjects::projectsQueryTableView() const
 {
-    return _qtvProjects;
+    return m_qtvProjects;
 }
 
 const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectSequence> *Views::ViewProjects::sequencesQueryTableView() const
 {
-    return _viewSequences->qtvSequences();
+    return m_viewSequences->qtvSequences();
 }
 
 const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectShot> *Views::ViewProjects::shotsQueryTableView() const
 {
-    return _viewShots->qtvShots();
+    return m_viewShots->qtvShots();
 }
 
 const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectAsset> *Views::ViewProjects::assetsQueryTableView() const
 {
-    return _viewAssets->qtvAssets();
+    return m_viewAssets->qtvAssets();
 }
 
 const Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *Views::ViewProjects::tasksQueryTableView() const
 {
-    return _viewTasks->qtvTasks();
+    return m_viewTasks->qtvTasks();
 }
 
 void Views::ViewProjects::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
@@ -253,66 +253,66 @@ void Views::ViewProjects::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
     bool hasCheckOutPriv = user->hasPrivilege("Check Out");
     bool hasCreateRepoPriv = user->hasPrivilege("Create Repositories");
 
-    _btnCreateProject->setHidden(!hasCreateProjectsPriv);
-    _btnImportProjectsThumbnails->setHidden(!hasEditPriv);
-    _btnEditProjects->setHidden(!hasEditPriv);
+    m_btnCreateProject->setHidden(!hasCreateProjectsPriv);
+    m_btnImportProjectsThumbnails->setHidden(!hasEditPriv);
+    m_btnEditProjects->setHidden(!hasEditPriv);
 
-    _qtvProjects->setImportCSVFeatureEnabled(hasCreateProjectsPriv);
+    m_qtvProjects->setImportCSVFeatureEnabled(hasCreateProjectsPriv);
 
     bool showTaskFilesButton = hasViewFilesPriv || hasCheckInPriv || hasCheckOutPriv || hasCreateRepoPriv;//if have any of the privileges
-    _btnProjectsFiles->setHidden(!showTaskFilesButton);
+    m_btnProjectsFiles->setHidden(!showTaskFilesButton);
 
-    _viewSequences->adjustUIPrivileges(user);
-    _viewShots->adjustUIPrivileges(user);
-    _viewAssets->adjustUIPrivileges(user);
-    _viewTasks->adjustUIPrivileges(user);
-    _viewPropertiesData->adjustUIPrivileges(user);
-    _viewPropertiesTags->adjustUIPrivileges(user);
-    _viewPropertiesNotes->adjustUIPrivileges(user);
-    _viewPropertiesSequences->adjustUIPrivileges(user);
-    _viewPropertiesShots->adjustUIPrivileges(user);
-    _viewPropertiesAssets->adjustUIPrivileges(user);
-    _viewPropertiesTasks->adjustUIPrivileges(user);
+    m_viewSequences->adjustUIPrivileges(user);
+    m_viewShots->adjustUIPrivileges(user);
+    m_viewAssets->adjustUIPrivileges(user);
+    m_viewTasks->adjustUIPrivileges(user);
+    m_viewPropertiesData->adjustUIPrivileges(user);
+    m_viewPropertiesTags->adjustUIPrivileges(user);
+    m_viewPropertiesNotes->adjustUIPrivileges(user);
+    m_viewPropertiesSequences->adjustUIPrivileges(user);
+    m_viewPropertiesShots->adjustUIPrivileges(user);
+    m_viewPropertiesAssets->adjustUIPrivileges(user);
+    m_viewPropertiesTasks->adjustUIPrivileges(user);
 
     //disable creation in main views
-    _viewSequences->setCreateOptionHidden(true);
-    _viewSequences->qtvSequences()->setImportCSVFeatureEnabled(false);
-    _viewShots->setCreateOptionHidden(true);
-    _viewShots->qtvShots()->setImportCSVFeatureEnabled(false);
-    _viewAssets->setCreateOptionHidden(true);
-    _viewAssets->qtvAssets()->setImportCSVFeatureEnabled(false);
-    _viewTasks->setCreateOptionHidden(true);
-    _viewTasks->setCreateForTemplateOptionHidden(true);
-    _viewTasks->qtvTasks()->setImportCSVFeatureEnabled(false);
+    m_viewSequences->setCreateOptionHidden(true);
+    m_viewSequences->qtvSequences()->setImportCSVFeatureEnabled(false);
+    m_viewShots->setCreateOptionHidden(true);
+    m_viewShots->qtvShots()->setImportCSVFeatureEnabled(false);
+    m_viewAssets->setCreateOptionHidden(true);
+    m_viewAssets->qtvAssets()->setImportCSVFeatureEnabled(false);
+    m_viewTasks->setCreateOptionHidden(true);
+    m_viewTasks->setCreateForTemplateOptionHidden(true);
+    m_viewTasks->qtvTasks()->setImportCSVFeatureEnabled(false);
 }
 
 Wt::Signal<> &Views::ViewProjects::onTabProjectsSelected()
 {
-    return _onTabProjectsSelected;
+    return m_onTabProjectsSelected;
 }
 
 Wt::Signal<> &Views::ViewProjects::onTabSequencesSelected()
 {
-    return _onTabSequencesSelected;
+    return m_onTabSequencesSelected;
 }
 
 Wt::Signal<> &Views::ViewProjects::onTabShotsSelected()
 {
-    return _onTabShotsSelected;
+    return m_onTabShotsSelected;
 }
 
 Wt::Signal<> &Views::ViewProjects::onTabAssetsSelected()
 {
-    return _onTabAssetsSelected;
+    return m_onTabAssetsSelected;
 }
 
 Wt::Signal<> &Views::ViewProjects::onTabTasksSelected()
 {
-    return _onTabTasksSelected;
+    return m_onTabTasksSelected;
 }
 
 template<typename T>
-void Views::ViewProjects::_addDataToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec)
+void Views::ViewProjects::addDataToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec)
 {
     Views::Dialogs::DlgCreateDBOData *dlg = new Views::Dialogs::DlgCreateDBOData();
     dlg->finished().connect(std::bind([=]()
@@ -334,7 +334,7 @@ void Views::ViewProjects::_addDataToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboV
 
            transaction.commit();
 
-           _updatePropertiesDataView();
+           updatePropertiesDataView();
        }
 
        delete dlg;
@@ -344,7 +344,7 @@ void Views::ViewProjects::_addDataToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboV
 }
 
 template<typename T>
-void Views::ViewProjects::_addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec)
+void Views::ViewProjects::addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec)
 {
     Views::Dialogs::DlgCreateNote *dlg = new Views::Dialogs::DlgCreateNote();
     dlg->finished().connect(std::bind([=]()
@@ -366,7 +366,7 @@ void Views::ViewProjects::_addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboV
 
            transaction.commit();
 
-           _updatePropertiesNotesView();
+           updatePropertiesNotesView();
        }
 
        delete dlg;
@@ -376,123 +376,123 @@ void Views::ViewProjects::_addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboV
 }
 
 //Main
-void Views::ViewProjects::_mnuMainProjectsItemTriggered()
+void Views::ViewProjects::mnuMainProjectsItemTriggered()
 {
-    if((_stkProperties->currentWidget() == _viewPropertiesShots) ||
-            (_stkProperties->currentWidget() == _viewPropertiesTaskActivities))
-        _mnuNavBarPropertiesDataItem->select();
+    if((m_stkProperties->currentWidget() == m_viewPropertiesShots) ||
+            (m_stkProperties->currentWidget() == m_viewPropertiesTaskActivities))
+        m_mnuNavBarPropertiesDataItem->select();
 
-    _mnuNavBarPropertiesSequencesItem->show();
-    _mnuNavBarPropertiesShotsItem->hide();
-    _mnuNavBarPropertiesAssetsItem->show();
-    _mnuNavBarPropertiesTasksItem->show();
-    _mnuNavBarPropertiesTaskActivitiesItem->hide();
+    m_mnuNavBarPropertiesSequencesItem->show();
+    m_mnuNavBarPropertiesShotsItem->hide();
+    m_mnuNavBarPropertiesAssetsItem->show();
+    m_mnuNavBarPropertiesTasksItem->show();
+    m_mnuNavBarPropertiesTaskActivitiesItem->hide();
 
-    _viewPropertiesTags->setCreateOptionHidden(false);
+    m_viewPropertiesTags->setCreateOptionHidden(false);
 
-    _stkMain->setCurrentWidget(_cntProjects);
+    m_stkMain->setCurrentWidget(m_cntProjects);
     updateProjectsView();
 
-    _onTabProjectsSelected();
+    m_onTabProjectsSelected();
 }
 
-void Views::ViewProjects::_mnuMainSequencesItemTriggered()
+void Views::ViewProjects::mnuMainSequencesItemTriggered()
 {
-    if((_stkProperties->currentWidget() == _viewPropertiesSequences) ||
-            (_stkProperties->currentWidget() == _viewPropertiesAssets) ||
-            (_stkProperties->currentWidget() == _viewPropertiesTaskActivities))
+    if((m_stkProperties->currentWidget() == m_viewPropertiesSequences) ||
+            (m_stkProperties->currentWidget() == m_viewPropertiesAssets) ||
+            (m_stkProperties->currentWidget() == m_viewPropertiesTaskActivities))
     {
-        _mnuNavBarPropertiesDataItem->select();
+        m_mnuNavBarPropertiesDataItem->select();
     }
 
-    _mnuNavBarPropertiesSequencesItem->hide();
-    _mnuNavBarPropertiesShotsItem->show();
-    _mnuNavBarPropertiesAssetsItem->hide();
-    _mnuNavBarPropertiesTasksItem->show();
-    _mnuNavBarPropertiesTaskActivitiesItem->hide();
+    m_mnuNavBarPropertiesSequencesItem->hide();
+    m_mnuNavBarPropertiesShotsItem->show();
+    m_mnuNavBarPropertiesAssetsItem->hide();
+    m_mnuNavBarPropertiesTasksItem->show();
+    m_mnuNavBarPropertiesTaskActivitiesItem->hide();
 
-    _viewPropertiesTags->setCreateOptionHidden(true);
+    m_viewPropertiesTags->setCreateOptionHidden(true);
 
-    _stkMain->setCurrentWidget(_cntSequences);
+    m_stkMain->setCurrentWidget(m_cntSequences);
     updateSequencesView();
 
-    _onTabSequencesSelected();
+    m_onTabSequencesSelected();
 }
 
-void Views::ViewProjects::_mnuMainShotsItemTriggered()
+void Views::ViewProjects::mnuMainShotsItemTriggered()
 {
-    if((_stkProperties->currentWidget() == _viewPropertiesSequences) ||
-            (_stkProperties->currentWidget() == _viewPropertiesShots) ||
-            (_stkProperties->currentWidget() == _viewPropertiesAssets) ||
-            (_stkProperties->currentWidget() == _viewPropertiesTaskActivities))
+    if((m_stkProperties->currentWidget() == m_viewPropertiesSequences) ||
+            (m_stkProperties->currentWidget() == m_viewPropertiesShots) ||
+            (m_stkProperties->currentWidget() == m_viewPropertiesAssets) ||
+            (m_stkProperties->currentWidget() == m_viewPropertiesTaskActivities))
     {
-        _mnuNavBarPropertiesDataItem->select();
+        m_mnuNavBarPropertiesDataItem->select();
     }
 
-    _mnuNavBarPropertiesSequencesItem->hide();
-    _mnuNavBarPropertiesShotsItem->hide();
-    _mnuNavBarPropertiesAssetsItem->hide();
-    _mnuNavBarPropertiesTasksItem->show();
-    _mnuNavBarPropertiesTaskActivitiesItem->hide();
+    m_mnuNavBarPropertiesSequencesItem->hide();
+    m_mnuNavBarPropertiesShotsItem->hide();
+    m_mnuNavBarPropertiesAssetsItem->hide();
+    m_mnuNavBarPropertiesTasksItem->show();
+    m_mnuNavBarPropertiesTaskActivitiesItem->hide();
 
-    _viewPropertiesTags->setCreateOptionHidden(true);
+    m_viewPropertiesTags->setCreateOptionHidden(true);
 
-    _stkMain->setCurrentWidget(_cntShots);
+    m_stkMain->setCurrentWidget(m_cntShots);
     updateShotsView();
 
-    _onTabShotsSelected();
+    m_onTabShotsSelected();
 }
 
-void Views::ViewProjects::_mnuMainAssetsItemTriggered()
+void Views::ViewProjects::mnuMainAssetsItemTriggered()
 {
-    if((_stkProperties->currentWidget() == _viewPropertiesSequences) ||
-            (_stkProperties->currentWidget() == _viewPropertiesShots) ||
-            (_stkProperties->currentWidget() == _viewPropertiesAssets) ||
-            (_stkProperties->currentWidget() == _viewPropertiesTaskActivities))
+    if((m_stkProperties->currentWidget() == m_viewPropertiesSequences) ||
+            (m_stkProperties->currentWidget() == m_viewPropertiesShots) ||
+            (m_stkProperties->currentWidget() == m_viewPropertiesAssets) ||
+            (m_stkProperties->currentWidget() == m_viewPropertiesTaskActivities))
     {
-        _mnuNavBarPropertiesDataItem->select();
+        m_mnuNavBarPropertiesDataItem->select();
     }
 
-    _mnuNavBarPropertiesSequencesItem->hide();
-    _mnuNavBarPropertiesShotsItem->hide();
-    _mnuNavBarPropertiesAssetsItem->hide();
-    _mnuNavBarPropertiesTasksItem->show();
-    _mnuNavBarPropertiesTaskActivitiesItem->hide();
+    m_mnuNavBarPropertiesSequencesItem->hide();
+    m_mnuNavBarPropertiesShotsItem->hide();
+    m_mnuNavBarPropertiesAssetsItem->hide();
+    m_mnuNavBarPropertiesTasksItem->show();
+    m_mnuNavBarPropertiesTaskActivitiesItem->hide();
 
-    _viewPropertiesTags->setCreateOptionHidden(true);
+    m_viewPropertiesTags->setCreateOptionHidden(true);
 
-    _stkMain->setCurrentWidget(_cntAssets);
+    m_stkMain->setCurrentWidget(m_cntAssets);
     updateAssetsView();
 
-    _onTabAssetsSelected();
+    m_onTabAssetsSelected();
 }
 
-void Views::ViewProjects::_mnuMainTasksItemTriggered()
+void Views::ViewProjects::mnuMainTasksItemTriggered()
 {
-    if((_stkProperties->currentWidget() == _viewPropertiesSequences) ||
-            (_stkProperties->currentWidget() == _viewPropertiesShots) ||
-            (_stkProperties->currentWidget() == _viewPropertiesAssets) ||
-            (_stkProperties->currentWidget() == _viewPropertiesTasks))
+    if((m_stkProperties->currentWidget() == m_viewPropertiesSequences) ||
+            (m_stkProperties->currentWidget() == m_viewPropertiesShots) ||
+            (m_stkProperties->currentWidget() == m_viewPropertiesAssets) ||
+            (m_stkProperties->currentWidget() == m_viewPropertiesTasks))
     {
-        _mnuNavBarPropertiesDataItem->select();
+        m_mnuNavBarPropertiesDataItem->select();
     }
 
-    _mnuNavBarPropertiesSequencesItem->hide();
-    _mnuNavBarPropertiesShotsItem->hide();
-    _mnuNavBarPropertiesAssetsItem->hide();
-    _mnuNavBarPropertiesTasksItem->hide();
-    _mnuNavBarPropertiesTaskActivitiesItem->show();
+    m_mnuNavBarPropertiesSequencesItem->hide();
+    m_mnuNavBarPropertiesShotsItem->hide();
+    m_mnuNavBarPropertiesAssetsItem->hide();
+    m_mnuNavBarPropertiesTasksItem->hide();
+    m_mnuNavBarPropertiesTaskActivitiesItem->show();
 
-    _viewPropertiesTags->setCreateOptionHidden(true);
+    m_viewPropertiesTags->setCreateOptionHidden(true);
 
-    _stkMain->setCurrentWidget(_cntTasks);
+    m_stkMain->setCurrentWidget(m_cntTasks);
     updateTasksView();
 
-    _onTabTasksSelected();
+    m_onTabTasksSelected();
 }
 
 //Projects
-void Views::ViewProjects::_btnProjectsCreateClicked()
+void Views::ViewProjects::btnProjectsCreateClicked()
 {
     Views::DlgCreateAndEditProject *dlg = new Views::DlgCreateAndEditProject();
     dlg->finished().connect(std::bind([=]()
@@ -522,18 +522,18 @@ void Views::ViewProjects::_btnProjectsCreateClicked()
                     Projects::ProjectsIO::createProjectDirectoryStructure(dlg->projectName());
                     updateProjectsView();
 
-                    _logger->log(std::string("Created project ") + dlg->projectName(), Ms::Log::LogMessageType::Info);
+                    m_logger->log(std::string("Created project ") + dlg->projectName(), Ms::Log::LogMessageType::Info);
                 }
                 else
                 {
                     delete project;
 
-                    _logger->log(std::string("Error creating project ") + dlg->projectName(), Ms::Log::LogMessageType::Error);
+                    m_logger->log(std::string("Error creating project ") + dlg->projectName(), Ms::Log::LogMessageType::Error);
                 }
             }
             else
             {
-                _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
+                m_logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
             }
 
             transaction.commit();
@@ -545,16 +545,16 @@ void Views::ViewProjects::_btnProjectsCreateClicked()
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
-void Views::ViewProjects::_btnProjectsRemoveClicked()
+void Views::ViewProjects::btnProjectsRemoveClicked()
 {
 
 }
 
-void Views::ViewProjects::_btnProjectsEditClicked()
+void Views::ViewProjects::btnProjectsEditClicked()
 {
-    if(_qtvProjects->table()->selectedIndexes().size() == 0)
+    if(m_qtvProjects->table()->selectedIndexes().size() == 0)
     {
-        _logger->log("Please select at least one item.", Ms::Log::LogMessageType::Warning);
+        m_logger->log("Please select at least one item.", Ms::Log::LogMessageType::Warning);
 
         return;
     }
@@ -566,7 +566,7 @@ void Views::ViewProjects::_btnProjectsEditClicked()
         {
             Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-            for(auto prjPtr : _qtvProjects->selectedItems())
+            for(auto prjPtr : m_qtvProjects->selectedItems())
             {
                 if(dlg->editedStartDate())
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setStartDate(dlg->startDate());
@@ -604,7 +604,7 @@ void Views::ViewProjects::_btnProjectsEditClicked()
 
             transaction.commit();
 
-            _qtvProjects->updateView();
+            m_qtvProjects->updateView();
         }
 
         delete dlg;
@@ -613,18 +613,18 @@ void Views::ViewProjects::_btnProjectsEditClicked()
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
-void Views::ViewProjects::_btnProjectsFilesClicked()
+void Views::ViewProjects::btnProjectsFilesClicked()
 {
-    if(_qtvProjects->table()->selectedIndexes().size() != 1)
+    if(m_qtvProjects->table()->selectedIndexes().size() != 1)
     {
-        _logger->log("Please select only one item.", Ms::Log::LogMessageType::Warning);
+        m_logger->log("Please select only one item.", Ms::Log::LogMessageType::Warning);
 
         return;
     }
 
     Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-    std::string prjName = _qtvProjects->selectedItems().at(0)->name();
+    std::string prjName = m_qtvProjects->selectedItems().at(0)->name();
 
     DlgFilesManager *dlgFiles = new DlgFilesManager(Projects::ProjectsIO::getRelativeProjectDir(prjName) + Ms::IO::dirSeparator() + "files");
     dlgFiles->finished().connect(std::bind([=]()
@@ -649,9 +649,9 @@ void Views::ViewProjects::_btnProjectsFilesClicked()
     dlgFiles->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
-void Views::ViewProjects::_btnProjectsImportThumbnailsClicked()
+void Views::ViewProjects::btnProjectsImportThumbnailsClicked()
 {
-    if(_qtvProjects->model()->rowCount() == 0)
+    if(m_qtvProjects->model()->rowCount() == 0)
         return;
 
     Ms::Widgets::Dialogs::MFilesUploadDialog *dlg = new Ms::Widgets::Dialogs::MFilesUploadDialog(true, true);
@@ -697,7 +697,7 @@ void Views::ViewProjects::_btnProjectsImportThumbnailsClicked()
                 }
                 catch(Wt::WException e)
                 {
-                    _logger->log(std::string("Error occured while trying to import thumbnails to table projects") + e.what(),
+                    m_logger->log(std::string("Error occured while trying to import thumbnails to table projects") + e.what(),
                                  Ms::Log::LogMessageType::Error, Log::LogMessageContext::ServerAndClient);
                 }
 
@@ -709,10 +709,10 @@ void Views::ViewProjects::_btnProjectsImportThumbnailsClicked()
             for(std::vector<std::string>::size_type i = 0; i <delFiles.size(); ++i)
             {
                 Ms::IO::removeFile(delFiles.at(i));//after finish processing, delete the uploaded thumbnails
-                _logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
+                m_logger->log(std::string("deleting thumbnail file") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
             }
 
-            _qtvProjects->updateView();
+            m_qtvProjects->updateView();
         }
 
         delete dlg;
@@ -721,44 +721,44 @@ void Views::ViewProjects::_btnProjectsImportThumbnailsClicked()
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
-void Views::ViewProjects::_projectImported(Wt::Dbo::ptr<Projects::Project> project)
+void Views::ViewProjects::projectImported(Wt::Dbo::ptr<Projects::Project> project)
 {
     Projects::ProjectsIO::createProjectDirectoryStructure(project->name());
 }
 
-void Views::ViewProjects::_createProjectsTableView()
+void Views::ViewProjects::createProjectsTableView()
 {
-    _qtvProjects = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::Project>(Session::SessionManager::instance().dboSession());
-    _qtvProjects->setRowHeight(160);
-    _qtvProjects->setDefaultFilterColumnIndex(1);
-    _qtvProjects->setIgnoreNumFilterColumns(1);
-    _qtvProjects->tableSelectionChanged().connect(this, &Views::ViewProjects::updatePropertiesView);
-    _qtvProjects->itemImported().connect(this, &Views::ViewProjects::_projectImported);
+    m_qtvProjects = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::Project>(Session::SessionManager::instance().dboSession());
+    m_qtvProjects->setRowHeight(160);
+    m_qtvProjects->setDefaultFilterColumnIndex(1);
+    m_qtvProjects->setIgnoreNumFilterColumns(1);
+    m_qtvProjects->tableSelectionChanged().connect(this, &Views::ViewProjects::updatePropertiesView);
+    m_qtvProjects->itemImported().connect(this, &Views::ViewProjects::projectImported);
 
-    _btnCreateProject = _qtvProjects->createToolButton("", "icons/Add.png", "Create A New Project");
-    _btnCreateProject->clicked().connect(this, &Views::ViewProjects::_btnProjectsCreateClicked);
+    m_btnCreateProject = m_qtvProjects->createToolButton("", "icons/Add.png", "Create A New Project");
+    m_btnCreateProject->clicked().connect(this, &Views::ViewProjects::btnProjectsCreateClicked);
 
-    //Wt::WPushButton *btn = _qtvProjects->createToolButton("", "icons/Remove.png", "Remove Selected Project");
-    //btn->clicked().connect(this, &Views::ViewProjects::_btnProjectsRemoveClicked);
+    //Wt::WPushButton *btn = m_qtvProjects->createToolButton("", "icons/Remove.png", "Remove Selected Project");
+    //btn->clicked().connect(this, &Views::ViewProjects::btnProjectsRemoveClicked);
 
-    _btnEditProjects = _qtvProjects->createToolButton("", "icons/Edit.png", "Edit Selected Projects");
-    _btnEditProjects->clicked().connect(this, &Views::ViewProjects::_btnProjectsEditClicked);
+    m_btnEditProjects = m_qtvProjects->createToolButton("", "icons/Edit.png", "Edit Selected Projects");
+    m_btnEditProjects->clicked().connect(this, &Views::ViewProjects::btnProjectsEditClicked);
 
-    _btnImportProjectsThumbnails = _qtvProjects->createToolButton("", "icons/Thumbnail.png", "Import Thumbnails");
-    _btnImportProjectsThumbnails->clicked().connect(this, &Views::ViewProjects::_btnProjectsImportThumbnailsClicked);
+    m_btnImportProjectsThumbnails = m_qtvProjects->createToolButton("", "icons/Thumbnail.png", "Import Thumbnails");
+    m_btnImportProjectsThumbnails->clicked().connect(this, &Views::ViewProjects::btnProjectsImportThumbnailsClicked);
 
-    _btnProjectsFiles = _qtvProjects->createToolButton("", "icons/Files.png", "Files Manager");
-    _btnProjectsFiles->clicked().connect(this, &Views::ViewProjects::_btnProjectsFilesClicked);
+    m_btnProjectsFiles = m_qtvProjects->createToolButton("", "icons/Files.png", "Files Manager");
+    m_btnProjectsFiles->clicked().connect(this, &Views::ViewProjects::btnProjectsFilesClicked);
 
     updateProjectsView();
 }
 
 //Sequences
-void Views::ViewProjects::_createSequenceRequested()
+void Views::ViewProjects::createSequenceRequested()
 {
-    if(_qtvProjects->table()->selectedIndexes().size() != 1)
+    if(m_qtvProjects->table()->selectedIndexes().size() != 1)
     {
-        _logger->log("Please select only one project.", Ms::Log::LogMessageType::Warning);
+        m_logger->log("Please select only one project.", Ms::Log::LogMessageType::Warning);
 
         return;
     }
@@ -770,7 +770,7 @@ void Views::ViewProjects::_createSequenceRequested()
         {
             Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-            Wt::Dbo::ptr<Projects::Project> prjPtr = _qtvProjects->selectedItems().at(0);
+            Wt::Dbo::ptr<Projects::Project> prjPtr = m_qtvProjects->selectedItems().at(0);
 
             Projects::ProjectSequenceId id;
             id.name = (dlg->sequenceName());
@@ -795,20 +795,20 @@ void Views::ViewProjects::_createSequenceRequested()
                 if(seqPtr.get())
                 {
                     Projects::ProjectsIO::createSequenceDirectoryStructure(prjPtr->name(), seqPtr->name());
-                    _updatePropertiesSequencesView();
+                    updatePropertiesSequencesView();
 
-                    _logger->log(std::string("Created sequence for project ") + prjPtr->name(), Ms::Log::LogMessageType::Info);
+                    m_logger->log(std::string("Created sequence for project ") + prjPtr->name(), Ms::Log::LogMessageType::Info);
                 }
                 else
                 {
                     delete sequence;
 
-                    _logger->log(std::string("Error creating sequence for project ") + prjPtr->name(), Ms::Log::LogMessageType::Error);
+                    m_logger->log(std::string("Error creating sequence for project ") + prjPtr->name(), Ms::Log::LogMessageType::Error);
                 }
             }
             else
             {
-                _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
+                m_logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
             }
 
             transaction.commit();
@@ -820,25 +820,25 @@ void Views::ViewProjects::_createSequenceRequested()
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
-void Views::ViewProjects::_sequenceImported(Wt::Dbo::ptr<Projects::ProjectSequence> sequence)
+void Views::ViewProjects::sequenceImported(Wt::Dbo::ptr<Projects::ProjectSequence> sequence)
 {
     Projects::ProjectsIO::createSequenceDirectoryStructure(sequence->projectName(), sequence->name());
 }
 
-void Views::ViewProjects::_createSequencesTableView()
+void Views::ViewProjects::createSequencesTableView()
 {
-    _viewSequences = new Views::ViewSequences();
-    _viewSequences->setCreateOptionHidden(true);
-    _viewSequences->qtvSequences()->tableSelectionChanged().connect(this, &Views::ViewProjects::updatePropertiesView);
-    _viewSequences->qtvSequences()->itemImported().connect(this, &Views::ViewProjects::_sequenceImported);
+    m_viewSequences = new Views::ViewSequences();
+    m_viewSequences->setCreateOptionHidden(true);
+    m_viewSequences->qtvSequences()->tableSelectionChanged().connect(this, &Views::ViewProjects::updatePropertiesView);
+    m_viewSequences->qtvSequences()->itemImported().connect(this, &Views::ViewProjects::sequenceImported);
 }
 
 //Shots
-void Views::ViewProjects::_createShotRequested()
+void Views::ViewProjects::createShotRequested()
 {
-    if(_viewSequences->qtvSequences()->table()->selectedIndexes().size() != 1)
+    if(m_viewSequences->qtvSequences()->table()->selectedIndexes().size() != 1)
     {
-        _logger->log("Please select only one sequence.", Ms::Log::LogMessageType::Warning);
+        m_logger->log("Please select only one sequence.", Ms::Log::LogMessageType::Warning);
 
         return;
     }
@@ -850,7 +850,7 @@ void Views::ViewProjects::_createShotRequested()
         {
             Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-            Wt::Dbo::ptr<Projects::ProjectSequence> seqPtr = _viewSequences->qtvSequences()->selectedItems().at(0);
+            Wt::Dbo::ptr<Projects::ProjectSequence> seqPtr = m_viewSequences->qtvSequences()->selectedItems().at(0);
 
             Projects::ProjectShotId id;
             id.name = (dlg->shotName());
@@ -875,20 +875,20 @@ void Views::ViewProjects::_createShotRequested()
                 if(shotPtr.get())
                 {
                     Projects::ProjectsIO::createShotDirectoryStructure(seqPtr->projectName(), seqPtr->name(), shotPtr->name());
-                    _updatePropertiesShotsView();
+                    updatePropertiesShotsView();
 
-                    _logger->log(std::string("Created shot for sequence ") + seqPtr->name(), Ms::Log::LogMessageType::Info);
+                    m_logger->log(std::string("Created shot for sequence ") + seqPtr->name(), Ms::Log::LogMessageType::Info);
                 }
                 else
                 {
                     delete shot;
 
-                    _logger->log(std::string("error creating shot for sequence ") + seqPtr->name(), Ms::Log::LogMessageType::Error);
+                    m_logger->log(std::string("error creating shot for sequence ") + seqPtr->name(), Ms::Log::LogMessageType::Error);
                 }
             }
             else
             {
-                _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
+                m_logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
             }
 
             transaction.commit();
@@ -900,25 +900,25 @@ void Views::ViewProjects::_createShotRequested()
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
-void Views::ViewProjects::_shotImported(Wt::Dbo::ptr<Projects::ProjectShot> shot)
+void Views::ViewProjects::shotImported(Wt::Dbo::ptr<Projects::ProjectShot> shot)
 {
     Projects::ProjectsIO::createShotDirectoryStructure(shot->projectName(), shot->sequenceName(), shot->name());
 }
 
-void Views::ViewProjects::_createShotsTableView()
+void Views::ViewProjects::createShotsTableView()
 {
-    _viewShots = new Views::ViewShots();
-    _viewShots->setCreateOptionHidden(true);
-    _viewShots->qtvShots()->tableSelectionChanged().connect(this, &Views::ViewProjects::updatePropertiesView);
-    _viewShots->qtvShots()->itemImported().connect(this, &Views::ViewProjects::_shotImported);
+    m_viewShots = new Views::ViewShots();
+    m_viewShots->setCreateOptionHidden(true);
+    m_viewShots->qtvShots()->tableSelectionChanged().connect(this, &Views::ViewProjects::updatePropertiesView);
+    m_viewShots->qtvShots()->itemImported().connect(this, &Views::ViewProjects::shotImported);
 }
 
 //Assets
-void Views::ViewProjects::_createAssetRequested()
+void Views::ViewProjects::createAssetRequested()
 {
-    if(_qtvProjects->table()->selectedIndexes().size() != 1)
+    if(m_qtvProjects->table()->selectedIndexes().size() != 1)
     {
-        _logger->log("Please select only one aroject.", Ms::Log::LogMessageType::Warning);
+        m_logger->log("Please select only one aroject.", Ms::Log::LogMessageType::Warning);
 
         return;
     }
@@ -930,7 +930,7 @@ void Views::ViewProjects::_createAssetRequested()
         {
             Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-            Wt::Dbo::ptr<Projects::Project> prjPtr = _qtvProjects->selectedItems().at(0);
+            Wt::Dbo::ptr<Projects::Project> prjPtr = m_qtvProjects->selectedItems().at(0);
 
             Projects::ProjectAssetId id;
             id.name = (dlg->assetName());
@@ -952,20 +952,20 @@ void Views::ViewProjects::_createAssetRequested()
                 if(assetPtr.get())
                 {
                     Projects::ProjectsIO::createAssetDirectoryStructure(prjPtr->name(), assetPtr->name());
-                    _updatePropertiesAssetsView();
+                    updatePropertiesAssetsView();
 
-                    _logger->log(std::string("Created asset ") + dlg->assetName(), Ms::Log::LogMessageType::Info);
+                    m_logger->log(std::string("Created asset ") + dlg->assetName(), Ms::Log::LogMessageType::Info);
                 }
                 else
                 {
                     delete asset;
 
-                    _logger->log(std::string("error creating asset ") + dlg->assetName(), Ms::Log::LogMessageType::Error);
+                    m_logger->log(std::string("error creating asset ") + dlg->assetName(), Ms::Log::LogMessageType::Error);
                 }
             }
             else
             {
-                _logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
+                m_logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
             }
 
             transaction.commit();
@@ -977,26 +977,26 @@ void Views::ViewProjects::_createAssetRequested()
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
-void Views::ViewProjects::_assetImported(Wt::Dbo::ptr<Projects::ProjectAsset> asset)
+void Views::ViewProjects::assetImported(Wt::Dbo::ptr<Projects::ProjectAsset> asset)
 {
     Projects::ProjectsIO::createAssetDirectoryStructure(asset->projectName(), asset->name());
 }
 
-void Views::ViewProjects::_createAssetsTableView()
+void Views::ViewProjects::createAssetsTableView()
 {
-    _viewAssets = new Views::ViewAssets();
-    _viewAssets->setCreateOptionHidden(true);
-    _viewAssets->qtvAssets()->tableSelectionChanged().connect(this, &Views::ViewProjects::updatePropertiesView);
-    _viewAssets->qtvAssets()->itemImported().connect(this, &Views::ViewProjects::_assetImported);
+    m_viewAssets = new Views::ViewAssets();
+    m_viewAssets->setCreateOptionHidden(true);
+    m_viewAssets->qtvAssets()->tableSelectionChanged().connect(this, &Views::ViewProjects::updatePropertiesView);
+    m_viewAssets->qtvAssets()->itemImported().connect(this, &Views::ViewProjects::assetImported);
 }
 
 //Tasks
-void Views::ViewProjects::_createTasksRequested()
+void Views::ViewProjects::createTasksRequested()
 {
-    if((_stkMain->currentWidget() == _cntProjects && _qtvProjects->table()->selectedIndexes().size() > 0) ||
-            (_stkMain->currentWidget() == _cntSequences && _viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0) ||
-            (_stkMain->currentWidget() == _cntShots && _viewShots->qtvShots()->table()->selectedIndexes().size() > 0) ||
-            (_stkMain->currentWidget() == _cntAssets && _viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0))
+    if((m_stkMain->currentWidget() == m_cntProjects && m_qtvProjects->table()->selectedIndexes().size() > 0) ||
+            (m_stkMain->currentWidget() == m_cntSequences && m_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0) ||
+            (m_stkMain->currentWidget() == m_cntShots && m_viewShots->qtvShots()->table()->selectedIndexes().size() > 0) ||
+            (m_stkMain->currentWidget() == m_cntAssets && m_viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0))
     {
         Views::DlgCreateAndEditTask *dlg = new Views::DlgCreateAndEditTask();
         dlg->finished().connect(std::bind([=]()
@@ -1005,9 +1005,9 @@ void Views::ViewProjects::_createTasksRequested()
             {
                 Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-                if(_stkMain->currentWidget() == _cntProjects)
+                if(m_stkMain->currentWidget() == m_cntProjects)
                 {
-                    for(auto &prjPtr : _qtvProjects->selectedItems())
+                    for(auto &prjPtr : m_qtvProjects->selectedItems())
                     {
                         Projects::ProjectTask *task = new Projects::ProjectTask();
                         task->setUser(dlg->user());
@@ -1025,21 +1025,21 @@ void Views::ViewProjects::_createTasksRequested()
                         if(taskPtr.get())
                         {
                             Projects::ProjectsIO::createProjectTaskDirectoryStructure(prjPtr->name(), taskPtr.id());
-                            _updatePropertiesTasksView();
+                            updatePropertiesTasksView();
 
-                            _logger->log(std::string("Created task for project ") + prjPtr->name(), Ms::Log::LogMessageType::Info);
+                            m_logger->log(std::string("Created task for project ") + prjPtr->name(), Ms::Log::LogMessageType::Info);
                         }
                         else
                         {
                             delete task;
 
-                            _logger->log(std::string("Error creating task for project") + prjPtr->name(), Ms::Log::LogMessageType::Error);
+                            m_logger->log(std::string("Error creating task for project") + prjPtr->name(), Ms::Log::LogMessageType::Error);
                         }
                     }
                 }
-                else if(_stkMain->currentWidget() == _cntSequences)
+                else if(m_stkMain->currentWidget() == m_cntSequences)
                 {
-                    for(auto &seqPtr : _viewSequences->qtvSequences()->selectedItems())
+                    for(auto &seqPtr : m_viewSequences->qtvSequences()->selectedItems())
                     {
                         Projects::ProjectTask *task = new Projects::ProjectTask();
                         task->setUser(dlg->user());
@@ -1061,21 +1061,21 @@ void Views::ViewProjects::_createTasksRequested()
                         if(taskPtr.get())
                         {
                             Projects::ProjectsIO::createSequenceTaskDirectoryStructure(seqPtr->projectName(), seqPtr->name(), taskPtr.id());
-                            _updatePropertiesTasksView();
+                            updatePropertiesTasksView();
 
-                            _logger->log(std::string("Created task for sequence ") + seqPtr->name(), Ms::Log::LogMessageType::Info);
+                            m_logger->log(std::string("Created task for sequence ") + seqPtr->name(), Ms::Log::LogMessageType::Info);
                         }
                         else
                         {
                             delete task;
 
-                            _logger->log(std::string("Error creating task for sequence") + seqPtr->name(), Ms::Log::LogMessageType::Error);
+                            m_logger->log(std::string("Error creating task for sequence") + seqPtr->name(), Ms::Log::LogMessageType::Error);
                         }
                     }
                 }
-                else if(_stkMain->currentWidget() == _cntShots)
+                else if(m_stkMain->currentWidget() == m_cntShots)
                 {
-                    for(auto &shotPtr : _viewShots->qtvShots()->selectedItems())
+                    for(auto &shotPtr : m_viewShots->qtvShots()->selectedItems())
                     {
                         Projects::ProjectTask *task = new Projects::ProjectTask();
                         task->setUser(dlg->user());
@@ -1099,21 +1099,21 @@ void Views::ViewProjects::_createTasksRequested()
                         if(taskPtr.get())
                         {
                             Projects::ProjectsIO::createShotTaskDirectoryStructure(shotPtr->projectName(), shotPtr->sequenceName(), shotPtr->name(), taskPtr.id());
-                            _updatePropertiesTasksView();
+                            updatePropertiesTasksView();
 
-                            _logger->log(std::string("Created task for shot ") + shotPtr->name(), Ms::Log::LogMessageType::Info);
+                            m_logger->log(std::string("Created task for shot ") + shotPtr->name(), Ms::Log::LogMessageType::Info);
                         }
                         else
                         {
                             delete task;
 
-                            _logger->log(std::string("Error creating task for shot") + shotPtr->name(), Ms::Log::LogMessageType::Error);
+                            m_logger->log(std::string("Error creating task for shot") + shotPtr->name(), Ms::Log::LogMessageType::Error);
                         }
                     }
                 }
-                else if(_stkMain->currentWidget() == _cntAssets)
+                else if(m_stkMain->currentWidget() == m_cntAssets)
                 {
-                    for(auto &assetPtr : _viewAssets->qtvAssets()->selectedItems())
+                    for(auto &assetPtr : m_viewAssets->qtvAssets()->selectedItems())
                     {
                         Projects::ProjectTask *task = new Projects::ProjectTask();
                         task->setUser(dlg->user());
@@ -1136,15 +1136,15 @@ void Views::ViewProjects::_createTasksRequested()
                         if(taskPtr.get())
                         {
                             Projects::ProjectsIO::createAssetTaskDirectoryStructure(assetPtr->projectName(), assetPtr->projectName(), taskPtr.id());
-                            _updatePropertiesTasksView();
+                            updatePropertiesTasksView();
 
-                            _logger->log(std::string("Created task for asset ") + assetPtr->name(), Ms::Log::LogMessageType::Info, Log::LogMessageContext::ServerAndClient);
+                            m_logger->log(std::string("Created task for asset ") + assetPtr->name(), Ms::Log::LogMessageType::Info, Log::LogMessageContext::ServerAndClient);
                         }
                         else
                         {
                             delete task;
 
-                            _logger->log(std::string("error creating task for asset ") + assetPtr->name(), Ms::Log::LogMessageType::Error);
+                            m_logger->log(std::string("error creating task for asset ") + assetPtr->name(), Ms::Log::LogMessageType::Error);
                         }
                     }
                 }
@@ -1161,16 +1161,16 @@ void Views::ViewProjects::_createTasksRequested()
     }
     else
     {
-        _logger->log(std::string("Please select at least one item"), Ms::Log::LogMessageType::Warning);
+        m_logger->log(std::string("Please select at least one item"), Ms::Log::LogMessageType::Warning);
     }
 }
 
-void Views::ViewProjects::_createTasksForTemplateRequested()
+void Views::ViewProjects::createTasksForTemplateRequested()
 {
-    if((_stkMain->currentWidget() == _cntProjects && _qtvProjects->table()->selectedIndexes().size() > 0) ||
-            (_stkMain->currentWidget() == _cntSequences && _viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0) ||
-            (_stkMain->currentWidget() == _cntShots && _viewShots->qtvShots()->table()->selectedIndexes().size() > 0) ||
-            (_stkMain->currentWidget() == _cntAssets && _viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0))
+    if((m_stkMain->currentWidget() == m_cntProjects && m_qtvProjects->table()->selectedIndexes().size() > 0) ||
+            (m_stkMain->currentWidget() == m_cntSequences && m_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0) ||
+            (m_stkMain->currentWidget() == m_cntShots && m_viewShots->qtvShots()->table()->selectedIndexes().size() > 0) ||
+            (m_stkMain->currentWidget() == m_cntAssets && m_viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0))
     {
         Views::DlgSelectTaskTemplate *dlg = new Views::DlgSelectTaskTemplate();
         dlg->finished().connect(std::bind([=]()
@@ -1181,14 +1181,14 @@ void Views::ViewProjects::_createTasksForTemplateRequested()
 
                 Wt::Dbo::ptr<Projects::ProjectTaskTemplate> templatePtr = dlg->taskTemplate();
 
-                if(_stkMain->currentWidget() == _cntProjects ||
-                        _stkMain->currentWidget() == _cntSequences ||
-                        _stkMain->currentWidget() == _cntShots ||
-                        _stkMain->currentWidget() == _cntAssets)
+                if(m_stkMain->currentWidget() == m_cntProjects ||
+                        m_stkMain->currentWidget() == m_cntSequences ||
+                        m_stkMain->currentWidget() == m_cntShots ||
+                        m_stkMain->currentWidget() == m_cntAssets)
                 {
-                    if(_stkMain->currentWidget() == _cntProjects)
+                    if(m_stkMain->currentWidget() == m_cntProjects)
                     {
-                        for(auto &prjPtr : _qtvProjects->selectedItems())
+                        for(auto &prjPtr : m_qtvProjects->selectedItems())
                         {
                             for(auto iter = templatePtr->items().begin(); iter != templatePtr->items().end(); ++iter)
                             {
@@ -1205,11 +1205,11 @@ void Views::ViewProjects::_createTasksForTemplateRequested()
                             }
                         }
 
-                        _logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
+                        m_logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
                     }
-                    else if(_stkMain->currentWidget() == _cntSequences)
+                    else if(m_stkMain->currentWidget() == m_cntSequences)
                     {
-                        for(auto &seqPtr : _viewSequences->qtvSequences()->selectedItems())
+                        for(auto &seqPtr : m_viewSequences->qtvSequences()->selectedItems())
                         {
                             for(auto iter = templatePtr->items().begin(); iter != templatePtr->items().end(); ++iter)
                             {
@@ -1226,11 +1226,11 @@ void Views::ViewProjects::_createTasksForTemplateRequested()
                             }
                         }
 
-                        _logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
+                        m_logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
                     }
-                    else if(_stkMain->currentWidget() == _cntShots)
+                    else if(m_stkMain->currentWidget() == m_cntShots)
                     {
-                        for(auto &shotPtr : _viewShots->qtvShots()->selectedItems())
+                        for(auto &shotPtr : m_viewShots->qtvShots()->selectedItems())
                         {
                             for(auto iter = templatePtr->items().begin(); iter != templatePtr->items().end(); ++iter)
                             {
@@ -1246,12 +1246,12 @@ void Views::ViewProjects::_createTasksForTemplateRequested()
                                 Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTask>(task);
                             }
 
-                            _logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
+                            m_logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
                         }
                     }
-                    else if(_stkMain->currentWidget() == _cntAssets)
+                    else if(m_stkMain->currentWidget() == m_cntAssets)
                     {
-                        for(auto &assetPtr : _viewAssets->qtvAssets()->selectedItems())
+                        for(auto &assetPtr : m_viewAssets->qtvAssets()->selectedItems())
                         {
                             for(auto iter = templatePtr->items().begin(); iter != templatePtr->items().end(); ++iter)
                             {
@@ -1267,11 +1267,11 @@ void Views::ViewProjects::_createTasksForTemplateRequested()
                                 Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTask>(task);
                             }
 
-                            _logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
+                            m_logger->log(std::string("Created tasks for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
                         }
                     }
 
-                    _updatePropertiesTasksView();
+                    updatePropertiesTasksView();
                 }
 
                 transaction.commit();
@@ -1284,11 +1284,11 @@ void Views::ViewProjects::_createTasksForTemplateRequested()
     }
     else
     {
-        _logger->log(std::string("Please select at least one item"), Ms::Log::LogMessageType::Warning);
+        m_logger->log(std::string("Please select at least one item"), Ms::Log::LogMessageType::Warning);
     }
 }
 
-void Views::ViewProjects::_taskImported(Wt::Dbo::ptr<Projects::ProjectTask> task)
+void Views::ViewProjects::taskImported(Wt::Dbo::ptr<Projects::ProjectTask> task)
 {
     if(task->project().get())
         Projects::ProjectsIO::createProjectTaskDirectoryStructure(task->project()->name(), task.id());
@@ -1303,99 +1303,99 @@ void Views::ViewProjects::_taskImported(Wt::Dbo::ptr<Projects::ProjectTask> task
         Projects::ProjectsIO::createAssetTaskDirectoryStructure(task->asset()->projectName(), task->asset()->name(), task.id());
 }
 
-void Views::ViewProjects::_createTasksTableView()
+void Views::ViewProjects::createTasksTableView()
 {
-    _viewTasks = new Views::ViewTasks();
-    _viewTasks->setCreateOptionHidden(true);
-    _viewTasks->setCreateForTemplateOptionHidden(true);
-    _viewTasks->qtvTasks()->tableSelectionChanged().connect(this, &Views::ViewProjects::updatePropertiesView);
-    _viewTasks->qtvTasks()->itemImported().connect(this, &Views::ViewProjects::_taskImported);
+    m_viewTasks = new Views::ViewTasks();
+    m_viewTasks->setCreateOptionHidden(true);
+    m_viewTasks->setCreateForTemplateOptionHidden(true);
+    m_viewTasks->qtvTasks()->tableSelectionChanged().connect(this, &Views::ViewProjects::updatePropertiesView);
+    m_viewTasks->qtvTasks()->itemImported().connect(this, &Views::ViewProjects::taskImported);
 }
 
 //Properties
-void Views::ViewProjects::_mnuNavBarPropertiesDataItemTriggered()
+void Views::ViewProjects::mnuNavBarPropertiesDataItemTriggered()
 {
-    _updatePropertiesDataView();
-    _stkProperties->setCurrentWidget(_viewPropertiesData);
+    updatePropertiesDataView();
+    m_stkProperties->setCurrentWidget(m_viewPropertiesData);
 }
 
-void Views::ViewProjects::_mnuNavBarPropertiesTagsItemTriggered()
+void Views::ViewProjects::mnuNavBarPropertiesTagsItemTriggered()
 {
-    _updatePropertiesTagsView();
-    _updatePropertiesAssignedTagsView();
-    _stkProperties->setCurrentWidget(_viewPropertiesTags);
+    updatePropertiesTagsView();
+    updatePropertiesAssignedTagsView();
+    m_stkProperties->setCurrentWidget(m_viewPropertiesTags);
 }
 
-void Views::ViewProjects::_mnuNavBarPropertiesNotesItemTriggered()
+void Views::ViewProjects::mnuNavBarPropertiesNotesItemTriggered()
 {
-    _updatePropertiesNotesView();
-    _stkProperties->setCurrentWidget(_viewPropertiesNotes);
+    updatePropertiesNotesView();
+    m_stkProperties->setCurrentWidget(m_viewPropertiesNotes);
 }
 
-void Views::ViewProjects::_mnuNavBarPropertiesSequencesItemTriggered()
+void Views::ViewProjects::mnuNavBarPropertiesSequencesItemTriggered()
 {
-    _viewPropertiesSequences->updateView(_qtvProjects->selectedItems());
-    _stkProperties->setCurrentWidget(_viewPropertiesSequences);
+    m_viewPropertiesSequences->updateView(m_qtvProjects->selectedItems());
+    m_stkProperties->setCurrentWidget(m_viewPropertiesSequences);
 }
 
-void Views::ViewProjects::_mnuNavBarPropertiesShotsItemTriggered()
+void Views::ViewProjects::mnuNavBarPropertiesShotsItemTriggered()
 {
-    _viewPropertiesShots->updateView(_viewSequences->qtvSequences()->selectedItems());
-    _stkProperties->setCurrentWidget(_viewPropertiesShots);
+    m_viewPropertiesShots->updateView(m_viewSequences->qtvSequences()->selectedItems());
+    m_stkProperties->setCurrentWidget(m_viewPropertiesShots);
 }
 
-void Views::ViewProjects::_mnuNavBarPropertiesAssetsItemTriggered()
+void Views::ViewProjects::mnuNavBarPropertiesAssetsItemTriggered()
 {
-    _viewPropertiesAssets->updateView(_qtvProjects->selectedItems());
-    _stkProperties->setCurrentWidget(_viewPropertiesAssets);
+    m_viewPropertiesAssets->updateView(m_qtvProjects->selectedItems());
+    m_stkProperties->setCurrentWidget(m_viewPropertiesAssets);
 }
 
-void Views::ViewProjects::_mnuNavBarPropertiesTasksItemTriggered()
+void Views::ViewProjects::mnuNavBarPropertiesTasksItemTriggered()
 {
-    _updatePropertiesTasksView();
-    _stkProperties->setCurrentWidget(_viewPropertiesTasks);
+    updatePropertiesTasksView();
+    m_stkProperties->setCurrentWidget(m_viewPropertiesTasks);
 }
 
-void Views::ViewProjects::_mnuNavBarPropertiesTaskActivitiesItemTriggered()
+void Views::ViewProjects::mnuNavBarPropertiesTaskActivitiesItemTriggered()
 {
-    _updatePropertiesTaskActivitiesView();
-    _stkProperties->setCurrentWidget(_viewPropertiesTaskActivities);
+    updatePropertiesTaskActivitiesView();
+    m_stkProperties->setCurrentWidget(m_viewPropertiesTaskActivities);
 }
 
-void Views::ViewProjects::_mnuNavBarPropertiesStatisticsItemTriggered()
+void Views::ViewProjects::mnuNavBarPropertiesStatisticsItemTriggered()
 {
-    _updatePropertiesStatisticsView();
-    _stkProperties->setCurrentWidget(_viewPropertiesStatistics);
+    updatePropertiesStatisticsView();
+    m_stkProperties->setCurrentWidget(m_viewPropertiesStatistics);
 }
 
-void Views::ViewProjects::_addDataRequested()
+void Views::ViewProjects::addDataRequested()
 {
-    if(_stkMain->currentWidget() == _cntProjects)
-        _addDataToDbo<Projects::Project>(_qtvProjects->selectedItems());
-    else if(_stkMain->currentWidget() == _cntSequences)
-        _addDataToDbo<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems());
-    else if(_stkMain->currentWidget() == _cntShots)
-        _addDataToDbo<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems());
-    else if(_stkMain->currentWidget() == _cntAssets)
-        _addDataToDbo<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems());
-    else if(_stkMain->currentWidget() == _cntTasks)
-        _addDataToDbo<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems());
+    if(m_stkMain->currentWidget() == m_cntProjects)
+        addDataToDbo<Projects::Project>(m_qtvProjects->selectedItems());
+    else if(m_stkMain->currentWidget() == m_cntSequences)
+        addDataToDbo<Projects::ProjectSequence>(m_viewSequences->qtvSequences()->selectedItems());
+    else if(m_stkMain->currentWidget() == m_cntShots)
+        addDataToDbo<Projects::ProjectShot>(m_viewShots->qtvShots()->selectedItems());
+    else if(m_stkMain->currentWidget() == m_cntAssets)
+        addDataToDbo<Projects::ProjectAsset>(m_viewAssets->qtvAssets()->selectedItems());
+    else if(m_stkMain->currentWidget() == m_cntTasks)
+        addDataToDbo<Projects::ProjectTask>(m_viewTasks->qtvTasks()->selectedItems());
 }
 
-void Views::ViewProjects::_removeDataRequested(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec)
+void Views::ViewProjects::removeDataRequested(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec)
 {
 
 }
 
-void Views::ViewProjects::_createProjectTagRequested()
+void Views::ViewProjects::createProjectTagRequested()
 {
     bool createTag = false;
     bool customProjectTag = false;
 
-    if(_qtvProjects->table()->selectedIndexes().size() > 0)
+    if(m_qtvProjects->table()->selectedIndexes().size() > 0)
     {
-        if(_qtvProjects->table()->selectedIndexes().size() != 1)
-            _logger->log("Please select only one project.", Ms::Log::LogMessageType::Warning);
+        if(m_qtvProjects->table()->selectedIndexes().size() != 1)
+            m_logger->log("Please select only one project.", Ms::Log::LogMessageType::Warning);
         else
         {
             customProjectTag = true;
@@ -1431,12 +1431,12 @@ void Views::ViewProjects::_createProjectTagRequested()
                 {
                     Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(_qtvProjects->selectedItems().at(0))->addTag(tagPtr);
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(m_qtvProjects->selectedItems().at(0))->addTag(tagPtr);
 
                     transaction.commit();
                 }
 
-                _updatePropertiesTagsView();
+                updatePropertiesTagsView();
             }
             else
                 delete tag;
@@ -1450,119 +1450,119 @@ void Views::ViewProjects::_createProjectTagRequested()
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
-void Views::ViewProjects::_assignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
+void Views::ViewProjects::assignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
     if(tagVec.size() == 0)
         return;
 
     Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-    if(_stkMain->currentWidget() == _cntProjects)
+    if(m_stkMain->currentWidget() == m_cntProjects)
     {
-        if(_qtvProjects->table()->selectedIndexes().size() > 0)
+        if(m_qtvProjects->table()->selectedIndexes().size() > 0)
         {
-            Session::SessionManager::instance().dboSession().assignTagsToDbo<Projects::Project>(_qtvProjects->selectedItems(), tagVec);
+            Session::SessionManager::instance().dboSession().assignTagsToDbo<Projects::Project>(m_qtvProjects->selectedItems(), tagVec);
 
-            _updatePropertiesAssignedTagsView();
+            updatePropertiesAssignedTagsView();
         }
     }
-    else if(_stkMain->currentWidget() == _cntSequences)
+    else if(m_stkMain->currentWidget() == m_cntSequences)
     {
-        if(_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0)
+        if(m_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0)
         {
-            Session::SessionManager::instance().dboSession().assignTagsToDbo<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems(), tagVec);
+            Session::SessionManager::instance().dboSession().assignTagsToDbo<Projects::ProjectSequence>(m_viewSequences->qtvSequences()->selectedItems(), tagVec);
 
-            _updatePropertiesAssignedTagsView();
+            updatePropertiesAssignedTagsView();
         }
     }
-    else if(_stkMain->currentWidget() == _cntShots)
+    else if(m_stkMain->currentWidget() == m_cntShots)
     {
-        if(_viewShots->qtvShots()->table()->selectedIndexes().size() > 0)
+        if(m_viewShots->qtvShots()->table()->selectedIndexes().size() > 0)
         {
-            Session::SessionManager::instance().dboSession().assignTagsToDbo<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems(), tagVec);
+            Session::SessionManager::instance().dboSession().assignTagsToDbo<Projects::ProjectShot>(m_viewShots->qtvShots()->selectedItems(), tagVec);
 
-            _updatePropertiesAssignedTagsView();
+            updatePropertiesAssignedTagsView();
         }
     }
-    else if(_stkMain->currentWidget() == _cntAssets)
+    else if(m_stkMain->currentWidget() == m_cntAssets)
     {
-        if(_viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0)
+        if(m_viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0)
         {
-            Session::SessionManager::instance().dboSession().assignTagsToDbo<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems(), tagVec);
+            Session::SessionManager::instance().dboSession().assignTagsToDbo<Projects::ProjectAsset>(m_viewAssets->qtvAssets()->selectedItems(), tagVec);
 
-            _updatePropertiesAssignedTagsView();
+            updatePropertiesAssignedTagsView();
         }
     }
-    else if(_stkMain->currentWidget() == _cntTasks)
+    else if(m_stkMain->currentWidget() == m_cntTasks)
     {
-        if(_viewTasks->qtvTasks()->table()->selectedIndexes().size() > 0)
+        if(m_viewTasks->qtvTasks()->table()->selectedIndexes().size() > 0)
         {
-            Session::SessionManager::instance().dboSession().assignTagsToDbo<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems(), tagVec);
+            Session::SessionManager::instance().dboSession().assignTagsToDbo<Projects::ProjectTask>(m_viewTasks->qtvTasks()->selectedItems(), tagVec);
 
-            _updatePropertiesAssignedTagsView();
+            updatePropertiesAssignedTagsView();
         }
     }
 
     transaction.commit();
 }
 
-void Views::ViewProjects::_unassignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
+void Views::ViewProjects::unassignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec)
 {
     if(tagVec.size() == 0)
         return;
 
     Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-    if(_stkMain->currentWidget() == _cntProjects)
+    if(m_stkMain->currentWidget() == m_cntProjects)
     {
-        if(_qtvProjects->table()->selectedIndexes().size() > 0)
+        if(m_qtvProjects->table()->selectedIndexes().size() > 0)
         {
-            Session::SessionManager::instance().dboSession().unassignTagsFromDbo<Projects::Project>(_qtvProjects->selectedItems(), tagVec);
+            Session::SessionManager::instance().dboSession().unassignTagsFromDbo<Projects::Project>(m_qtvProjects->selectedItems(), tagVec);
 
-            _updatePropertiesAssignedTagsView();
+            updatePropertiesAssignedTagsView();
         }
     }
-    else if(_stkMain->currentWidget() == _cntSequences)
+    else if(m_stkMain->currentWidget() == m_cntSequences)
     {
-        if(_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0)
+        if(m_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0)
         {
-            Session::SessionManager::instance().dboSession().unassignTagsFromDbo<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems(), tagVec);
+            Session::SessionManager::instance().dboSession().unassignTagsFromDbo<Projects::ProjectSequence>(m_viewSequences->qtvSequences()->selectedItems(), tagVec);
 
-            _updatePropertiesAssignedTagsView();
+            updatePropertiesAssignedTagsView();
         }
     }
-    else if(_stkMain->currentWidget() == _cntShots)
+    else if(m_stkMain->currentWidget() == m_cntShots)
     {
-        if(_viewShots->qtvShots()->table()->selectedIndexes().size() > 0)
+        if(m_viewShots->qtvShots()->table()->selectedIndexes().size() > 0)
         {
-            Session::SessionManager::instance().dboSession().unassignTagsFromDbo<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems(), tagVec);
+            Session::SessionManager::instance().dboSession().unassignTagsFromDbo<Projects::ProjectShot>(m_viewShots->qtvShots()->selectedItems(), tagVec);
 
-            _updatePropertiesAssignedTagsView();
+            updatePropertiesAssignedTagsView();
         }
     }
-    else if(_stkMain->currentWidget() == _cntAssets)
+    else if(m_stkMain->currentWidget() == m_cntAssets)
     {
-        if(_viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0)
+        if(m_viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0)
         {
-            Session::SessionManager::instance().dboSession().unassignTagsFromDbo<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems(), tagVec);
+            Session::SessionManager::instance().dboSession().unassignTagsFromDbo<Projects::ProjectAsset>(m_viewAssets->qtvAssets()->selectedItems(), tagVec);
 
-            _updatePropertiesAssignedTagsView();
+            updatePropertiesAssignedTagsView();
         }
     }
-    else if(_stkMain->currentWidget() == _cntTasks)
+    else if(m_stkMain->currentWidget() == m_cntTasks)
     {
-        if(_viewTasks->qtvTasks()->table()->selectedIndexes().size() > 0)
+        if(m_viewTasks->qtvTasks()->table()->selectedIndexes().size() > 0)
         {
-            Session::SessionManager::instance().dboSession().unassignTagsFromDbo<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems(), tagVec);
+            Session::SessionManager::instance().dboSession().unassignTagsFromDbo<Projects::ProjectTask>(m_viewTasks->qtvTasks()->selectedItems(), tagVec);
 
-            _updatePropertiesAssignedTagsView();
+            updatePropertiesAssignedTagsView();
         }
     }
 
     transaction.commit();
 }
 
-void Views::ViewProjects::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec, bool exactSelection, bool inverse)
+void Views::ViewProjects::filterByTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec, bool exactSelection, bool inverse)
 {
     std::string strFilterQuery = "";
 
@@ -1574,16 +1574,16 @@ void Views::ViewProjects::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<
     std::string inverseIn = inverse ? "NOT " : "";
     std::string andOr = inverse ? "OR" : "AND";
 
-    if(_stkMain->currentWidget() == _cntProjects)
+    if(m_stkMain->currentWidget() == m_cntProjects)
     {
         std::string matchBy = exactSelection ? " GROUP BY pt.project_Project_Name HAVING COUNT(DISTINCT pt.tag_id) = " + std::to_string(tagVec.size()) : "";
 
         strFilterQuery = "Project_Name " + inverseIn + "IN (SELECT pt.project_Project_Name FROM rel_project_assigned_tags pt WHERE tag_id IN (" + idValues.at(0) + ")" + matchBy + ")";
 
-        _qtvProjects->setCustomFilterString(strFilterQuery);
-        _qtvProjects->setCustomFilterActive(true);
+        m_qtvProjects->setCustomFilterString(strFilterQuery);
+        m_qtvProjects->setCustomFilterActive(true);
     }
-    else if(_stkMain->currentWidget() == _cntSequences)
+    else if(m_stkMain->currentWidget() == m_cntSequences)
     {
         std::string projectMatchBy = exactSelection ? " GROUP BY st.project_sequence_Sequence_Project_Project_Name HAVING COUNT(DISTINCT st.tag_id) = " + std::to_string(tagVec.size()) : "";
         std::string projectSequenceMatchBy = exactSelection ? " GROUP BY st.project_sequence_Sequence_Name HAVING COUNT(DISTINCT st.tag_id) = " + std::to_string(tagVec.size()) : "";
@@ -1591,10 +1591,10 @@ void Views::ViewProjects::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<
         strFilterQuery = "Sequence_Name " + inverseIn + "IN (SELECT st.project_sequence_Sequence_Name FROM rel_project_sequence_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + ")" + projectSequenceMatchBy + ") " + andOr +
                 " Sequence_Project_Project_Name " + inverseIn + "IN (SELECT st.project_sequence_Sequence_Project_Project_Name FROM rel_project_sequence_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + ")" + projectMatchBy + ")";
 
-        _viewSequences->qtvSequences()->setCustomFilterString(strFilterQuery);
-        _viewSequences->qtvSequences()->setCustomFilterActive(true);
+        m_viewSequences->qtvSequences()->setCustomFilterString(strFilterQuery);
+        m_viewSequences->qtvSequences()->setCustomFilterActive(true);
     }
-    else if(_stkMain->currentWidget() == _cntShots)
+    else if(m_stkMain->currentWidget() == m_cntShots)
     {
         std::string projectMatchBy = exactSelection ? " GROUP BY st.project_shot_Shot_Sequence_Sequence_Project_Project_Name HAVING COUNT(DISTINCT st.tag_id) = " + std::to_string(tagVec.size()) : "";
         std::string projectSequenceMatchBy = exactSelection ? " GROUP BY st.project_shot_Shot_Sequence_Sequence_Name HAVING COUNT(DISTINCT st.tag_id) = " + std::to_string(tagVec.size()) : "";
@@ -1604,10 +1604,10 @@ void Views::ViewProjects::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<
                 " Shot_Sequence_Sequence_Name " + inverseIn + "IN (SELECT st.project_shot_Shot_Sequence_Sequence_Name FROM rel_project_shot_assigned_tags st WHERE tag_id IN(" + idValues.at(0) + ")" + projectSequenceMatchBy + ") " + andOr +
                 " Shot_Sequence_Sequence_Project_Project_Name " + inverseIn + "IN (SELECT st.project_shot_Shot_Sequence_Sequence_Project_Project_Name FROM rel_project_shot_assigned_tags st WHERE tag_id IN (" + idValues.at(0) + ")" + projectMatchBy + ")";
 
-        _viewShots->qtvShots()->setCustomFilterString(strFilterQuery);
-        _viewShots->qtvShots()->setCustomFilterActive(true);
+        m_viewShots->qtvShots()->setCustomFilterString(strFilterQuery);
+        m_viewShots->qtvShots()->setCustomFilterActive(true);
     }
-    else if(_stkMain->currentWidget() == _cntAssets)
+    else if(m_stkMain->currentWidget() == m_cntAssets)
     {
         std::string projectMatchBy = exactSelection ? " GROUP BY at.project_asset_Asset_Project_Project_Name HAVING COUNT(DISTINCT at.tag_id) = " + std::to_string(tagVec.size()) : "";
         std::string projectAssetMatchBy = exactSelection ? " GROUP BY at.project_asset_Asset_Name HAVING COUNT(DISTINCT at.tag_id) = " + std::to_string(tagVec.size()) : "";
@@ -1615,73 +1615,73 @@ void Views::ViewProjects::_filterByTagsRequested(const std::vector<Wt::Dbo::ptr<
         strFilterQuery = "Asset_Name " + inverseIn + "IN (SELECT at.project_asset_Asset_Name FROM rel_project_asset_assigned_tags at WHERE tag_id IN (" + idValues.at(0) + ")" + projectAssetMatchBy + ") " + andOr +
                 "Asset_Project_Project_Name " + inverseIn + "IN (SELECT at.project_asset_Asset_Project_Project_Name FROM rel_project_asset_assigned_tags at WHERE tag_id IN (" + idValues.at(0) + ")" + projectMatchBy + ")";
 
-        _viewAssets->qtvAssets()->setCustomFilterString(strFilterQuery);
-        _viewAssets->qtvAssets()->setCustomFilterActive(true);
+        m_viewAssets->qtvAssets()->setCustomFilterString(strFilterQuery);
+        m_viewAssets->qtvAssets()->setCustomFilterActive(true);
     }
-    else if(_stkMain->currentWidget() == _cntTasks)
+    else if(m_stkMain->currentWidget() == m_cntTasks)
     {
         std::string taskMatchBy = exactSelection ? " GROUP BY tt.project_task_id HAVING COUNT(DISTINCT tt.tag_id) = " + std::to_string(tagVec.size()) : "";
 
         strFilterQuery = "id " + inverseIn + "IN (SELECT tt.project_task_id FROM rel_project_task_assigned_tags tt WHERE tag_id IN (" + idValues.at(0) + ")" + taskMatchBy + ")";
 
-        _viewTasks->qtvTasks()->setCustomFilterString(strFilterQuery);
-        _viewTasks->qtvTasks()->setCustomFilterActive(true);
+        m_viewTasks->qtvTasks()->setCustomFilterString(strFilterQuery);
+        m_viewTasks->qtvTasks()->setCustomFilterActive(true);
     }
 }
 
-void Views::ViewProjects::_clearTagsFilterRequested()
+void Views::ViewProjects::clearTagsFilterRequested()
 {
-    if(_stkMain->currentWidget() == _cntProjects)
+    if(m_stkMain->currentWidget() == m_cntProjects)
     {
-        _qtvProjects->setCustomFilterString("");
-        _qtvProjects->setCustomFilterActive(false);
+        m_qtvProjects->setCustomFilterString("");
+        m_qtvProjects->setCustomFilterActive(false);
     }
-    else if(_stkMain->currentWidget() == _cntSequences)
+    else if(m_stkMain->currentWidget() == m_cntSequences)
     {
-        _viewSequences->qtvSequences()->setCustomFilterString("");
-        _viewSequences->qtvSequences()->setCustomFilterActive(false);
+        m_viewSequences->qtvSequences()->setCustomFilterString("");
+        m_viewSequences->qtvSequences()->setCustomFilterActive(false);
     }
-    else if(_stkMain->currentWidget() == _cntShots)
+    else if(m_stkMain->currentWidget() == m_cntShots)
     {
-        _viewShots->qtvShots()->setCustomFilterString("");
-        _viewShots->qtvShots()->setCustomFilterActive(false);
+        m_viewShots->qtvShots()->setCustomFilterString("");
+        m_viewShots->qtvShots()->setCustomFilterActive(false);
     }
-    else if(_stkMain->currentWidget() == _cntAssets)
+    else if(m_stkMain->currentWidget() == m_cntAssets)
     {
-        _viewAssets->qtvAssets()->setCustomFilterString("");
-        _viewAssets->qtvAssets()->setCustomFilterActive(false);
+        m_viewAssets->qtvAssets()->setCustomFilterString("");
+        m_viewAssets->qtvAssets()->setCustomFilterActive(false);
     }
-    else if(_stkMain->currentWidget() == _cntTasks)
+    else if(m_stkMain->currentWidget() == m_cntTasks)
     {
-        _viewTasks->qtvTasks()->setCustomFilterString("");
-        _viewTasks->qtvTasks()->setCustomFilterActive(false);
+        m_viewTasks->qtvTasks()->setCustomFilterString("");
+        m_viewTasks->qtvTasks()->setCustomFilterActive(false);
     }
 }
 
-void Views::ViewProjects::_addNoteRequested()
+void Views::ViewProjects::addNoteRequested()
 {
-    if(_stkMain->currentWidget() == _cntProjects)
-        _addNoteToDbo<Projects::Project>(_qtvProjects->selectedItems());
-    else if(_stkMain->currentWidget() == _cntSequences)
-         _addNoteToDbo<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems());
-    else if(_stkMain->currentWidget() == _cntShots)
-        _addNoteToDbo<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems());
-    else if(_stkMain->currentWidget() == _cntAssets)
-        _addNoteToDbo<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems());
-    else if(_stkMain->currentWidget() == _cntTasks)
-        _addNoteToDbo<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems());
+    if(m_stkMain->currentWidget() == m_cntProjects)
+        addNoteToDbo<Projects::Project>(m_qtvProjects->selectedItems());
+    else if(m_stkMain->currentWidget() == m_cntSequences)
+         addNoteToDbo<Projects::ProjectSequence>(m_viewSequences->qtvSequences()->selectedItems());
+    else if(m_stkMain->currentWidget() == m_cntShots)
+        addNoteToDbo<Projects::ProjectShot>(m_viewShots->qtvShots()->selectedItems());
+    else if(m_stkMain->currentWidget() == m_cntAssets)
+        addNoteToDbo<Projects::ProjectAsset>(m_viewAssets->qtvAssets()->selectedItems());
+    else if(m_stkMain->currentWidget() == m_cntTasks)
+        addNoteToDbo<Projects::ProjectTask>(m_viewTasks->qtvTasks()->selectedItems());
 }
 
-void Views::ViewProjects::_removeNotesRequested(const std::vector<Wt::Dbo::ptr<Database::Note>> &noteVec)
+void Views::ViewProjects::removeNotesRequested(const std::vector<Wt::Dbo::ptr<Database::Note>> &noteVec)
 {
 
 }
 
-void Views::ViewProjects::_createTaskActivityRequested()
+void Views::ViewProjects::createTaskActivityRequested()
 {
-    if(_viewTasks->qtvTasks()->table()->selectedIndexes().size() != 1)
+    if(m_viewTasks->qtvTasks()->table()->selectedIndexes().size() != 1)
     {
-        _logger->log("Please select only one task.", Ms::Log::LogMessageType::Warning);
+        m_logger->log("Please select only one task.", Ms::Log::LogMessageType::Warning);
 
         return;
     }
@@ -1693,7 +1693,7 @@ void Views::ViewProjects::_createTaskActivityRequested()
         {
             Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-            Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = _viewTasks->qtvTasks()->selectedItems().at(0);
+            Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = m_viewTasks->qtvTasks()->selectedItems().at(0);
 
             Projects::ProjectTaskActivity *activity = new Projects::ProjectTaskActivity();
             activity->setTask(taskPtr);
@@ -1705,15 +1705,15 @@ void Views::ViewProjects::_createTaskActivityRequested()
             Wt::Dbo::ptr<Projects::ProjectTaskActivity> activityPtr = Session::SessionManager::instance().dboSession().createDbo<Projects::ProjectTaskActivity>(activity);
             if(activityPtr.get())
             {
-                _updatePropertiesTaskActivitiesView();
+                updatePropertiesTaskActivitiesView();
 
-                _logger->log(std::string("Created task activity ") + std::to_string(activityPtr.id()), Ms::Log::LogMessageType::Info);
+                m_logger->log(std::string("Created task activity ") + std::to_string(activityPtr.id()), Ms::Log::LogMessageType::Info);
             }
             else
             {
                 delete activity;
 
-                _logger->log(std::string("error creating task activity"), Ms::Log::LogMessageType::Error);
+                m_logger->log(std::string("error creating task activity"), Ms::Log::LogMessageType::Error);
             }
 
             transaction.commit();
@@ -1725,11 +1725,11 @@ void Views::ViewProjects::_createTaskActivityRequested()
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
-void Views::ViewProjects::_createTaskActivitiesForTemplateRequested()
+void Views::ViewProjects::createTaskActivitiesForTemplateRequested()
 {
-    if(_viewTasks->qtvTasks()->table()->selectedIndexes().size() != 1)
+    if(m_viewTasks->qtvTasks()->table()->selectedIndexes().size() != 1)
     {
-        _logger->log("Please select only one task.", Ms::Log::LogMessageType::Warning);
+        m_logger->log("Please select only one task.", Ms::Log::LogMessageType::Warning);
 
         return;
     }
@@ -1743,7 +1743,7 @@ void Views::ViewProjects::_createTaskActivitiesForTemplateRequested()
 
             Wt::Dbo::ptr<Projects::ProjectActivityTemplate> templatePtr = dlg->activityTemplate();
 
-            Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = _viewTasks->qtvTasks()->selectedItems().at(0);
+            Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = m_viewTasks->qtvTasks()->selectedItems().at(0);
 
             for(auto iter = templatePtr->items().begin(); iter != templatePtr->items().end(); ++iter)
             {
@@ -1762,9 +1762,9 @@ void Views::ViewProjects::_createTaskActivitiesForTemplateRequested()
 
             transaction.commit();
 
-            _updatePropertiesTaskActivitiesView();
+            updatePropertiesTaskActivitiesView();
 
-            _logger->log(std::string("Created task activities for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
+            m_logger->log(std::string("Created task activities for template ") + templatePtr->name(), Ms::Log::LogMessageType::Info);
         }
 
         delete dlg;
@@ -1773,144 +1773,144 @@ void Views::ViewProjects::_createTaskActivitiesForTemplateRequested()
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
-void Views::ViewProjects::_removeTaskActivitiesRequested(const std::vector<Wt::Dbo::ptr<Projects::ProjectTaskActivity>> &activityVec)
+void Views::ViewProjects::removeTaskActivitiesRequested(const std::vector<Wt::Dbo::ptr<Projects::ProjectTaskActivity>> &activityVec)
 {
 
 }
 
-void Views::ViewProjects::_createPropertiesView()
+void Views::ViewProjects::createPropertiesView()
 {
-    _cntPropertiesMain = new Wt::WContainerWidget();
+    m_cntPropertiesMain = new Wt::WContainerWidget();
 
-    _layCntPropertiesMain = new Wt::WVBoxLayout();
-    _layCntPropertiesMain->setContentsMargins(0,0,0,0);
-    _layCntPropertiesMain->setSpacing(0);
+    m_layCntPropertiesMain = new Wt::WVBoxLayout();
+    m_layCntPropertiesMain->setContentsMargins(0,0,0,0);
+    m_layCntPropertiesMain->setSpacing(0);
 
-    _cntPropertiesMain->setLayout(_layCntPropertiesMain);
+    m_cntPropertiesMain->setLayout(m_layCntPropertiesMain);
 
-    _navBarProperties = new Wt::WNavigationBar();
+    m_navBarProperties = new Wt::WNavigationBar();
 
-    _layCntPropertiesMain->addWidget(_navBarProperties);
+    m_layCntPropertiesMain->addWidget(m_navBarProperties);
 
-    _mnuNavBarProperties = new Wt::WMenu(Wt::Horizontal);
+    m_mnuNavBarProperties = new Wt::WMenu(Wt::Horizontal);
 
-    _navBarProperties->addMenu(_mnuNavBarProperties);
+    m_navBarProperties->addMenu(m_mnuNavBarProperties);
 
-    _mnuNavBarPropertiesDataItem = new Wt::WMenuItem("Data");
-    _mnuNavBarPropertiesDataItem->triggered().connect(this, &Views::ViewProjects::_mnuNavBarPropertiesDataItemTriggered);
-    _mnuNavBarProperties->addItem(_mnuNavBarPropertiesDataItem);
+    m_mnuNavBarPropertiesDataItem = new Wt::WMenuItem("Data");
+    m_mnuNavBarPropertiesDataItem->triggered().connect(this, &Views::ViewProjects::mnuNavBarPropertiesDataItemTriggered);
+    m_mnuNavBarProperties->addItem(m_mnuNavBarPropertiesDataItem);
 
-    _mnuNavBarPropertiesTagsItem = new Wt::WMenuItem("Tags");
-    _mnuNavBarPropertiesTagsItem->triggered().connect(this, &Views::ViewProjects::_mnuNavBarPropertiesTagsItemTriggered);
-    _mnuNavBarProperties->addItem(_mnuNavBarPropertiesTagsItem);
+    m_mnuNavBarPropertiesTagsItem = new Wt::WMenuItem("Tags");
+    m_mnuNavBarPropertiesTagsItem->triggered().connect(this, &Views::ViewProjects::mnuNavBarPropertiesTagsItemTriggered);
+    m_mnuNavBarProperties->addItem(m_mnuNavBarPropertiesTagsItem);
 
-    _mnuNavBarPropertiesNotesItem = new Wt::WMenuItem("Notes");
-    _mnuNavBarPropertiesNotesItem->triggered().connect(this, &Views::ViewProjects::_mnuNavBarPropertiesNotesItemTriggered);
-    _mnuNavBarProperties->addItem(_mnuNavBarPropertiesNotesItem);
+    m_mnuNavBarPropertiesNotesItem = new Wt::WMenuItem("Notes");
+    m_mnuNavBarPropertiesNotesItem->triggered().connect(this, &Views::ViewProjects::mnuNavBarPropertiesNotesItemTriggered);
+    m_mnuNavBarProperties->addItem(m_mnuNavBarPropertiesNotesItem);
 
-    _mnuNavBarPropertiesSequencesItem = new Wt::WMenuItem("Sequences");
-    _mnuNavBarPropertiesSequencesItem->triggered().connect(this, &Views::ViewProjects::_mnuNavBarPropertiesSequencesItemTriggered);
-    _mnuNavBarProperties->addItem(_mnuNavBarPropertiesSequencesItem);
+    m_mnuNavBarPropertiesSequencesItem = new Wt::WMenuItem("Sequences");
+    m_mnuNavBarPropertiesSequencesItem->triggered().connect(this, &Views::ViewProjects::mnuNavBarPropertiesSequencesItemTriggered);
+    m_mnuNavBarProperties->addItem(m_mnuNavBarPropertiesSequencesItem);
 
-    _mnuNavBarPropertiesShotsItem = new Wt::WMenuItem("Shots");
-    _mnuNavBarPropertiesShotsItem->triggered().connect(this, &Views::ViewProjects::_mnuNavBarPropertiesShotsItemTriggered);
-    _mnuNavBarProperties->addItem(_mnuNavBarPropertiesShotsItem);
+    m_mnuNavBarPropertiesShotsItem = new Wt::WMenuItem("Shots");
+    m_mnuNavBarPropertiesShotsItem->triggered().connect(this, &Views::ViewProjects::mnuNavBarPropertiesShotsItemTriggered);
+    m_mnuNavBarProperties->addItem(m_mnuNavBarPropertiesShotsItem);
 
-    _mnuNavBarPropertiesAssetsItem = new Wt::WMenuItem("Assets");
-    _mnuNavBarPropertiesAssetsItem->triggered().connect(this, &Views::ViewProjects::_mnuNavBarPropertiesAssetsItemTriggered);
-    _mnuNavBarProperties->addItem(_mnuNavBarPropertiesAssetsItem);
+    m_mnuNavBarPropertiesAssetsItem = new Wt::WMenuItem("Assets");
+    m_mnuNavBarPropertiesAssetsItem->triggered().connect(this, &Views::ViewProjects::mnuNavBarPropertiesAssetsItemTriggered);
+    m_mnuNavBarProperties->addItem(m_mnuNavBarPropertiesAssetsItem);
 
-    _mnuNavBarPropertiesTasksItem = new Wt::WMenuItem("Tasks");
-    _mnuNavBarPropertiesTasksItem->triggered().connect(this, &Views::ViewProjects::_mnuNavBarPropertiesTasksItemTriggered);
-    _mnuNavBarProperties->addItem(_mnuNavBarPropertiesTasksItem);
+    m_mnuNavBarPropertiesTasksItem = new Wt::WMenuItem("Tasks");
+    m_mnuNavBarPropertiesTasksItem->triggered().connect(this, &Views::ViewProjects::mnuNavBarPropertiesTasksItemTriggered);
+    m_mnuNavBarProperties->addItem(m_mnuNavBarPropertiesTasksItem);
 
-    _mnuNavBarPropertiesTaskActivitiesItem = new Wt::WMenuItem("Activities");
-    _mnuNavBarPropertiesTaskActivitiesItem->triggered().connect(this, &Views::ViewProjects::_mnuNavBarPropertiesTaskActivitiesItemTriggered);
-    _mnuNavBarProperties->addItem(_mnuNavBarPropertiesTaskActivitiesItem);
+    m_mnuNavBarPropertiesTaskActivitiesItem = new Wt::WMenuItem("Activities");
+    m_mnuNavBarPropertiesTaskActivitiesItem->triggered().connect(this, &Views::ViewProjects::mnuNavBarPropertiesTaskActivitiesItemTriggered);
+    m_mnuNavBarProperties->addItem(m_mnuNavBarPropertiesTaskActivitiesItem);
 
-    _mnuNavBarPropertiesStatisticsItem = new Wt::WMenuItem("Statistics");
-    _mnuNavBarPropertiesStatisticsItem->triggered().connect(this, &Views::ViewProjects::_mnuNavBarPropertiesStatisticsItemTriggered);
-    _mnuNavBarProperties->addItem(_mnuNavBarPropertiesStatisticsItem);
+    m_mnuNavBarPropertiesStatisticsItem = new Wt::WMenuItem("Statistics");
+    m_mnuNavBarPropertiesStatisticsItem->triggered().connect(this, &Views::ViewProjects::mnuNavBarPropertiesStatisticsItemTriggered);
+    m_mnuNavBarProperties->addItem(m_mnuNavBarPropertiesStatisticsItem);
 
-    _stkProperties = new Wt::WStackedWidget();
+    m_stkProperties = new Wt::WStackedWidget();
 
-    _layCntPropertiesMain->addWidget(_stkProperties, 1);
+    m_layCntPropertiesMain->addWidget(m_stkProperties, 1);
 
     //Data
-    _viewPropertiesData = new Views::ViewDboData();
-    _viewPropertiesData->addDataRequested().connect(this, &Views::ViewProjects::_addDataRequested);
-    _viewPropertiesData->removeDataRequested().connect(this, &Views::ViewProjects::_removeDataRequested);
+    m_viewPropertiesData = new Views::ViewDboData();
+    m_viewPropertiesData->addDataRequested().connect(this, &Views::ViewProjects::addDataRequested);
+    m_viewPropertiesData->removeDataRequested().connect(this, &Views::ViewProjects::removeDataRequested);
 
-    _stkProperties->addWidget(_viewPropertiesData);
+    m_stkProperties->addWidget(m_viewPropertiesData);
 
     //Tags
-    _viewPropertiesTags = new Views::ViewTags();
-    _viewPropertiesTags->createTagRequested().connect(this, &Views::ViewProjects::_createProjectTagRequested);
-    _viewPropertiesTags->assignTagsRequested().connect(this, &Views::ViewProjects::_assignTagsRequested);
-    _viewPropertiesTags->unassignTagsRequested().connect(this, &Views::ViewProjects::_unassignTagsRequested);
-    _viewPropertiesTags->filterByTagsRequested().connect(this, &Views::ViewProjects::_filterByTagsRequested);
-    _viewPropertiesTags->clearTagsFilterRequested().connect(this, &Views::ViewProjects::_clearTagsFilterRequested);
+    m_viewPropertiesTags = new Views::ViewTags();
+    m_viewPropertiesTags->createTagRequested().connect(this, &Views::ViewProjects::createProjectTagRequested);
+    m_viewPropertiesTags->assignTagsRequested().connect(this, &Views::ViewProjects::assignTagsRequested);
+    m_viewPropertiesTags->unassignTagsRequested().connect(this, &Views::ViewProjects::unassignTagsRequested);
+    m_viewPropertiesTags->filterByTagsRequested().connect(this, &Views::ViewProjects::filterByTagsRequested);
+    m_viewPropertiesTags->clearTagsFilterRequested().connect(this, &Views::ViewProjects::clearTagsFilterRequested);
 
-    _stkProperties->addWidget(_viewPropertiesTags);
+    m_stkProperties->addWidget(m_viewPropertiesTags);
 
     //Notes
-    _viewPropertiesNotes = new Views::ViewNotes();
-    _viewPropertiesNotes->addNoteRequested().connect(this, &Views::ViewProjects::_addNoteRequested);
-    _viewPropertiesNotes->removeNotesRequested().connect(this, &Views::ViewProjects::_removeNotesRequested);
+    m_viewPropertiesNotes = new Views::ViewNotes();
+    m_viewPropertiesNotes->addNoteRequested().connect(this, &Views::ViewProjects::addNoteRequested);
+    m_viewPropertiesNotes->removeNotesRequested().connect(this, &Views::ViewProjects::removeNotesRequested);
 
-    _stkProperties->addWidget(_viewPropertiesNotes);
+    m_stkProperties->addWidget(m_viewPropertiesNotes);
 
     //Sequences
-    _viewPropertiesSequences = new Views::ViewSequences();
-    _viewPropertiesSequences->qtvSequences()->setRowHeight(25);
-    _viewPropertiesSequences->createSequenceRequested().connect(this, &Views::ViewProjects::_createSequenceRequested);
-    _qtvProjects->table()->selectionChanged().connect(this, &Views::ViewProjects::updateSequencesView);
+    m_viewPropertiesSequences = new Views::ViewSequences();
+    m_viewPropertiesSequences->qtvSequences()->setRowHeight(25);
+    m_viewPropertiesSequences->createSequenceRequested().connect(this, &Views::ViewProjects::createSequenceRequested);
+    m_qtvProjects->table()->selectionChanged().connect(this, &Views::ViewProjects::updateSequencesView);
 
-    _stkProperties->addWidget(_viewPropertiesSequences);
+    m_stkProperties->addWidget(m_viewPropertiesSequences);
 
     //Shots
-    _viewPropertiesShots = new Views::ViewShots();
-    _viewPropertiesShots->qtvShots()->setRowHeight(25);
-    _viewPropertiesShots->createShotRequested().connect(this, &Views::ViewProjects::_createShotRequested);
-    _viewSequences->qtvSequences()->table()->selectionChanged().connect(this, &Views::ViewProjects::updateShotsView);
+    m_viewPropertiesShots = new Views::ViewShots();
+    m_viewPropertiesShots->qtvShots()->setRowHeight(25);
+    m_viewPropertiesShots->createShotRequested().connect(this, &Views::ViewProjects::createShotRequested);
+    m_viewSequences->qtvSequences()->table()->selectionChanged().connect(this, &Views::ViewProjects::updateShotsView);
 
-    _stkProperties->addWidget(_viewPropertiesShots);
+    m_stkProperties->addWidget(m_viewPropertiesShots);
 
     //Assets
-    _viewPropertiesAssets = new Views::ViewAssets();
-    _viewPropertiesAssets->qtvAssets()->setRowHeight(25);
-    _viewPropertiesAssets->createAssetRequested().connect(this, &Views::ViewProjects::_createAssetRequested);
-    _qtvProjects->table()->selectionChanged().connect(this, &Views::ViewProjects::updateAssetsView);
+    m_viewPropertiesAssets = new Views::ViewAssets();
+    m_viewPropertiesAssets->qtvAssets()->setRowHeight(25);
+    m_viewPropertiesAssets->createAssetRequested().connect(this, &Views::ViewProjects::createAssetRequested);
+    m_qtvProjects->table()->selectionChanged().connect(this, &Views::ViewProjects::updateAssetsView);
 
-    _stkProperties->addWidget(_viewPropertiesAssets);
+    m_stkProperties->addWidget(m_viewPropertiesAssets);
 
     //Tasks
-    _viewPropertiesTasks = new Views::ViewTasks();
-    _viewPropertiesTasks->createTaskRequested().connect(this, &Views::ViewProjects::_createTasksRequested);
-    _viewPropertiesTasks->createTasksForTemplateRequested().connect(this, &Views::ViewProjects::_createTasksForTemplateRequested);
+    m_viewPropertiesTasks = new Views::ViewTasks();
+    m_viewPropertiesTasks->createTaskRequested().connect(this, &Views::ViewProjects::createTasksRequested);
+    m_viewPropertiesTasks->createTasksForTemplateRequested().connect(this, &Views::ViewProjects::createTasksForTemplateRequested);
 
-    _stkProperties->addWidget(_viewPropertiesTasks);
+    m_stkProperties->addWidget(m_viewPropertiesTasks);
 
     //TaskActivities
-    _viewPropertiesTaskActivities = new Views::ViewTaskActivity();
-    _viewPropertiesTaskActivities->createTaskActivityRequested().connect(this, &Views::ViewProjects::_createTaskActivityRequested);
-    _viewPropertiesTaskActivities->createTaskActivitiesForTemplateRequested().connect(this, &Views::ViewProjects::_createTaskActivitiesForTemplateRequested);
-    _viewPropertiesTaskActivities->removeTaskActivitiesRequested().connect(this, &Views::ViewProjects::_removeTaskActivitiesRequested);
+    m_viewPropertiesTaskActivities = new Views::ViewTaskActivity();
+    m_viewPropertiesTaskActivities->createTaskActivityRequested().connect(this, &Views::ViewProjects::createTaskActivityRequested);
+    m_viewPropertiesTaskActivities->createTaskActivitiesForTemplateRequested().connect(this, &Views::ViewProjects::createTaskActivitiesForTemplateRequested);
+    m_viewPropertiesTaskActivities->removeTaskActivitiesRequested().connect(this, &Views::ViewProjects::removeTaskActivitiesRequested);
 
-    _stkProperties->addWidget(_viewPropertiesTaskActivities);
+    m_stkProperties->addWidget(m_viewPropertiesTaskActivities);
 
     //Statistics
-    _viewPropertiesStatistics = new Ms::Widgets::MTableViewWidget();
-    _viewPropertiesStatistics->setImportCSVFeatureEnabled(false);
-    _stkProperties->addWidget(_viewPropertiesStatistics);
+    m_viewPropertiesStatistics = new Ms::Widgets::MTableViewWidget();
+    m_viewPropertiesStatistics->setImportCSVFeatureEnabled(false);
+    m_stkProperties->addWidget(m_viewPropertiesStatistics);
 
 
-    _mnuNavBarPropertiesDataItem->select();//default selected item
+    m_mnuNavBarPropertiesDataItem->select();//default selected item
 
-    _propertiesPanel->addPropertiesView(this->id(), _cntPropertiesMain);
+    m_propertiesPanel->addPropertiesView(this->id(), m_cntPropertiesMain);
 }
 
-void Views::ViewProjects::_updatePropertiesDataView()
+void Views::ViewProjects::updatePropertiesDataView()
 {
     Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
@@ -1923,7 +1923,7 @@ void Views::ViewProjects::_updatePropertiesDataView()
 
     int editRank = Session::SessionManager::instance().user()->editRank();
 
-    Ms::Widgets::MQueryTableViewWidget<Database::DboData> *_qtvPropertiesData = _viewPropertiesData->qtvData();
+    Ms::Widgets::MQueryTableViewWidget<Database::DboData> *_qtvPropertiesData = m_viewPropertiesData->qtvData();
 
     _qtvPropertiesData->clearColumns();
 
@@ -1935,23 +1935,23 @@ void Views::ViewProjects::_updatePropertiesDataView()
 
     bool update = false;
 
-    if(_stkMain->currentWidget() == _cntProjects)
+    if(m_stkMain->currentWidget() == m_cntProjects)
     {
-        if(_qtvProjects->table()->selectedIndexes().size() > 0)
+        if(m_qtvProjects->table()->selectedIndexes().size() > 0)
         {
             update = true;
-            query.where("Project_Project_Name IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::Project>(_qtvProjects->selectedItems()).at(0) + ")");
+            query.where("Project_Project_Name IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::Project>(m_qtvProjects->selectedItems()).at(0) + ")");
         }
 
         _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     }
-    else if(_stkMain->currentWidget() == _cntSequences)
+    else if(m_stkMain->currentWidget() == m_cntSequences)
     {
-        if(_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0)
+        if(m_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0)
         {
             update = true;
 
-            std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems());
+            std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectSequence>(m_viewSequences->qtvSequences()->selectedItems());
 
             query.where("project_sequence_Sequence_Name IN (" + idValues.at(0) + ")"
                         " AND Project_Sequence_Sequence_Project_Project_Name IN (" + idValues.at(1) + ")");
@@ -1960,13 +1960,13 @@ void Views::ViewProjects::_updatePropertiesDataView()
         _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Sequence_Sequence_Name", "Sequence Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
         _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Sequence_Sequence_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     }
-    else if(_stkMain->currentWidget() == _cntShots)
+    else if(m_stkMain->currentWidget() == m_cntShots)
     {
-        if(_viewShots->qtvShots()->table()->selectedIndexes().size() > 0)
+        if(m_viewShots->qtvShots()->table()->selectedIndexes().size() > 0)
         {
             update = true;
 
-            std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems());
+            std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectShot>(m_viewShots->qtvShots()->selectedItems());
 
             query.where("Project_Shot_Shot_Name IN (" + idValues.at(0) + ")"
                         " AND Project_Shot_Shot_Sequence_Sequence_Name IN (" + idValues.at(1) + ")"
@@ -1977,13 +1977,13 @@ void Views::ViewProjects::_updatePropertiesDataView()
         _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Shot_Shot_Sequence_Sequence_Name", "Sequence Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
         _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Shot_Shot_Sequence_Sequence_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     }
-    else if(_stkMain->currentWidget() == _cntAssets)
+    else if(m_stkMain->currentWidget() == m_cntAssets)
     {
-        if(_viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0)
+        if(m_viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0)
         {
             update = true;
 
-            std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems());
+            std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectAsset>(m_viewAssets->qtvAssets()->selectedItems());
 
             query.where("Project_Asset_Asset_Name IN (" + idValues.at(0) + ")"
                         " AND Project_Asset_Asset_Project_Project_Name IN (" + idValues.at(1) + ")");
@@ -1992,13 +1992,13 @@ void Views::ViewProjects::_updatePropertiesDataView()
         _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Asset_Asset_Name", "Asset Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
         _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Asset_Asset_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     }
-    else if(_stkMain->currentWidget() == _cntTasks)
+    else if(m_stkMain->currentWidget() == m_cntTasks)
     {
-        if(_viewTasks->qtvTasks()->table()->selectedIndexes().size() > 0)
+        if(m_viewTasks->qtvTasks()->table()->selectedIndexes().size() > 0)
         {
             update = true;
 
-            query.where("Project_Task_id IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems()).at(0) + ")");
+            query.where("Project_Task_id IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectTask>(m_viewTasks->qtvTasks()->selectedItems()).at(0) + ")");
         }
 
         _qtvPropertiesData->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Task_id", "Task ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
@@ -2026,7 +2026,7 @@ void Views::ViewProjects::_updatePropertiesDataView()
     _qtvPropertiesData->updateView();
 }
 
-void Views::ViewProjects::_updatePropertiesTagsView()
+void Views::ViewProjects::updatePropertiesTagsView()
 {
     try
     {
@@ -2041,7 +2041,7 @@ void Views::ViewProjects::_updatePropertiesTagsView()
 
         int editRank = Session::SessionManager::instance().user()->editRank();
 
-        Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesTags = _viewPropertiesTags->qtvTags();
+        Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesTags = m_viewPropertiesTags->qtvTags();
 
         _qtvPropertiesTags->clearColumns();
 
@@ -2053,11 +2053,11 @@ void Views::ViewProjects::_updatePropertiesTagsView()
 
         Wt::Dbo::Query<Wt::Dbo::ptr<Database::Tag>> query = Session::SessionManager::instance().dboSession().find<Database::Tag>();
 
-        if(_stkMain->currentWidget() == _cntProjects)
+        if(m_stkMain->currentWidget() == m_cntProjects)
         {
-            if(_qtvProjects->table()->selectedIndexes().size() > 0)
+            if(m_qtvProjects->table()->selectedIndexes().size() > 0)
             {
-                std::string projectsSelectSql = "(pt.project_Project_Name IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::Project>(_qtvProjects->selectedItems()).at(0) + "))";
+                std::string projectsSelectSql = "(pt.project_Project_Name IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::Project>(m_qtvProjects->selectedItems()).at(0) + "))";
                 query.where("(id IN (SELECT pt.tag_id FROM rel_project_tags pt WHERE " + projectsSelectSql + ") OR (Type IN ('Project', 'Global')))");
             }
             else
@@ -2065,9 +2065,9 @@ void Views::ViewProjects::_updatePropertiesTagsView()
         }
         else
         {
-            if(_qtvProjects->table()->selectedIndexes().size() > 0)
+            if(m_qtvProjects->table()->selectedIndexes().size() > 0)
             {
-                std::string projectsSelectSql = "(pt.project_Project_Name IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::Project>(_qtvProjects->selectedItems()).at(0) + "))";
+                std::string projectsSelectSql = "(pt.project_Project_Name IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::Project>(m_qtvProjects->selectedItems()).at(0) + "))";
                 query.where("(id IN (SELECT pt.tag_id FROM rel_project_tags pt WHERE " + projectsSelectSql + ") OR (Type = 'Global'))");
             }
             else
@@ -2092,11 +2092,11 @@ void Views::ViewProjects::_updatePropertiesTagsView()
     }
     catch(Wt::Dbo::Exception ex)
     {
-        _logger->log(std::string("error occured while trying to update tags view ") + ex.what(), Ms::Log::LogMessageType::Error);
+        m_logger->log(std::string("error occured while trying to update tags view ") + ex.what(), Ms::Log::LogMessageType::Error);
     }
 }
 
-void Views::ViewProjects::_updatePropertiesAssignedTagsView()
+void Views::ViewProjects::updatePropertiesAssignedTagsView()
 {
     try
     {
@@ -2111,7 +2111,7 @@ void Views::ViewProjects::_updatePropertiesAssignedTagsView()
 
         int editRank = Session::SessionManager::instance().user()->editRank();
 
-        Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesAssignedTags = _viewPropertiesTags->qtvAssignedTags();
+        Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvPropertiesAssignedTags = m_viewPropertiesTags->qtvAssignedTags();
 
         _qtvPropertiesAssignedTags->clearColumns();
 
@@ -2125,22 +2125,22 @@ void Views::ViewProjects::_updatePropertiesAssignedTagsView()
 
         bool update = false;
 
-        if(_stkMain->currentWidget() == _cntProjects)
+        if(m_stkMain->currentWidget() == m_cntProjects)
         {
-            if(_qtvProjects->table()->selectedIndexes().size() > 0)
+            if(m_qtvProjects->table()->selectedIndexes().size() > 0)
             {
                 update = true;
-                std::string projectsSelectSql = "(pt.project_Project_Name IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::Project>(_qtvProjects->selectedItems()).at(0) + "))";
+                std::string projectsSelectSql = "(pt.project_Project_Name IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::Project>(m_qtvProjects->selectedItems()).at(0) + "))";
                 query.where("(id IN (SELECT pt.tag_id FROM rel_project_assigned_tags pt WHERE " + projectsSelectSql + "))");
             }
         }
-        else if(_stkMain->currentWidget() == _cntSequences)
+        else if(m_stkMain->currentWidget() == m_cntSequences)
         {
-            if(_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0)
+            if(m_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0)
             {
                 update = true;
 
-                std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems());
+                std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectSequence>(m_viewSequences->qtvSequences()->selectedItems());
 
                 std::string sequencesSelectSql = "(pt.project_sequence_Sequence_Name IN (" + idValues.at(0) + ") AND "
                         "pt.project_sequence_Sequence_Project_Project_Name IN (" + idValues.at(1) + "))";
@@ -2148,13 +2148,13 @@ void Views::ViewProjects::_updatePropertiesAssignedTagsView()
                 query.where("(id IN (SELECT pt.tag_id FROM rel_project_sequence_assigned_tags pt WHERE " + sequencesSelectSql + "))");
             }
         }
-        else if(_stkMain->currentWidget() == _cntShots)
+        else if(m_stkMain->currentWidget() == m_cntShots)
         {
-            if(_viewShots->qtvShots()->table()->selectedIndexes().size() > 0)
+            if(m_viewShots->qtvShots()->table()->selectedIndexes().size() > 0)
             {
                 update = true;
 
-                std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems());
+                std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectShot>(m_viewShots->qtvShots()->selectedItems());
 
                 std::string shotsSelectSql = "(pt.project_shot_Shot_Name IN (" + idValues.at(0) + ") AND "
                         "pt.project_shot_Shot_Sequence_Sequence_Name IN (" + idValues.at(1) + ") AND "
@@ -2163,13 +2163,13 @@ void Views::ViewProjects::_updatePropertiesAssignedTagsView()
                 query.where("(id IN (SELECT pt.tag_id FROM rel_project_shot_assigned_tags pt WHERE " + shotsSelectSql + "))");
             }
         }
-        else if(_stkMain->currentWidget() == _cntAssets)
+        else if(m_stkMain->currentWidget() == m_cntAssets)
         {
-            if(_viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0)
+            if(m_viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0)
             {
                 update = true;
 
-                std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems());
+                std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectAsset>(m_viewAssets->qtvAssets()->selectedItems());
 
                 std::string assetsSelectSql = "(pt.project_asset_Asset_Name IN (" + idValues.at(0) + ") AND "
                         "pt.project_asset_Asset_Project_Project_Name IN (" + idValues.at(1) + "))";
@@ -2177,13 +2177,13 @@ void Views::ViewProjects::_updatePropertiesAssignedTagsView()
                 query.where("(id IN (SELECT pt.tag_id FROM rel_project_asset_assigned_tags pt WHERE " + assetsSelectSql + "))");
             }
         }
-        else if(_stkMain->currentWidget() == _cntTasks)
+        else if(m_stkMain->currentWidget() == m_cntTasks)
         {
-            if(_viewTasks->qtvTasks()->table()->selectedIndexes().size() > 0)
+            if(m_viewTasks->qtvTasks()->table()->selectedIndexes().size() > 0)
             {
                 update = true;
 
-                std::string tasksSelectSql = "(pt.project_task_id IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems()).at(0) + "))";
+                std::string tasksSelectSql = "(pt.project_task_id IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectTask>(m_viewTasks->qtvTasks()->selectedItems()).at(0) + "))";
 
                 query.where("(id IN (SELECT pt.tag_id FROM rel_project_task_assigned_tags pt WHERE " + tasksSelectSql + "))");
             }
@@ -2212,11 +2212,11 @@ void Views::ViewProjects::_updatePropertiesAssignedTagsView()
     }
     catch(Wt::Dbo::Exception ex)
     {
-        _logger->log(std::string("error occured while trying to update assigned tags view ") + ex.what(), Ms::Log::LogMessageType::Error);
+        m_logger->log(std::string("error occured while trying to update assigned tags view ") + ex.what(), Ms::Log::LogMessageType::Error);
     }
 }
 
-void Views::ViewProjects::_updatePropertiesNotesView()
+void Views::ViewProjects::updatePropertiesNotesView()
 {
     Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
@@ -2229,7 +2229,7 @@ void Views::ViewProjects::_updatePropertiesNotesView()
 
     int editRank = Session::SessionManager::instance().user()->editRank();
 
-    Ms::Widgets::MQueryTableViewWidget<Database::Note> *_qtvPropertiesNotes = _viewPropertiesNotes->qtvNotes();
+    Ms::Widgets::MQueryTableViewWidget<Database::Note> *_qtvPropertiesNotes = m_viewPropertiesNotes->qtvNotes();
 
     _qtvPropertiesNotes->clearColumns();
 
@@ -2241,23 +2241,23 @@ void Views::ViewProjects::_updatePropertiesNotesView()
 
     bool update = false;
 
-    if(_stkMain->currentWidget() == _cntProjects)
+    if(m_stkMain->currentWidget() == m_cntProjects)
     {
-        if(_qtvProjects->table()->selectedIndexes().size() > 0)
+        if(m_qtvProjects->table()->selectedIndexes().size() > 0)
         {
             update = true;
-            query.where("Project_Project_Name IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::Project>(_qtvProjects->selectedItems()).at(0) + ")");
+            query.where("Project_Project_Name IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::Project>(m_qtvProjects->selectedItems()).at(0) + ")");
         }
 
         _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     }
-    else if(_stkMain->currentWidget() == _cntSequences)
+    else if(m_stkMain->currentWidget() == m_cntSequences)
     {
-        if(_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0)
+        if(m_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0)
         {
             update = true;
 
-            std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectSequence>(_viewSequences->qtvSequences()->selectedItems());
+            std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectSequence>(m_viewSequences->qtvSequences()->selectedItems());
 
             query.where("project_sequence_Sequence_Name IN (" + idValues.at(0) + ")"
                         " AND Project_Sequence_Sequence_Project_Project_Name IN (" + idValues.at(1) + ")");
@@ -2266,13 +2266,13 @@ void Views::ViewProjects::_updatePropertiesNotesView()
         _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Sequence_Sequence_Name", "Sequence Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
         _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Sequence_Sequence_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     }
-    else if(_stkMain->currentWidget() == _cntShots)
+    else if(m_stkMain->currentWidget() == m_cntShots)
     {
-        if(_viewShots->qtvShots()->table()->selectedIndexes().size() > 0)
+        if(m_viewShots->qtvShots()->table()->selectedIndexes().size() > 0)
         {
             update = true;
 
-            std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectShot>(_viewShots->qtvShots()->selectedItems());
+            std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectShot>(m_viewShots->qtvShots()->selectedItems());
 
             query.where("Project_Shot_Shot_Name IN (" + idValues.at(0) + ")"
                         " AND Project_Shot_Shot_Sequence_Sequence_Name IN (" + idValues.at(1) + ")"
@@ -2283,13 +2283,13 @@ void Views::ViewProjects::_updatePropertiesNotesView()
         _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Shot_Shot_Sequence_Sequence_Name", "Sequence Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
         _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Shot_Shot_Sequence_Sequence_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     }
-    else if(_stkMain->currentWidget() == _cntAssets)
+    else if(m_stkMain->currentWidget() == m_cntAssets)
     {
-        if(_viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0)
+        if(m_viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0)
         {
             update = true;
 
-            std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectAsset>(_viewAssets->qtvAssets()->selectedItems());
+            std::vector<std::string> idValues = Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectAsset>(m_viewAssets->qtvAssets()->selectedItems());
 
             query.where("Project_Asset_Asset_Name IN (" + idValues.at(0) + ")"
                         " AND Project_Asset_Asset_Project_Project_Name IN (" + idValues.at(1) + ")");
@@ -2298,13 +2298,13 @@ void Views::ViewProjects::_updatePropertiesNotesView()
         _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Asset_Asset_Name", "Asset Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
         _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Asset_Asset_Project_Project_Name", "Project Name", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
     }
-    else if(_stkMain->currentWidget() == _cntTasks)
+    else if(m_stkMain->currentWidget() == m_cntTasks)
     {
-        if(_viewTasks->qtvTasks()->table()->selectedIndexes().size() > 0)
+        if(m_viewTasks->qtvTasks()->table()->selectedIndexes().size() > 0)
         {
             update = true;
 
-            query.where("Project_Task_id IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectTask>(_viewTasks->qtvTasks()->selectedItems()).at(0) + ")");
+            query.where("Project_Task_id IN (" + Session::SessionManager::instance().dboSession().getDboQueryIdValues<Projects::ProjectTask>(m_viewTasks->qtvTasks()->selectedItems()).at(0) + ")");
         }
 
         _qtvPropertiesNotes->addColumn(Ms::Widgets::MQueryTableViewColumn("Project_Task_id", "Task ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate(editRank), true));
@@ -2332,81 +2332,81 @@ void Views::ViewProjects::_updatePropertiesNotesView()
     _qtvPropertiesNotes->updateView();
 }
 
-void Views::ViewProjects::_updatePropertiesSequencesView()
+void Views::ViewProjects::updatePropertiesSequencesView()
 {
-    _viewPropertiesSequences->updateView(_qtvProjects->selectedItems());
+    m_viewPropertiesSequences->updateView(m_qtvProjects->selectedItems());
 }
 
-void Views::ViewProjects::_updatePropertiesShotsView()
+void Views::ViewProjects::updatePropertiesShotsView()
 {
-    _viewPropertiesShots->updateView(_viewSequences->qtvSequences()->selectedItems());
+    m_viewPropertiesShots->updateView(m_viewSequences->qtvSequences()->selectedItems());
 }
 
-void Views::ViewProjects::_updatePropertiesAssetsView()
+void Views::ViewProjects::updatePropertiesAssetsView()
 {
-    _viewPropertiesAssets->updateView(_qtvProjects->selectedItems());
+    m_viewPropertiesAssets->updateView(m_qtvProjects->selectedItems());
 }
 
-void Views::ViewProjects::_updatePropertiesTasksView()
+void Views::ViewProjects::updatePropertiesTasksView()
 {
     std::vector<Wt::Dbo::ptr<Projects::Project>> prjVec;
     std::vector<Wt::Dbo::ptr<Projects::ProjectSequence>> seqVec;
     std::vector<Wt::Dbo::ptr<Projects::ProjectShot>> shotVec;
     std::vector<Wt::Dbo::ptr<Projects::ProjectAsset>> assetVec;
 
-    if(_stkMain->currentWidget() == _cntProjects)
+    if(m_stkMain->currentWidget() == m_cntProjects)
     {
-        if(_qtvProjects->table()->selectedIndexes().size() > 0)
-            prjVec = _qtvProjects->selectedItems();
+        if(m_qtvProjects->table()->selectedIndexes().size() > 0)
+            prjVec = m_qtvProjects->selectedItems();
     }
-    else if(_stkMain->currentWidget() == _cntSequences)
+    else if(m_stkMain->currentWidget() == m_cntSequences)
     {
-        if(_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0)
-            seqVec = _viewSequences->qtvSequences()->selectedItems();
+        if(m_viewSequences->qtvSequences()->table()->selectedIndexes().size() > 0)
+            seqVec = m_viewSequences->qtvSequences()->selectedItems();
     }
-    else if(_stkMain->currentWidget() == _cntShots)
+    else if(m_stkMain->currentWidget() == m_cntShots)
     {
-        if(_viewShots->qtvShots()->table()->selectedIndexes().size() > 0)
-            shotVec =  _viewShots->qtvShots()->selectedItems();
+        if(m_viewShots->qtvShots()->table()->selectedIndexes().size() > 0)
+            shotVec =  m_viewShots->qtvShots()->selectedItems();
     }
-    else if(_stkMain->currentWidget() == _cntAssets)
+    else if(m_stkMain->currentWidget() == m_cntAssets)
     {
-        if(_viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0)
-            assetVec = _viewAssets->qtvAssets()->selectedItems();
+        if(m_viewAssets->qtvAssets()->table()->selectedIndexes().size() > 0)
+            assetVec = m_viewAssets->qtvAssets()->selectedItems();
     }
 
-    _viewPropertiesTasks->updateView(prjVec, seqVec, shotVec, assetVec);
+    m_viewPropertiesTasks->updateView(prjVec, seqVec, shotVec, assetVec);
 }
 
-void Views::ViewProjects::_updatePropertiesTaskActivitiesView()
+void Views::ViewProjects::updatePropertiesTaskActivitiesView()
 {
-    _viewPropertiesTaskActivities->updateView(_viewTasks->qtvTasks()->selectedItems());
+    m_viewPropertiesTaskActivities->updateView(m_viewTasks->qtvTasks()->selectedItems());
 }
 
-void Views::ViewProjects::_updatePropertiesStatisticsView()
+void Views::ViewProjects::updatePropertiesStatisticsView()
 {
     Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-    _viewPropertiesStatistics->clear();
+    m_viewPropertiesStatistics->clear();
 
-    if(_stkMain->currentWidget() == _cntProjects)
+    if(m_stkMain->currentWidget() == m_cntProjects)
     {
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Project Name"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Progress"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Hours"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Hours"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Sequences"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Sequences"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Shots"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Shots"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Assets"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Assets"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Tasks"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Tasks"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Activities"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Activities"));      
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Project Name"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Progress"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Hours"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Hours"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Sequences"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Sequences"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Shots"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Shots"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Assets"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Assets"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Tasks"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Tasks"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Activities"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Activities"));      
 
-        for(Wt::Dbo::ptr<Projects::Project> &project : _qtvProjects->selectedItems())
+        for(Wt::Dbo::ptr<Projects::Project> &project : m_qtvProjects->selectedItems())
         {
             std::vector<Wt::WStandardItem*> items;
 
@@ -2425,24 +2425,24 @@ void Views::ViewProjects::_updatePropertiesStatisticsView()
             items.push_back(new Wt::WStandardItem(std::to_string(project->totalActivities()).c_str()));
             items.push_back(new Wt::WStandardItem(std::to_string(project->doneActivities()).c_str()));
 
-            _viewPropertiesStatistics->model()->appendRow(items);
+            m_viewPropertiesStatistics->model()->appendRow(items);
         }
     }
-    else if(_stkMain->currentWidget() == _cntSequences)
+    else if(m_stkMain->currentWidget() == m_cntSequences)
     {
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Project Name"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Sequence Name"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Progress"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Hours"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Hours"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Shots"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Shots"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Tasks"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Tasks"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Activities"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Activities"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Project Name"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Sequence Name"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Progress"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Hours"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Hours"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Shots"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Shots"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Tasks"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Tasks"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Activities"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Activities"));
 
-        for(Wt::Dbo::ptr<Projects::ProjectSequence> &seq : _viewSequences->qtvSequences()->selectedItems())
+        for(Wt::Dbo::ptr<Projects::ProjectSequence> &seq : m_viewSequences->qtvSequences()->selectedItems())
         {
             std::vector<Wt::WStandardItem*> items;
 
@@ -2458,23 +2458,23 @@ void Views::ViewProjects::_updatePropertiesStatisticsView()
             items.push_back(new Wt::WStandardItem(std::to_string(seq->totalActivities()).c_str()));
             items.push_back(new Wt::WStandardItem(std::to_string(seq->doneActivities()).c_str()));
 
-            _viewPropertiesStatistics->model()->appendRow(items);
+            m_viewPropertiesStatistics->model()->appendRow(items);
         }
     }
-    else if(_stkMain->currentWidget() == _cntShots)
+    else if(m_stkMain->currentWidget() == m_cntShots)
     {
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Project Name"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Sequence Name"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Shot Name"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Progress"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Hours"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Hours"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Tasks"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Tasks"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Activities"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Activities"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Project Name"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Sequence Name"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Shot Name"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Progress"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Hours"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Hours"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Tasks"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Tasks"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Activities"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Activities"));
 
-        for(Wt::Dbo::ptr<Projects::ProjectShot> &shot : _viewShots->qtvShots()->selectedItems())
+        for(Wt::Dbo::ptr<Projects::ProjectShot> &shot : m_viewShots->qtvShots()->selectedItems())
         {
             std::vector<Wt::WStandardItem*> items;
 
@@ -2489,22 +2489,22 @@ void Views::ViewProjects::_updatePropertiesStatisticsView()
             items.push_back(new Wt::WStandardItem(std::to_string(shot->totalActivities()).c_str()));
             items.push_back(new Wt::WStandardItem(std::to_string(shot->doneActivities()).c_str()));
 
-            _viewPropertiesStatistics->model()->appendRow(items);
+            m_viewPropertiesStatistics->model()->appendRow(items);
         }
     }
-    else if(_stkMain->currentWidget() == _cntAssets)
+    else if(m_stkMain->currentWidget() == m_cntAssets)
     {
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Project Name"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Asset Name"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Progress"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Hours"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Hours"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Tasks"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Finished Tasks"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Activities"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Finished Activities"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Project Name"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Asset Name"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Progress"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Hours"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Hours"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Tasks"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Finished Tasks"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Activities"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Finished Activities"));
 
-        for(Wt::Dbo::ptr<Projects::ProjectAsset> &asset : _viewAssets->qtvAssets()->selectedItems())
+        for(Wt::Dbo::ptr<Projects::ProjectAsset> &asset : m_viewAssets->qtvAssets()->selectedItems())
         {
             std::vector<Wt::WStandardItem*> items;
 
@@ -2518,19 +2518,19 @@ void Views::ViewProjects::_updatePropertiesStatisticsView()
             items.push_back(new Wt::WStandardItem(std::to_string(asset->totalActivities()).c_str()));
             items.push_back(new Wt::WStandardItem(std::to_string(asset->doneActivities()).c_str()));
 
-            _viewPropertiesStatistics->model()->appendRow(items);
+            m_viewPropertiesStatistics->model()->appendRow(items);
         }
     }
-    else if(_stkMain->currentWidget() == _cntTasks)
+    else if(m_stkMain->currentWidget() == m_cntTasks)
     {
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Task Id"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Progress"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Hours"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Hours"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Activities"));
-        _viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Finished Activities"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Task Id"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Progress"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Hours"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Done Hours"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Total Activities"));
+        m_viewPropertiesStatistics->addColumn(Ms::Core::MTableViewColumn("Finished Activities"));
 
-        for(Wt::Dbo::ptr<Projects::ProjectTask> &task : _viewTasks->qtvTasks()->selectedItems())
+        for(Wt::Dbo::ptr<Projects::ProjectTask> &task : m_viewTasks->qtvTasks()->selectedItems())
         {
             std::vector<Wt::WStandardItem*> items;
 
@@ -2541,134 +2541,134 @@ void Views::ViewProjects::_updatePropertiesStatisticsView()
             items.push_back(new Wt::WStandardItem(std::to_string(task->totalActivities()).c_str()));
             items.push_back(new Wt::WStandardItem(std::to_string(task->doneActivities()).c_str()));
 
-            _viewPropertiesStatistics->model()->appendRow(items);
+            m_viewPropertiesStatistics->model()->appendRow(items);
         }
     }
 
     transaction.commit();
 }
 
-void Views::ViewProjects::_prepareView()
+void Views::ViewProjects::prepareView()
 {
     /*******************--Project--********************/
     setTitle("<b><i>Projects</i></b>");
 
-    Wt::WVBoxLayout *_layMain = dynamic_cast<Wt::WVBoxLayout*>(layout());
-    _layMain->setContentsMargins(14,0,14,14);
+    Wt::WVBoxLayout *m_layMain = dynamic_cast<Wt::WVBoxLayout*>(layout());
+    m_layMain->setContentsMargins(14,0,14,14);
 
-    _navBarMain= new Wt::WNavigationBar();
+    m_navBarMain= new Wt::WNavigationBar();
 
-    _cntNavBarMain= new Wt::WContainerWidget();
-    _cntNavBarMain->addWidget(_navBarMain);
+    m_cntNavBarMain= new Wt::WContainerWidget();
+    m_cntNavBarMain->addWidget(m_navBarMain);
 
     //add our navigation bar to the view
-    _layMain->addWidget(_cntNavBarMain);
+    m_layMain->addWidget(m_cntNavBarMain);
 
-    _mnuMain = new Wt::WMenu(Wt::Horizontal);
-    _navBarMain->addMenu(_mnuMain);
+    m_mnuMain = new Wt::WMenu(Wt::Horizontal);
+    m_navBarMain->addMenu(m_mnuMain);
 
-    _mnuMainProjectsItem = new Wt::WMenuItem("Projects");
-    _mnuMainProjectsItem->triggered().connect(this, &Views::ViewProjects::_mnuMainProjectsItemTriggered);
-    _mnuMain->addItem(_mnuMainProjectsItem);
+    m_mnuMainProjectsItem = new Wt::WMenuItem("Projects");
+    m_mnuMainProjectsItem->triggered().connect(this, &Views::ViewProjects::mnuMainProjectsItemTriggered);
+    m_mnuMain->addItem(m_mnuMainProjectsItem);
 
-    _mnuMainSequencesItem = new Wt::WMenuItem("Sequences");
-    _mnuMainSequencesItem->triggered().connect(this, &Views::ViewProjects::_mnuMainSequencesItemTriggered);
-    _mnuMain->addItem(_mnuMainSequencesItem);
+    m_mnuMainSequencesItem = new Wt::WMenuItem("Sequences");
+    m_mnuMainSequencesItem->triggered().connect(this, &Views::ViewProjects::mnuMainSequencesItemTriggered);
+    m_mnuMain->addItem(m_mnuMainSequencesItem);
 
-    _mnuMainShotsItem = new Wt::WMenuItem("Shots");
-    _mnuMainShotsItem->triggered().connect(this, &Views::ViewProjects::_mnuMainShotsItemTriggered);
-    _mnuMain->addItem(_mnuMainShotsItem);
+    m_mnuMainShotsItem = new Wt::WMenuItem("Shots");
+    m_mnuMainShotsItem->triggered().connect(this, &Views::ViewProjects::mnuMainShotsItemTriggered);
+    m_mnuMain->addItem(m_mnuMainShotsItem);
 
-    _mnuMainAssetsItem = new Wt::WMenuItem("Assets");
-    _mnuMainAssetsItem->triggered().connect(this, &Views::ViewProjects::_mnuMainAssetsItemTriggered);
-    _mnuMain->addItem(_mnuMainAssetsItem);
+    m_mnuMainAssetsItem = new Wt::WMenuItem("Assets");
+    m_mnuMainAssetsItem->triggered().connect(this, &Views::ViewProjects::mnuMainAssetsItemTriggered);
+    m_mnuMain->addItem(m_mnuMainAssetsItem);
 
-    _mnuMainTasksItem = new Wt::WMenuItem("Tasks");
-    _mnuMainTasksItem->triggered().connect(this, &Views::ViewProjects::_mnuMainTasksItemTriggered);
-    _mnuMain->addItem(_mnuMainTasksItem);
+    m_mnuMainTasksItem = new Wt::WMenuItem("Tasks");
+    m_mnuMainTasksItem->triggered().connect(this, &Views::ViewProjects::mnuMainTasksItemTriggered);
+    m_mnuMain->addItem(m_mnuMainTasksItem);
 
-    _stkMain = new Wt::WStackedWidget();
-    _stkMain->setTransitionAnimation(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Fade, Wt::WAnimation::TimingFunction::EaseInOut), true);
+    m_stkMain = new Wt::WStackedWidget();
+    m_stkMain->setTransitionAnimation(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Fade, Wt::WAnimation::TimingFunction::EaseInOut), true);
 
-    _layMain->addWidget(_stkMain, 1);
+    m_layMain->addWidget(m_stkMain, 1);
 
     //Projects//////////////////////////////////////
-    _layProjects = new Wt::WVBoxLayout();
-    _layProjects->setContentsMargins(0,0,0,0);
-    _layProjects->setSpacing(0);
+    m_layProjects = new Wt::WVBoxLayout();
+    m_layProjects->setContentsMargins(0,0,0,0);
+    m_layProjects->setSpacing(0);
 
-    _cntProjects = new Wt::WContainerWidget();
-    _cntProjects->setLayout(_layProjects);
+    m_cntProjects = new Wt::WContainerWidget();
+    m_cntProjects->setLayout(m_layProjects);
 
     //add our projects view to the project view
-    _stkMain->addWidget(_cntProjects);
+    m_stkMain->addWidget(m_cntProjects);
 
-    _createProjectsTableView();
+    createProjectsTableView();
 
-    _layProjects->addWidget(_qtvProjects, 1);
+    m_layProjects->addWidget(m_qtvProjects, 1);
 
     //Sequences//////////////////////////////////////
-    _laySequences = new Wt::WVBoxLayout();
-    _laySequences->setContentsMargins(0,0,0,0);
-    _laySequences->setSpacing(0);
+    m_laySequences = new Wt::WVBoxLayout();
+    m_laySequences->setContentsMargins(0,0,0,0);
+    m_laySequences->setSpacing(0);
 
-    _cntSequences = new Wt::WContainerWidget();
-    _cntSequences->setLayout(_laySequences);
+    m_cntSequences = new Wt::WContainerWidget();
+    m_cntSequences->setLayout(m_laySequences);
 
     //add our sequences view to the project view
-    _stkMain->addWidget(_cntSequences);
+    m_stkMain->addWidget(m_cntSequences);
 
-    _createSequencesTableView();
+    createSequencesTableView();
 
-    _laySequences->addWidget(_viewSequences, 1);
+    m_laySequences->addWidget(m_viewSequences, 1);
 
     //Shots///////////////////////////
-    _layShots = new Wt::WVBoxLayout();
-    _layShots->setContentsMargins(0,0,0,0);
-    _layShots->setSpacing(0);
+    m_layShots = new Wt::WVBoxLayout();
+    m_layShots->setContentsMargins(0,0,0,0);
+    m_layShots->setSpacing(0);
 
-    _cntShots = new Wt::WContainerWidget();
-    _cntShots->setLayout(_layShots);
+    m_cntShots = new Wt::WContainerWidget();
+    m_cntShots->setLayout(m_layShots);
 
     //add our shots view to the project view
-    _stkMain->addWidget(_cntShots);
+    m_stkMain->addWidget(m_cntShots);
 
-    _createShotsTableView();
+    createShotsTableView();
 
-    _layShots->addWidget(_viewShots, 1);
+    m_layShots->addWidget(m_viewShots, 1);
 
     //Assets//////////////////////////////////////
-    _layAssets = new Wt::WVBoxLayout();
-    _layAssets->setContentsMargins(0,0,0,0);
-    _layAssets->setSpacing(0);
+    m_layAssets = new Wt::WVBoxLayout();
+    m_layAssets->setContentsMargins(0,0,0,0);
+    m_layAssets->setSpacing(0);
 
-    _cntAssets = new Wt::WContainerWidget();
-    _cntAssets->setLayout(_layAssets);
+    m_cntAssets = new Wt::WContainerWidget();
+    m_cntAssets->setLayout(m_layAssets);
 
     //add our Assets view to the project view
-    _stkMain->addWidget(_cntAssets);
+    m_stkMain->addWidget(m_cntAssets);
 
-    _createAssetsTableView();
+    createAssetsTableView();
 
-    _layAssets->addWidget(_viewAssets, 1);
+    m_layAssets->addWidget(m_viewAssets, 1);
 
     //Tasks///////////////////////////
-    _layTasks = new Wt::WVBoxLayout();
-    _layTasks->setContentsMargins(0,0,0,0);
-    _layTasks->setSpacing(0);
+    m_layTasks = new Wt::WVBoxLayout();
+    m_layTasks->setContentsMargins(0,0,0,0);
+    m_layTasks->setSpacing(0);
 
-    _cntTasks = new Wt::WContainerWidget();
-    _cntTasks->setLayout(_layTasks);
+    m_cntTasks = new Wt::WContainerWidget();
+    m_cntTasks->setLayout(m_layTasks);
 
     //add our tasks view to the project view
-    _stkMain->addWidget(_cntTasks);
+    m_stkMain->addWidget(m_cntTasks);
 
-    _createTasksTableView();
+    createTasksTableView();
 
-    _layTasks->addWidget(_viewTasks, 1);
+    m_layTasks->addWidget(m_viewTasks, 1);
 
     //Properties View
-    _createPropertiesView();
+    createPropertiesView();
 
     //updateViews
     updateSequencesView();

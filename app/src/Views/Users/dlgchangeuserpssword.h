@@ -23,17 +23,17 @@ namespace Views
 
     private:
         //variables
-        Wt::WVBoxLayout *_layMain;
-        Wt::WLineEdit *_txtPass;
-        Wt::WPushButton *_btnOk;
-        Wt::WPushButton *_btnCancel;
+        Wt::WVBoxLayout *m_layMain;
+        Wt::WLineEdit *m_txtPass;
+        Wt::WPushButton *m_btnOk;
+        Wt::WPushButton *m_btnCancel;
 
         //functions
-        void _prepareView();
-        bool _validate();
+        void prepareView();
+        bool validate();
 
         //slots
-        void _btnOkClicked();
+        void btnOkClicked();
     };
 }
 

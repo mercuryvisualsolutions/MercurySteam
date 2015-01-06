@@ -8,7 +8,7 @@ Ms::Exceptions::MNullPointerException::MNullPointerException() throw() :
 Ms::Exceptions::MNullPointerException::MNullPointerException(const std::string &message) throw() :
     MNullPointerException()
 {
-    _message = message;
+    m_message = message;
 }
 
 Ms::Exceptions::MNullPointerException::~MNullPointerException()
@@ -17,5 +17,5 @@ Ms::Exceptions::MNullPointerException::~MNullPointerException()
 
 const char *Ms::Exceptions::MNullPointerException::what() throw()
 {
-    return _message.c_str();
+    return m_message.c_str();
 }

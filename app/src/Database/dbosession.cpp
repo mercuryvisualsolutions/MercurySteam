@@ -13,25 +13,25 @@
 
 Database::DboSession::DboSession(Wt::Dbo::SqlConnectionPool &connectionPool) :
     Ms::Core::Dbo::MDboSession(connectionPool),
-    _users(*this)
+    m_users(*this)
 {
     mapClasses();
 }
 
 Database::UserDatabase &Database::DboSession::users()
 {
-    return _users;
+    return m_users;
 }
 
 Wt::Auth::Login &Database::DboSession::login()
 {
-    return _login;
+    return m_login;
 }
 
 Wt::Dbo::ptr<Users::User> Database::DboSession::user() const
 {
-    if(_login.loggedIn())
-        return _users.find(_login.user());
+    if(m_login.loggedIn())
+        return m_users.find(m_login.user());
     else
         return Wt::Dbo::ptr<Users::User>();
 }

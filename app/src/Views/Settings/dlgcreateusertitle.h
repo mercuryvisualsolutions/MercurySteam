@@ -26,19 +26,19 @@ namespace Views
 
     private:
         //variables
-        Wt::WVBoxLayout *_layMain;
-        Wt::WLineEdit *_txtTitle;
-        Wt::WComboBox *_cmbActive;
-        Wt::WPushButton *_btnOk;
-        Wt::WPushButton *_btnCancel;
+        Wt::WVBoxLayout *m_layMain;
+        Wt::WLineEdit *m_txtTitle;
+        Wt::WComboBox *m_cmbActive;
+        Wt::WPushButton *m_btnOk;
+        Wt::WPushButton *m_btnCancel;
 
         //functions
-        void _prepareView();
-        bool _validate();
+        void prepareView();
+        bool validate();
 
         //slots
         void _txtTitleKeyWentUp();
-        void _btnOkClicked();
+        void btnOkClicked();
     };
 }
 #endif // DLGCREATETITLE_H

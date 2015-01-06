@@ -26,10 +26,10 @@ namespace Views
     private:
         //variables
         //Wt's
-        Wt::WVBoxLayout *_layMain;
+        Wt::WVBoxLayout *m_layMain;
 
         //functions
-        void _prepareView();
+        void prepareView();
     };
 }
 

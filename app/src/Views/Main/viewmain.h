@@ -22,28 +22,25 @@ namespace Views
 
     private:
         //variables
-        bool _applicationCreated;
+        bool m_applicationCreated;
         //UI
-        Log::Logger *_logger;
-        Wt::WStackedWidget *_stkMain;
-        Wt::WVBoxLayout *_layMain;
+        Log::Logger *m_logger;
+        Wt::WStackedWidget *m_stkMain;
+        Wt::WVBoxLayout *m_layMain;
         //auth view
-        Wt::WVBoxLayout *_layCntAuth;
-        Wt::WContainerWidget *_cntAuth;
-        Wt::Auth::AuthWidget *_authWidget;
+        Wt::WVBoxLayout *m_layCntAuth;
+        Wt::WContainerWidget *m_cntAuth;
+        Wt::Auth::AuthWidget *m_authWidget;
 
         //functions
         void loggedIn();
         void loggedOut();
-        void _showAppView();
-        void _prepareView();
-        void _prepareAppView(Wt::WStackedWidget *widget);
+        void showAppView();
+        void prepareView();
+        void prepareAppView(Wt::WStackedWidget *widget);
 
         //variables
-        Views::ViewApp *viwApp;
-        bool _appCreated;
-        
-
+        Views::ViewApp *m_viewApp;
     };
 }
 

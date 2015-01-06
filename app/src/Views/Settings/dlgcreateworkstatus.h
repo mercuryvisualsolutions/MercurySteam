@@ -36,22 +36,22 @@ namespace Views
         //variables
         
         //UI
-        Wt::WVBoxLayout *_layMain;
-        Wt::WLineEdit *_txtType;
-        Wt::WComboBox *_cmbType;
-        Wt::WContainerWidget *_cntCmbType;
-        Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatusType>> *_mdlCmbType;
-        Wt::WComboBox *_cmbActive;
-        Wt::WPushButton *_btnOk;
-        Wt::WPushButton *_btnCancel;
+        Wt::WVBoxLayout *m_layMain;
+        Wt::WLineEdit *m_txtType;
+        Wt::WComboBox *m_cmbType;
+        Wt::WContainerWidget *m_cntCmbType;
+        Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatusType>> *m_mdlCmbType;
+        Wt::WComboBox *m_cmbActive;
+        Wt::WPushButton *m_btnOk;
+        Wt::WPushButton *m_btnCancel;
 
         //functions
-        void _prepareView();
-        void _createCmbType();
-        bool _validate();
+        void prepareView();
+        void createCmbType();
+        bool validate();
 
         //slots
-        void _btnOkClicked();
+        void btnOkClicked();
     };
 }
 

@@ -38,19 +38,19 @@ namespace Ms
                 bool _keepFiles;
 
                 //Wt
-                Wt::WVBoxLayout *_layContents;
-                Wt::WFileUpload *_filesUpload;
-                Wt::WProgressBar *_prgsBarUpload;
-                Wt::WLabel *_lblStatus;
-                Wt::WPushButton *_btnUpload;
-                Wt::WPushButton *_btnCancel;
+                Wt::WVBoxLayout *m_layContents;
+                Wt::WFileUpload *m_filesUpload;
+                Wt::WProgressBar *m_prgsBarUpload;
+                Wt::WLabel *m_lblStatus;
+                Wt::WPushButton *m_btnUpload;
+                Wt::WPushButton *m_btnCancel;
 
-                void _prepareView();
+                void prepareView();
 
                 //slots
-                void _btnUploadClicked();
-                void _uploadSuccessfull();
-                void _fileTooLarge();
+                void btnUploadClicked();
+                void uploadSuccessfull();
+                void fileTooLarge();
             };
         }
     }

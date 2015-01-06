@@ -32,21 +32,8 @@ namespace Ms
             template<typename T>
             void putSetting(const std::string &fileName, const std::string &keyPath, const T &value);
 
-        private:
-            //variables
-
-            //functions
-            void _saveSettings(const std::string &fileName, const boost::property_tree::ptree &pt);
-            boost::property_tree::ptree _loadSettings(const std::string &fileName);
-
-            template<typename T>
-            T _getSetting(const std::string &fileName, const std::string &keyPath);
-
-            template<typename T>
-            void _putSetting(const std::string &fileName, const std::string &keyPath, const T &value);
-
         protected:
-            std::string settingsFileName_;
+            std::string m_settingsFileName;
         };
     }
 }

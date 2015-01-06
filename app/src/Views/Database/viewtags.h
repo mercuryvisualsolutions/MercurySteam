@@ -33,46 +33,46 @@ namespace Views
 
     private:
         //Variables
-        Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvTags;
-        Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvAssignedTags;
+        Ms::Widgets::MQueryTableViewWidget<Database::Tag> *m_qtvTags;
+        Ms::Widgets::MQueryTableViewWidget<Database::Tag> *m_qtvAssignedTags;
         
 
         //UI variables
-        Wt::WVBoxLayout *_layMain;
-        Wt::WContainerWidget *_cntTags;
-        Wt::WVBoxLayout *_layCntTags;
-        Ms::Widgets::MContainerWidget *_cntAssignedTags;
-        Ms::Widgets::MContainerWidget *_cntAvailableTags;
-        Wt::WPushButton *_btnCreateTag;
-        Wt::WPushButton *_btnAssignTags;
-        Wt::WPushButton *_btnUnassignTags;
-        Wt::WPushButton *_btnFilterByTags;
-        Wt::WPushButton *_btnClearTagsFilter;
-        Wt::WPopupMenu *_mnuFilterByTags;
-        Wt::WMenuItem *_mnuFilterByTagsExactSelectionItem;
-        Wt::WMenuItem *_mnuFilterByTagsAnyOfSelectionItem;
-        Wt::WMenuItem *_mnuFilterByTagsNotInSelectionItem;
+        Wt::WVBoxLayout *m_layMain;
+        Wt::WContainerWidget *m_cntTags;
+        Wt::WVBoxLayout *m_layCntTags;
+        Ms::Widgets::MContainerWidget *m_cntAssignedTags;
+        Ms::Widgets::MContainerWidget *m_cntAvailableTags;
+        Wt::WPushButton *m_btnCreateTag;
+        Wt::WPushButton *m_btnAssignTags;
+        Wt::WPushButton *m_btnUnassignTags;
+        Wt::WPushButton *m_btnFilterByTags;
+        Wt::WPushButton *m_btnClearTagsFilter;
+        Wt::WPopupMenu *m_mnuFilterByTags;
+        Wt::WMenuItem *m_mnuFilterByTagsExactSelectionItem;
+        Wt::WMenuItem *m_mnuFilterByTagsAnyOfSelectionItem;
+        Wt::WMenuItem *m_mnuFilterByTagsNotInSelectionItem;
 
         //Signals
-        Wt::Signal<> _createTagRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> _assignTagsRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> _unassignTagsRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>,bool,bool> _filterByTagsRequested;
-        Wt::Signal<> _clearTagsFilterRequested;
+        Wt::Signal<> m_createTagRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> m_assignTagsRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>> m_unassignTagsRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Tag>>,bool,bool> m_filterByTagsRequested;
+        Wt::Signal<> m_clearTagsFilterRequested;
 
         //Slots
-        void _btnCreateTagClicked();
-        void _btnAssignTagsClicked();
-        void _btnUnassignTagsClicked();
-        void _btnClearTagsFilterClicked();
-        void _mnuFilterByTagsExactSelectionItemTriggered();
-        void _mnuFilterByTagsAnyOfSelectionItemTriggered();
-        void _mnuFilterByTagsNotInSelectionItemTriggered();
+        void btnCreateTagClicked();
+        void btnAssignTagsClicked();
+        void btnUnassignTagsClicked();
+        void btnClearTagsFilterClicked();
+        void mnuFilterByTagsExactSelectionItemTriggered();
+        void mnuFilterByTagsAnyOfSelectionItemTriggered();
+        void mnuFilterByTagsNotInSelectionItemTriggered();
 
         //Functions
-        void _createTagsTableView();
-        void _createAssignedTagsTableView();
-        void _prepareView();
+        void createTagsTableView();
+        void createAssignedTagsTableView();
+        void prepareView();
     };
 }
 

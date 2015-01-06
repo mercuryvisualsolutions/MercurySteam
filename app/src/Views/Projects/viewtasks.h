@@ -45,32 +45,32 @@ namespace Views
     private:
         //Variables
 
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *_qtvTasks;
-        Log::Logger *_logger;
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *m_qtvTasks;
+        Log::Logger *m_logger;
         //UI
-        Wt::WPushButton *_btnCreateTask;
-        Wt::WPushButton *_btnCreateTasksForTemplate;
-        Wt::WPushButton *_btnRemoveTasks;
-        Wt::WPushButton *_btnEditTasks;
-        Wt::WPushButton *_btnOpenFilesView;
-        Wt::WVBoxLayout *_layMain;
+        Wt::WPushButton *m_btnCreateTask;
+        Wt::WPushButton *m_btnCreateTasksForTemplate;
+        Wt::WPushButton *m_btnRemoveTasks;
+        Wt::WPushButton *m_btnEditTasks;
+        Wt::WPushButton *m_btnOpenFilesView;
+        Wt::WVBoxLayout *m_layMain;
 
         //Signals
-        Wt::Signal<> _createTaskRequested;
-        Wt::Signal<> _createTasksForTemplateRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTask>>> _removeTasksRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTask>>> _openfilesViewRequested;
+        Wt::Signal<> m_createTaskRequested;
+        Wt::Signal<> m_createTasksForTemplateRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTask>>> m_removeTasksRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTask>>> m_openfilesViewRequested;
 
         //Slots
-        void _btnCreateTaskClicked();
-        void _btnCreateTasksForTemplateClicked();
-        void _btnRemoveTasksClicked();
-        void _btnEditTasksClicked();
-        void _btnOpenFilesViewClicked();
+        void btnCreateTaskClicked();
+        void btnCreateTasksForTemplateClicked();
+        void btnRemoveTasksClicked();
+        void btnEditTasksClicked();
+        void btnOpenFilesViewClicked();
 
         //Functions
-        void _createTasksTableView();
-        void _prepareView();
+        void createTasksTableView();
+        void prepareView();
     };
 }
 

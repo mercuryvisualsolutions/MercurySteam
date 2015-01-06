@@ -42,32 +42,32 @@ namespace Views
     private:
         //Variables
         
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectShot> *_qtvShots;
-        Log::Logger *_logger;
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectShot> *m_qtvShots;
+        Log::Logger *m_logger;
         //UI
-        Wt::WPushButton *_btnCreateShot;
-        Wt::WPushButton *_btnRemoveShots;
-        Wt::WPushButton *_btnEditShots;
-        Wt::WPushButton *_btnImportThumbnails;
-        Wt::WPushButton *_btnOpenFilesView;
-        Wt::WVBoxLayout *_layMain;
+        Wt::WPushButton *m_btnCreateShot;
+        Wt::WPushButton *m_btnRemoveShots;
+        Wt::WPushButton *m_btnEditShots;
+        Wt::WPushButton *m_btnImportThumbnails;
+        Wt::WPushButton *m_btnOpenFilesView;
+        Wt::WVBoxLayout *m_layMain;
 
         //Signals
-        Wt::Signal<> _createShotRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectShot>>> _removeShotsRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectShot>>> _openfilesViewRequested;
-        Wt::Signal<> _importThumbnailsRequested;
+        Wt::Signal<> m_createShotRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectShot>>> m_removeShotsRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectShot>>> m_openfilesViewRequested;
+        Wt::Signal<> m_importThumbnailsRequested;
 
         //Slots
-        void _btnCreateShotClicked();
-        void _btnRemoveShotsClicked();
-        void _btnEditShotsClicked();
-        void _btnImportThumbnailsClicked();
-        void _btnOpenFilesViewClicked();
+        void btnCreateShotClicked();
+        void btnRemoveShotsClicked();
+        void btnEditShotsClicked();
+        void btnImportThumbnailsClicked();
+        void btnOpenFilesViewClicked();
 
         //Functions
-        void _createShotsTableView();
-        void _prepareView();
+        void createShotsTableView();
+        void prepareView();
     };
 }
 

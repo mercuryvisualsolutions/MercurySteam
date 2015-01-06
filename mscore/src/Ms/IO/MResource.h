@@ -16,7 +16,7 @@ namespace Ms
             bool isInUse();
 
         protected:
-            bool isInUse_;
+            bool m_isInUse;
         };
     }
 }

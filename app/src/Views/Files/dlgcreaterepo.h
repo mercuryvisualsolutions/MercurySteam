@@ -21,17 +21,17 @@ namespace Views
 
     private:
         //variables
-        Wt::WVBoxLayout *_layMain;
-        Wt::WLineEdit *_lnEdit;
-        Wt::WPushButton *_btnOk;
-        Wt::WPushButton *_btnCancel;
+        Wt::WVBoxLayout *m_layMain;
+        Wt::WLineEdit *m_lnEdit;
+        Wt::WPushButton *m_btnOk;
+        Wt::WPushButton *m_btnCancel;
 
-        void _prepareView();
-        bool _validate();
+        void prepareView();
+        bool validate();
 
         //slots
-        void _txtTypeKeyWentUp();
-        void _btnOkClicked();
+        void txtTypeKeyWentUp();
+        void btnOkClicked();
     };
 }
 #endif // DLGCREATEREPO_H

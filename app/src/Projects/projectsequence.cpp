@@ -4,13 +4,13 @@
 Projects::ProjectSequence::ProjectSequence() :
     ProjectDbo()
 {
-    _init();
+    init();
 }
 
 Projects::ProjectSequence::ProjectSequence(const std::string &sequenceName) :
     ProjectSequence()
 {
-    _id.name = sequenceName;
+    m_id.name = sequenceName;
 }
 
 Projects::ProjectSequence *Projects::ProjectSequence::modify()
@@ -22,41 +22,41 @@ Projects::ProjectSequence *Projects::ProjectSequence::modify()
 
 const Projects::ProjectSequenceId Projects::ProjectSequence::id() const
 {
-    return _id;
+    return m_id;
 }
 
 std::string Projects::ProjectSequence::name() const
 {
-    return _id.name;
+    return m_id.name;
 }
 
 void Projects::ProjectSequence::setName(const std::string &name)
 {
-    _id.name = name;
+    m_id.name = name;
 }
 
 std::string Projects::ProjectSequence::projectName() const
 {
-    std::string name = _id.project->name();
+    std::string name = m_id.project->name();
 
     return name;
 }
 
 Wt::Dbo::ptr<Projects::Project> Projects::ProjectSequence::project() const
 {
-    return _id.project;
+    return m_id.project;
 }
 
 void Projects::ProjectSequence::setProject(Wt::Dbo::ptr<Projects::Project> project)
 {
-    _id.project = project;
+    m_id.project = project;
 }
 
 bool Projects::ProjectSequence::hasShot(Wt::Dbo::ptr<Projects::ProjectShot> shot) const
 {
     bool result = false;
 
-    for(auto iter = _shots.begin(); iter != _shots.end(); ++iter)
+    for(auto iter = m_shots.begin(); iter != m_shots.end(); ++iter)
     {
         if((*iter).id() == shot.id())
         {
@@ -73,7 +73,7 @@ bool Projects::ProjectSequence::addShot(Wt::Dbo::ptr<Projects::ProjectShot> shot
 {
     if(!hasShot(shot))
     {
-        _shots.insert(shot);
+        m_shots.insert(shot);
 
         return true;
     }
@@ -85,7 +85,7 @@ bool Projects::ProjectSequence::removeShot(Wt::Dbo::ptr<Projects::ProjectShot> s
 {
     if(hasShot(shot))
     {
-        _shots.erase(shot);
+        m_shots.erase(shot);
 
         return true;
     }
@@ -95,42 +95,42 @@ bool Projects::ProjectSequence::removeShot(Wt::Dbo::ptr<Projects::ProjectShot> s
 
 int Projects::ProjectSequence::durationInFrames() const
 {
-    return _durationInFrames;
+    return m_durationInFrames;
 }
 
 void Projects::ProjectSequence::setDurationInFrames(int durationInFrames)
 {
-    _durationInFrames = durationInFrames;
+    m_durationInFrames = durationInFrames;
 }
 
 float Projects::ProjectSequence::fps() const
 {
-    return _fps;
+    return m_fps;
 }
 
 void Projects::ProjectSequence::setFps(float fps)
 {
-    _fps = fps;
+    m_fps = fps;
 }
 
 int Projects::ProjectSequence::frameWidth() const
 {
-    return _frameWidth;
+    return m_frameWidth;
 }
 
 void Projects::ProjectSequence::setFrameWidth(int frameWidth)
 {
-    _frameWidth = frameWidth;
+    m_frameWidth = frameWidth;
 }
 
 int Projects::ProjectSequence::frameHeight() const
 {
-    return _frameHeight;
+    return m_frameHeight;
 }
 
 void Projects::ProjectSequence::setFrameHeight(int frameHeight)
 {
-    _frameHeight = frameHeight;
+    m_frameHeight = frameHeight;
 }
 
 int Projects::ProjectSequence::progress() const
@@ -145,7 +145,7 @@ int Projects::ProjectSequence::totalHours() const
 {
     int totalHours = 0;
 
-    for(auto iter = _shots.begin(); iter != _shots.end(); ++iter)//count shots hours
+    for(auto iter = m_shots.begin(); iter != m_shots.end(); ++iter)//count shots hours
     {
         if(!(*iter)->active())
             continue;
@@ -153,7 +153,7 @@ int Projects::ProjectSequence::totalHours() const
         totalHours += (*iter)->totalHours();
     }
 
-    for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)//count tasks hours
+    for(auto iter = m_tasks.begin(); iter != m_tasks.end(); ++iter)//count tasks hours
     {
         if(!(*iter)->active())
             continue;
@@ -168,7 +168,7 @@ int Projects::ProjectSequence::doneHours() const
 {
     int finishedHours = 0;
 
-    for(auto iter = _shots.begin(); iter != _shots.end(); ++iter)//shots tasks hours
+    for(auto iter = m_shots.begin(); iter != m_shots.end(); ++iter)//shots tasks hours
     {
         if(!(*iter)->active())
             continue;
@@ -176,7 +176,7 @@ int Projects::ProjectSequence::doneHours() const
         finishedHours += (*iter)->doneHours();
     }
 
-    for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)//sequences tasks hours
+    for(auto iter = m_tasks.begin(); iter != m_tasks.end(); ++iter)//sequences tasks hours
     {
         if(!(*iter)->active())
             continue;
@@ -191,7 +191,7 @@ int Projects::ProjectSequence::totalShots() const
 {
     int totalShots = 0;
 
-    for(auto iter = _shots.begin(); iter != _shots.end(); ++iter)
+    for(auto iter = m_shots.begin(); iter != m_shots.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -206,7 +206,7 @@ int Projects::ProjectSequence::doneShots() const
 {
     int doneShots = 0;
 
-    for(auto iter = _shots.begin(); iter != _shots.end(); ++iter)
+    for(auto iter = m_shots.begin(); iter != m_shots.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -224,7 +224,7 @@ int Projects::ProjectSequence::totalTasks() const
 {
     int totalTasks = 0;
 
-    for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+    for(auto iter = m_tasks.begin(); iter != m_tasks.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -232,7 +232,7 @@ int Projects::ProjectSequence::totalTasks() const
         totalTasks++;
     }
 
-    for(auto iter = _shots.begin(); iter != _shots.end(); ++iter)//count shots tasks
+    for(auto iter = m_shots.begin(); iter != m_shots.end(); ++iter)//count shots tasks
     {
         if(!(*iter)->active())
             continue;
@@ -247,7 +247,7 @@ int Projects::ProjectSequence::doneTasks() const
 {
     int doneTasks = 0;
 
-    for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+    for(auto iter = m_tasks.begin(); iter != m_tasks.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -258,7 +258,7 @@ int Projects::ProjectSequence::doneTasks() const
         }
     }
 
-    for(auto iter = _shots.begin(); iter != _shots.end(); ++iter)//shots tasks
+    for(auto iter = m_shots.begin(); iter != m_shots.end(); ++iter)//shots tasks
     {
         if(!(*iter)->active())
             continue;
@@ -273,7 +273,7 @@ int Projects::ProjectSequence::totalActivities() const
 {
     int totalActivities = 0;
 
-    for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+    for(auto iter = m_tasks.begin(); iter != m_tasks.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -281,7 +281,7 @@ int Projects::ProjectSequence::totalActivities() const
         totalActivities+= (*iter)->totalActivities();
     }
 
-    for(auto iter = _shots.begin(); iter != _shots.end(); ++iter)
+    for(auto iter = m_shots.begin(); iter != m_shots.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -296,7 +296,7 @@ int Projects::ProjectSequence::doneActivities() const
 {
     int doneActivities = 0;
 
-    for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+    for(auto iter = m_tasks.begin(); iter != m_tasks.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -304,7 +304,7 @@ int Projects::ProjectSequence::doneActivities() const
         doneActivities+= (*iter)->doneActivities();
     }
 
-    for(auto iter = _shots.begin(); iter != _shots.end(); ++iter)
+    for(auto iter = m_shots.begin(); iter != m_shots.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -317,8 +317,8 @@ int Projects::ProjectSequence::doneActivities() const
 
 bool Projects::ProjectSequence::operator ==(const Projects::ProjectSequence &other) const
 {
-    return _id.name == other.name() &&
-        _id.project == other.project();
+    return m_id.name == other.name() &&
+        m_id.project == other.project();
 }
 
 bool Projects::ProjectSequence::operator !=(const Projects::ProjectSequence &other) const
@@ -326,12 +326,12 @@ bool Projects::ProjectSequence::operator !=(const Projects::ProjectSequence &oth
     return !operator==(other);
 }
 
-void Projects::ProjectSequence::_init()
+void Projects::ProjectSequence::init()
 {
-    thumbnail_ = "pics/NoPreviewBig.png";
-    _id.name = "New Project Sequence";
-    _durationInFrames = 0;
-    _fps = 24.0f;
-    _frameWidth = 1920;
-    _frameHeight = 1080;
+    m_thumbnail = "pics/NoPreviewBig.png";
+    m_id.name = "New Project Sequence";
+    m_durationInFrames = 0;
+    m_fps = 24.0f;
+    m_frameWidth = 1920;
+    m_frameHeight = 1080;
 }

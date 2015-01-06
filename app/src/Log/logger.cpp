@@ -2,74 +2,74 @@
 
 Log::Logger::Logger()
 {
-    _init();
+    init();
 }
 
 Log::Logger::Logger(const std::string &sessionId) :
     Logger()
 {
-    _sessionId = sessionId;
+    m_sessionId = sessionId;
 }
 
 Log::Logger::~Logger()
 {
-    delete _logWidget;
+    delete m_logWidget;
 }
 
 void Log::Logger::log(const std::string &message, Ms::Log::LogMessageType type, Log::LogMessageContext context) const
 {
     if(context & LogMessageContext::Client)
     {
-        _logWidget->log(message, type);
+        m_logWidget->log(message, type);
     }
     if(context & LogMessageContext::Server)
     {
-        _globalLogger->log(message, type);
+        m_globalLogger->log(message, type);
     }
 }
 
 unsigned int Log::Logger::maxOnScreenLogMessages() const
 {
-    return _logWidget->maxLogMessages();
+    return m_logWidget->maxLogMessages();
 }
 
 void Log::Logger::setMaxOnScreenLogMessages(unsigned int value)
 {
-    _logWidget->setMaxLogMessages(value);
+    m_logWidget->setMaxLogMessages(value);
 }
 
 Ms::Widgets::MLogWidget *Log::Logger::logWidget() const
 {
-    return _logWidget;
+    return m_logWidget;
 }
 
 Ms::Log::MLogger *Log::Logger::globalLogger() const
 {
-    return _globalLogger;
+    return m_globalLogger;
 }
 
 void Log::Logger::setGlobalLogger(Ms::Log::MLogger *logger)
 {
-    _globalLogger = logger;
+    m_globalLogger = logger;
 }
 
 const std::string Log::Logger::sessionId() const
 {
-    return _sessionId;
+    return m_sessionId;
 }
 
 void Log::Logger::setSessionId(const std::string &sessionId)
 {
-    _sessionId = sessionId;
+    m_sessionId = sessionId;
 }
 
 bool Log::Logger::operator==(const Log::Logger &other)
 {
-    return _sessionId == other.sessionId();
+    return m_sessionId == other.sessionId();
 }
 
-void Log::Logger::_init()
+void Log::Logger::init()
 {
-    _sessionId = "";
-    _logWidget = new Ms::Widgets::MLogWidget();
+    m_sessionId = "";
+    m_logWidget = new Ms::Widgets::MLogWidget();
 }

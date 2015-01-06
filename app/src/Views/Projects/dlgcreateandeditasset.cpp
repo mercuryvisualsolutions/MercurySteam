@@ -6,61 +6,61 @@
 #include "../../Settings/appsettings.h"
 
 Views::DlgCreateAndEditAsset::DlgCreateAndEditAsset(bool editing) :
-    _editing(editing)
+    m_editing(editing)
 {
-    _prepareView();
+    prepareView();
 }
 
 std::string Views::DlgCreateAndEditAsset::assetName() const
 {
-    return _txtAssetName->text().toUTF8();
+    return m_txtAssetName->text().toUTF8();
 }
 
 Wt::Dbo::ptr<Projects::ProjectWorkStatus> Views::DlgCreateAndEditAsset::status() const
 {
-    return _mdlCmbStatus->resultRow(_cmbStatus->currentIndex());
+    return m_mdlCmbStatus->resultRow(m_cmbStatus->currentIndex());
 }
 
 Wt::Dbo::ptr<Projects::ProjectAssetType> Views::DlgCreateAndEditAsset::assetType() const
 {
-    return _mdlCmbType->resultRow(_cmbType->currentIndex());
+    return m_mdlCmbType->resultRow(m_cmbType->currentIndex());
 }
 
 Wt::WDate Views::DlgCreateAndEditAsset::startDate() const
 {
-    return _datStartDate->date();
+    return m_datStartDate->date();
 }
 
 Wt::WDate Views::DlgCreateAndEditAsset::endDate() const
 {
-    return _datEndDate->date();
+    return m_datEndDate->date();
 }
 
 int Views::DlgCreateAndEditAsset::priority() const
 {
-    return _spnPriority->value();
+    return m_spnPriority->value();
 }
 
 std::string Views::DlgCreateAndEditAsset::description() const
 {
-    return _txtDescription->text().toUTF8();
+    return m_txtDescription->text().toUTF8();
 }
 
 bool Views::DlgCreateAndEditAsset::isActive() const
 {
-    return _cmbActive->currentText() == "Yes" ? true : false;
+    return m_cmbActive->currentText() == "Yes" ? true : false;
 }
 
 bool Views::DlgCreateAndEditAsset::isEditing()
 {
-    return _editing;
+    return m_editing;
 }
 
 bool Views::DlgCreateAndEditAsset::editedStartDate() const
 {
-    if(_editing)
+    if(m_editing)
     {
-        if(_datStartDate->isEnabled())
+        if(m_datStartDate->isEnabled())
             return true;
         else
             return false;
@@ -71,9 +71,9 @@ bool Views::DlgCreateAndEditAsset::editedStartDate() const
 
 bool Views::DlgCreateAndEditAsset::editedEndDate() const
 {
-    if(_editing)
+    if(m_editing)
     {
-        if(_datEndDate->isEnabled())
+        if(m_datEndDate->isEnabled())
             return true;
         else
             return false;
@@ -84,9 +84,9 @@ bool Views::DlgCreateAndEditAsset::editedEndDate() const
 
 bool Views::DlgCreateAndEditAsset::editedPriority() const
 {
-    if(_editing)
+    if(m_editing)
     {
-        if(_spnPriority->isEnabled())
+        if(m_spnPriority->isEnabled())
             return true;
         else
             return false;
@@ -97,9 +97,9 @@ bool Views::DlgCreateAndEditAsset::editedPriority() const
 
 bool Views::DlgCreateAndEditAsset::editedType() const
 {
-    if(_editing)
+    if(m_editing)
     {
-        if(_cmbType->isEnabled())
+        if(m_cmbType->isEnabled())
             return true;
         else
             return false;
@@ -110,9 +110,9 @@ bool Views::DlgCreateAndEditAsset::editedType() const
 
 bool Views::DlgCreateAndEditAsset::editedStatus() const
 {
-    if(_editing)
+    if(m_editing)
     {
-        if(_cmbStatus->isEnabled())
+        if(m_cmbStatus->isEnabled())
             return true;
         else
             return false;
@@ -123,9 +123,9 @@ bool Views::DlgCreateAndEditAsset::editedStatus() const
 
 bool Views::DlgCreateAndEditAsset::editedDescription() const
 {
-    if(_editing)
+    if(m_editing)
     {
-        if(_txtDescription->isEnabled())
+        if(m_txtDescription->isEnabled())
             return true;
         else
             return false;
@@ -136,9 +136,9 @@ bool Views::DlgCreateAndEditAsset::editedDescription() const
 
 bool Views::DlgCreateAndEditAsset::editedActive() const
 {
-    if(_editing)
+    if(m_editing)
     {
-        if(_cmbActive->isEnabled())
+        if(m_cmbActive->isEnabled())
             return true;
         else
             return false;
@@ -147,132 +147,132 @@ bool Views::DlgCreateAndEditAsset::editedActive() const
         return false;
 }
 
-void Views::DlgCreateAndEditAsset::_prepareView()
+void Views::DlgCreateAndEditAsset::prepareView()
 {
     Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-    if(!_editing)
+    if(!m_editing)
         this->setCaption("Create Asset");
     else
         this->setCaption("Edit Assets");
 
     this->rejectWhenEscapePressed();
 
-    _layMain = new Wt::WHBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(2);
+    m_layMain = new Wt::WHBoxLayout();
+    m_layMain->setContentsMargins(0,0,0,0);
+    m_layMain->setSpacing(2);
 
-    this->contents()->setLayout(_layMain);
+    this->contents()->setLayout(m_layMain);
 
-    _layLeft = new Wt::WVBoxLayout();
-    _layLeft->setContentsMargins(0,0,0,0);
-    _layLeft->setSpacing(2);
+    m_layLeft = new Wt::WVBoxLayout();
+    m_layLeft->setContentsMargins(0,0,0,0);
+    m_layLeft->setSpacing(2);
 
-    _cntLeft = new Wt::WContainerWidget();
-    _cntLeft->setLayout(_layLeft);
+    m_cntLeft = new Wt::WContainerWidget();
+    m_cntLeft->setLayout(m_layLeft);
 
-    _layMain->addWidget(_cntLeft);
+    m_layMain->addWidget(m_cntLeft);
 
-    _layRight = new Wt::WVBoxLayout();
-    _layRight->setContentsMargins(16,0,0,0);
-    _layRight->setSpacing(1);
+    m_layRight = new Wt::WVBoxLayout();
+    m_layRight->setContentsMargins(16,0,0,0);
+    m_layRight->setSpacing(1);
 
-    _cntRight = new Wt::WContainerWidget();
-    _cntRight->setLayout(_layRight);
+    m_cntRight = new Wt::WContainerWidget();
+    m_cntRight->setLayout(m_layRight);
 
-    _layMain->addWidget(_cntRight);
+    m_layMain->addWidget(m_cntRight);
 
-    if(!_editing)
+    if(!m_editing)
     {
-        _txtAssetName = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[A-Za-z0-9 _-]{4,150}");
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Name:", _txtAssetName));
+        m_txtAssetName = Ms::Widgets::MWidgetFactory::createLineEdit("", true, "[A-Za-z0-9 _-]{4,150}");
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Name:", m_txtAssetName));
 
-        _layLeft->addWidget(new Wt::WBreak());
+        m_layLeft->addWidget(new Wt::WBreak());
     }
 
-    _datStartDate = Ms::Widgets::MWidgetFactory::createDateEdit();
-    if(_editing)
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Start Date:", _datStartDate));
+    m_datStartDate = Ms::Widgets::MWidgetFactory::createDateEdit();
+    if(m_editing)
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Start Date:", m_datStartDate));
     else
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Start Date:", _datStartDate));
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Start Date:", m_datStartDate));
 
-    _layLeft->addWidget(new Wt::WBreak());
+    m_layLeft->addWidget(new Wt::WBreak());
 
-    _datEndDate = Ms::Widgets::MWidgetFactory::createDateEdit();
-    if(_editing)
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("End Date:", _datEndDate));
+    m_datEndDate = Ms::Widgets::MWidgetFactory::createDateEdit();
+    if(m_editing)
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("End Date:", m_datEndDate));
     else
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("End Date:", _datEndDate));
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("End Date:", m_datEndDate));
 
-    _layLeft->addWidget(new Wt::WBreak());
+    m_layLeft->addWidget(new Wt::WBreak());
 
-    _createCmbType();
-    if(_editing)
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Type:", _cntCmbType));
+    createCmbType();
+    if(m_editing)
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Type:", m_cntCmbType));
     else
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Type:", _cntCmbType));
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Type:", m_cntCmbType));
 
-    _layLeft->addWidget(new Wt::WBreak());
+    m_layLeft->addWidget(new Wt::WBreak());
 
-    _createCmbStatus();
-    if(_editing)
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Status:", _cntCmbStatus));
+    createCmbStatus();
+    if(m_editing)
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Status:", m_cntCmbStatus));
     else
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Status:", _cntCmbStatus));
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Status:", m_cntCmbStatus));
 
-    _layLeft->addWidget(new Wt::WBreak());
+    m_layLeft->addWidget(new Wt::WBreak());
 
-    _spnPriority = Ms::Widgets::MWidgetFactory::createSpinBox(0, INT_MAX, 0);
-    if(_editing)
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Priority:", _spnPriority));
+    m_spnPriority = Ms::Widgets::MWidgetFactory::createSpinBox(0, INT_MAX, 0);
+    if(m_editing)
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Priority:", m_spnPriority));
     else
-        _layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Priority:", _spnPriority));
+        m_layLeft->addWidget(Ms::Widgets::MWidgetFactory::createField("Priority:", m_spnPriority));
 
-    _layLeft->addWidget(new Wt::WBreak(), 1);
+    m_layLeft->addWidget(new Wt::WBreak(), 1);
 
-    _txtDescription = Ms::Widgets::MWidgetFactory::createTextArea("", false);
-    if(_editing)
-        _layRight->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Description:", _txtDescription));
+    m_txtDescription = Ms::Widgets::MWidgetFactory::createTextArea("", false);
+    if(m_editing)
+        m_layRight->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Description:", m_txtDescription));
     else
-        _layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Description:", _txtDescription));
+        m_layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Description:", m_txtDescription));
 
-    _layRight->addWidget(new Wt::WBreak());
+    m_layRight->addWidget(new Wt::WBreak());
 
-    _cmbActive = new Wt::WComboBox();
-    _cmbActive->addItem("Yes");
-    _cmbActive->addItem("No");
-    _cmbActive->setCurrentIndex(0);
-    if(_editing)
-        _layRight->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Active:", _cmbActive));
+    m_cmbActive = new Wt::WComboBox();
+    m_cmbActive->addItem("Yes");
+    m_cmbActive->addItem("No");
+    m_cmbActive->setCurrentIndex(0);
+    if(m_editing)
+        m_layRight->addWidget(Ms::Widgets::MWidgetFactory::createEditField("Active:", m_cmbActive));
     else
-        _layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", _cmbActive));
+        m_layRight->addWidget(Ms::Widgets::MWidgetFactory::createField("Active:", m_cmbActive));
 
-    _layRight->addWidget(new Wt::WBreak(), 1);
+    m_layRight->addWidget(new Wt::WBreak(), 1);
 
-    _btnOk = new Wt::WPushButton("Ok", this->footer());
-    _btnOk->clicked().connect(this, &Views::DlgCreateAndEditAsset::_btnOkClicked);
+    m_btnOk = new Wt::WPushButton("Ok", this->footer());
+    m_btnOk->clicked().connect(this, &Views::DlgCreateAndEditAsset::btnOkClicked);
 
-    _btnCancel = new Wt::WPushButton("Cancel", this->footer());
-    _btnCancel->clicked().connect(this, &Wt::WDialog::reject);
-    _btnCancel->setFocus();
+    m_btnCancel = new Wt::WPushButton("Cancel", this->footer());
+    m_btnCancel->clicked().connect(this, &Wt::WDialog::reject);
+    m_btnCancel->setFocus();
 
     transaction.commit();
 }
 
-void Views::DlgCreateAndEditAsset::_btnOkClicked()
+void Views::DlgCreateAndEditAsset::btnOkClicked()
 {
-    if(_validate())
+    if(validate())
         this->accept();
 }
 
-void Views::DlgCreateAndEditAsset::_createCmbType()
+void Views::DlgCreateAndEditAsset::createCmbType()
 {
-    _cmbType = new Wt::WComboBox();
-    _cmbType->setMinimumSize(20, 30);
-    _cntCmbType = new Wt::WContainerWidget();
-    _cntCmbType->addWidget(_cmbType);
+    m_cmbType = new Wt::WComboBox();
+    m_cmbType->setMinimumSize(20, 30);
+    m_cntCmbType = new Wt::WContainerWidget();
+    m_cntCmbType->addWidget(m_cmbType);
 
-    _mdlCmbType = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectAssetType>>();
+    m_mdlCmbType = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectAssetType>>();
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectAssetType>> query;
     if(AppSettings::instance().isLoadInactiveData())
@@ -280,26 +280,26 @@ void Views::DlgCreateAndEditAsset::_createCmbType()
     else
         query = Session::SessionManager::instance().dboSession().find<Projects::ProjectAssetType>().where("Active = ?").bind(true);
 
-    _mdlCmbType->setQuery(query);
+    m_mdlCmbType->setQuery(query);
 
-    _mdlCmbType->reload();
+    m_mdlCmbType->reload();
 
-    _mdlCmbType->addColumn("Type", Wt::ItemIsSelectable);
+    m_mdlCmbType->addColumn("Type", Wt::ItemIsSelectable);
 
-    _cmbType->setModel(_mdlCmbType);
+    m_cmbType->setModel(m_mdlCmbType);
 
-    if(_mdlCmbType->rowCount() > 0)
-        _cmbType->setCurrentIndex(0);
+    if(m_mdlCmbType->rowCount() > 0)
+        m_cmbType->setCurrentIndex(0);
 }
 
-void Views::DlgCreateAndEditAsset::_createCmbStatus()
+void Views::DlgCreateAndEditAsset::createCmbStatus()
 {
-    _cmbStatus = new Wt::WComboBox();
-    _cmbStatus->setMinimumSize(20, 30);
-    _cntCmbStatus = new Wt::WContainerWidget();
-    _cntCmbStatus->addWidget(_cmbStatus);
+    m_cmbStatus = new Wt::WComboBox();
+    m_cmbStatus->setMinimumSize(20, 30);
+    m_cntCmbStatus = new Wt::WContainerWidget();
+    m_cntCmbStatus->addWidget(m_cmbStatus);
 
-    _mdlCmbStatus = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatus>>();
+    m_mdlCmbStatus = new Wt::Dbo::QueryModel<Wt::Dbo::ptr<Projects::ProjectWorkStatus>>();
 
     Wt::Dbo::Query<Wt::Dbo::ptr<Projects::ProjectWorkStatus>> query;
     if(AppSettings::instance().isLoadInactiveData())
@@ -307,40 +307,40 @@ void Views::DlgCreateAndEditAsset::_createCmbStatus()
     else
         query = Session::SessionManager::instance().dboSession().find<Projects::ProjectWorkStatus>().where("Active = ?").bind(true);
 
-    _mdlCmbStatus->setQuery(query);
+    m_mdlCmbStatus->setQuery(query);
 
-    _mdlCmbStatus->reload();
+    m_mdlCmbStatus->reload();
 
-    _mdlCmbStatus->addColumn("Status", Wt::ItemIsSelectable);
+    m_mdlCmbStatus->addColumn("Status", Wt::ItemIsSelectable);
 
-    _cmbStatus->setModel(_mdlCmbStatus);
+    m_cmbStatus->setModel(m_mdlCmbStatus);
 
-    if(_mdlCmbStatus->rowCount() > 0)
-        _cmbStatus->setCurrentIndex(0);
+    if(m_mdlCmbStatus->rowCount() > 0)
+        m_cmbStatus->setCurrentIndex(0);
 }
 
-bool Views::DlgCreateAndEditAsset::_validate()
+bool Views::DlgCreateAndEditAsset::validate()
 {
     bool result = true;
 
-    if(!_editing)
+    if(!m_editing)
     {
-        if((_datStartDate->validate() != Wt::WDateValidator::Valid) ||
-                (_datEndDate->validate() != Wt::WDateValidator::Valid) ||
-                (_spnPriority->validate() != Wt::WIntValidator::Valid) ||
-                (_cmbType->currentIndex() == -1) ||
-                (_cmbStatus->currentIndex() == -1))
+        if((m_datStartDate->validate() != Wt::WDateValidator::Valid) ||
+                (m_datEndDate->validate() != Wt::WDateValidator::Valid) ||
+                (m_spnPriority->validate() != Wt::WIntValidator::Valid) ||
+                (m_cmbType->currentIndex() == -1) ||
+                (m_cmbStatus->currentIndex() == -1))
         {
             result = false;
         }
     }
     else
     {
-        if(((_datStartDate->isEnabled()) && (_datStartDate->validate() != Wt::WValidator::Valid)) ||
-                ((_datEndDate->isEnabled()) && (_datEndDate->validate() != Wt::WValidator::Valid)) ||
-                ((_datEndDate->isEnabled()) && (_spnPriority->validate() != Wt::WIntValidator::Valid)) ||
-                ((_cmbType->isEnabled()) && (_cmbType->currentIndex() == -1)) ||
-                ((_cmbStatus->isEnabled()) && (_cmbStatus->currentIndex() == -1)))
+        if(((m_datStartDate->isEnabled()) && (m_datStartDate->validate() != Wt::WValidator::Valid)) ||
+                ((m_datEndDate->isEnabled()) && (m_datEndDate->validate() != Wt::WValidator::Valid)) ||
+                ((m_datEndDate->isEnabled()) && (m_spnPriority->validate() != Wt::WIntValidator::Valid)) ||
+                ((m_cmbType->isEnabled()) && (m_cmbType->currentIndex() == -1)) ||
+                ((m_cmbStatus->isEnabled()) && (m_cmbStatus->currentIndex() == -1)))
         {
             result = false;
         }

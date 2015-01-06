@@ -9,38 +9,38 @@ Ms::IO::Data::MDataCSVRow::MDataCSVRow(const std::string &str, char separator)
 
 std::size_t Ms::IO::Data::MDataCSVRow::size() const
 {
-    return _data.size();
+    return m_data.size();
 }
 
 std::string Ms::IO::Data::MDataCSVRow::at(std::size_t index)
 {
-    return _data.at(index);
+    return m_data.at(index);
 }
 
 void Ms::IO::Data::MDataCSVRow::addCell(const std::string &cellData)
 {
-    _data.push_back(cellData);
+    m_data.push_back(cellData);
 }
 
 void Ms::IO::Data::MDataCSVRow::removeCell(std::size_t index)
 {
-    _data.erase(_data.begin() + index);
+    m_data.erase(m_data.begin() + index);
 }
 
 void Ms::IO::Data::MDataCSVRow::clear()
 {
-    _data.clear();
+    m_data.clear();
 }
 
 std::string Ms::IO::Data::MDataCSVRow::toString()
 {
     std::string result = "";
 
-    for(std::size_t i = 0; i < _data.size(); ++i)
+    for(std::size_t i = 0; i < m_data.size(); ++i)
     {
-        result += _data.at(i);
+        result += m_data.at(i);
 
-        if(i < _data.size() - 1)
+        if(i < m_data.size() - 1)
             result += ",";
     }
 
@@ -49,7 +49,7 @@ std::string Ms::IO::Data::MDataCSVRow::toString()
 
 void Ms::IO::Data::MDataCSVRow::setDataString(const std::string &str, char separator)
 {
-    _data.clear();
+    m_data.clear();
 
     std::stringstream strStream(str);
     std::string cell;
@@ -62,25 +62,25 @@ void Ms::IO::Data::MDataCSVRow::setDataString(const std::string &str, char separ
 
 std::vector<std::string>::iterator Ms::IO::Data::MDataCSVRow::begin()
 {
-    return _data.begin();
+    return m_data.begin();
 }
 
 std::vector<std::string>::const_iterator Ms::IO::Data::MDataCSVRow::cbegin()
 {
-    return _data.cbegin();
+    return m_data.cbegin();
 }
 
 std::vector<std::string>::iterator Ms::IO::Data::MDataCSVRow::end()
 {
-    return _data.end();
+    return m_data.end();
 }
 
 std::vector<std::string>::const_iterator Ms::IO::Data::MDataCSVRow::cend()
 {
-    return _data.cend();
+    return m_data.cend();
 }
 
 std::string &Ms::IO::Data::MDataCSVRow::operator[](std::size_t index)
 {
-    return _data[index];
+    return m_data[index];
 }

@@ -25,28 +25,28 @@
 #include <Ms/Widgets/Dialogs/MFilesUploadDialog.h>
 
 Views::DlgFilesManager::DlgFilesManager(const std::string &rootPath) :
-    _rootPath(rootPath),
-    _isViewDisabled(true)
+    m_rootPath(rootPath),
+    m_isViewDisabled(true)
 {
-    _logger = Session::SessionManager::instance().logger();
+    m_logger = Session::SessionManager::instance().logger();
 
-    _absoluteRootPath = Ms::IO::absolutePath(AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + _rootPath);
+    m_absoluteRootPath = Ms::IO::absolutePath(AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + m_rootPath);
 
-    _prepareView();
+    prepareView();
 }
 
-void Views::DlgFilesManager::_btnCreateClicked()
+void Views::DlgFilesManager::btnCreateClicked()
 {
     DlgCreateRepo *dlg = new DlgCreateRepo();
     dlg->finished().connect(std::bind([=]()
     {
         if(dlg->result() == Wt::WDialog::Accepted)
         {
-            std::string path = AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + _trDirs->treeRoot()->objectName() + Ms::IO::dirSeparator() + dlg->text();
+            std::string path = AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + m_trDirs->treeRoot()->objectName() + Ms::IO::dirSeparator() + dlg->text();
 
             if(Ms::IO::createPath(path))
             {
-                _refresh();
+                refresh();
             }
         }
 
@@ -56,14 +56,14 @@ void Views::DlgFilesManager::_btnCreateClicked()
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
-void Views::DlgFilesManager::_btnCheckInClicked()
+void Views::DlgFilesManager::btnCheckInClicked()
 {
-    if(_trDirs->selectedNodes().size() == 0 ||//no selection
-            (*_trDirs->selectedNodes().begin()) == _trDirs->treeRoot() ||//selection is root node
-            (*_trDirs->selectedNodes().begin())->parentNode() != _trDirs->treeRoot())//selection parent is not root node
+    if(m_trDirs->selectedNodes().size() == 0 ||//no selection
+            (*m_trDirs->selectedNodes().begin()) == m_trDirs->treeRoot() ||//selection is root node
+            (*m_trDirs->selectedNodes().begin())->parentNode() != m_trDirs->treeRoot())//selection parent is not root node
         return;
 
-    std::string path = AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + (*_trDirs->selectedNodes().begin())->objectName();
+    std::string path = AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + (*m_trDirs->selectedNodes().begin())->objectName();
 
     Ms::Widgets::Dialogs::MFilesUploadDialog *dlg = new Ms::Widgets::Dialogs::MFilesUploadDialog(true, true);
     dlg->finished().connect(std::bind([=]()
@@ -71,7 +71,7 @@ void Views::DlgFilesManager::_btnCheckInClicked()
         if(dlg->result() == Wt::WDialog::Accepted)
         {
             std::vector<std::string> delFiles;//holds files for later deletion
-            std::string newVerDirName = _createNewVersionDir(path);
+            std::string newVerDirName = createNewVersionDir(path);
 
             for(const std::pair<std::string,std::string> &pair : dlg->uploadedFilesMap())
             {
@@ -86,10 +86,10 @@ void Views::DlgFilesManager::_btnCheckInClicked()
             {
                 Ms::IO::removeFile(delFiles.at(i));//delete tmp files
 
-                _logger->log(std::string("deleting tmp file ") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
+                m_logger->log(std::string("deleting tmp file ") + delFiles.at(i), Ms::Log::LogMessageType::Info, Log::LogMessageContext::Server);
             }
 
-            _refresh();
+            refresh();
         }
 
         delete dlg;
@@ -98,9 +98,9 @@ void Views::DlgFilesManager::_btnCheckInClicked()
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
-void Views::DlgFilesManager::_btnCheckOutClicked()
+void Views::DlgFilesManager::btnCheckOutClicked()
 {
-    std::string url = _generateDownloadUrl();
+    std::string url = generateDownloadUrl();
     if(url == "")
         return;
 
@@ -118,7 +118,7 @@ void Views::DlgFilesManager::_btnCheckOutClicked()
     anchor->clicked().connect(std::bind([this, dlg, file, &linkClicked]()
     {
         linkClicked = true;
-        _downloadedFiles.push_back(file);
+        m_downloadedFiles.push_back(file);
         dlg->accept();
     }));
 
@@ -139,22 +139,22 @@ void Views::DlgFilesManager::_btnCheckOutClicked()
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));;
 }
 
-void Views::DlgFilesManager::_btnRefreshClicked()
+void Views::DlgFilesManager::btnRefreshClicked()
 {
-    _refresh();
+    refresh();
 }
 
-void Views::DlgFilesManager::_btnViewClicked()
+void Views::DlgFilesManager::btnViewClicked()
 {
-    if(_tblFiles->table()->selectedIndexes().size() > 0)
+    if(m_tblFiles->table()->selectedIndexes().size() > 0)
     {
-        viewItem(*_tblFiles->table()->selectedIndexes().begin());
+        viewItem(*m_tblFiles->table()->selectedIndexes().begin());
     }
 }
 
-void Views::DlgFilesManager::_btnCloseClicked()
+void Views::DlgFilesManager::btnCloseClicked()
 {
-    if(_isDownloadingFiles())
+    if(isDownloadingFiles())
     {
         Wt::WDialog *dlg = new Wt::WDialog("Confirmation");
         dlg->rejectWhenEscapePressed();
@@ -175,7 +175,7 @@ void Views::DlgFilesManager::_btnCloseClicked()
         {
             if(dlg->result() == Wt::WDialog::Accepted)
             {
-                _closeDownloadedFiles();
+                closeDownloadedFiles();
                 accept();//close the files manager dialog
             }
 
@@ -188,18 +188,18 @@ void Views::DlgFilesManager::_btnCloseClicked()
         this->accept();
 }
 
-void Views::DlgFilesManager::_trDirsItemSelectionChanged()
+void Views::DlgFilesManager::trDirsItemSelectionChanged()
 {
-    if(_trDirs->selectedNodes().size() != 1)
+    if(m_trDirs->selectedNodes().size() != 1)
         return;
 
-    _tblFiles->clear();
+    m_tblFiles->clear();
 
-    _tblFiles->addColumn(Ms::Core::MTableViewColumn("Name"));
-    _tblFiles->addColumn(Ms::Core::MTableViewColumn("Size"));
-    _tblFiles->addColumn(Ms::Core::MTableViewColumn("Last Modified"));
+    m_tblFiles->addColumn(Ms::Core::MTableViewColumn("Name"));
+    m_tblFiles->addColumn(Ms::Core::MTableViewColumn("Size"));
+    m_tblFiles->addColumn(Ms::Core::MTableViewColumn("Last Modified"));
 
-    std::string path = AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + (*_trDirs->selectedNodes().begin())->objectName();
+    std::string path = AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + (*m_trDirs->selectedNodes().begin())->objectName();
 
     std::vector<Ms::IO::MFileInfo> list = Ms::IO::dirFilesInfo(path);
 
@@ -211,26 +211,26 @@ void Views::DlgFilesManager::_trDirsItemSelectionChanged()
         item->setIcon("icons/File.png");
         items.push_back(item);
 
-        std::string size = _formatSize(list.at(i).size());
+        std::string size = formatSize(list.at(i).size());
 
         items.push_back(new Wt::WStandardItem(size.c_str()));
         items.push_back(new Wt::WStandardItem(list.at(i).lastModifiedDate().c_str()));
 
-        _tblFiles->model()->appendRow(items);
+        m_tblFiles->model()->appendRow(items);
     }
 }
 
 void Views::DlgFilesManager::tblFilesItemDoubleClicked(Wt::WModelIndex index)
 {
-    if(!_isViewDisabled)
+    if(!m_isViewDisabled)
         viewItem(index);
 }
 
 void Views::DlgFilesManager::viewItem(Wt::WModelIndex index)
 {
-    std::string dir = (*_trDirs->selectedNodes().begin())->objectName();//only view first selected item
+    std::string dir = (*m_trDirs->selectedNodes().begin())->objectName();//only view first selected item
 
-    std::string fileUrl = dir + Ms::IO::dirSeparator() + _tblFiles->model()->item(index.row())->text().toUTF8();
+    std::string fileUrl = dir + Ms::IO::dirSeparator() + m_tblFiles->model()->item(index.row())->text().toUTF8();
 
     Ms::IO::MFileInfo file(fileUrl);
 
@@ -313,74 +313,74 @@ void Views::DlgFilesManager::viewItem(Wt::WModelIndex index)
 
 void Views::DlgFilesManager::setRootpath(const std::string &rootPath)
 {
-    _rootPath = rootPath;
+    m_rootPath = rootPath;
 
-    _absoluteRootPath = Ms::IO::absolutePath(AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + _rootPath);
+    m_absoluteRootPath = Ms::IO::absolutePath(AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + m_rootPath);
 }
 
 bool Views::DlgFilesManager::createDisabled()
 {
-    return _btnCreate->isDisabled();
+    return m_btnCreate->isDisabled();
 }
 
 void Views::DlgFilesManager::setCreateDisabled(bool disabled)
 {
-    _btnCreate->setDisabled(disabled);
+    m_btnCreate->setDisabled(disabled);
 }
 
 bool Views::DlgFilesManager::checkInDisabled()
 {
-    return _btnCheckIn->isDisabled();
+    return m_btnCheckIn->isDisabled();
 }
 
 void Views::DlgFilesManager::setCheckInDisabled(bool disabled)
 {
-    _btnCheckIn->setDisabled(disabled);
+    m_btnCheckIn->setDisabled(disabled);
 }
 
 bool Views::DlgFilesManager::checkOutDisabled()
 {
-    return _btnCheckOut->isDisabled();
+    return m_btnCheckOut->isDisabled();
 }
 
 void Views::DlgFilesManager::setCheckOutDisabled(bool disabled)
 {
-    _btnCheckOut->setDisabled(disabled);
+    m_btnCheckOut->setDisabled(disabled);
 }
 
 bool Views::DlgFilesManager::viewDisabled()
 {
-    return _isViewDisabled;
+    return m_isViewDisabled;
 }
 
 void Views::DlgFilesManager::setViewDisabled(bool disabled)
 {
-    _isViewDisabled = disabled;
+    m_isViewDisabled = disabled;
 
-    _btnView->setDisabled(disabled);
+    m_btnView->setDisabled(disabled);
 }
 
-void Views::DlgFilesManager::_createDirTree()
+void Views::DlgFilesManager::createDirTree()
 {
-    _trDirs = new Wt::WTree();
-    _trDirs->setSelectionMode(Wt::SingleSelection);
-    _trDirs->setMinimumSize(250, 350);
+    m_trDirs = new Wt::WTree();
+    m_trDirs->setSelectionMode(Wt::SingleSelection);
+    m_trDirs->setMinimumSize(250, 350);
 
-    _trDirs->itemSelectionChanged().connect(this, &Views::DlgFilesManager::_trDirsItemSelectionChanged);
+    m_trDirs->itemSelectionChanged().connect(this, &Views::DlgFilesManager::trDirsItemSelectionChanged);
 
-    _populateDirTree();
+    populateDirTree();
 }
 
-void Views::DlgFilesManager::_populateDirTree()
+void Views::DlgFilesManager::populateDirTree()
 {
-    if(_rootPath == "")
+    if(m_rootPath == "")
         return;
 
     Wt::WIconPair *folderIcon = new Wt::WIconPair("icons/FolderClosed.png", "icons/FolderOpen.png", false);
 
     Wt::WTreeNode *rootNode = new Wt::WTreeNode("Root", folderIcon);
-    rootNode->setObjectName(_rootPath);
-    _trDirs->setTreeRoot(rootNode);
+    rootNode->setObjectName(m_rootPath);
+    m_trDirs->setTreeRoot(rootNode);
 
     std::stack<Wt::WTreeNode*> nodesStack;
     nodesStack.push(rootNode);
@@ -407,18 +407,18 @@ void Views::DlgFilesManager::_populateDirTree()
     rootNode->expand();
 }
 
-void Views::DlgFilesManager::_createFilesTable()
+void Views::DlgFilesManager::createFilesTable()
 {
-    _tblFiles = new Ms::Widgets::MTableViewWidget();
-    _tblFiles->setImportCSVFeatureEnabled(false);
-    _tblFiles->table()->doubleClicked().connect(this, &Views::DlgFilesManager::tblFilesItemDoubleClicked);
+    m_tblFiles = new Ms::Widgets::MTableViewWidget();
+    m_tblFiles->setImportCSVFeatureEnabled(false);
+    m_tblFiles->table()->doubleClicked().connect(this, &Views::DlgFilesManager::tblFilesItemDoubleClicked);
 
-    _tblFiles->addColumn(Ms::Core::MTableViewColumn("Name"));
-    _tblFiles->addColumn(Ms::Core::MTableViewColumn("Size"));
-    _tblFiles->addColumn(Ms::Core::MTableViewColumn("Last Modified"));
+    m_tblFiles->addColumn(Ms::Core::MTableViewColumn("Name"));
+    m_tblFiles->addColumn(Ms::Core::MTableViewColumn("Size"));
+    m_tblFiles->addColumn(Ms::Core::MTableViewColumn("Last Modified"));
 }
 
-std::string Views::DlgFilesManager::_formatSize(u_int64_t size)
+std::string Views::DlgFilesManager::formatSize(u_int64_t size)
 {
     std::string strSize = "";
 
@@ -434,13 +434,13 @@ std::string Views::DlgFilesManager::_formatSize(u_int64_t size)
     return strSize;
 }
 
-void Views::DlgFilesManager::_refresh()
+void Views::DlgFilesManager::refresh()
 {
-    _tblFiles->clear();
-    _populateDirTree();
+    m_tblFiles->clear();
+    populateDirTree();
 }
 
-std::string Views::DlgFilesManager::_createNewVersionDir(const std::string &path)
+std::string Views::DlgFilesManager::createNewVersionDir(const std::string &path)
 {
     int numVersions = Ms::IO::childDirCount(path);
 
@@ -453,22 +453,22 @@ std::string Views::DlgFilesManager::_createNewVersionDir(const std::string &path
     return "";
 }
 
-std::string Views::DlgFilesManager::_generateDownloadUrl()
+std::string Views::DlgFilesManager::generateDownloadUrl()
 {
-    if(_trDirs->selectedNodes().size() == 0 ||//no selection
-            (*_trDirs->selectedNodes().begin()) == _trDirs->treeRoot() ||//selection is root node
-            (*_trDirs->selectedNodes().begin())->parentNode() == _trDirs->treeRoot())//selection is a main repo folder
+    if(m_trDirs->selectedNodes().size() == 0 ||//no selection
+            (*m_trDirs->selectedNodes().begin()) == m_trDirs->treeRoot() ||//selection is root node
+            (*m_trDirs->selectedNodes().begin())->parentNode() == m_trDirs->treeRoot())//selection is a main repo folder
         return "";
 
-    std::string orgDir = AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + (*_trDirs->selectedNodes().begin())->objectName();
-    std::string tmpfilePath = _getUniqueTmpFileName() + ".zip";
+    std::string orgDir = AppSettings::instance().docRoot() + Ms::IO::dirSeparator() + (*m_trDirs->selectedNodes().begin())->objectName();
+    std::string tmpfilePath = getUniqueTmpFileName() + ".zip";
     std::string command = "zip -j -r \'" + tmpfilePath + "\'";
 
-    if(_tblFiles->table()->selectedIndexes().size() > 0)
+    if(m_tblFiles->table()->selectedIndexes().size() > 0)
     {
-        for(const Wt::WModelIndex index : _tblFiles->table()->selectedIndexes())
+        for(const Wt::WModelIndex index : m_tblFiles->table()->selectedIndexes())
         {
-            command = command + " \'" + orgDir + Ms::IO::dirSeparator() + _tblFiles->model()->item(index.row())->text().toUTF8() + "\'";
+            command = command + " \'" + orgDir + Ms::IO::dirSeparator() + m_tblFiles->model()->item(index.row())->text().toUTF8() + "\'";
         }
     }
     else command = command + " \'" + orgDir + Ms::IO::dirSeparator() + "\'";
@@ -483,7 +483,7 @@ std::string Views::DlgFilesManager::_generateDownloadUrl()
     return tmpfilePath;
 }
 
-std::string Views::DlgFilesManager::_getUniqueTmpFileName()
+std::string Views::DlgFilesManager::getUniqueTmpFileName()
 {
     std::string currentUserTmpDir = Users::UsersIO::getUserTempDir(Session::SessionManager::instance().user()->name());
 
@@ -495,9 +495,9 @@ std::string Views::DlgFilesManager::_getUniqueTmpFileName()
     return newFileName;
 }
 
-bool Views::DlgFilesManager::_isDownloadingFiles()
+bool Views::DlgFilesManager::isDownloadingFiles()
 {
-    for(Ms::IO::MStreamedFileResource *file : _downloadedFiles)
+    for(Ms::IO::MStreamedFileResource *file : m_downloadedFiles)
     {
         if(file->isInUse())
             return true;
@@ -506,9 +506,9 @@ bool Views::DlgFilesManager::_isDownloadingFiles()
     return false;
 }
 
-void Views::DlgFilesManager::_closeDownloadedFiles()
+void Views::DlgFilesManager::closeDownloadedFiles()
 {
-    for(Ms::IO::MStreamedFileResource *file : _downloadedFiles)
+    for(Ms::IO::MStreamedFileResource *file : m_downloadedFiles)
     {
         std::string fileName = file->fileName();
         delete file;//delete the file pointer first
@@ -517,72 +517,72 @@ void Views::DlgFilesManager::_closeDownloadedFiles()
             remove(fileName.c_str());//then delete the actual file
     }
 
-    _downloadedFiles.clear();
+    m_downloadedFiles.clear();
 }
 
-void Views::DlgFilesManager::_prepareView()
+void Views::DlgFilesManager::prepareView()
 {
     this->setCaption("Files Manager");
     this->rejectWhenEscapePressed();
     this->setResizable(true);
     this->setMinimumSize(1024, 768);
 
-    _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(0);
+    m_layMain = new Wt::WVBoxLayout();
+    m_layMain->setContentsMargins(0,0,0,0);
+    m_layMain->setSpacing(0);
 
-    this->contents()->setLayout(_layMain);
+    this->contents()->setLayout(m_layMain);
     this->contents()->setPadding(0);
     this->contents()->setOverflow(Wt::WContainerWidget::OverflowVisible);
 
-    _tbMain = new Wt::WToolBar();
+    m_tbMain = new Wt::WToolBar();
 
-    _layCntTbMain = new Wt::WHBoxLayout();
-    _layCntTbMain->setContentsMargins(0,0,0,0);
-    _layCntTbMain->setSpacing(0);
+    m_layCntTbMain = new Wt::WHBoxLayout();
+    m_layCntTbMain->setContentsMargins(0,0,0,0);
+    m_layCntTbMain->setSpacing(0);
 
-    _cntTbMain = new Wt::WContainerWidget();
-    _cntTbMain->setLayout(_layCntTbMain);
+    m_cntTbMain = new Wt::WContainerWidget();
+    m_cntTbMain->setLayout(m_layCntTbMain);
 
-    _layCntTbMain->addWidget(_tbMain);
+    m_layCntTbMain->addWidget(m_tbMain);
 
-    _layMain->addWidget(_cntTbMain);
+    m_layMain->addWidget(m_cntTbMain);
 
-    _btnCreate = Ms::Widgets::MWidgetFactory::createButton("", "icons/Add.png", "Create");
-    _btnCreate->clicked().connect(this, &Views::DlgFilesManager::_btnCreateClicked);
-    _tbMain->addButton(_btnCreate);
+    m_btnCreate = Ms::Widgets::MWidgetFactory::createButton("", "icons/Add.png", "Create");
+    m_btnCreate->clicked().connect(this, &Views::DlgFilesManager::btnCreateClicked);
+    m_tbMain->addButton(m_btnCreate);
 
-    _btnCheckIn = Ms::Widgets::MWidgetFactory::createButton("", "icons/CheckIn.png", "Check In");
-    _btnCheckIn->clicked().connect(this, &Views::DlgFilesManager::_btnCheckInClicked);
-    _tbMain->addButton(_btnCheckIn);
+    m_btnCheckIn = Ms::Widgets::MWidgetFactory::createButton("", "icons/CheckIn.png", "Check In");
+    m_btnCheckIn->clicked().connect(this, &Views::DlgFilesManager::btnCheckInClicked);
+    m_tbMain->addButton(m_btnCheckIn);
 
-    _btnCheckOut = Ms::Widgets::MWidgetFactory::createButton("", "icons/CheckOut.png", "Check Out");
-    _btnCheckOut->clicked().connect(this, &Views::DlgFilesManager::_btnCheckOutClicked);
-    _tbMain->addButton(_btnCheckOut);
+    m_btnCheckOut = Ms::Widgets::MWidgetFactory::createButton("", "icons/CheckOut.png", "Check Out");
+    m_btnCheckOut->clicked().connect(this, &Views::DlgFilesManager::btnCheckOutClicked);
+    m_tbMain->addButton(m_btnCheckOut);
 
-    _btnRefresh = Ms::Widgets::MWidgetFactory::createButton("", "icons/Reload.png", "Refresh");
-    _btnRefresh->clicked().connect(this, &Views::DlgFilesManager::_btnRefreshClicked);
-    _tbMain->addButton(_btnRefresh);
+    m_btnRefresh = Ms::Widgets::MWidgetFactory::createButton("", "icons/Reload.png", "Refresh");
+    m_btnRefresh->clicked().connect(this, &Views::DlgFilesManager::btnRefreshClicked);
+    m_tbMain->addButton(m_btnRefresh);
 
-    _btnView = Ms::Widgets::MWidgetFactory::createButton("", "icons/View.png", "View");
-    _btnView->clicked().connect(this, &Views::DlgFilesManager::_btnViewClicked);
-    _tbMain->addButton(_btnView);
+    m_btnView = Ms::Widgets::MWidgetFactory::createButton("", "icons/View.png", "View");
+    m_btnView->clicked().connect(this, &Views::DlgFilesManager::btnViewClicked);
+    m_tbMain->addButton(m_btnView);
 
-    _layFiles = new Wt::WHBoxLayout();
-    _layFiles->setContentsMargins(0,0,0,0);
-    _layFiles->setSpacing(0);
+    m_layFiles = new Wt::WHBoxLayout();
+    m_layFiles->setContentsMargins(0,0,0,0);
+    m_layFiles->setSpacing(0);
 
-    _cntFiles = new Wt::WContainerWidget();
-    _cntFiles->setLayout(_layFiles);
+    m_cntFiles = new Wt::WContainerWidget();
+    m_cntFiles->setLayout(m_layFiles);
 
-    _layMain->addWidget(_cntFiles, 1);
+    m_layMain->addWidget(m_cntFiles, 1);
 
-    _createDirTree();
-    _layFiles->addWidget(_trDirs);
+    createDirTree();
+    m_layFiles->addWidget(m_trDirs);
 
-    _createFilesTable();
-    _layFiles->addWidget(_tblFiles, 1);
+    createFilesTable();
+    m_layFiles->addWidget(m_tblFiles, 1);
 
-    _btnClose = new Wt::WPushButton("Close", this->footer());
-    _btnClose->clicked().connect(this, &Views::DlgFilesManager::_btnCloseClicked);
+    m_btnClose = new Wt::WPushButton("Close", this->footer());
+    m_btnClose->clicked().connect(this, &Views::DlgFilesManager::btnCloseClicked);
 }

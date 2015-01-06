@@ -82,8 +82,8 @@ namespace Database
         virtual void setLastLoginAttempt(const Wt::Auth::User &user, const Wt::WDateTime &t);
 
     private:
-        Ms::Core::Dbo::MDboSession &_session;
-        mutable Wt::Dbo::ptr<Users::User> _user;
+        Ms::Core::Dbo::MDboSession &m_session;
+        mutable Wt::Dbo::ptr<Users::User> m_user;
 
         void getUser(const std::string &id) const;
 
@@ -92,7 +92,7 @@ namespace Database
             WithUser(const Database::UserDatabase &self, const Wt::Auth::User &user);
             ~WithUser();
 
-            Wt::Dbo::Transaction _transaction;
+            Wt::Dbo::Transaction m_transaction;
         };
     };
 }

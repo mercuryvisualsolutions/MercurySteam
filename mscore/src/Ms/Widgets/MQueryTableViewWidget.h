@@ -117,95 +117,95 @@ namespace Ms
 
         private:
             //signals
-            Wt::Signal<> _tableSelectionChanged;
-            Wt::Signal<Wt::Dbo::ptr<T>> _itemImported;
+            Wt::Signal<> m_tableSelectionChanged;
+            Wt::Signal<Wt::Dbo::ptr<T>> m_itemImported;
 
             //slots
-            void _mainTableSelectionChanged();
-            void _cmbColumnFilterChanged();
-            void _lnFilterKeyWentUp();
-            void _cntTblMainKeyWentDown(Wt::WKeyEvent key);
-            void _popMnuSelectAllItemTriggered();
-            void _popMnuSelectNoneItemTriggered();
-            void _popMnuInverseSelectionItemTriggered();
-            void _popMnuIOImportCSVItemTriggered();
-            void _popMnuIOExportCSVItemTriggered();
-            void _popMnuViewAdvancedFilterItemTriggered();
-            void _btnAdvancedFilterAddClicked();
-            void _btnAdvancedFilterRemoveClicked();
-            void _btnAdvancedFilterApplyClicked();
-            void _btnAdvancedFilterClearClicked();
-            void _popMnuReloadItemTriggered();
-            void _sldRowHeightValueChanged();
+            void mainTableSelectionChanged();
+            void cmbColumnFilterChanged();
+            void lnFilterKeyWentUp();
+            void cntTblMainKeyWentDown(Wt::WKeyEvent key);
+            void popMnuSelectAllItemTriggered();
+            void popMnuSelectNoneItemTriggered();
+            void popMnuInverseSelectionItemTriggered();
+            void popMnuIOImportCSVItemTriggered();
+            void popMnuIOExportCSVItemTriggered();
+            void popMnuViewAdvancedFilterItemTriggered();
+            void btnAdvancedFilterAddClicked();
+            void btnAdvancedFilterRemoveClicked();
+            void btnAdvancedFilterApplyClicked();
+            void btnAdvancedFilterClearClicked();
+            void popMnuReloadItemTriggered();
+            void sldRowHeightValueChanged();
 
             //functions
-            void _importCSV(const std::string &fileName);
-            std::string _generateCSVData() const;
-            void _setModelUserName(const std::string &name) const;
-            void _refilter() const;
-            void _createMainTable();
-            void _createAdvancedFilterView();
-            void _createPropertiesView();
-            void _updateModel();
-            void _updateTable() const;
-            void _updateAdvancedFilterTable() const;
-            void _toggleAdvancedFilterView() const;
-            void _updateStatusBar() const;
-            void _prepareView();
+            void importCSV(const std::string &fileName);
+            std::string generateCSVData() const;
+            void setModelUserName(const std::string &name) const;
+            void refilter() const;
+            void createMainTable();
+            void createAdvancedFilterView();
+            void createPropertiesView();
+            void updateModel();
+            void updateTable() const;
+            void updateAdvancedFilterTable() const;
+            void toggleAdvancedFilterView() const;
+            void updateStatusBar() const;
+            void prepareView();
 
             //variables
-            mutable std::vector<Ms::Widgets::MQueryTableViewColumn> _columns;
-            mutable Wt::Dbo::Query<Wt::Dbo::ptr<T>> _query;
-            mutable Wt::Dbo::Query<Wt::Dbo::ptr<T>> _queryFilter;
-            mutable std::vector<typename Wt::Dbo::dbo_traits<T>::IdType> _selection;//for saving/loading selection in view
-            Ms::Core::Dbo::MDboSession &_dboSession;
-            int _defaultFilterColumnIndex;
-            Wt::WString _filterRegExpression;
-            int _ignoreNumFilterColumns;//numbers of columns to ignore when filtering
-            bool _advancedFilterActive;
-            bool _customFilterActive;
-            std::string _customFilterString;
-            std::string _advancedFilterString;
-            bool _importCSVFeatureEnabled;
-            bool _exportCSVFeatureEnabled;
-            bool _advancedFilterFeatureEnabled;
+            mutable std::vector<Ms::Widgets::MQueryTableViewColumn> m_columns;
+            mutable Wt::Dbo::Query<Wt::Dbo::ptr<T>> m_query;
+            mutable Wt::Dbo::Query<Wt::Dbo::ptr<T>> m_queryFilter;
+            mutable std::vector<typename Wt::Dbo::dbo_traits<T>::IdType> m_selection;//for saving/loading selection in view
+            Ms::Core::Dbo::MDboSession &m_dboSession;
+            int m_defaultFilterColumnIndex;
+            Wt::WString m_filterRegExpression;
+            int m_ignoreNumFilterColumns;//numbers of columns to ignore when filtering
+            bool m_advancedFilterActive;
+            bool m_customFilterActive;
+            std::string m_customFilterString;
+            std::string m_advancedFilterString;
+            bool m_importCSVFeatureEnabled;
+            bool m_exportCSVFeatureEnabled;
+            bool m_advancedFilterFeatureEnabled;
 
             //ui variables
-            Wt::WPushButton *_btnMnuTools;
-            Wt::WPopupMenu *_popMnuTools;
-            Wt::WPopupMenu *_popMnuSelection;
-            Wt::WMenuItem *_popMnuSelectAllItem;
-            Wt::WMenuItem *_popMnuSelectNoneItem;
-            Wt::WMenuItem *_popMnuInverseSelectionItem;
-            Wt::WPopupMenu *_popMnuIO;
-            Wt::WMenuItem *_popMnuIOImportCSVItem;
-            Wt::WMenuItem *_popMnuIOExportCSVItem;
-            Wt::WPopupMenu *_popMnuView;
-            Wt::WMenuItem *_popMnuViewAdvancedFilterItem;
-            Wt::WMenuItem *_popMnuReloadItem;
-            Ms::Dbo::MDboQueryModel<Wt::Dbo::ptr<T>> *_model;
-            Wt::WSortFilterProxyModel *_proxyModel;
-            Wt::WToolBar *_tbMain;
-            Wt::WToolBar *_tbGlobal;
-            Wt::WComboBox *_cmbColumnFilter;
-            Wt::WStandardItemModel *_mdlCmbColumnFilter;
-            Wt::WLineEdit *_lnFilter;
-            Wt::WTableView *_tblMain;
-            Wt::WContainerWidget *_cntStatusBar;
-            Wt::WHBoxLayout *_layCntStatusBar;
-            Wt::WLabel *_lblStatus;
-            Wt::WSlider *_sldRowHeight;
-            Wt::WCheckBox *_chkCustomFilterActive;
-            Wt::WCheckBox *_chkAdvancedFilterActive;
+            Wt::WPushButton *m_btnMnuTools;
+            Wt::WPopupMenu *m_popMnuTools;
+            Wt::WPopupMenu *m_popMnuSelection;
+            Wt::WMenuItem *m_popMnuSelectAllItem;
+            Wt::WMenuItem *m_popMnuSelectNoneItem;
+            Wt::WMenuItem *m_popMnuInverseSelectionItem;
+            Wt::WPopupMenu *m_popMnuIO;
+            Wt::WMenuItem *m_popMnuIOImportCSVItem;
+            Wt::WMenuItem *m_popMnuIOExportCSVItem;
+            Wt::WPopupMenu *m_popMnuView;
+            Wt::WMenuItem *m_popMnuViewAdvancedFilterItem;
+            Wt::WMenuItem *m_popMnuReloadItem;
+            Ms::Dbo::MDboQueryModel<Wt::Dbo::ptr<T>> *m_model;
+            Wt::WSortFilterProxyModel *m_proxyModel;
+            Wt::WToolBar *m_tbMain;
+            Wt::WToolBar *m_tbGlobal;
+            Wt::WComboBox *m_cmbColumnFilter;
+            Wt::WStandardItemModel *m_mdlCmbColumnFilter;
+            Wt::WLineEdit *m_lnFilter;
+            Wt::WTableView *m_tblMain;
+            Wt::WContainerWidget *m_cntStatusBar;
+            Wt::WHBoxLayout *m_layCntStatusBar;
+            Wt::WLabel *m_lblStatus;
+            Wt::WSlider *m_sldRowHeight;
+            Wt::WCheckBox *m_chkCustomFilterActive;
+            Wt::WCheckBox *m_chkAdvancedFilterActive;
 
             //Advanced filter
-            Ms::Widgets::MContainerWidget *_cntAdvancedFilter;
-            Wt::WVBoxLayout *_layCntAdvancedFilter;
-            Wt::WToolBar *_tbAdvancedFilter;
-            Wt::WContainerWidget *_cntTbAdvancedFilter;
-            Wt::WVBoxLayout *_layCntTbAdvancedFilter;
-            Wt::WTableView *_tblAdvancedFilter;
-            Wt::WStandardItemModel *_mdlAdvancedFilter;
+            Ms::Widgets::MContainerWidget *m_cntAdvancedFilter;
+            Wt::WVBoxLayout *m_layCntAdvancedFilter;
+            Wt::WToolBar *m_tbAdvancedFilter;
+            Wt::WContainerWidget *m_cntTbAdvancedFilter;
+            Wt::WVBoxLayout *m_layCntTbAdvancedFilter;
+            Wt::WTableView *m_tblAdvancedFilter;
+            Wt::WStandardItemModel *m_mdlAdvancedFilter;
         };
     }
 }

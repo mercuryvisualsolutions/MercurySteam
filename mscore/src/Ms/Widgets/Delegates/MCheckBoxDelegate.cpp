@@ -7,16 +7,16 @@
 
 Ms::Widgets::Delegates::MCheckBoxDelegate::MCheckBoxDelegate() :
     MItemDelegate(),
-    _enabled(true)
+    m_enabled(true)
 {
-    _editRank = 0;
+    m_editRank = 0;
 }
 
 Ms::Widgets::Delegates::MCheckBoxDelegate::MCheckBoxDelegate(int editRank, bool enabled) :
     MCheckBoxDelegate()
 {
-    _enabled = enabled;
-    _editRank = editRank;
+    m_enabled = enabled;
+    m_editRank = editRank;
 }
 
 Wt::WWidget *Ms::Widgets::Delegates::MCheckBoxDelegate::createEditor(const Wt::WModelIndex &index, Wt::WFlags<Wt::ViewItemRenderFlag> flags) const
@@ -93,12 +93,12 @@ Wt::WWidget *Ms::Widgets::Delegates::MCheckBoxDelegate::update(Wt::WWidget *widg
         const_cast<Wt::WAbstractItemModel*>(index.model())->setData(index, chkEdit->isChecked(), Wt::EditRole);
     }));
 
-    result->setDisabled(!_enabled);
+    result->setDisabled(!m_enabled);
 
     boost::any rank = index.data(Wt::UserRole);
     if(!rank.empty())
     {
-        if(boost::any_cast<int>(rank) > _editRank)//edit rank is not high engough ?
+        if(boost::any_cast<int>(rank) > m_editRank)//edit rank is not high engough ?
             result->setDisabled(true);//prevent editing
     }
 
@@ -107,10 +107,10 @@ Wt::WWidget *Ms::Widgets::Delegates::MCheckBoxDelegate::update(Wt::WWidget *widg
 
 bool Ms::Widgets::Delegates::MCheckBoxDelegate::enabled()
 {
-    return _enabled;
+    return m_enabled;
 }
 
 void Ms::Widgets::Delegates::MCheckBoxDelegate::setEnabled(bool enabled)
 {
-    _enabled = enabled;
+    m_enabled = enabled;
 }

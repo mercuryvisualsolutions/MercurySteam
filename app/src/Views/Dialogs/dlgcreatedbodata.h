@@ -29,19 +29,19 @@ namespace Views
 
         private:
             //variables
-            Wt::WVBoxLayout *_layMain;
-            Wt::WLineEdit *_txtKey;
-            Wt::WLineEdit *_txtValue;
-            Wt::WComboBox *_cmbActive;
-            Wt::WPushButton *_btnOk;
-            Wt::WPushButton *_btnCancel;
+            Wt::WVBoxLayout *m_layMain;
+            Wt::WLineEdit *m_txtKey;
+            Wt::WLineEdit *m_txtValue;
+            Wt::WComboBox *m_cmbActive;
+            Wt::WPushButton *m_btnOk;
+            Wt::WPushButton *m_btnCancel;
 
             //functions
-            void _prepareView();
-            bool _validate();
+            void prepareView();
+            bool validate();
 
             //slots
-            void _btnOkClicked();
+            void btnOkClicked();
         };
     }
 }

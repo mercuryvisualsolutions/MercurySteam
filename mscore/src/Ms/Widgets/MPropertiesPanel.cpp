@@ -2,7 +2,7 @@
 
 Ms::Widgets::MPropertiesPanel::MPropertiesPanel()
 {
-    _prepareView();
+    prepareView();
 }
 
 void Ms::Widgets::MPropertiesPanel::showView(const std::string &name)
@@ -13,15 +13,15 @@ void Ms::Widgets::MPropertiesPanel::showView(const std::string &name)
         addPropertiesView(name, view);
     }
 
-    _stkMain->setCurrentWidget(_views[name]);
+    m_stkMain->setCurrentWidget(m_views[name]);
 }
 
 void Ms::Widgets::MPropertiesPanel::addPropertiesView(const std::string &name, Wt::WWidget *widget)
 {
     if(!propertiesViewExists(name))
     {
-        _views[name] = widget;
-        _stkMain->addWidget(widget);
+        m_views[name] = widget;
+        m_stkMain->addWidget(widget);
     }
 }
 
@@ -29,43 +29,43 @@ void Ms::Widgets::MPropertiesPanel::removePropertiesView(const std::string &name
 {
     if(propertiesViewExists(name))
     {
-        _stkMain->removeWidget(_views[name]);
-        _views.erase(name);
+        m_stkMain->removeWidget(m_views[name]);
+        m_views.erase(name);
     }
 }
 
 bool Ms::Widgets::MPropertiesPanel::propertiesViewExists(const std::string &name) const
 {
-    return _views.find(name) != _views.end();
+    return m_views.find(name) != m_views.end();
 }
 
 Wt::WWidget *Ms::Widgets::MPropertiesPanel::currentShownWidget() const
 {
-    return _stkMain->currentWidget();
+    return m_stkMain->currentWidget();
 }
 
 std::string Ms::Widgets::MPropertiesPanel::currentShownView() const
 {
-    for(auto &pair : _views)
+    for(auto &pair : m_views)
     {
-        if(pair.second == _stkMain->currentWidget())
+        if(pair.second == m_stkMain->currentWidget())
             return pair.first;
     }
 
     return "";
 }
 
-void Ms::Widgets::MPropertiesPanel::_prepareView()
+void Ms::Widgets::MPropertiesPanel::prepareView()
 {
     setMinimumSize(300, 500);
     setWidth(600);
 
     setTitle("<b><i>Properties</i></b>");
 
-    Wt::WVBoxLayout *_layMain = dynamic_cast<Wt::WVBoxLayout*>(layout());
-    _layMain->setContentsMargins(14,0,14,14);
+    Wt::WVBoxLayout *m_layMain = dynamic_cast<Wt::WVBoxLayout*>(layout());
+    m_layMain->setContentsMargins(14,0,14,14);
 
-    _stkMain = new Wt::WStackedWidget();
+    m_stkMain = new Wt::WStackedWidget();
 
-    _layMain->addWidget(_stkMain, 1);
+    m_layMain->addWidget(m_stkMain, 1);
 }

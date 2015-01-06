@@ -4,13 +4,13 @@
 Projects::ProjectTaskType::ProjectTaskType() :
     Ms::Dbo::MDboBase()
 {
-    _init();
+    init();
 }
 
 Projects::ProjectTaskType::ProjectTaskType(const std::string &type) :
     ProjectTaskType()
 {
-    _type = type;
+    m_type = type;
 }
 
 Projects::ProjectTaskType *Projects::ProjectTaskType::modify()
@@ -22,22 +22,22 @@ Projects::ProjectTaskType *Projects::ProjectTaskType::modify()
 
 std::string Projects::ProjectTaskType::type() const
 {
-    return _type;
+    return m_type;
 }
 
 void Projects::ProjectTaskType::setType(const std::string &type)
 {
-    _type = type;
+    m_type = type;
 }
 
 Wt::Dbo::collection<Projects::ProjectTask>::size_type Projects::ProjectTaskType::numTasks() const
 {
-    return _tasks.size();
+    return m_tasks.size();
 }
 
 bool Projects::ProjectTaskType::operator ==(const Projects::ProjectTaskType &other) const
 {
-    return _type == other.type();
+    return m_type == other.type();
 }
 
 bool Projects::ProjectTaskType::operator !=(const Projects::ProjectTaskType &other) const
@@ -45,7 +45,7 @@ bool Projects::ProjectTaskType::operator !=(const Projects::ProjectTaskType &oth
     return !operator==(other);
 }
 
-void Projects::ProjectTaskType::_init()
+void Projects::ProjectTaskType::init()
 {
-    _type = "New Task Type";
+    m_type = "New Task Type";
 }

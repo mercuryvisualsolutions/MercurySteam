@@ -4,13 +4,13 @@
 Projects::Project::Project() :
     ProjectDbo()
 {
-    _init();
+    init();
 }
 
 Projects::Project::Project(const std::string &projectName) :
     Project()
 {
-    _name = projectName;
+    m_name = projectName;
 }
 
 Projects::Project *Projects::Project::modify()
@@ -22,19 +22,19 @@ Projects::Project *Projects::Project::modify()
 
 std::string Projects::Project::name() const
 {
-    return _name;
+    return m_name;
 }
 
 void Projects::Project::setName(const std::string &name)
 {
-    _name = name;
+    m_name = name;
 }
 
 bool Projects::Project::hasSequence(Wt::Dbo::ptr<Projects::ProjectSequence> sequence) const
 {
     bool result = false;
 
-    for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)
+    for(auto iter = m_sequences.begin(); iter != m_sequences.end(); ++iter)
     {
         if((*iter).id() == sequence.id())
         {
@@ -51,7 +51,7 @@ bool Projects::Project::addSequence(Wt::Dbo::ptr<Projects::ProjectSequence> sequ
 {
     if(!hasSequence(sequence))
     {
-        _sequences.insert(sequence);
+        m_sequences.insert(sequence);
 
         return true;
     }
@@ -63,7 +63,7 @@ bool Projects::Project::removeSequence(Wt::Dbo::ptr<Projects::ProjectSequence> s
 {
     if(hasSequence(sequence))
     {
-        _sequences.erase(sequence);
+        m_sequences.erase(sequence);
 
         return true;
     }
@@ -75,7 +75,7 @@ bool Projects::Project::hasAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset) con
 {
     bool result = false;
 
-    for(auto iter = _assets.begin(); iter != _assets.end(); ++iter)
+    for(auto iter = m_assets.begin(); iter != m_assets.end(); ++iter)
     {
         if((*iter).id() == asset.id())
         {
@@ -92,7 +92,7 @@ bool Projects::Project::addAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset)
 {
     if(!hasAsset(asset))
     {
-        _assets.insert(asset);
+        m_assets.insert(asset);
 
         return true;
     }
@@ -104,7 +104,7 @@ bool Projects::Project::removeAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset)
 {
     if(hasAsset(asset))
     {
-        _assets.erase(asset);
+        m_assets.erase(asset);
 
         return true;
     }
@@ -114,42 +114,42 @@ bool Projects::Project::removeAsset(Wt::Dbo::ptr<Projects::ProjectAsset> asset)
 
 int Projects::Project::durationInFrames() const
 {
-    return _durationInFrames;
+    return m_durationInFrames;
 }
 
 void Projects::Project::setDurationInFrames(int durationInFrames)
 {
-    _durationInFrames = durationInFrames;
+    m_durationInFrames = durationInFrames;
 }
 
 float Projects::Project::fps() const
 {
-    return _fps;
+    return m_fps;
 }
 
 void Projects::Project::setFps(float fps)
 {
-    _fps = fps;
+    m_fps = fps;
 }
 
 int Projects::Project::frameWidth() const
 {
-    return _frameWidth;
+    return m_frameWidth;
 }
 
 void Projects::Project::setFrameWidth(int frameWidth)
 {
-    _frameWidth = frameWidth;
+    m_frameWidth = frameWidth;
 }
 
 int Projects::Project::frameHeight() const
 {
-    return _frameHeight;
+    return m_frameHeight;
 }
 
 void Projects::Project::setFrameHeight(int frameHeight)
 {
-    _frameHeight = frameHeight;
+    m_frameHeight = frameHeight;
 }
 
 int Projects::Project::progress() const
@@ -164,7 +164,7 @@ int Projects::Project::totalHours() const
 {
     int totalHours = 0;
 
-    for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)//count sequences hours
+    for(auto iter = m_sequences.begin(); iter != m_sequences.end(); ++iter)//count sequences hours
     {
         if(!(*iter)->active())
             continue;
@@ -172,7 +172,7 @@ int Projects::Project::totalHours() const
         totalHours += (*iter)->totalHours();
     }
 
-    for(auto iter = _assets.begin(); iter != _assets.end(); ++iter)//count assets hours
+    for(auto iter = m_assets.begin(); iter != m_assets.end(); ++iter)//count assets hours
     {
         if(!(*iter)->active())
             continue;
@@ -180,7 +180,7 @@ int Projects::Project::totalHours() const
         totalHours += (*iter)->totalHours();
     }
 
-    for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)//count tasks hours
+    for(auto iter = m_tasks.begin(); iter != m_tasks.end(); ++iter)//count tasks hours
     {
         if(!(*iter)->active())
             continue;
@@ -195,7 +195,7 @@ int Projects::Project::doneHours() const
 {
     int finishedHours = 0;
 
-    for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)
+    for(auto iter = m_sequences.begin(); iter != m_sequences.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -203,7 +203,7 @@ int Projects::Project::doneHours() const
         finishedHours += (*iter)->doneHours();
     }
 
-    for(auto iter = _assets.begin(); iter != _assets.end(); ++iter)
+    for(auto iter = m_assets.begin(); iter != m_assets.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -211,7 +211,7 @@ int Projects::Project::doneHours() const
         finishedHours += (*iter)->doneHours();
     }
 
-    for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+    for(auto iter = m_tasks.begin(); iter != m_tasks.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -226,7 +226,7 @@ int Projects::Project::totalAssets() const
 {
     int totalAssets = 0;
 
-    for(auto iter = _assets.begin(); iter != _assets.end(); ++iter)
+    for(auto iter = m_assets.begin(); iter != m_assets.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -241,7 +241,7 @@ int Projects::Project::doneAssets() const
 {
     int doneAssets = 0;
 
-    for(auto iter = _assets.begin(); iter != _assets.end(); ++iter)
+    for(auto iter = m_assets.begin(); iter != m_assets.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -259,7 +259,7 @@ int Projects::Project::totalSequences() const
 {
     int totalSequences = 0;
 
-    for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)
+    for(auto iter = m_sequences.begin(); iter != m_sequences.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -274,7 +274,7 @@ int Projects::Project::doneSequences() const
 {
     int doneSequences = 0;
 
-    for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)
+    for(auto iter = m_sequences.begin(); iter != m_sequences.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -292,7 +292,7 @@ int Projects::Project::totalShots() const
 {
     int totalShots = 0;
 
-    for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)
+    for(auto iter = m_sequences.begin(); iter != m_sequences.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -307,7 +307,7 @@ int Projects::Project::doneShots() const
 {
     int doneShots= 0;
 
-    for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)
+    for(auto iter = m_sequences.begin(); iter != m_sequences.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -322,7 +322,7 @@ int Projects::Project::totalTasks() const
 {
     int totalTasks = 0;
 
-    for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)//count sequences tasks
+    for(auto iter = m_tasks.begin(); iter != m_tasks.end(); ++iter)//count sequences tasks
     {
         if(!(*iter)->active())
             continue;
@@ -330,7 +330,7 @@ int Projects::Project::totalTasks() const
         totalTasks++;
     }
 
-    for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)//count sequences tasks
+    for(auto iter = m_sequences.begin(); iter != m_sequences.end(); ++iter)//count sequences tasks
     {
         if(!(*iter)->active())
             continue;
@@ -338,7 +338,7 @@ int Projects::Project::totalTasks() const
         totalTasks += (*iter)->totalTasks();
     }
 
-    for(auto iter = _assets.begin(); iter != _assets.end(); ++iter)//count assets tasks
+    for(auto iter = m_assets.begin(); iter != m_assets.end(); ++iter)//count assets tasks
     {
         if(!(*iter)->active())
             continue;
@@ -353,7 +353,7 @@ int Projects::Project::doneTasks() const
 {
     int doneTasks = 0;
 
-    for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)//project tasks
+    for(auto iter = m_tasks.begin(); iter != m_tasks.end(); ++iter)//project tasks
     {
         if(!(*iter)->active())
             continue;
@@ -364,7 +364,7 @@ int Projects::Project::doneTasks() const
         }
     }
 
-    for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)//sequence tasks
+    for(auto iter = m_sequences.begin(); iter != m_sequences.end(); ++iter)//sequence tasks
     {
         if(!(*iter)->active())
             continue;
@@ -375,7 +375,7 @@ int Projects::Project::doneTasks() const
         }
     }
 
-    for(auto iter = _assets.begin(); iter != _assets.end(); ++iter)
+    for(auto iter = m_assets.begin(); iter != m_assets.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -393,7 +393,7 @@ int Projects::Project::totalActivities() const
 {
     int totalActivities = 0;
 
-    for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+    for(auto iter = m_tasks.begin(); iter != m_tasks.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -401,7 +401,7 @@ int Projects::Project::totalActivities() const
         totalActivities+= (*iter)->totalActivities();
     }
 
-    for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)
+    for(auto iter = m_sequences.begin(); iter != m_sequences.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -409,7 +409,7 @@ int Projects::Project::totalActivities() const
         totalActivities += (*iter)->totalActivities();
     }
 
-    for(auto iter = _assets.begin(); iter != _assets.end(); ++iter)
+    for(auto iter = m_assets.begin(); iter != m_assets.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -424,7 +424,7 @@ int Projects::Project::doneActivities() const
 {
     int doneActivities = 0;
 
-    for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+    for(auto iter = m_tasks.begin(); iter != m_tasks.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -432,7 +432,7 @@ int Projects::Project::doneActivities() const
         doneActivities+= (*iter)->doneActivities();
     }
 
-    for(auto iter = _sequences.begin(); iter != _sequences.end(); ++iter)
+    for(auto iter = m_sequences.begin(); iter != m_sequences.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -440,7 +440,7 @@ int Projects::Project::doneActivities() const
         doneActivities+= (*iter)->doneActivities();
     }
 
-    for(auto iter = _assets.begin(); iter != _assets.end(); ++iter)
+    for(auto iter = m_assets.begin(); iter != m_assets.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -453,17 +453,17 @@ int Projects::Project::doneActivities() const
 
 Wt::Dbo::ptr<Users::User> Projects::Project::manager() const
 {
-    return _projectManager;
+    return m_projectManager;
 }
 
 void Projects::Project::setManager(const Wt::Dbo::ptr<Users::User> user)
 {
-    _projectManager = user;
+    m_projectManager = user;
 }
 
 bool Projects::Project::operator ==(const Projects::Project &other) const
 {
-    return _name == other.name();
+    return m_name == other.name();
 }
 
 bool Projects::Project::operator !=(const Projects::Project &other) const
@@ -471,12 +471,12 @@ bool Projects::Project::operator !=(const Projects::Project &other) const
     return !operator==(other);
 }
 
-void Projects::Project::_init()
+void Projects::Project::init()
 {
-    thumbnail_ = "pics/NoPreviewBig.png";
-    _name = "New Project";
-    _durationInFrames = 0;
-    _fps = 24.0f;
-    _frameWidth = 1920;
-    _frameHeight = 1080;
+    m_thumbnail = "pics/NoPreviewBig.png";
+    m_name = "New Project";
+    m_durationInFrames = 0;
+    m_fps = 24.0f;
+    m_frameWidth = 1920;
+    m_frameHeight = 1080;
 }

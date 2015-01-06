@@ -60,171 +60,171 @@ namespace Views
 
     private:
         //Signals
-        Wt::Signal<> _onTabGeneralSelected;
-        Wt::Signal<> _onTabProjectsSelected;
-        Wt::Signal<> _onTabUsersSelected;
-        Wt::Signal<> _onTabGlobalSelected;
+        Wt::Signal<> m_onTabGeneralSelected;
+        Wt::Signal<> m_onTabProjectsSelected;
+        Wt::Signal<> m_onTabUsersSelected;
+        Wt::Signal<> m_onTabGlobalSelected;
 
         //variables
         
-        Log::Logger *_logger;
-        Ms::Widgets::MPropertiesPanel *_propertiesPanel;
+        Log::Logger *m_logger;
+        Ms::Widgets::MPropertiesPanel *m_propertiesPanel;
 
         /*******************--Main--********************/
-        Wt::WStackedWidget *_stkSettings; //for switching settings
-        Wt::WNavigationBar *_navBarSettings;//settings navigation bar
-        Wt::WContainerWidget *_cntNavBarSettings;//container for navBarSettings
-        Wt::WMenu *_mnuSettings;//settings menu (holding, General..etc)
-        Wt::WMenuItem *_mnuSettingsGeneralItem;
-        Wt::WMenuItem *_mnuSettingsProjectsItem;
-        Wt::WMenuItem *_mnuSettingsUsersItem;
-        Wt::WMenuItem *_mnuSettingsGlobalItem;
+        Wt::WStackedWidget *m_stkSettings; //for switching settings
+        Wt::WNavigationBar *m_navBarSettings;//settings navigation bar
+        Wt::WContainerWidget *m_cntNavBarSettings;//container for navBarSettings
+        Wt::WMenu *m_mnuSettings;//settings menu (holding, General..etc)
+        Wt::WMenuItem *m_mnuSettingsGeneralItem;
+        Wt::WMenuItem *m_mnuSettingsProjectsItem;
+        Wt::WMenuItem *m_mnuSettingsUsersItem;
+        Wt::WMenuItem *m_mnuSettingsGlobalItem;
 
         /*******************--General--********************/
-        Wt::WVBoxLayout *_laySettingsGeneral;
-        Wt::WContainerWidget *_cntGeneralSettings;//container for general settings view
-        Wt::WGroupBox *_grpGeneral;//group box for general settings
-        Wt::WCheckBox *_chkLoadInactiveData;
-        Wt::WCheckBox *_chkShowExtraColumns;
-        Wt::WPushButton *_btnSave;//save button
-        Wt::WContainerWidget *_cntBtnSave;//save button container
+        Wt::WVBoxLayout *m_laySettingsGeneral;
+        Wt::WContainerWidget *m_cntGeneralSettings;//container for general settings view
+        Wt::WGroupBox *m_grpGeneral;//group box for general settings
+        Wt::WCheckBox *m_chkLoadInactiveData;
+        Wt::WCheckBox *m_chkShowExtraColumns;
+        Wt::WPushButton *m_btnSave;//save button
+        Wt::WContainerWidget *m_cntBtnSave;//save button container
 
         /*******************--Projects Main--********************/
-        Wt::WContainerWidget *_cntProjectsSettings;//container for projects settings view
-        Wt::WHBoxLayout *_layCntProjectsSettings;
-        Wt::WMenu *_mnuProjectSettings;
-        Wt::WContainerWidget *_cntMnuProjectSettings;
-        Wt::WVBoxLayout *_layCntMnuProjectSettings;
-        Wt::WMenuItem *_mnuProjectSettingsTaskActivityTypeItem;
-        Wt::WMenuItem *_mnuProjectSettingsTaskTypeItem;
-        Wt::WMenuItem *_mnuProjectSettingsAssetTypeItem;
-        Wt::WMenuItem *_mnuProjectSettingsWorkStatusItem;
-        Wt::WMenuItem *_mnuProjectSettingsTaskTemplatesItem;
-        Wt::WMenuItem *_mnuProjectSettingsActivityTemplatesItem;
-        Wt::WStackedWidget *_stkProjectProperties;
+        Wt::WContainerWidget *m_cntProjectsSettings;//container for projects settings view
+        Wt::WHBoxLayout *m_layCntProjectsSettings;
+        Wt::WMenu *m_mnuProjectSettings;
+        Wt::WContainerWidget *m_cntMnuProjectSettings;
+        Wt::WVBoxLayout *m_layCntMnuProjectSettings;
+        Wt::WMenuItem *m_mnuProjectSettingsTaskActivityTypeItem;
+        Wt::WMenuItem *m_mnuProjectSettingsTaskTypeItem;
+        Wt::WMenuItem *m_mnuProjectSettingsAssetTypeItem;
+        Wt::WMenuItem *m_mnuProjectSettingsWorkStatusItem;
+        Wt::WMenuItem *m_mnuProjectSettingsTaskTemplatesItem;
+        Wt::WMenuItem *m_mnuProjectSettingsActivityTemplatesItem;
+        Wt::WStackedWidget *m_stkProjectProperties;
 
         /*******************--TaskActivityType--********************/
-        Wt::WContainerWidget *_cntTaskActivityType;
-        Wt::WVBoxLayout *_layCntTaskActivityType;
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskActivityType> *_qtvProjectTaskActivityType;
-        Wt::WPushButton *_btnCreateTaskActivityType;
+        Wt::WContainerWidget *m_cntTaskActivityType;
+        Wt::WVBoxLayout *m_layCntTaskActivityType;
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskActivityType> *m_qtvProjectTaskActivityType;
+        Wt::WPushButton *m_btnCreateTaskActivityType;
 
         //functions
-        void _createTaskActivityTypeTableView();
+        void createTaskActivityTypeTableView();
 
         /*******************--TaskType--********************/
-        Wt::WContainerWidget *_cntTaskType;
-        Wt::WVBoxLayout *_layCntTaskType;
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskType> *_qtvProjectTaskType;
-        Wt::WPushButton *_btnCreateTaskType;
+        Wt::WContainerWidget *m_cntTaskType;
+        Wt::WVBoxLayout *m_layCntTaskType;
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTaskType> *m_qtvProjectTaskType;
+        Wt::WPushButton *m_btnCreateTaskType;
 
         //functions
-        void _createTaskTypeTableView();
+        void createTaskTypeTableView();
 
         /*******************--AssetType--********************/
-        Wt::WContainerWidget *_cntAssetType;
-        Wt::WVBoxLayout *_layCntAssetType;
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectAssetType> *_qtvProjectAssetType;
-        Wt::WPushButton *_btnCreateAssetType;
+        Wt::WContainerWidget *m_cntAssetType;
+        Wt::WVBoxLayout *m_layCntAssetType;
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectAssetType> *m_qtvProjectAssetType;
+        Wt::WPushButton *m_btnCreateAssetType;
 
         //functions
-        void _createAssetTypeTableView();
+        void createAssetTypeTableView();
 
         /*******************--WorkStatus--********************/
-        Wt::WContainerWidget *_cntWorkStatus;
-        Wt::WVBoxLayout *_layCntWorkStatus;
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectWorkStatus> *_qtvProjectWorkStatus;
-        Wt::WPushButton *_btnCreateWorkStatus;
+        Wt::WContainerWidget *m_cntWorkStatus;
+        Wt::WVBoxLayout *m_layCntWorkStatus;
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectWorkStatus> *m_qtvProjectWorkStatus;
+        Wt::WPushButton *m_btnCreateWorkStatus;
 
         //functions
-        void _createWorkStatusTableView();
+        void createWorkStatusTableView();
 
         /*******************--Task Template--********************/
-        Views::ViewTaskTemplates *_viewTaskTemplates;
+        Views::ViewTaskTemplates *m_viewTaskTemplates;
 
         /*******************--Activity Template--********************/
-        Views::ViewActivityTemplates *_viewActivityTemplates;
+        Views::ViewActivityTemplates *m_viewActivityTemplates;
 
         /*******************--Users Main--********************/
-        Wt::WContainerWidget *_cntUsersSettings;//container for users settings view
-        Wt::WHBoxLayout *_layCntUsersSettings;
-        Wt::WMenu *_mnuUsersSettings;
-        Wt::WContainerWidget *_cntMnuUsersSettings;
-        Wt::WVBoxLayout *_layCntMnuUsersSettings;
-        Wt::WMenuItem *_mnuUsersSettingsUserTitlesItem;
-        Wt::WStackedWidget *_stkUsersProperties;
+        Wt::WContainerWidget *m_cntUsersSettings;//container for users settings view
+        Wt::WHBoxLayout *m_layCntUsersSettings;
+        Wt::WMenu *m_mnuUsersSettings;
+        Wt::WContainerWidget *m_cntMnuUsersSettings;
+        Wt::WVBoxLayout *m_layCntMnuUsersSettings;
+        Wt::WMenuItem *m_mnuUsersSettingsUserTitlesItem;
+        Wt::WStackedWidget *m_stkUsersProperties;
 
         /*******************--Titles--********************/
-        Wt::WContainerWidget *_cntUserTitles;
-        Wt::WVBoxLayout *_layCntUserTitles;
-        Ms::Widgets::MQueryTableViewWidget<Users::UserTitle> *_qtvUserTitle;
-        Wt::WPushButton *_btnCreateUserTitle;
+        Wt::WContainerWidget *m_cntUserTitles;
+        Wt::WVBoxLayout *m_layCntUserTitles;
+        Ms::Widgets::MQueryTableViewWidget<Users::UserTitle> *m_qtvUserTitle;
+        Wt::WPushButton *m_btnCreateUserTitle;
 
         //functions
-        void _createUsersTitlesTableView();
+        void createUsersTitlesTableView();
 
         /*******************--Global Main--********************/
-        Wt::WContainerWidget *_cntGlobalSettings;//container for global settings view
-        Wt::WHBoxLayout *_layCntGlobalSettings;
-        Wt::WMenu *_mnuGlobalSettings;
-        Wt::WContainerWidget *_cntMnuGlobalSettings;
-        Wt::WVBoxLayout *_layCntMnuGlobalSettings;
-        Wt::WMenuItem *_mnuGlobalSettingsTagsItem;
-        Wt::WStackedWidget *_stkGlobalProperties;
+        Wt::WContainerWidget *m_cntGlobalSettings;//container for global settings view
+        Wt::WHBoxLayout *m_layCntGlobalSettings;
+        Wt::WMenu *m_mnuGlobalSettings;
+        Wt::WContainerWidget *m_cntMnuGlobalSettings;
+        Wt::WVBoxLayout *m_layCntMnuGlobalSettings;
+        Wt::WMenuItem *m_mnuGlobalSettingsTagsItem;
+        Wt::WStackedWidget *m_stkGlobalProperties;
 
         /*******************--Tags--********************/
-        Wt::WContainerWidget *_cntTags;
-        Wt::WVBoxLayout *_layCntTags;
-        Ms::Widgets::MQueryTableViewWidget<Database::Tag> *_qtvTags;
-        Wt::WPushButton *_btnCreateTag;
+        Wt::WContainerWidget *m_cntTags;
+        Wt::WVBoxLayout *m_layCntTags;
+        Ms::Widgets::MQueryTableViewWidget<Database::Tag> *m_qtvTags;
+        Wt::WPushButton *m_btnCreateTag;
 
         /*******************--Properties--********************/
-        Wt::WContainerWidget *_cntPropertiesMain;
+        Wt::WContainerWidget *m_cntPropertiesMain;
 
         //functions
-        void _createTagsTableView();
+        void createTagsTableView();
 
         //slots
         //general
-        void _mnuSettingsGeneralItemTriggered();
-        void _mnuSettingsProjectsItemTriggered();
-        void _mnuSettingsUsersItemTriggered();
-        void _mnuSettingsGlobalItemTriggered();
-        void _btnSaveClicked();
+        void mnuSettingsGeneralItemTriggered();
+        void mnuSettingsProjectsItemTriggered();
+        void mnuSettingsUsersItemTriggered();
+        void mnuSettingsGlobalItemTriggered();
+        void btnSaveClicked();
         //Projects Main
-        void _mnuProjectSettingsTaskActivityTypeItemTriggered();
-        void _mnuProjectSettingsTaskTypeItemTriggered();
-        void _mnuProjectSettingsAssetTypeItemTriggered();
-        void _mnuProjectSettingsWorkStatusItemTriggered();
-        void _mnuProjectSettingsTaskTemplatesItemTriggered();
-        void _mnuProjectSettingsActivityTemplatesItemTriggered();
+        void mnuProjectSettingsTaskActivityTypeItemTriggered();
+        void mnuProjectSettingsTaskTypeItemTriggered();
+        void mnuProjectSettingsAssetTypeItemTriggered();
+        void mnuProjectSettingsWorkStatusItemTriggered();
+        void mnuProjectSettingsTaskTemplatesItemTriggered();
+        void mnuProjectSettingsActivityTemplatesItemTriggered();
         //TaskActivityType
-        void _btnCreateTaskActivityTypeClicked();
-        void _btnRemoveTaskActivityTypeClicked();
+        void btnCreateTaskActivityTypeClicked();
+        void btnRemoveTaskActivityTypeClicked();
         //TaskType
-        void _btnCreateTaskTypeClicked();
-        void _btnRemoveTaskTypeClicked();
+        void btnCreateTaskTypeClicked();
+        void btnRemoveTaskTypeClicked();
         //AssetType
-        void _btnCreateAssetTypeClicked();
-        void _btnRemoveAssetTypeClicked();
+        void btnCreateAssetTypeClicked();
+        void btnRemoveAssetTypeClicked();
         //WorkStatus
-        void _btnCreateWorkStatusClicked();
-        void _btnRemoveWorkStatusClicked();
+        void btnCreateWorkStatusClicked();
+        void btnRemoveWorkStatusClicked();
         //Users Main
-        void _mnuUsersSettingsUserTitlesItemTriggered();
+        void mnuUsersSettingsUserTitlesItemTriggered();
         //Titles
-        void _btnCreateUserTitleClicked();
-        void _btnRemoveUserTitlesClicked();
+        void btnCreateUserTitleClicked();
+        void btnRemoveUserTitlesClicked();
         //Global Main
-        void _mnuGlobalSettingsTagsItemTriggered();
+        void mnuGlobalSettingsTagsItemTriggered();
         //Titles
-        void _btnCreateTagClicked();
-        void _btnRemoveTagClicked();
+        void btnCreateTagClicked();
+        void btnRemoveTagClicked();
 
         /*******************--Properties--********************/
-        void _createPropertiesView();
+        void createPropertiesView();
 
-        void _prepareView();
+        void prepareView();
     };
 }
 

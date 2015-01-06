@@ -37,7 +37,7 @@ namespace Ms
 
             private:
                 //variables
-                std::vector<Ms::IO::Data::MDataCSVRow> _rows;
+                std::vector<Ms::IO::Data::MDataCSVRow> m_rows;
             };
         }
     }

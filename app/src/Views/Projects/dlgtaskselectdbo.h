@@ -20,16 +20,16 @@ namespace Views
 
     private:
         //variables
-        Wt::WVBoxLayout *_layMain;
-        Wt::WComboBox *_cmbType;
-        Wt::WPushButton *_btnOk;
-        Wt::WPushButton *_btnCancel;
+        Wt::WVBoxLayout *m_layMain;
+        Wt::WComboBox *m_cmbType;
+        Wt::WPushButton *m_btnOk;
+        Wt::WPushButton *m_btnCancel;
 
         //functions
-        void _prepareView();
+        void prepareView();
 
         //slots
-        void _btnOkClicked();
+        void btnOkClicked();
     };
 }
 #endif // DLGSELECTTASKDBO_H

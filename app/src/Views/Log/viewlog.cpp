@@ -6,7 +6,7 @@
 
 Views::ViewLog::ViewLog()
 {
-    _prepareView();
+    prepareView();
 }
 
 const Ms::Widgets::MLogWidget *Views::ViewLog::logWidget() const
@@ -14,13 +14,13 @@ const Ms::Widgets::MLogWidget *Views::ViewLog::logWidget() const
     return Session::SessionManager::instance().logger()->logWidget();
 }
 
-void Views::ViewLog::_prepareView()
+void Views::ViewLog::prepareView()
 {
-    _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(0);
+    m_layMain = new Wt::WVBoxLayout();
+    m_layMain->setContentsMargins(0,0,0,0);
+    m_layMain->setSpacing(0);
 
-    setLayout(_layMain);
+    setLayout(m_layMain);
 
-    _layMain->addWidget(Session::SessionManager::instance().logger()->logWidget());
+    m_layMain->addWidget(Session::SessionManager::instance().logger()->logWidget());
 }

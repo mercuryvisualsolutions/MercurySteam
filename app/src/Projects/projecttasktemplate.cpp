@@ -4,13 +4,13 @@
 Projects::ProjectTaskTemplate::ProjectTaskTemplate() :
     Ms::Dbo::MDboBase()
 {
-    _init();
+    init();
 }
 
 Projects::ProjectTaskTemplate::ProjectTaskTemplate(const std::string &name) :
     ProjectTaskTemplate()
 {
-    _name = name;
+    m_name = name;
 }
 
 Projects::ProjectTaskTemplate *Projects::ProjectTaskTemplate::modify()
@@ -22,19 +22,19 @@ Projects::ProjectTaskTemplate *Projects::ProjectTaskTemplate::modify()
 
 const std::string Projects::ProjectTaskTemplate::name() const
 {
-    return _name;
+    return m_name;
 }
 
 void Projects::ProjectTaskTemplate::setName(const std::string &name)
 {
-    _name = name;
+    m_name = name;
 }
 
 bool Projects::ProjectTaskTemplate::hasItem(Wt::Dbo::ptr<Projects::ProjectTaskTemplateTaskItem> taskItem) const
 {
     bool result = false;
 
-    for(auto iter = _items.begin(); iter != _items.end(); ++iter)
+    for(auto iter = m_items.begin(); iter != m_items.end(); ++iter)
     {
         if((*iter).id() == taskItem.id())
         {
@@ -51,7 +51,7 @@ bool Projects::ProjectTaskTemplate::addItem(Wt::Dbo::ptr<Projects::ProjectTaskTe
 {
     if(!hasItem(taskItem))
     {
-        _items.insert(taskItem);
+        m_items.insert(taskItem);
 
         return true;
     }
@@ -63,7 +63,7 @@ bool Projects::ProjectTaskTemplate::removeItem(Wt::Dbo::ptr<Projects::ProjectTas
 {
     if(hasItem(taskItem))
     {
-        _items.erase(taskItem);
+        m_items.erase(taskItem);
 
         return true;
     }
@@ -75,7 +75,7 @@ bool Projects::ProjectTaskTemplate::createTasksForProjectAsset(Wt::Dbo::ptr<Proj
 {
     std::vector<Projects::ProjectTask*> tasksVec;
 
-    for(auto iter = _items.begin(); iter != _items.end(); ++iter)
+    for(auto iter = m_items.begin(); iter != m_items.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -102,7 +102,7 @@ bool Projects::ProjectTaskTemplate::createTasksForProjectShot(Wt::Dbo::ptr<Proje
 {
     std::vector<Projects::ProjectTask*> tasksVec;
 
-    for(auto iter = _items.begin(); iter != _items.end(); ++iter)
+    for(auto iter = m_items.begin(); iter != m_items.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -129,7 +129,7 @@ bool Projects::ProjectTaskTemplate::createTasksForProjectSequence(Wt::Dbo::ptr<P
 {
     std::vector<Projects::ProjectTask*> tasksVec;
 
-    for(auto iter = _items.begin(); iter != _items.end(); ++iter)
+    for(auto iter = m_items.begin(); iter != m_items.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -156,7 +156,7 @@ bool Projects::ProjectTaskTemplate::createTasksForProject(Wt::Dbo::ptr<Projects:
 {
     std::vector<Projects::ProjectTask*> tasksVec;
 
-    for(auto iter = _items.begin(); iter != _items.end(); ++iter)
+    for(auto iter = m_items.begin(); iter != m_items.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -181,12 +181,12 @@ bool Projects::ProjectTaskTemplate::createTasksForProject(Wt::Dbo::ptr<Projects:
 
 const Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTaskTemplateTaskItem> > Projects::ProjectTaskTemplate::items() const
 {
-    return _items;
+    return m_items;
 }
 
 bool Projects::ProjectTaskTemplate::operator ==(const Projects::ProjectTaskTemplate &other) const
 {
-    return _name == other.name();
+    return m_name == other.name();
 }
 
 bool Projects::ProjectTaskTemplate::operator !=(const ProjectTaskTemplate &other) const
@@ -194,7 +194,7 @@ bool Projects::ProjectTaskTemplate::operator !=(const ProjectTaskTemplate &other
     return !operator ==(other);
 }
 
-void Projects::ProjectTaskTemplate::_init()
+void Projects::ProjectTaskTemplate::init()
 {
-    _name = "New Template";
+    m_name = "New Template";
 }

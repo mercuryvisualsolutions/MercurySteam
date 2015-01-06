@@ -22,28 +22,28 @@ namespace Views
     private:
         //variables
         /*******************--Search--********************/
-        Wt::WVBoxLayout *_layMain;//main layout
-        Wt::WStackedWidget *_stkSearch; //for switching Search
-        Wt::WNavigationBar *_navBarSearch;//Search navigation bar
-        Wt::WContainerWidget *_cntNavBarSearch;//container for navBarSearch
-        Wt::WMenu *_mnuSearch;//Search menu (holding, Projects, Users..etc)
-        Wt::WMenuItem *_mnuSearchProjectsItem;
-        Wt::WMenuItem *_mnuSearchUsersItem;
+        Wt::WVBoxLayout *m_layMain;//main layout
+        Wt::WStackedWidget *m_stkSearch; //for switching Search
+        Wt::WNavigationBar *m_navBarSearch;//Search navigation bar
+        Wt::WContainerWidget *m_cntNavBarSearch;//container for navBarSearch
+        Wt::WMenu *m_mnuSearch;//Search menu (holding, Projects, Users..etc)
+        Wt::WMenuItem *m_mnuSearchProjectsItem;
+        Wt::WMenuItem *m_mnuSearchUsersItem;
 
         //Projects
-        Wt::WVBoxLayout *_laySearchProjects;
-        Wt::WContainerWidget *_cntSearchProjects;//container for projects Search view
+        Wt::WVBoxLayout *m_laySearchProjects;
+        Wt::WContainerWidget *m_cntSearchProjects;//container for projects Search view
 
         //users
-        Wt::WVBoxLayout *_laySearchUsers;
-        Wt::WContainerWidget *_cntSearchUsers;//container for users Search view
+        Wt::WVBoxLayout *m_laySearchUsers;
+        Wt::WContainerWidget *m_cntSearchUsers;//container for users Search view
 
         //functions
         //slots
         //general
-        void _mnuSearchProjectsItemTriggered();
-        void _mnuSearchUsersItemTriggered();
-        void _prepareView();
+        void mnuSearchProjectsItemTriggered();
+        void mnuSearchUsersItemTriggered();
+        void prepareView();
     };
 }
 

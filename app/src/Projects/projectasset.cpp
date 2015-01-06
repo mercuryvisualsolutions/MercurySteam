@@ -4,13 +4,13 @@
 Projects::ProjectAsset::ProjectAsset() :
     ProjectDbo()
 {
-    _init();
+    init();
 }
 
 Projects::ProjectAsset::ProjectAsset(const std::string &assetName) :
     ProjectAsset()
 {
-    _id.name = assetName;
+    m_id.name = assetName;
 }
 
 Projects::ProjectAsset *Projects::ProjectAsset::modify()
@@ -22,41 +22,41 @@ Projects::ProjectAsset *Projects::ProjectAsset::modify()
 
 const Projects::ProjectAssetId Projects::ProjectAsset::id() const
 {
-    return _id;
+    return m_id;
 }
 
 const std::string Projects::ProjectAsset::name() const
 {
-    return _id.name;
+    return m_id.name;
 }
 
 void Projects::ProjectAsset::setName(const std::string &name)
 {
-    _id.name = name;
+    m_id.name = name;
 }
 
 std::string Projects::ProjectAsset::projectName() const
 {
-    std::string name = _id.project->name();
+    std::string name = m_id.project->name();
 
     return name;
 }
 
 Wt::Dbo::ptr<Projects::Project> Projects::ProjectAsset::project() const
 {
-    return _id.project;
+    return m_id.project;
 }
 
 void Projects::ProjectAsset::setProject(Wt::Dbo::ptr<Projects::Project> project)
 {
-    _id.project = project;
+    m_id.project = project;
 }
 
 bool Projects::ProjectAsset::hasTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const
 {
     bool result = false;
 
-    for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+    for(auto iter = m_tasks.begin(); iter != m_tasks.end(); ++iter)
     {
         if((*iter).id() == task.id())
         {
@@ -73,7 +73,7 @@ bool Projects::ProjectAsset::addTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
 {
     if(!hasTask(task))
     {
-        _tasks.insert(task);
+        m_tasks.insert(task);
 
         return true;
     }
@@ -85,7 +85,7 @@ bool Projects::ProjectAsset::removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task
 {
     if(hasTask(task))
     {
-        _tasks.erase(task);
+        m_tasks.erase(task);
 
         return true;
     }
@@ -105,7 +105,7 @@ int Projects::ProjectAsset::totalHours() const
 {
     int totalHours = 0;
 
-    for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+    for(auto iter = m_tasks.begin(); iter != m_tasks.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -120,7 +120,7 @@ int Projects::ProjectAsset::doneHours() const
 {
     int finishedHours = 0;
 
-    for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+    for(auto iter = m_tasks.begin(); iter != m_tasks.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -135,7 +135,7 @@ int Projects::ProjectAsset::totalTasks() const
 {
     int totalTasks = 0;
 
-    for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+    for(auto iter = m_tasks.begin(); iter != m_tasks.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -150,7 +150,7 @@ int Projects::ProjectAsset::doneTasks() const
 {
     int doneTasks = 0;
 
-    for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+    for(auto iter = m_tasks.begin(); iter != m_tasks.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -168,7 +168,7 @@ int Projects::ProjectAsset::totalActivities() const
 {
     int totalActivities = 0;
 
-    for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+    for(auto iter = m_tasks.begin(); iter != m_tasks.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -183,7 +183,7 @@ int Projects::ProjectAsset::doneActivities() const
 {
     int doneActivities = 0;
 
-    for(auto iter = _tasks.begin(); iter != _tasks.end(); ++iter)
+    for(auto iter = m_tasks.begin(); iter != m_tasks.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -196,17 +196,17 @@ int Projects::ProjectAsset::doneActivities() const
 
 Wt::Dbo::ptr<Projects::ProjectAssetType> Projects::ProjectAsset::type() const
 {
-    return _type;
+    return m_type;
 }
 
 void Projects::ProjectAsset::setType(const Wt::Dbo::ptr<Projects::ProjectAssetType> type)
 {
-    _type = type;
+    m_type = type;
 }
 
 bool Projects::ProjectAsset::operator ==(const Projects::ProjectAsset &other) const
 {
-    return _id == other.id();
+    return m_id == other.id();
 }
 
 bool Projects::ProjectAsset::operator !=(const Projects::ProjectAsset &other) const
@@ -214,8 +214,8 @@ bool Projects::ProjectAsset::operator !=(const Projects::ProjectAsset &other) co
     return !operator==(other);
 }
 
-void Projects::ProjectAsset::_init()
+void Projects::ProjectAsset::init()
 {
-    thumbnail_ = "pics/NoPreviewBig.png";
-    _id.name = "New Project Asset";
+    m_thumbnail = "pics/NoPreviewBig.png";
+    m_id.name = "New Project Asset";
 }

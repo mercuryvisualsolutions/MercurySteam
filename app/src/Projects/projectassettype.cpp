@@ -4,13 +4,13 @@
 Projects::ProjectAssetType::ProjectAssetType() :
     Ms::Dbo::MDboBase()
 {
-    _init();
+    init();
 }
 
 Projects::ProjectAssetType::ProjectAssetType(const std::string &type) :
     ProjectAssetType()
 {
-    _type = type;
+    m_type = type;
 }
 
 Projects::ProjectAssetType *Projects::ProjectAssetType::modify()
@@ -22,7 +22,7 @@ Projects::ProjectAssetType *Projects::ProjectAssetType::modify()
 
 bool Projects::ProjectAssetType::operator ==(const Projects::ProjectAssetType &other) const
 {
-    return _type == other.type();
+    return m_type == other.type();
 }
 
 bool Projects::ProjectAssetType::operator !=(const Projects::ProjectAssetType &other) const
@@ -32,20 +32,20 @@ bool Projects::ProjectAssetType::operator !=(const Projects::ProjectAssetType &o
 
 std::string Projects::ProjectAssetType::type() const
 {
-    return _type;
+    return m_type;
 }
 
 void Projects::ProjectAssetType::setType(const std::string &type)
 {
-    _type = type;
+    m_type = type;
 }
 
 Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectAsset>>::size_type Projects::ProjectAssetType::numAssets() const
 {
-    return _assets.size();
+    return m_assets.size();
 }
 
-void Projects::ProjectAssetType::_init()
+void Projects::ProjectAssetType::init()
 {
-    _type = "New Project Asset Type";
+    m_type = "New Project Asset Type";
 }

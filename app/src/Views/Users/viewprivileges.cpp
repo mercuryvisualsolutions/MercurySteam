@@ -8,155 +8,155 @@
 
 Views::ViewPrivileges::ViewPrivileges()
 {
-    _prepareView();
+    prepareView();
 }
 
 Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *Views::ViewPrivileges::qtvPrivileges()
 {
-    return _qtvPrivileges;
+    return m_qtvPrivileges;
 }
 
 Ms::Widgets::MQueryTableViewWidget<Users::Privilege> *Views::ViewPrivileges::qtvAssignedPrivileges()
 {
-    return _qtvAssignedPrivileges;
+    return m_qtvAssignedPrivileges;
 }
 
 void Views::ViewPrivileges::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
 {
     bool hasEditPriv = user->hasPrivilege("Edit");
 
-    _btnAssignPrivileges->setHidden(!hasEditPriv);
-    _btnUnassignPrivileges->setHidden(!hasEditPriv);
+    m_btnAssignPrivileges->setHidden(!hasEditPriv);
+    m_btnUnassignPrivileges->setHidden(!hasEditPriv);
 }
 
 Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> &Views::ViewPrivileges::assignPrivilegesRequested()
 {
-    return _assignPrivilegesRequested;
+    return m_assignPrivilegesRequested;
 }
 
 Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege>>> &Views::ViewPrivileges::unassignPrivilegesRequested()
 {
-    return _unassignPrivilegesRequested;
+    return m_unassignPrivilegesRequested;
 }
 
 Wt::Signal<std::vector<Wt::Dbo::ptr<Users::Privilege> >, bool, bool> &Views::ViewPrivileges::filterByPrivilegesRequested()
 {
-    return _filterByPrivilegesRequested;
+    return m_filterByPrivilegesRequested;
 }
 
 Wt::Signal<> &Views::ViewPrivileges::clearPrivilegesFilterRequested()
 {
-    return _clearPrivilegesFilterRequested;
+    return m_clearPrivilegesFilterRequested;
 }
 
-void Views::ViewPrivileges::_btnAssignPrivilegesClicked()
+void Views::ViewPrivileges::btnAssignPrivilegesClicked()
 {
-    _assignPrivilegesRequested(_qtvPrivileges->selectedItems());
+    m_assignPrivilegesRequested(m_qtvPrivileges->selectedItems());
 }
 
-void Views::ViewPrivileges::_btnUnassignPrivilegesClicked()
+void Views::ViewPrivileges::btnUnassignPrivilegesClicked()
 {
-    _unassignPrivilegesRequested(_qtvAssignedPrivileges->selectedItems());
+    m_unassignPrivilegesRequested(m_qtvAssignedPrivileges->selectedItems());
 }
 
-void Views::ViewPrivileges::_btnClearPrivilegesFilterClicked()
+void Views::ViewPrivileges::btnClearPrivilegesFilterClicked()
 {
-    _clearPrivilegesFilterRequested();
+    m_clearPrivilegesFilterRequested();
 }
 
-void Views::ViewPrivileges::_mnuFilterByPrivilegesExactSelectionItemTriggered()
+void Views::ViewPrivileges::mnuFilterByPrivilegesExactSelectionItemTriggered()
 {
-    _filterByPrivilegesRequested(_qtvPrivileges->selectedItems(), true, false);
+    m_filterByPrivilegesRequested(m_qtvPrivileges->selectedItems(), true, false);
 }
 
-void Views::ViewPrivileges::_mnuFilterByPrivilegesAnyOfSelectionItemTriggered()
+void Views::ViewPrivileges::mnuFilterByPrivilegesAnyOfSelectionItemTriggered()
 {
-    _filterByPrivilegesRequested(_qtvPrivileges->selectedItems(), false, false);
+    m_filterByPrivilegesRequested(m_qtvPrivileges->selectedItems(), false, false);
 }
 
-void Views::ViewPrivileges::_mnuFilterByPrivilegesNotInSelectionItemTriggered()
+void Views::ViewPrivileges::mnuFilterByPrivilegesNotInSelectionItemTriggered()
 {
-    _filterByPrivilegesRequested(_qtvPrivileges->selectedItems(), false, true);
+    m_filterByPrivilegesRequested(m_qtvPrivileges->selectedItems(), false, true);
 }
 
-void Views::ViewPrivileges::_createPrivilegesTableView()
+void Views::ViewPrivileges::createPrivilegesTableView()
 {
-    _qtvPrivileges = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Users::Privilege>(Session::SessionManager::instance().dboSession());
-    _qtvPrivileges->setImportCSVFeatureEnabled(false);
+    m_qtvPrivileges = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Users::Privilege>(Session::SessionManager::instance().dboSession());
+    m_qtvPrivileges->setImportCSVFeatureEnabled(false);
 
-    _btnAssignPrivileges = _qtvPrivileges->createToolButton("", "icons/AddTo.png", "Add selected Privileges to selected items");
-    _btnAssignPrivileges->clicked().connect(this, &Views::ViewPrivileges::_btnAssignPrivilegesClicked);
+    m_btnAssignPrivileges = m_qtvPrivileges->createToolButton("", "icons/AddTo.png", "Add selected Privileges to selected items");
+    m_btnAssignPrivileges->clicked().connect(this, &Views::ViewPrivileges::btnAssignPrivilegesClicked);
 
-    _btnFilterByPrivileges = _qtvPrivileges->createToolButton("", "icons/Filter.png", "Filter active view by selected Privileges");
+    m_btnFilterByPrivileges = m_qtvPrivileges->createToolButton("", "icons/Filter.png", "Filter active view by selected Privileges");
 
-    _mnuFilterByPrivileges = new Wt::WPopupMenu();
+    m_mnuFilterByPrivileges = new Wt::WPopupMenu();
 
-    _mnuFilterByPrivilegesExactSelectionItem = new Wt::WPopupMenuItem("Exact Selection");
-    _mnuFilterByPrivilegesExactSelectionItem->triggered().connect(this, &Views::ViewPrivileges::_mnuFilterByPrivilegesExactSelectionItemTriggered);
-    _mnuFilterByPrivileges->addItem(_mnuFilterByPrivilegesExactSelectionItem);
+    m_mnuFilterByPrivilegesExactSelectionItem = new Wt::WPopupMenuItem("Exact Selection");
+    m_mnuFilterByPrivilegesExactSelectionItem->triggered().connect(this, &Views::ViewPrivileges::mnuFilterByPrivilegesExactSelectionItemTriggered);
+    m_mnuFilterByPrivileges->addItem(m_mnuFilterByPrivilegesExactSelectionItem);
 
-    _mnuFilterByPrivilegesAnyOfSelectionItem = new Wt::WPopupMenuItem("Any Of Selection");
-    _mnuFilterByPrivilegesAnyOfSelectionItem->triggered().connect(this, &Views::ViewPrivileges::_mnuFilterByPrivilegesAnyOfSelectionItemTriggered);
-    _mnuFilterByPrivileges->addItem(_mnuFilterByPrivilegesAnyOfSelectionItem);
+    m_mnuFilterByPrivilegesAnyOfSelectionItem = new Wt::WPopupMenuItem("Any Of Selection");
+    m_mnuFilterByPrivilegesAnyOfSelectionItem->triggered().connect(this, &Views::ViewPrivileges::mnuFilterByPrivilegesAnyOfSelectionItemTriggered);
+    m_mnuFilterByPrivileges->addItem(m_mnuFilterByPrivilegesAnyOfSelectionItem);
 
-    _mnuFilterByPrivilegesNotInSelectionItem = new Wt::WPopupMenuItem("Not In Selection");
-    _mnuFilterByPrivilegesNotInSelectionItem->triggered().connect(this, &Views::ViewPrivileges::_mnuFilterByPrivilegesNotInSelectionItemTriggered);
-    _mnuFilterByPrivileges->addItem(_mnuFilterByPrivilegesNotInSelectionItem);
+    m_mnuFilterByPrivilegesNotInSelectionItem = new Wt::WPopupMenuItem("Not In Selection");
+    m_mnuFilterByPrivilegesNotInSelectionItem->triggered().connect(this, &Views::ViewPrivileges::mnuFilterByPrivilegesNotInSelectionItemTriggered);
+    m_mnuFilterByPrivileges->addItem(m_mnuFilterByPrivilegesNotInSelectionItem);
 
-    _btnFilterByPrivileges->setMenu(_mnuFilterByPrivileges);
+    m_btnFilterByPrivileges->setMenu(m_mnuFilterByPrivileges);
 
-    _btnClearPrivilegeFilter = _qtvPrivileges->createToolButton("", "icons/ClearFilter.png", "Clear Privileges filter on the active view");
-    _btnClearPrivilegeFilter->clicked().connect(this, &Views::ViewPrivileges::_btnClearPrivilegesFilterClicked);
+    m_btnClearPrivilegeFilter = m_qtvPrivileges->createToolButton("", "icons/ClearFilter.png", "Clear Privileges filter on the active view");
+    m_btnClearPrivilegeFilter->clicked().connect(this, &Views::ViewPrivileges::btnClearPrivilegesFilterClicked);
 }
 
-void Views::ViewPrivileges::_createAssignedPrivilegesTableView()
+void Views::ViewPrivileges::createAssignedPrivilegesTableView()
 {
-    _qtvAssignedPrivileges = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Users::Privilege>(Session::SessionManager::instance().dboSession());
-    _qtvAssignedPrivileges->setImportCSVFeatureEnabled(false);
+    m_qtvAssignedPrivileges = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Users::Privilege>(Session::SessionManager::instance().dboSession());
+    m_qtvAssignedPrivileges->setImportCSVFeatureEnabled(false);
 
-    _btnUnassignPrivileges = _qtvAssignedPrivileges->createToolButton("", "icons/RemoveFrom.png", "Remove selected Privileges from selected items");
-    _btnUnassignPrivileges->clicked().connect(this, &Views::ViewPrivileges::_btnUnassignPrivilegesClicked);
+    m_btnUnassignPrivileges = m_qtvAssignedPrivileges->createToolButton("", "icons/RemoveFrom.png", "Remove selected Privileges from selected items");
+    m_btnUnassignPrivileges->clicked().connect(this, &Views::ViewPrivileges::btnUnassignPrivilegesClicked);
 }
 
-void Views::ViewPrivileges::_prepareView()
+void Views::ViewPrivileges::prepareView()
 {
-    _layMain = new Wt::WVBoxLayout();
-    _layMain->setContentsMargins(0,0,0,0);
-    _layMain->setSpacing(0);
+    m_layMain = new Wt::WVBoxLayout();
+    m_layMain->setContentsMargins(0,0,0,0);
+    m_layMain->setSpacing(0);
 
-    setLayout(_layMain);
+    setLayout(m_layMain);
 
     //Privileges/AssignedPrivileges Table Views
-    _cntPrivileges = new Wt::WContainerWidget();
-    _layMain->addWidget(_cntPrivileges);
+    m_cntPrivileges = new Wt::WContainerWidget();
+    m_layMain->addWidget(m_cntPrivileges);
 
-    _layCntPrivileges = new Wt::WVBoxLayout();
-    _layCntPrivileges->setContentsMargins(0,0,0,0);
-    _layCntPrivileges->setSpacing(6);
+    m_layCntPrivileges = new Wt::WVBoxLayout();
+    m_layCntPrivileges->setContentsMargins(0,0,0,0);
+    m_layCntPrivileges->setSpacing(6);
 
-    _cntPrivileges->setLayout(_layCntPrivileges);
+    m_cntPrivileges->setLayout(m_layCntPrivileges);
 
-    _cntAssignedPrivileges = new Ms::Widgets::MContainerWidget();
-    _cntAssignedPrivileges->setTitle("<b><i>Assigned Privileges</i></b>");
+    m_cntAssignedPrivileges = new Ms::Widgets::MContainerWidget();
+    m_cntAssignedPrivileges->setTitle("<b><i>Assigned Privileges</i></b>");
 
-    _layCntPrivileges->addWidget(_cntAssignedPrivileges);
+    m_layCntPrivileges->addWidget(m_cntAssignedPrivileges);
 
-    Wt::WVBoxLayout *_layCntAssignedPrivileges = dynamic_cast<Wt::WVBoxLayout*>(_cntAssignedPrivileges->layout());
+    Wt::WVBoxLayout *_layCntAssignedPrivileges = dynamic_cast<Wt::WVBoxLayout*>(m_cntAssignedPrivileges->layout());
 
-    _createAssignedPrivilegesTableView();
-    _layCntAssignedPrivileges->addWidget(_qtvAssignedPrivileges, 1);
+    createAssignedPrivilegesTableView();
+    _layCntAssignedPrivileges->addWidget(m_qtvAssignedPrivileges, 1);
 
     //Available Privileges
-    _cntAvailablePrivileges = new Ms::Widgets::MContainerWidget();
-    _cntAvailablePrivileges->setTitle("<b><i>Available Privileges</i></b>");
+    m_cntAvailablePrivileges = new Ms::Widgets::MContainerWidget();
+    m_cntAvailablePrivileges->setTitle("<b><i>Available Privileges</i></b>");
 
-    _layCntPrivileges->addWidget(_cntAvailablePrivileges);
+    m_layCntPrivileges->addWidget(m_cntAvailablePrivileges);
 
-     Wt::WVBoxLayout *_layCntAvailablePrivileges = dynamic_cast<Wt::WVBoxLayout*>(_cntAvailablePrivileges->layout());
+     Wt::WVBoxLayout *_layCntAvailablePrivileges = dynamic_cast<Wt::WVBoxLayout*>(m_cntAvailablePrivileges->layout());
 
     //Privileges Table View
-    _createPrivilegesTableView();
-    _layCntAvailablePrivileges->addWidget(_qtvPrivileges, 1);
+    createPrivilegesTableView();
+    _layCntAvailablePrivileges->addWidget(m_qtvPrivileges, 1);
 
-    _layCntPrivileges->setResizable(0, true);
+    m_layCntPrivileges->setResizable(0, true);
 }

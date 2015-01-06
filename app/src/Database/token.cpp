@@ -5,7 +5,7 @@ Database::Token::Token()
 }
 
 Database::Token::Token(const std::string &value, const Wt::WDateTime &expires) :
-    _value(value), _expires(expires)
+    m_value(value), m_expires(expires)
 {
 }
 
@@ -18,25 +18,25 @@ Database::Token *Database::Token::modify()
 
 std::string Database::Token::value() const
 {
-    return _value;
+    return m_value;
 }
 
 void Database::Token::setValue(const std::string &value)
 {
-    _value = value;
+    m_value = value;
 }
 
 Wt::WDateTime Database::Token::expires() const
 {
-    return _expires;
+    return m_expires;
 }
 
 void Database::Token::setExpires(const Wt::WDateTime &expires)
 {
-    _expires = expires;
+    m_expires = expires;
 }
 
 const Wt::Dbo::ptr<Users::User> Database::Token::user() const
 {
-    return _user;
+    return m_user;
 }

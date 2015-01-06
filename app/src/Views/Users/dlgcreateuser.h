@@ -41,35 +41,35 @@ namespace Views
         //variables
         
         //UI
-        Wt::WHBoxLayout *_layMain;
-        Wt::WContainerWidget *_cntLeft;
-        Wt::WVBoxLayout *_layLeft;
-        Wt::WContainerWidget *_cntRight;
-        Wt::WVBoxLayout *_layRight;
-        Wt::WLineEdit *_txtUserName;
-        Wt::WLineEdit *_txtPassword;
-        Wt::WLineEdit *_txtEmailAddress;
-        Wt::WLineEdit *_txtPhoneNumber;
-        Wt::WLineEdit *_txtIdNumber;
-        Wt::WLineEdit *_txtAddress;
-        Wt::WComboBox *_cmbGroups;
-        Wt::WContainerWidget *_cntCmbGroups;
-        Wt::Dbo::QueryModel<Wt::Dbo::ptr<Users::Group>> *_mdlCmbGroups;
-        Wt::WComboBox *_cmbTitles;
-        Wt::WContainerWidget *_cntCmbTitles;
-        Wt::Dbo::QueryModel<Wt::Dbo::ptr<Users::UserTitle>> *_mdlCmbTitles;
-        Wt::WComboBox *_cmbActive;
-        Wt::WPushButton *_btnOk;
-        Wt::WPushButton *_btnCancel;
+        Wt::WHBoxLayout *m_layMain;
+        Wt::WContainerWidget *m_cntLeft;
+        Wt::WVBoxLayout *m_layLeft;
+        Wt::WContainerWidget *m_cntRight;
+        Wt::WVBoxLayout *m_layRight;
+        Wt::WLineEdit *m_txtUserName;
+        Wt::WLineEdit *m_txtPassword;
+        Wt::WLineEdit *m_txtEmailAddress;
+        Wt::WLineEdit *m_txtPhoneNumber;
+        Wt::WLineEdit *m_txtIdNumber;
+        Wt::WLineEdit *m_txtAddress;
+        Wt::WComboBox *m_cmbGroups;
+        Wt::WContainerWidget *m_cntCmbGroups;
+        Wt::Dbo::QueryModel<Wt::Dbo::ptr<Users::Group>> *m_mdlCmbGroups;
+        Wt::WComboBox *m_cmbTitles;
+        Wt::WContainerWidget *m_cntCmbTitles;
+        Wt::Dbo::QueryModel<Wt::Dbo::ptr<Users::UserTitle>> *m_mdlCmbTitles;
+        Wt::WComboBox *m_cmbActive;
+        Wt::WPushButton *m_btnOk;
+        Wt::WPushButton *m_btnCancel;
 
         //functions
-        void _prepareView();
-        void _createCmbGroups();
-        void _createCmbTitles();
-        bool _validate();
+        void prepareView();
+        void createCmbGroups();
+        void createCmbTitles();
+        bool validate();
 
         //slots
-        void _btnOkClicked();
+        void btnOkClicked();
     };
 }
 #endif // DLGCREATEUSER_H

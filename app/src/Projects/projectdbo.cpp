@@ -4,7 +4,7 @@
 Projects::ProjectDbo::ProjectDbo() :
     Database::Dbo()
 {
-    _init();
+    init();
 }
 
 Projects::ProjectDbo *Projects::ProjectDbo::modify()
@@ -16,58 +16,58 @@ Projects::ProjectDbo *Projects::ProjectDbo::modify()
 
 Wt::WDate Projects::ProjectDbo::startDate() const
 {
-    return _startDate;
+    return m_startDate;
 }
 
 void Projects::ProjectDbo::setStartDate(const Wt::WDate &startDate)
 {
-    _startDate = startDate;
+    m_startDate = startDate;
 }
 
 Wt::WDate Projects::ProjectDbo::endDate() const
 {
-    return _endDate;
+    return m_endDate;
 }
 
 void Projects::ProjectDbo::setEndDate(const Wt::WDate &endDate)
 {
-    _endDate = endDate;
+    m_endDate = endDate;
 }
 
 std::string Projects::ProjectDbo::description() const
 {
-    return _description;
+    return m_description;
 }
 
 void Projects::ProjectDbo::setDescription(const std::string &description)
 {
-    _description = description;
+    m_description = description;
 }
 
 int Projects::ProjectDbo::priority() const
 {
-    return _priority;
+    return m_priority;
 }
 
 void Projects::ProjectDbo::setPriority(int priority)
 {
-    _priority = priority;
+    m_priority = priority;
 }
 
 Wt::Dbo::ptr<Projects::ProjectWorkStatus> Projects::ProjectDbo::status() const
 {
-    return _status;
+    return m_status;
 }
 
 void Projects::ProjectDbo::setStatus(Wt::Dbo::ptr<Projects::ProjectWorkStatus> status)
 {
-    _status = status;
+    m_status = status;
 }
 
-void Projects::ProjectDbo::_init()
+void Projects::ProjectDbo::init()
 {
-    _startDate = Wt::WDate::currentDate();
-    _endDate = Wt::WDate::currentDate();
-    _description = "";
-    _priority = 0;
+    m_startDate = Wt::WDate::currentDate();
+    m_endDate = Wt::WDate::currentDate();
+    m_description = "";
+    m_priority = 0;
 }

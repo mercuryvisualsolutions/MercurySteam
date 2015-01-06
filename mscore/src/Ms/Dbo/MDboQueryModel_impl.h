@@ -21,7 +21,7 @@ namespace Ms
         Ms::Dbo::MDboQueryModel<Result>::MDboQueryModel(Wt::WObject *parent) :
             Wt::Dbo::QueryModel<Result>(parent)
         {
-            _userName = "SYSTEM";
+            m_userName = "SYSTEM";
         }
 
         template <class Result>
@@ -32,13 +32,13 @@ namespace Ms
         template <class Result>
         std::string Ms::Dbo::MDboQueryModel<Result>::userName()
         {
-            return _userName;
+            return m_userName;
         }
 
         template <class Result>
         void Ms::Dbo::MDboQueryModel<Result>::setUserName(const std::string &userName)
         {
-            _userName = userName;
+            m_userName = userName;
         }
 
         template <class Result>
@@ -63,8 +63,8 @@ namespace Ms
         {
             Result &dboPtr = this->resultRow(index.row());
 
-            dboPtr.modify()->modify()->lastModifiedDate_ = Wt::WDateTime::currentDateTime();
-            dboPtr.modify()->modify()->lastModifiedBy_ = _userName;
+            dboPtr.modify()->modify()->m_lastModifiedDate = Wt::WDateTime::currentDateTime();
+            dboPtr.modify()->modify()->m_lastModifiedBy = m_userName;
 
             return Wt::Dbo::QueryModel<Result>::setData(index, value, role);
         }

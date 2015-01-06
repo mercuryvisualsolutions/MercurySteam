@@ -4,13 +4,13 @@
 Projects::ProjectActivityTemplate::ProjectActivityTemplate() :
     Ms::Dbo::MDboBase()
 {
-    _init();
+    init();
 }
 
 Projects::ProjectActivityTemplate::ProjectActivityTemplate(const std::string &name) :
     ProjectActivityTemplate()
 {
-    _name = name;
+    m_name = name;
 }
 
 Projects::ProjectActivityTemplate *Projects::ProjectActivityTemplate::modify()
@@ -22,19 +22,19 @@ Projects::ProjectActivityTemplate *Projects::ProjectActivityTemplate::modify()
 
 const std::string Projects::ProjectActivityTemplate::name() const
 {
-    return _name;
+    return m_name;
 }
 
 void Projects::ProjectActivityTemplate::setName(const std::string &name)
 {
-    _name = name;
+    m_name = name;
 }
 
 bool Projects::ProjectActivityTemplate::hasItem(Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem> taskItem) const
 {
     bool result = false;
 
-    for(auto iter = _items.begin(); iter != _items.end(); ++iter)
+    for(auto iter = m_items.begin(); iter != m_items.end(); ++iter)
     {
         if((*iter).id() == taskItem.id())
         {
@@ -51,7 +51,7 @@ bool Projects::ProjectActivityTemplate::addItem(Wt::Dbo::ptr<Projects::ProjectAc
 {
     if(!hasItem(taskItem))
     {
-        _items.insert(taskItem);
+        m_items.insert(taskItem);
 
         return true;
     }
@@ -63,7 +63,7 @@ bool Projects::ProjectActivityTemplate::removeItem(Wt::Dbo::ptr<Projects::Projec
 {
     if(hasItem(taskItem))
     {
-        _items.erase(taskItem);
+        m_items.erase(taskItem);
 
         return true;
     }
@@ -75,7 +75,7 @@ bool Projects::ProjectActivityTemplate::createActivitiesForProjectTask(Wt::Dbo::
 {
     std::vector<Projects::ProjectTaskActivity*> activitiesVec;
 
-    for(auto iter = _items.begin(); iter != _items.end(); ++iter)
+    for(auto iter = m_items.begin(); iter != m_items.end(); ++iter)
     {
         if(!(*iter)->active())
             continue;
@@ -101,12 +101,12 @@ bool Projects::ProjectActivityTemplate::createActivitiesForProjectTask(Wt::Dbo::
 
 const Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem> > Projects::ProjectActivityTemplate::items() const
 {
-    return _items;
+    return m_items;
 }
 
 bool Projects::ProjectActivityTemplate::operator ==(const Projects::ProjectActivityTemplate &other) const
 {
-    return _name == other.name();
+    return m_name == other.name();
 }
 
 bool Projects::ProjectActivityTemplate::operator !=(const ProjectActivityTemplate &other) const
@@ -114,7 +114,7 @@ bool Projects::ProjectActivityTemplate::operator !=(const ProjectActivityTemplat
     return !operator ==(other);
 }
 
-void Projects::ProjectActivityTemplate::_init()
+void Projects::ProjectActivityTemplate::init()
 {
-    _name = "New Template";
+    m_name = "New Template";
 }

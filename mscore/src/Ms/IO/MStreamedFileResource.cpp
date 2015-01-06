@@ -9,7 +9,7 @@
 
 Ms::IO::MStreamedFileResource::MStreamedFileResource(const std::string &fileName, bool deleteWhenFinished, WObject *parent) :
     Wt::WFileResource(parent),
-    _deleteWhenFinished(deleteWhenFinished)
+    m_deleteWhenFinished(deleteWhenFinished)
 {
     setFileName(fileName);
 }
@@ -21,12 +21,12 @@ Ms::IO::MStreamedFileResource::~MStreamedFileResource()
 
 bool Ms::IO::MStreamedFileResource::deleteWhenFinished()
 {
-    return _deleteWhenFinished;
+    return m_deleteWhenFinished;
 }
 
 void Ms::IO::MStreamedFileResource::setDeleteWhenFinished(bool del)
 {
-    _deleteWhenFinished = del;
+    m_deleteWhenFinished = del;
 }
 
 void Ms::IO::MStreamedFileResource::handleRequest(const Wt::Http::Request &request, Wt::Http::Response &response)
@@ -36,7 +36,7 @@ void Ms::IO::MStreamedFileResource::handleRequest(const Wt::Http::Request &reque
 
     if (!src)//Initial request (not a continuation)
     {
-        isInUse_ = true;
+        m_isInUse = true;
 
         src = fopen(fileName().c_str(), "r");
 
@@ -49,8 +49,8 @@ void Ms::IO::MStreamedFileResource::handleRequest(const Wt::Http::Request &reque
         //response.setMimeType("application/octet-stream");
     }
 
-    size_t actualSize = fread(_buffer, 1, BUFFER_SIZE, src);
-    response.out().write(_buffer, actualSize);
+    size_t actualSize = fread(m_buffer, 1, BUFFER_SIZE, src);
+    response.out().write(m_buffer, actualSize);
 
     if (!feof(src))
     {
@@ -62,11 +62,11 @@ void Ms::IO::MStreamedFileResource::handleRequest(const Wt::Http::Request &reque
         response.out().flush();
         fclose(src);
 
-        if(_deleteWhenFinished)
+        if(m_deleteWhenFinished)
         {
             remove(fileName().c_str());
         }
 
-        isInUse_ = false;
+        m_isInUse = false;
     }
 }

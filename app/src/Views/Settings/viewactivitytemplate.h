@@ -40,40 +40,40 @@ namespace Views
     private:
         //Variables
         
-        Log::Logger *_logger;
+        Log::Logger *m_logger;
 
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectActivityTemplate> *_qtvTemplates;
-        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectActivityTemplateActivityItem> *_qtvTemplateItems;
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectActivityTemplate> *m_qtvTemplates;
+        Ms::Widgets::MQueryTableViewWidget<Projects::ProjectActivityTemplateActivityItem> *m_qtvTemplateItems;
 
         //UI variables
-        Wt::WVBoxLayout *_layMain;
-        Wt::WContainerWidget *_cntTemplatesAndItems;
-        Wt::WVBoxLayout *_layCntTemplatesAndItems;
-        Ms::Widgets::MContainerWidget *_cntTemplate;
-        Ms::Widgets::MContainerWidget *_cntTemplateItems;
-        Wt::WPushButton *_btnCreateTemplate;
-        Wt::WPushButton *_btnRemoveTemplate;
-        Wt::WPushButton *_btnCreateTemplateItem;
-        Wt::WPushButton *_btnEditTemplateItem;
-        Wt::WPushButton *_btnRemoveTemplateItem;
+        Wt::WVBoxLayout *m_layMain;
+        Wt::WContainerWidget *m_cntTemplatesAndItems;
+        Wt::WVBoxLayout *m_layCntTemplatesAndItems;
+        Ms::Widgets::MContainerWidget *m_cntTemplate;
+        Ms::Widgets::MContainerWidget *m_cntTemplateItems;
+        Wt::WPushButton *m_btnCreateTemplate;
+        Wt::WPushButton *m_btnRemoveTemplate;
+        Wt::WPushButton *m_btnCreateTemplateItem;
+        Wt::WPushButton *m_btnEditTemplateItem;
+        Wt::WPushButton *m_btnRemoveTemplateItem;
 
         //Signals
-        Wt::Signal<> _createTemplateRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>>> _removeTemplatesRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>>> _createTemplateItemRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem>>> _removeTemplateItemsRequested;
+        Wt::Signal<> m_createTemplateRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>>> m_removeTemplatesRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectActivityTemplate>>> m_createTemplateItemRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectActivityTemplateActivityItem>>> m_removeTemplateItemsRequested;
 
         //Slots
-        void _btnCreateTemplateClicked();
-        void _btnRemoveTemplatesClicked();
-        void _btnCreateTemplateItemClicked();
-        void _btnRemoveTemplateItemsClicked();
-        void _btnEditTemplateItemsClicked();
+        void btnCreateTemplateClicked();
+        void btnRemoveTemplatesClicked();
+        void btnCreateTemplateItemClicked();
+        void btnRemoveTemplateItemsClicked();
+        void btnEditTemplateItemsClicked();
 
         //Functions
-        void _createTemplatesTableView();
-        void _createTemplateItemsTableView();
-        void _prepareView();
+        void createTemplatesTableView();
+        void createTemplateItemsTableView();
+        void prepareView();
     };
 }
 

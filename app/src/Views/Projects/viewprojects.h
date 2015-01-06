@@ -75,190 +75,188 @@ namespace Views
     private:
         //functions
         template<typename T>
-        void _addDataToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec);
+        void addDataToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec);
         template<typename T>
-        void _addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec);
+        void addNoteToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec);
         template<typename T>
-        void _assignTagToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
+        void assignTagToDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
         template<typename T>
-        void _unAssignTagFromDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
+        void unAssignTagFromDbo(const std::vector<Wt::Dbo::ptr<T>> &dboVec, const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
 
         //Signals
-        Wt::Signal<> _onTabProjectsSelected;
-        Wt::Signal<> _onTabSequencesSelected;
-        Wt::Signal<> _onTabShotsSelected;
-        Wt::Signal<> _onTabAssetsSelected;
-        Wt::Signal<> _onTabTasksSelected;
+        Wt::Signal<> m_onTabProjectsSelected;
+        Wt::Signal<> m_onTabSequencesSelected;
+        Wt::Signal<> m_onTabShotsSelected;
+        Wt::Signal<> m_onTabAssetsSelected;
+        Wt::Signal<> m_onTabTasksSelected;
 
         //variables
         
-        Log::Logger *_logger;
-        Ms::Widgets::MPropertiesPanel *_propertiesPanel;
+        Log::Logger *m_logger;
+        Ms::Widgets::MPropertiesPanel *m_propertiesPanel;
 
         /*******************--Main--********************/
-        Wt::WContainerWidget *_cntProjectsAndData;
-        Wt::WHBoxLayout *_layCntProjectsAndData;
-        Wt::WStackedWidget *_stkMain; //for switching sequences, shots, assets..etc
-        Wt::WNavigationBar *_navBarMain;//project navigation bar
-        Wt::WContainerWidget *_cntNavBarMain;//container for navBarProject
-        Wt::WMenu *_mnuMain;//project menu (holding, shots, assets, sequences..etc)
-        Wt::WMenuItem *_mnuMainProjectsItem;
-        Wt::WMenuItem *_mnuMainSequencesItem;
-        Wt::WMenuItem *_mnuMainShotsItem;
-        Wt::WMenuItem *_mnuMainAssetsItem;
-        Wt::WMenuItem *_mnuMainTasksItem;
+        Wt::WStackedWidget *m_stkMain; //for switching sequences, shots, assets..etc
+        Wt::WNavigationBar *m_navBarMain;//project navigation bar
+        Wt::WContainerWidget *m_cntNavBarMain;//container for navBarProject
+        Wt::WMenu *m_mnuMain;//project menu (holding, shots, assets, sequences..etc)
+        Wt::WMenuItem *m_mnuMainProjectsItem;
+        Wt::WMenuItem *m_mnuMainSequencesItem;
+        Wt::WMenuItem *m_mnuMainShotsItem;
+        Wt::WMenuItem *m_mnuMainAssetsItem;
+        Wt::WMenuItem *m_mnuMainTasksItem;
 
         //Projects
-        Wt::WVBoxLayout *_layProjects;//Projects layout
-        Wt::WContainerWidget *_cntProjects;//container for projects view
-        Ms::Widgets::MQueryTableViewWidget<Projects::Project> *_qtvProjects;
-        Wt::WPushButton *_btnCreateProject;
-        Wt::WPushButton *_btnEditProjects;
-        Wt::WPushButton *_btnImportProjectsThumbnails;
-        Wt::WPushButton *_btnProjectsFiles;
+        Wt::WVBoxLayout *m_layProjects;//Projects layout
+        Wt::WContainerWidget *m_cntProjects;//container for projects view
+        Ms::Widgets::MQueryTableViewWidget<Projects::Project> *m_qtvProjects;
+        Wt::WPushButton *m_btnCreateProject;
+        Wt::WPushButton *m_btnEditProjects;
+        Wt::WPushButton *m_btnImportProjectsThumbnails;
+        Wt::WPushButton *m_btnProjectsFiles;
 
         //Sequences
-        Wt::WVBoxLayout *_laySequences;
-        Wt::WContainerWidget *_cntSequences;//container for each sequence view
-        Views::ViewSequences *_viewSequences;
+        Wt::WVBoxLayout *m_laySequences;
+        Wt::WContainerWidget *m_cntSequences;//container for each sequence view
+        Views::ViewSequences *m_viewSequences;
 
         //shots
-        Wt::WVBoxLayout *_layShots;
-        Wt::WContainerWidget *_cntShots;//container for shots view
-        Views::ViewShots *_viewShots;
+        Wt::WVBoxLayout *m_layShots;
+        Wt::WContainerWidget *m_cntShots;//container for shots view
+        Views::ViewShots *m_viewShots;
 
         //Assets
-        Wt::WVBoxLayout *_layAssets;
-        Wt::WContainerWidget *_cntAssets;//container for assets view
-        Views::ViewAssets *_viewAssets;
+        Wt::WVBoxLayout *m_layAssets;
+        Wt::WContainerWidget *m_cntAssets;//container for assets view
+        Views::ViewAssets *m_viewAssets;
 
         //Tasks
-        Wt::WVBoxLayout *_layTasks;
-        Wt::WContainerWidget *_cntTasks;//container for task view
-        Views::ViewTasks *_viewTasks;
+        Wt::WVBoxLayout *m_layTasks;
+        Wt::WContainerWidget *m_cntTasks;//container for task view
+        Views::ViewTasks *m_viewTasks;
 
         //Properties
-        Wt::WContainerWidget *_cntPropertiesMain;
-        Wt::WVBoxLayout *_layCntPropertiesMain;
-        Wt::WNavigationBar *_navBarProperties;
-        Wt::WMenu *_mnuNavBarProperties;
-        Wt::WMenuItem *_mnuNavBarPropertiesDataItem;
-        Wt::WMenuItem *_mnuNavBarPropertiesTagsItem;
-        Wt::WMenuItem *_mnuNavBarPropertiesNotesItem;
-        Wt::WMenuItem *_mnuNavBarPropertiesSequencesItem;
-        Wt::WMenuItem *_mnuNavBarPropertiesShotsItem;
-        Wt::WMenuItem *_mnuNavBarPropertiesAssetsItem;
-        Wt::WMenuItem *_mnuNavBarPropertiesTasksItem;
-        Wt::WMenuItem *_mnuNavBarPropertiesTaskActivitiesItem;
-        Wt::WMenuItem *_mnuNavBarPropertiesActivityTemplatesItem;
-        Wt::WMenuItem *_mnuNavBarPropertiesStatisticsItem;
-        Wt::WStackedWidget *_stkProperties;
-        Views::ViewDboData *_viewPropertiesData;
-        Views::ViewTags *_viewPropertiesTags;
-        Views::ViewNotes *_viewPropertiesNotes;
-        Views::ViewSequences *_viewPropertiesSequences;
-        Views::ViewShots *_viewPropertiesShots;
-        Views::ViewAssets *_viewPropertiesAssets;
-        Views::ViewTasks *_viewPropertiesTasks;
-        Views::ViewTaskActivity *_viewPropertiesTaskActivities;
-        Ms::Widgets::MTableViewWidget *_viewPropertiesStatistics;
+        Wt::WContainerWidget *m_cntPropertiesMain;
+        Wt::WVBoxLayout *m_layCntPropertiesMain;
+        Wt::WNavigationBar *m_navBarProperties;
+        Wt::WMenu *m_mnuNavBarProperties;
+        Wt::WMenuItem *m_mnuNavBarPropertiesDataItem;
+        Wt::WMenuItem *m_mnuNavBarPropertiesTagsItem;
+        Wt::WMenuItem *m_mnuNavBarPropertiesNotesItem;
+        Wt::WMenuItem *m_mnuNavBarPropertiesSequencesItem;
+        Wt::WMenuItem *m_mnuNavBarPropertiesShotsItem;
+        Wt::WMenuItem *m_mnuNavBarPropertiesAssetsItem;
+        Wt::WMenuItem *m_mnuNavBarPropertiesTasksItem;
+        Wt::WMenuItem *m_mnuNavBarPropertiesTaskActivitiesItem;
+        Wt::WMenuItem *m_mnuNavBarPropertiesActivityTemplatesItem;
+        Wt::WMenuItem *m_mnuNavBarPropertiesStatisticsItem;
+        Wt::WStackedWidget *m_stkProperties;
+        Views::ViewDboData *m_viewPropertiesData;
+        Views::ViewTags *m_viewPropertiesTags;
+        Views::ViewNotes *m_viewPropertiesNotes;
+        Views::ViewSequences *m_viewPropertiesSequences;
+        Views::ViewShots *m_viewPropertiesShots;
+        Views::ViewAssets *m_viewPropertiesAssets;
+        Views::ViewTasks *m_viewPropertiesTasks;
+        Views::ViewTaskActivity *m_viewPropertiesTaskActivities;
+        Ms::Widgets::MTableViewWidget *m_viewPropertiesStatistics;
 
         //slots
         /*******************--Main--********************/
         //slots
-        void _mnuMainProjectsItemTriggered();
-        void _mnuMainSequencesItemTriggered();
-        void _mnuMainShotsItemTriggered();
-        void _mnuMainAssetsItemTriggered();
-        void _mnuMainTasksItemTriggered();
+        void mnuMainProjectsItemTriggered();
+        void mnuMainSequencesItemTriggered();
+        void mnuMainShotsItemTriggered();
+        void mnuMainAssetsItemTriggered();
+        void mnuMainTasksItemTriggered();
 
         //functions
-        void _prepareView();
+        void prepareView();
 
         /*******************--Projects--********************/
         //slots
-        void _btnProjectsCreateClicked();
-        void _btnProjectsRemoveClicked();
-        void _btnProjectsEditClicked();
-        void _btnProjectsFilesClicked();
-        void _btnProjectsImportThumbnailsClicked();
-        void _projectImported(Wt::Dbo::ptr<Projects::Project> project);
+        void btnProjectsCreateClicked();
+        void btnProjectsRemoveClicked();
+        void btnProjectsEditClicked();
+        void btnProjectsFilesClicked();
+        void btnProjectsImportThumbnailsClicked();
+        void projectImported(Wt::Dbo::ptr<Projects::Project> project);
 
         //functions
-        void _createProjectsTableView();
+        void createProjectsTableView();
 
         /*******************--Sequences--********************/
         //slots
-        void _createSequenceRequested();
-        void _sequenceImported(Wt::Dbo::ptr<Projects::ProjectSequence> sequence);
+        void createSequenceRequested();
+        void sequenceImported(Wt::Dbo::ptr<Projects::ProjectSequence> sequence);
 
         //functions
-        void _createSequencesTableView();
+        void createSequencesTableView();
 
         /*******************--Shots--********************/
         //slots
-        void _createShotRequested();
-        void _shotImported(Wt::Dbo::ptr<Projects::ProjectShot> shot);
+        void createShotRequested();
+        void shotImported(Wt::Dbo::ptr<Projects::ProjectShot> shot);
 
         //functions
-        void _createShotsTableView();
+        void createShotsTableView();
 
         /*******************--Assets--********************/
         //slots
-        void _createAssetRequested();
-        void _assetImported(Wt::Dbo::ptr<Projects::ProjectAsset> asset);
+        void createAssetRequested();
+        void assetImported(Wt::Dbo::ptr<Projects::ProjectAsset> asset);
 
         //functions
-        void _createAssetsTableView();
+        void createAssetsTableView();
 
         /*******************--Tasks--********************/
         //slots
-        void _createTasksRequested();
-        void _createTasksForTemplateRequested();
-        void _taskImported(Wt::Dbo::ptr<Projects::ProjectTask> task);
+        void createTasksRequested();
+        void createTasksForTemplateRequested();
+        void taskImported(Wt::Dbo::ptr<Projects::ProjectTask> task);
 
         //functions
-        void _createTasksTableView();
+        void createTasksTableView();
 
         /*******************--Properties--********************/
 
         //slots
-        void _mnuNavBarPropertiesDataItemTriggered();
-        void _mnuNavBarPropertiesTagsItemTriggered();
-        void _mnuNavBarPropertiesNotesItemTriggered();
-        void _mnuNavBarPropertiesSequencesItemTriggered();
-        void _mnuNavBarPropertiesShotsItemTriggered();
-        void _mnuNavBarPropertiesAssetsItemTriggered();
-        void _mnuNavBarPropertiesTasksItemTriggered();
-        void _mnuNavBarPropertiesTaskActivitiesItemTriggered();
-        void _mnuNavBarPropertiesStatisticsItemTriggered();
+        void mnuNavBarPropertiesDataItemTriggered();
+        void mnuNavBarPropertiesTagsItemTriggered();
+        void mnuNavBarPropertiesNotesItemTriggered();
+        void mnuNavBarPropertiesSequencesItemTriggered();
+        void mnuNavBarPropertiesShotsItemTriggered();
+        void mnuNavBarPropertiesAssetsItemTriggered();
+        void mnuNavBarPropertiesTasksItemTriggered();
+        void mnuNavBarPropertiesTaskActivitiesItemTriggered();
+        void mnuNavBarPropertiesStatisticsItemTriggered();
 
-        void _addDataRequested();
-        void _removeDataRequested(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec);
-        void _createProjectTagRequested();
-        void _assignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
-        void _unassignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
-        void _filterByTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec, bool exactSelection, bool inverse);
-        void _clearTagsFilterRequested();
-        void _addNoteRequested();
-        void _removeNotesRequested(const std::vector<Wt::Dbo::ptr<Database::Note>> &noteVec);
-        void _createTaskActivityRequested();
-        void _createTaskActivitiesForTemplateRequested();
-        void _removeTaskActivitiesRequested(const std::vector<Wt::Dbo::ptr<Projects::ProjectTaskActivity>> &activityVec);
+        void addDataRequested();
+        void removeDataRequested(const std::vector<Wt::Dbo::ptr<Database::DboData>> &dataVec);
+        void createProjectTagRequested();
+        void assignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
+        void unassignTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec);
+        void filterByTagsRequested(const std::vector<Wt::Dbo::ptr<Database::Tag>> &tagVec, bool exactSelection, bool inverse);
+        void clearTagsFilterRequested();
+        void addNoteRequested();
+        void removeNotesRequested(const std::vector<Wt::Dbo::ptr<Database::Note>> &noteVec);
+        void createTaskActivityRequested();
+        void createTaskActivitiesForTemplateRequested();
+        void removeTaskActivitiesRequested(const std::vector<Wt::Dbo::ptr<Projects::ProjectTaskActivity>> &activityVec);
 
         //functions
-        void _createPropertiesView();
+        void createPropertiesView();
 
-        void _updatePropertiesDataView();
-        void _updatePropertiesTagsView();
-        void _updatePropertiesAssignedTagsView();
-        void _updatePropertiesNotesView();
-        void _updatePropertiesSequencesView();
-        void _updatePropertiesShotsView();
-        void _updatePropertiesAssetsView();
-        void _updatePropertiesTasksView();
-        void _updatePropertiesTaskActivitiesView();
-        void _updatePropertiesStatisticsView();
+        void updatePropertiesDataView();
+        void updatePropertiesTagsView();
+        void updatePropertiesAssignedTagsView();
+        void updatePropertiesNotesView();
+        void updatePropertiesSequencesView();
+        void updatePropertiesShotsView();
+        void updatePropertiesAssetsView();
+        void updatePropertiesTasksView();
+        void updatePropertiesTaskActivitiesView();
+        void updatePropertiesStatisticsView();
     };
 }
 

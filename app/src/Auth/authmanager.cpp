@@ -8,7 +8,7 @@
 
 Auth::AuthManager::AuthManager() :
     Ms::Core::MManagerBase(),
-    _passwordService(_authService)
+    m_passwordService(m_authService)
 {
 }
 
@@ -16,16 +16,16 @@ Auth::AuthManager::~AuthManager()
 {
     //clean up
 
-    for(std::vector<const Wt::Auth::OAuthService*>::size_type i = 0; i < _oAuthService.size(); ++i)
+    for(std::vector<const Wt::Auth::OAuthService*>::size_type i = 0; i < m_oAuthService.size(); ++i)
     {
-        delete _oAuthService[i];
+        delete m_oAuthService[i];
     }
 }
 
 void Auth::AuthManager::configureAuth()
 {
-    _authService.setAuthTokensEnabled(true, "logincookie");
-    //_authService.setEmailVerificationEnabled(true);
+    m_authService.setAuthTokensEnabled(true, "logincookie");
+    //m_authService.setEmailVerificationEnabled(true);
 
     Wt::Auth::PasswordVerifier *verifier = new Wt::Auth::PasswordVerifier();
     verifier->addHashFunction(new Wt::Auth::BCryptHashFunction(7));
@@ -34,28 +34,28 @@ void Auth::AuthManager::configureAuth()
     verifier->addHashFunction(new Wt::Auth::SHA1HashFunction());
 #endif
 
-    _passwordService.setVerifier(verifier);
-    _passwordService.setAttemptThrottlingEnabled(true);
-    _passwordService.setStrengthValidator(new Wt::Auth::PasswordStrengthValidator());
+    m_passwordService.setVerifier(verifier);
+    m_passwordService.setAttemptThrottlingEnabled(true);
+    m_passwordService.setStrengthValidator(new Wt::Auth::PasswordStrengthValidator());
 
 //    if(Wt::Auth::GoogleService::configured())
-//        _oAuthService.push_back(new Wt::Auth::GoogleService(_authService));
+//        m_oAuthService.push_back(new Wt::Auth::GoogleService(m_authService));
 
 //    if(Wt::Auth::FacebookService::configured())
-//        _oAuthService.push_back(new Wt::Auth::FacebookService(_authService));
+//        m_oAuthService.push_back(new Wt::Auth::FacebookService(m_authService));
 }
 
 const Wt::Auth::AuthService &Auth::AuthManager::authService()
 {
-    return _authService;
+    return m_authService;
 }
 
 const Wt::Auth::PasswordService &Auth::AuthManager::passwordService()
 {
-    return _passwordService;
+    return m_passwordService;
 }
 
 const std::vector<const Wt::Auth::OAuthService*> &Auth::AuthManager::oAuthService()
 {
-    return _oAuthService;
+    return m_oAuthService;
 }

@@ -10,17 +10,17 @@ namespace Ms
         template<typename T>
         Ms::Widgets::MQueryTableViewWidget<T> *Ms::Widgets::MWidgetFactory::createQueryTableViewWidget(Core::Dbo::MDboSession &dboSession, Wt::WContainerWidget *parent)
         {
-            Ms::Widgets::MQueryTableViewWidget<T> *_qtv = new Ms::Widgets::MQueryTableViewWidget<T>(dboSession, parent);
-            _qtv->setHeaderHeight(24);
-            _qtv->setRowHeight(24);
-            _qtv->setSelectionMode(Wt::ExtendedSelection);
-            _qtv->setDynamicSortFilter(true);
-            _qtv->setFilterRole(Wt::DisplayRole);
-            _qtv->setFilterRegExp("[^$]{0,255}");
-            _qtv->setDefaultFilterColumnIndex(0);
-            _qtv->setIgnoreNumFilterColumns(0);
+            Ms::Widgets::MQueryTableViewWidget<T> *qtv = new Ms::Widgets::MQueryTableViewWidget<T>(dboSession, parent);
+            qtv->setHeaderHeight(24);
+            qtv->setRowHeight(24);
+            qtv->setSelectionMode(Wt::ExtendedSelection);
+            qtv->setDynamicSortFilter(true);
+            qtv->setFilterRole(Wt::DisplayRole);
+            qtv->setFilterRegExp("[^$]{0,255}");
+            qtv->setDefaultFilterColumnIndex(0);
+            qtv->setIgnoreNumFilterColumns(0);
 
-            return _qtv;
+            return qtv;
         }
     }
 }

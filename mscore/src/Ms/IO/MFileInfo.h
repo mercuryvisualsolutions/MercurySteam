@@ -24,15 +24,15 @@ namespace Ms
 
         private:
             //variables
-            std::string _name;
-            std::string _fullName;
-            std::string _extension;
-            u_int64_t _size;
-            std::string _lastModifiedDate;
+            std::string m_name;
+            std::string m_fullName;
+            std::string m_extension;
+            u_int64_t m_size;
+            std::string m_lastModifiedDate;
 
             //functions
-            void _extractName();
-            void _extractExtension();
+            void extractName();
+            void extractExtension();
         };
     }
 }

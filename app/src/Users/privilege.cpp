@@ -5,13 +5,13 @@
 Users::Privilege::Privilege() :
     Ms::Dbo::MDboBase()
 {
-    _init();
+    init();
 }
 
 Users::Privilege::Privilege(const std::string &privilegeName) :
     Privilege()
 {
-    _name = privilegeName;
+    m_name = privilegeName;
 }
 
 Users::Privilege *Users::Privilege::modify()
@@ -23,22 +23,22 @@ Users::Privilege *Users::Privilege::modify()
 
 std::string Users::Privilege::name() const
 {
-    return _name;
+    return m_name;
 }
 
 void Users::Privilege::setName(const std::string &name)
 {
-    _name = name;
+    m_name = name;
 }
 
 const Wt::Dbo::collection<Wt::Dbo::ptr<Users::Group>> Users::Privilege::groups() const
 {
-    return _groups;
+    return m_groups;
 }
 
 bool Users::Privilege::operator ==(const Users::Privilege &other) const
 {
-    return _name == other.name();
+    return m_name == other.name();
 }
 
 bool Users::Privilege::operator !=(const Users::Privilege &other) const
@@ -46,7 +46,7 @@ bool Users::Privilege::operator !=(const Users::Privilege &other) const
     return !operator ==(other);
 }
 
-void Users::Privilege::_init()
+void Users::Privilege::init()
 {
-    _name = "New Privilege";
+    m_name = "New Privilege";
 }

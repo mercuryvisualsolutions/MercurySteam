@@ -30,7 +30,7 @@ namespace Ms
                 Wt::WWidget *update(Wt::WWidget *widget, const Wt::WModelIndex &index, Wt::WFlags<Wt::ViewItemRenderFlag> flags) override;
 
             private:
-                std::vector<std::string> _items;
+                std::vector<std::string> m_items;
             };
         }
     }

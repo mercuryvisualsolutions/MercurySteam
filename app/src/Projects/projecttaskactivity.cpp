@@ -4,7 +4,7 @@
 Projects::ProjectTaskActivity::ProjectTaskActivity() :
     Ms::Dbo::MDboBase()
 {
-    _init();
+    init();
 }
 
 Projects::ProjectTaskActivity *Projects::ProjectTaskActivity::modify()
@@ -16,57 +16,57 @@ Projects::ProjectTaskActivity *Projects::ProjectTaskActivity::modify()
 
 int Projects::ProjectTaskActivity::hours() const
 {
-    return _hours;
+    return m_hours;
 }
 
 void Projects::ProjectTaskActivity::setHours(int hours)
 {
-    _hours = hours;
+    m_hours = hours;
 }
 
 std::string Projects::ProjectTaskActivity::description() const
 {
-    return _description;
+    return m_description;
 }
 
 void Projects::ProjectTaskActivity::setDescription(const std::string &description)
 {
-    _description = description;
+    m_description = description;
 }
 
 const Wt::Dbo::ptr<Projects::ProjectWorkStatus> Projects::ProjectTaskActivity::status() const
 {
-    return _status;
+    return m_status;
 }
 
 void Projects::ProjectTaskActivity::setStatus(const Wt::Dbo::ptr<Projects::ProjectWorkStatus> status)
 {
-    _status = status;
+    m_status = status;
 }
 
 const Wt::Dbo::ptr<Projects::ProjectTaskActivityType> Projects::ProjectTaskActivity::type() const
 {
-    return _type;
+    return m_type;
 }
 
 void Projects::ProjectTaskActivity::setType(const Wt::Dbo::ptr<Projects::ProjectTaskActivityType> type)
 {
-    _type = type;
+    m_type = type;
 }
 
 const Wt::Dbo::ptr<Projects::ProjectTask> Projects::ProjectTaskActivity::task() const
 {
-    return _task;
+    return m_task;
 }
 
 void Projects::ProjectTaskActivity::setTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
 {
-    _task = task;
+    m_task = task;
 }
 
 bool Projects::ProjectTaskActivity::operator ==(const Projects::ProjectTaskActivity &other) const
 {
-    return _type.id() == other.type().id();
+    return m_type.id() == other.type().id();
 }
 
 bool Projects::ProjectTaskActivity::operator !=(const ProjectTaskActivity &other) const
@@ -74,7 +74,7 @@ bool Projects::ProjectTaskActivity::operator !=(const ProjectTaskActivity &other
     return !operator==(other);
 }
 
-void Projects::ProjectTaskActivity::_init()
+void Projects::ProjectTaskActivity::init()
 {
-    _hours = 0;
+    m_hours = 0;
 }

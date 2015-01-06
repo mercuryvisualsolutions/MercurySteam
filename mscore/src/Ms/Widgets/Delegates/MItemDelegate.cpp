@@ -14,7 +14,7 @@
 Ms::Widgets::Delegates::MItemDelegate::MItemDelegate() :
     Wt::WItemDelegate()
 {
-    _editRank = 0;
+    m_editRank = 0;
 }
 
 Ms::Widgets::Delegates::MItemDelegate::MItemDelegate(int editRank) :
@@ -25,12 +25,12 @@ Ms::Widgets::Delegates::MItemDelegate::MItemDelegate(int editRank) :
 
 int Ms::Widgets::Delegates::MItemDelegate::editRank()
 {
-    return _editRank;
+    return m_editRank;
 }
 
 void Ms::Widgets::Delegates::MItemDelegate::setEditRank(int editRank)
 {
-    _editRank = editRank;
+    m_editRank = editRank;
 }
 
 Wt::WWidget *Ms::Widgets::Delegates::MItemDelegate::update(Wt::WWidget *widget, const Wt::WModelIndex &index, Wt::WFlags<Wt::ViewItemRenderFlag> flags)
@@ -80,7 +80,7 @@ Wt::WWidget *Ms::Widgets::Delegates::MItemDelegate::update(Wt::WWidget *widget, 
     if(!rankData.empty())
     {
         int rank = boost::any_cast<int>(rankData);
-        if(rank > _editRank)//edit rank is not high engough ?
+        if(rank > m_editRank)//edit rank is not high engough ?
             widgetRef.w->setDisabled(true);//prevent editing
     }
 

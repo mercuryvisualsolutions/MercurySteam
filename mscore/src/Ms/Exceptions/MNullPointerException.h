@@ -19,7 +19,7 @@ namespace Ms
             virtual const char *what() throw();
 
         private:
-            std::string _message;
+            std::string m_message;
         };
     }
 }

@@ -27,23 +27,23 @@ namespace Views
 
     private:
         //Variables
-        Ms::Widgets::MQueryTableViewWidget<Database::DboData> *_qtvData;
-        Wt::WPushButton *_btnCreateData;
+        Ms::Widgets::MQueryTableViewWidget<Database::DboData> *m_qtvData;
+        Wt::WPushButton *m_btnCreateData;
         
         //UI variables
-        Wt::WVBoxLayout *_layMain;
+        Wt::WVBoxLayout *m_layMain;
 
         //Signals
-        Wt::Signal<> _addDataRequested;
-        Wt::Signal<std::vector<Wt::Dbo::ptr<Database::DboData>>> _removeDataRequested;
+        Wt::Signal<> m_addDataRequested;
+        Wt::Signal<std::vector<Wt::Dbo::ptr<Database::DboData>>> m_removeDataRequested;
 
         //Slots
-        void _btnCreateDataClicked();
-        void _btnRemoveDataClicked();
+        void btnCreateDataClicked();
+        void btnRemoveDataClicked();
 
         //Functions
-        void _createDataTableView();
-        void _prepareView();
+        void createDataTableView();
+        void prepareView();
     };
 }
 
