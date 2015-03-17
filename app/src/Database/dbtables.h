@@ -318,6 +318,51 @@ namespace Database
         Wt::WDateTime m_expires;
         Wt::Dbo::ptr<Users::User> m_user;
     };
+
+//    class Notifier : public Database::Dbo
+//    {
+//    public:
+//        Notifier();
+
+//        template<class Action>
+//        void persist(Action &a)
+//        {
+//            Database::Dbo::persist<Action>(a);
+//        }
+
+//    private:
+//        Wt::Dbo::collection<Wt::Dbo::ptr<Users::User>> m_users;//users subscriped to this dbo
+//    };
+
+    class Notification : public Ms::Dbo::MDboBase
+    {
+    public:
+        Notification();
+        Notification(const std::string &message);
+
+        //variables
+
+        //functions
+        Notification *modify() override;
+
+        std::string message() const;
+        void setMessage(const std::string &message);
+
+        //DBO functions
+        template<class Action>
+        void persist(Action &a)
+        {
+            Wt::Dbo::field(a, m_message, "Message", 255);
+
+            Wt::Dbo::hasMany(a, m_users, Wt::Dbo::ManyToMany, "rel_user_notifications");
+
+            Ms::Dbo::MDboBase::persist<Action>(a);
+        }
+
+    private:
+        std::string m_message;
+        Wt::Dbo::collection<Wt::Dbo::ptr<Users::User>> m_users;//users who should receive this notification
+    };
 }
 
 namespace Users
@@ -549,6 +594,7 @@ namespace Users
             Wt::Dbo::hasMany(a, m_notes, Wt::Dbo::ManyToOne, "User");//create a ManyToOne relationship to the table "note
             Wt::Dbo::hasMany(a, m_tags, Wt::Dbo::ManyToMany, "rel_user_tags");//create a ManyToMany relationship to the table "tag
             Wt::Dbo::hasMany(a, m_assignedTags, Wt::Dbo::ManyToMany, "rel_user_assigned_tags");//create a ManyToMany relationship to the table "tag"
+            Wt::Dbo::hasMany(a, m_notifications, Wt::Dbo::ManyToMany, "rel_user_notifications");//create a many to many relationship to the table notifications
 
             Dbo::persist<Action>(a);
         }
@@ -572,6 +618,7 @@ namespace Users
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>> m_tasks;//tasks this user has
         Wt::Dbo::collection<Wt::Dbo::ptr<Database::Token>> m_authTokens;//tokens this user has
         Wt::Dbo::weak_ptr<Projects::Project> m_project;//project this user manage
+        Wt::Dbo::collection<Wt::Dbo::ptr<Database::Notification>> m_notifications;//notifications this user has
         int m_createRank;
 
         //functions

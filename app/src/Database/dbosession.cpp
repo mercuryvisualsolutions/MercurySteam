@@ -43,6 +43,7 @@ void Database::DboSession::mapClasses()
     mapClass<Database::Note>("note");
     mapClass<Database::Tag>("tag");
     mapClass<Database::Token>("token");
+    mapClass<Database::Notification>("notification");
 
     //users
     mapClass<Users::Privilege>("privilege");

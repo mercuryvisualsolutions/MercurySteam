@@ -1,6 +1,7 @@
 #include "dbtables.h"
 
-Database::Token::Token()
+Database::Token::Token() :
+    m_value("")
 {
 }
 

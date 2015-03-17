@@ -96,7 +96,8 @@ SOURCES += main.cpp \
     Application/msapplication.cpp \
     Database/userdatabase.cpp \
     Database/token.cpp \
-    Database/dbosession.cpp
+    Database/dbosession.cpp \
+    Database/notification.cpp
 
 HEADERS += \
     Views/Projects/viewprojects.h \
