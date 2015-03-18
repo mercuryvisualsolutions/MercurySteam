@@ -95,6 +95,57 @@ void Views::ViewMyDashboard::updateTasksView()
     }
 }
 
+void Views::ViewMyDashboard::updateNotificationsView()
+{
+    if(!Session::SessionManager::instance().login().user().isValid())
+        return;
+
+    try
+    {
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+        Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
+
+        std::string queryStr = "SELECT n FROM notification n WHERE n.id IN (SELECT un.notification_id FROM rel_user_notifications un WHERE un.user_Name = '" + user->name() + "')";
+        //std::string queryStr = "SELECT n FROM notification n";
+
+        Wt::Dbo::Query<Wt::Dbo::ptr<Database::Notification>> query = Session::SessionManager::instance().dboSession().query<Wt::Dbo::ptr<Database::Notification>>(queryStr);
+
+        //std::string notificationIdsSelect = "SELECT un.notification_id FROM rel_user_notifications un WHERE un.user_Name = '" + user->name() + "'";
+
+        //only load active data if selected from settings
+        if(!AppSettings::instance().isLoadInactiveData())
+            query.where("Active = ?").bind(true);
+
+        query.orderBy("n.Date_Created DESC").limit(500);//order by newer notifications and set results limit to 500
+
+        m_qtvNotifications->setQuery(query);
+
+        transaction.commit();
+
+        m_qtvNotifications->clearColumns();
+
+        //add columns
+        m_qtvNotifications->addColumn(Ms::Widgets::MQueryTableViewColumn("id", "ID", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, false, true));
+        m_qtvNotifications->addColumn(Ms::Widgets::MQueryTableViewColumn("Message", "Message", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, true));
+
+        m_qtvNotifications->addColumn(Ms::Widgets::MQueryTableViewColumn("Date_Created", "Date Created", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, false, true));
+        m_qtvNotifications->addColumn(Ms::Widgets::MQueryTableViewColumn("Created_By", "Created By", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, false, true));
+        m_qtvNotifications->addColumn(Ms::Widgets::MQueryTableViewColumn("Last_Modified_Date", "Last Modified Date", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, false, true));
+        m_qtvNotifications->addColumn(Ms::Widgets::MQueryTableViewColumn("Last_Modified_By", "Last Modified By", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, false, true));
+
+        m_qtvNotifications->updateView();
+    }
+    catch(Wt::Dbo::Exception ex)
+    {
+        std::cerr << "Error occured while trying to update notifications view" << std::endl << ex.what() << std::endl;
+    }
+    catch(...)
+    {
+        std::cerr << "Error occured while trying to update notifications view" << std::endl;
+    }
+}
+
 void Views::ViewMyDashboard::showPropertiesView()
 {
     m_propertiesPanel->showView("MyDashboard");
@@ -105,9 +156,19 @@ bool Views::ViewMyDashboard::isTasksViewShown() const
     return m_stkMain->currentWidget() == m_qtvTasks;
 }
 
+bool Views::ViewMyDashboard::isNotificationsViewShown() const
+{
+    return m_stkMain->currentWidget() == m_qtvNotifications;
+}
+
 Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *Views::ViewMyDashboard::tasksQueryTableView() const
 {
     return m_qtvTasks;
+}
+
+Ms::Widgets::MQueryTableViewWidget<Database::Notification> *Views::ViewMyDashboard::notificationsQueryTableView() const
+{
+    return m_qtvNotifications;
 }
 
 void Views::ViewMyDashboard::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
@@ -124,6 +185,11 @@ void Views::ViewMyDashboard::adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user)
 Wt::Signal<> &Views::ViewMyDashboard::onTabMyTasksSelected()
 {
     return m_onTabMyTasksSelected;
+}
+
+Wt::Signal<> &Views::ViewMyDashboard::onTabNotificationsSelected()
+{
+    return m_onTabNotificationsSelected;
 }
 
 void Views::ViewMyDashboard::createTasksTableView()
@@ -169,7 +235,10 @@ void Views::ViewMyDashboard::btnTasksFilesClicked()
                 if(taskPtr->project().get())
                     path = Projects::ProjectsIO::getRelativeProjectTaskDir(taskPtr->project()->name(), taskPtr.id()) + Ms::IO::dirSeparator() + "files";
                 else
-                    m_logger->log("Task does not belong to a project.", Ms::Log::LogMessageType::Warning);
+                    m_logger->log("Task does not belong to a project.", Ms::Log::LogMessageType::Warning);m_stkMain->setCurrentWidget(m_qtvNotifications);
+                updateNotificationsView();
+
+                m_onTabNotificationsSelected();
             }
             else if(dlgSelectDbo->type() == "Sequence")
             {
@@ -233,6 +302,37 @@ void Views::ViewMyDashboard::mnuNavBarMainMyTasksItemTriggered()
     m_onTabMyTasksSelected();
 }
 
+void Views::ViewMyDashboard::createNotificationsTableView()
+{
+    m_qtvNotifications = new Ms::Widgets::MQueryTableViewWidget<Database::Notification>(Session::SessionManager::instance().dboSession());
+    m_qtvNotifications->setRowHeight(25);
+    m_qtvNotifications->setSelectionMode(Wt::ExtendedSelection);
+    m_qtvNotifications->setDynamicSortFilter(true);
+    m_qtvNotifications->setFilterRole(Wt::DisplayRole);
+    m_qtvNotifications->setDefaultFilterColumnIndex(0);
+    m_qtvNotifications->setImportCSVFeatureEnabled(false);
+
+    updateNotificationsView();
+}
+
+void Views::ViewMyDashboard::m_mnuNavBarMainNotificationsItemTriggered()
+{
+    m_stkMain->setCurrentWidget(m_qtvNotifications);
+
+    Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
+
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+    //reset user last seen notification date when user clicks the notification tab
+    user.modify()->setLastSeenNotificationsDate(Wt::WDateTime::currentDateTime());
+
+    transaction.commit();
+
+    updateNotificationsView();
+
+    m_onTabNotificationsSelected();
+}
+
 void Views::ViewMyDashboard::createPropertiesView()
 {
     m_cntPropertiesMain = new Wt::WContainerWidget();
@@ -264,12 +364,20 @@ void Views::ViewMyDashboard::prepareView()
 
     m_mnuNavBarMain->addItem(m_mnuNavBarMainMyTasksItem);
 
+    m_mnuNavBarMainNotificationsItem = new Wt::WMenuItem("Notifications");
+    m_mnuNavBarMainNotificationsItem->triggered().connect(this, &Views::ViewMyDashboard::m_mnuNavBarMainNotificationsItemTriggered);
+
+    m_mnuNavBarMain->addItem(m_mnuNavBarMainNotificationsItem);
+
     m_stkMain = new Wt::WStackedWidget();
     m_stkMain->setTransitionAnimation(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Fade, Wt::WAnimation::TimingFunction::EaseInOut), true);
     m_layMain->addWidget(m_stkMain, 1);
 
     createTasksTableView();
     m_stkMain->addWidget(m_qtvTasks);
+
+    createNotificationsTableView();
+    m_stkMain->addWidget(m_qtvNotifications);
 
     /*******************--Properties--********************/
     createPropertiesView();

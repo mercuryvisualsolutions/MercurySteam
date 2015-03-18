@@ -239,6 +239,16 @@ void Users::User::setProject(Wt::Dbo::weak_ptr<Projects::Project> project)
     m_project = project;
 }
 
+Wt::WDateTime Users::User::lastSeenNotificationsDate()
+{
+    return m_lastSeenNotificationDate;
+}
+
+void Users::User::setLastSeenNotificationsDate(const Wt::WDateTime &date)
+{
+    m_lastSeenNotificationDate = date;
+}
+
 Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask> > Users::User::tasks()
 {
     return m_tasks;
@@ -275,4 +285,5 @@ void Users::User::init()
     m_emailAddress = "";
     m_address = "";
     m_createRank = 0;
+    m_lastSeenNotificationDate = Wt::WDateTime::currentDateTime().addMonths(-1);//set last notifications seen date to a month old when creating new users
 }

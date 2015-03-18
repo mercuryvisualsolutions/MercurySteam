@@ -561,6 +561,8 @@ namespace Users
         void setTitle(Wt::Dbo::ptr<Users::UserTitle> title);
         Wt::Dbo::weak_ptr<Projects::Project> project() const;
         void setProject(Wt::Dbo::weak_ptr<Projects::Project> project);//project this user manage
+        Wt::WDateTime lastSeenNotificationsDate();
+        void setLastSeenNotificationsDate(const Wt::WDateTime & date);
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>> tasks();
         Wt::Dbo::collection<Wt::Dbo::ptr<Database::Token>> authTokens() const;
 
@@ -585,6 +587,8 @@ namespace Users
             Wt::Dbo::field(a, m_emailAddress, "Email_Address", 255);
             Wt::Dbo::field(a, m_address, "Address", 255);
             Wt::Dbo::field(a, m_createRank, "Create_Rank");
+            Wt::Dbo::field(a, m_lastSeenNotificationDate, "Last_Seen_Notification_Date");
+
             Wt::Dbo::belongsTo(a, m_group, "Group");//create a OneToMany relationship to the table "group"
             Wt::Dbo::belongsTo(a, m_title, "Title");//create a OneToMany relationship to the table "title"
             Wt::Dbo::hasMany(a, m_tasks, Wt::Dbo::ManyToOne, "Task_User");//create a ManyToOne relationship to the table "project_task"
@@ -613,6 +617,7 @@ namespace Users
         std::string m_phoneNumber;
         std::string m_emailAddress;
         std::string m_address;
+        Wt::WDateTime m_lastSeenNotificationDate;
         Wt::Dbo::ptr<Users::Group> m_group;//group this user in
         Wt::Dbo::ptr<Users::UserTitle> m_title;//title this user has
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>> m_tasks;//tasks this user has

@@ -34,16 +34,20 @@ namespace Views
         //functions
         void updateView();
         void updateTasksView();
+        void updateNotificationsView();
         void showPropertiesView();
 
         bool isTasksViewShown() const;
+        bool isNotificationsViewShown() const;
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *tasksQueryTableView() const;
+        Ms::Widgets::MQueryTableViewWidget<Database::Notification> *notificationsQueryTableView() const;
 
         //functions
         void adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user);
 
         //Signals
         Wt::Signal<> &onTabMyTasksSelected();
+        Wt::Signal<> &onTabNotificationsSelected();
 
     private:
         //variables
@@ -53,19 +57,24 @@ namespace Views
 
         //Signals
         Wt::Signal<> m_onTabMyTasksSelected;
+        Wt::Signal<> m_onTabNotificationsSelected;
 
         /*******************--Main--********************/
         Wt::WNavigationBar *m_navBarMain;
         Wt::WContainerWidget *m_cntNavBarMain;
         Wt::WMenu *m_mnuNavBarMain;
         Wt::WMenuItem *m_mnuNavBarMainMyTasksItem;
+        Wt::WMenuItem *m_mnuNavBarMainNotificationsItem;
         Wt::WStackedWidget *m_stkMain;
 
         /*******************--MyTasks--********************/
         Wt::WVBoxLayout *m_layTasks;
-        Wt::WContainerWidget *m_cntTasks;//container for task view
         Ms::Widgets::MQueryTableViewWidget<Projects::ProjectTask> *m_qtvTasks;
         Wt::WPushButton *m_btnTaskFiles;
+
+        /*******************--Notifications--********************/
+        Wt::WVBoxLayout *m_layNotifications;
+        Ms::Widgets::MQueryTableViewWidget<Database::Notification> *m_qtvNotifications;
 
         /*******************--Properties--********************/
         Wt::WContainerWidget *m_cntPropertiesMain;
@@ -77,6 +86,13 @@ namespace Views
         //slots
         void btnTasksFilesClicked();
         void mnuNavBarMainMyTasksItemTriggered();
+
+        /*******************--Notifications--********************/
+        //functions
+        void createNotificationsTableView();
+
+        //slots
+        void m_mnuNavBarMainNotificationsItemTriggered();
 
         /*******************--Properties--********************/
         void createPropertiesView();
