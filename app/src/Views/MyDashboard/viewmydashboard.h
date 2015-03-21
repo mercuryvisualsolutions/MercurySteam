@@ -44,6 +44,7 @@ namespace Views
 
         //functions
         void adjustUIPrivileges(Wt::Dbo::ptr<Users::User> user);
+        void resetUserLastSeenNotificationDate();
 
         //Signals
         Wt::Signal<> &onTabMyTasksSelected();
@@ -90,6 +91,7 @@ namespace Views
         /*******************--Notifications--********************/
         //functions
         void createNotificationsTableView();
+        void updateNotificationsCount();
 
         //slots
         void m_mnuNavBarMainNotificationsItemTriggered();

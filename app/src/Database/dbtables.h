@@ -561,7 +561,7 @@ namespace Users
         void setTitle(Wt::Dbo::ptr<Users::UserTitle> title);
         Wt::Dbo::weak_ptr<Projects::Project> project() const;
         void setProject(Wt::Dbo::weak_ptr<Projects::Project> project);//project this user manage
-        Wt::WDateTime lastSeenNotificationsDate();
+        Wt::WDateTime lastSeenNotificationsDate() const;
         void setLastSeenNotificationsDate(const Wt::WDateTime & date);
         Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>> tasks();
         Wt::Dbo::collection<Wt::Dbo::ptr<Database::Token>> authTokens() const;

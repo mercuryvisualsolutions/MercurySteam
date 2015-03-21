@@ -25,8 +25,16 @@ Views::ViewMyDashboard::ViewMyDashboard() :
 
 void Views::ViewMyDashboard::updateView()
 {
+    updateNotificationsCount();
+
     if(m_stkMain->currentWidget() == m_qtvTasks)
         updateTasksView();
+    else if(m_stkMain->currentWidget() == m_qtvNotifications)
+    {
+        updateNotificationsView();
+
+        resetUserLastSeenNotificationDate();
+    }
 }
 
 void Views::ViewMyDashboard::updateTasksView()
@@ -315,10 +323,44 @@ void Views::ViewMyDashboard::createNotificationsTableView()
     updateNotificationsView();
 }
 
-void Views::ViewMyDashboard::m_mnuNavBarMainNotificationsItemTriggered()
+void Views::ViewMyDashboard::updateNotificationsCount()
 {
-    m_stkMain->setCurrentWidget(m_qtvNotifications);
+    try
+    {
+        Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
+        Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
+
+        std::string queryStr = "SELECT COUNT(n.id) FROM notification n WHERE n.id IN (SELECT un.notification_id FROM rel_user_notifications un WHERE un.user_Name = '" + user->name() +
+                "') AND n.Date_Created > ?";
+
+        Wt::Dbo::Query<int> notifCountQuery = Session::SessionManager::instance().dboSession().query<int>(queryStr).bind(user->lastSeenNotificationsDate());
+
+        //only load active data if selected from settings
+        if(!AppSettings::instance().isLoadInactiveData())
+            notifCountQuery.where("Active = ?").bind(true);
+
+        notifCountQuery.limit(500);
+
+        //transaction.commit();
+
+        int count = notifCountQuery.resultValue();
+
+        m_mnuNavBarMainNotificationsItem->setText("Notifications-[" + std::to_string(count) + "]");
+
+    }
+    catch(Wt::Dbo::Exception ex)
+    {
+        std::cout << "Error occured while updating my dashboard view!" << std::endl << ex.what() << std::endl;
+    }
+    catch(...)
+    {
+        std::cout << "Error occured while updating my dashboard view!" << std::endl;
+    }
+}
+
+void Views::ViewMyDashboard::resetUserLastSeenNotificationDate()
+{
     Wt::Dbo::ptr<Users::User> user = Session::SessionManager::instance().user();
 
     Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
@@ -327,8 +369,15 @@ void Views::ViewMyDashboard::m_mnuNavBarMainNotificationsItemTriggered()
     user.modify()->setLastSeenNotificationsDate(Wt::WDateTime::currentDateTime());
 
     transaction.commit();
+}
+
+void Views::ViewMyDashboard::m_mnuNavBarMainNotificationsItemTriggered()
+{
+    m_stkMain->setCurrentWidget(m_qtvNotifications);
 
     updateNotificationsView();
+
+    resetUserLastSeenNotificationDate();
 
     m_onTabNotificationsSelected();
 }
@@ -378,6 +427,8 @@ void Views::ViewMyDashboard::prepareView()
 
     createNotificationsTableView();
     m_stkMain->addWidget(m_qtvNotifications);
+
+    updateNotificationsCount();
 
     /*******************--Properties--********************/
     createPropertiesView();

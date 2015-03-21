@@ -239,7 +239,7 @@ void Users::User::setProject(Wt::Dbo::weak_ptr<Projects::Project> project)
     m_project = project;
 }
 
-Wt::WDateTime Users::User::lastSeenNotificationsDate()
+Wt::WDateTime Users::User::lastSeenNotificationsDate() const
 {
     return m_lastSeenNotificationDate;
 }
