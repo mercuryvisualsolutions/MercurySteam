@@ -47,7 +47,8 @@ namespace Ms
             virtual void setActive(bool active);
             virtual MDboBase *modify();
             const Core::Dbo::MDboSession *dboSession() const;
-            void setDboManager(const Ms::Core::Dbo::MDboSession *dboSession);
+            virtual void setDboManager(const Ms::Core::Dbo::MDboSession *dboSession);
+            virtual void dataAboutToBeChanged(const Wt::WModelIndex &index, const boost::any &value, int role);
 
         protected:
             std::string m_thumbnail;

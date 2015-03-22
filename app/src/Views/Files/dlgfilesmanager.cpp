@@ -578,7 +578,11 @@ void Views::DlgFilesManager::prepareView()
     m_layMain->addWidget(m_cntFiles, 1);
 
     createDirTree();
-    m_layFiles->addWidget(m_trDirs);
+    Wt::WContainerWidget *m_cntTrDirs = new Wt::WContainerWidget();
+    m_cntTrDirs->setStyleClass("panel-border-right");
+    m_cntTrDirs->addWidget(m_trDirs);
+
+    m_layFiles->addWidget(m_cntTrDirs);
 
     createFilesTable();
     m_layFiles->addWidget(m_tblFiles, 1);

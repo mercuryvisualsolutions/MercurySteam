@@ -1,5 +1,9 @@
 #include "MDboBase.h"
 
+#include <Wt/WBoostAny>
+#include <Wt/WModelIndex>
+#include <Wt/WAbstractItemModel>
+
 Ms::Dbo::MDboBase::MDboBase()
 {
     init();
@@ -101,6 +105,15 @@ const Ms::Core::Dbo::MDboSession *Ms::Dbo::MDboBase::dboSession() const
 void Ms::Dbo::MDboBase::setDboManager(const Core::Dbo::MDboSession *dboSession)
 {
     m_dboSession = dboSession;
+}
+
+void Ms::Dbo::MDboBase::dataAboutToBeChanged(const Wt::WModelIndex &index, const boost::any &value, int role)
+{
+    std::string headerName = Wt::asString(index.model()->headerData(index.column())).toUTF8();
+    std::string orgValue = Wt::asString(index.data(role)).toUTF8();
+    std::string newValue = Wt::asString(value).toUTF8();
+
+    std::cout << "Field " << headerName << "changed from " << orgValue << "to " << newValue << std::endl;
 }
 
 void Ms::Dbo::MDboBase::init()

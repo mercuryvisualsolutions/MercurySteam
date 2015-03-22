@@ -949,7 +949,7 @@ void Views::ViewSettings::prepareView()
     m_layCntMnuProjectSettings->setSpacing(0);
 
     m_cntMnuProjectSettings = new Wt::WContainerWidget();
-    //m_cntMnuProjectSettings->setStyleClass("panel-border-right");
+    m_cntMnuProjectSettings->setStyleClass("panel-border-right");
     m_cntMnuProjectSettings->setLayout(m_layCntMnuProjectSettings);
 
     m_layCntProjectsSettings->addWidget(m_cntMnuProjectSettings);
@@ -1077,7 +1077,7 @@ void Views::ViewSettings::prepareView()
     m_layCntMnuUsersSettings->setSpacing(0);
 
     m_cntMnuUsersSettings = new Wt::WContainerWidget();
-    //m_cntMnuUsersSettings->setStyleClass("panel-border-right");
+    m_cntMnuUsersSettings->setStyleClass("panel-border-right");
     m_cntMnuUsersSettings->setLayout(m_layCntMnuUsersSettings);
 
     m_layCntUsersSettings->addWidget(m_cntMnuUsersSettings);
@@ -1130,7 +1130,7 @@ void Views::ViewSettings::prepareView()
     m_layCntMnuGlobalSettings->setSpacing(0);
 
     m_cntMnuGlobalSettings = new Wt::WContainerWidget();
-    //m_cntMnuGlobalSettings->setStyleClass("panel-border-right");
+    m_cntMnuGlobalSettings->setStyleClass("panel-border-right");
     m_cntMnuGlobalSettings->setLayout(m_layCntMnuGlobalSettings);
 
     m_layCntGlobalSettings->addWidget(m_cntMnuGlobalSettings);

@@ -41,6 +41,12 @@ namespace Ms
             m_userName = userName;
         }
 
+        template<class Result>
+        Wt::Signal<Wt::WModelIndex, boost::any, int> &Ms::Dbo::MDboQueryModel<Result>::dataAboutToBeChanged()
+        {
+            return m_dataAboutToBeChanged;
+        }
+
         template <class Result>
         boost::any Ms::Dbo::MDboQueryModel<Result>::data(const Wt::WModelIndex &index, int role) const
         {
@@ -61,6 +67,8 @@ namespace Ms
         template <class Result>
         bool Ms::Dbo::MDboQueryModel<Result>::setData(const Wt::WModelIndex &index, const boost::any &value, int role)
         {
+            m_dataAboutToBeChanged(index, value, role);
+
             Result &dboPtr = this->resultRow(index.row());
 
             dboPtr.modify()->modify()->m_lastModifiedDate = Wt::WDateTime::currentDateTime();
