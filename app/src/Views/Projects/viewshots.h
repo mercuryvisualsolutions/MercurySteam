@@ -65,6 +65,8 @@ namespace Views
         void btnImportThumbnailsClicked();
         void btnOpenFilesViewClicked();
 
+        void shotDataAboutToBeChanged(const Wt::WModelIndex &index, const boost::any &value, int role);
+
         //Functions
         void createShotsTableView();
         void prepareView();

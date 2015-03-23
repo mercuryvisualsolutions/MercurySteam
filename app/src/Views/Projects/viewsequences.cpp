@@ -205,7 +205,7 @@ Wt::Signal<> &Views::ViewSequences::importThumbnailsRequested()
 
 void Views::ViewSequences::btnCreateSequenceClicked()
 {
-    createSequenceRequested();
+    m_createSequenceRequested();
 }
 
 void Views::ViewSequences::btnRemoveSequencesClicked()

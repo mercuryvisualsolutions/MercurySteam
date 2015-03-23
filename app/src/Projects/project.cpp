@@ -461,6 +461,21 @@ void Projects::Project::setManager(const Wt::Dbo::ptr<Users::User> user)
     m_projectManager = user;
 }
 
+Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectSequence> > Projects::Project::sequences() const
+{
+    return m_sequences;
+}
+
+Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectAsset> > Projects::Project::assets() const
+{
+    return m_assets;
+}
+
+Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask> > Projects::Project::tasks() const
+{
+    return m_tasks;
+}
+
 bool Projects::Project::operator ==(const Projects::Project &other) const
 {
     return m_name == other.name();

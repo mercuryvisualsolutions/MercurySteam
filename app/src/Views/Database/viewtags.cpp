@@ -71,7 +71,7 @@ Wt::Signal<> &Views::ViewTags::clearTagsFilterRequested()
 
 void Views::ViewTags::btnCreateTagClicked()
 {
-    createTagRequested();
+    m_createTagRequested();
 }
 
 void Views::ViewTags::btnAssignTagsClicked()
@@ -86,7 +86,7 @@ void Views::ViewTags::btnUnassignTagsClicked()
 
 void Views::ViewTags::btnClearTagsFilterClicked()
 {
-    clearTagsFilterRequested();
+    m_clearTagsFilterRequested();
 }
 
 void Views::ViewTags::mnuFilterByTagsExactSelectionItemTriggered()

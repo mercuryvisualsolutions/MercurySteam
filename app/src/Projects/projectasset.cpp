@@ -204,6 +204,11 @@ void Projects::ProjectAsset::setType(const Wt::Dbo::ptr<Projects::ProjectAssetTy
     m_type = type;
 }
 
+Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask> > Projects::ProjectAsset::tasks() const
+{
+    return m_tasks;
+}
+
 bool Projects::ProjectAsset::operator ==(const Projects::ProjectAsset &other) const
 {
     return m_id == other.id();

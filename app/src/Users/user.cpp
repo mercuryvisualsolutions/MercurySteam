@@ -159,6 +159,47 @@ bool Users::User::removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task)
     return false;
 }
 
+bool Users::User::hasNotification(Wt::Dbo::ptr<Database::Notification> notification) const
+{
+    bool result = false;
+
+    for(auto iter = m_notifications.begin(); iter != m_notifications.end(); ++iter)
+    {
+        if((*iter).id() == notification.id())
+        {
+            result = true;
+
+            break;
+        }
+    }
+
+    return result;
+}
+
+bool Users::User::addNotification(Wt::Dbo::ptr<Database::Notification> notification)
+{
+    if(!hasNotification(notification))
+    {
+        m_notifications.insert(notification);
+
+        return true;
+    }
+
+    return false;
+}
+
+bool Users::User::removeNotification(Wt::Dbo::ptr<Database::Notification> notification)
+{
+    if(hasNotification(notification))
+    {
+        m_notifications.erase(notification);
+
+        return true;
+    }
+
+    return false;
+}
+
 int Users::User::createRank() const
 {
     return m_createRank;

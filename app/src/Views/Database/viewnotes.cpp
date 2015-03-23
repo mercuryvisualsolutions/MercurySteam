@@ -36,7 +36,7 @@ Wt::Signal<std::vector<Wt::Dbo::ptr<Database::Note>>> &Views::ViewNotes::removeN
 
 void Views::ViewNotes::btnCreateNoteClicked()
 {
-    addNoteRequested();
+    m_addNoteRequested();
 }
 
 void Views::ViewNotes::btnRemoveNotesClicked()

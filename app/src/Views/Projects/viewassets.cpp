@@ -202,7 +202,7 @@ Wt::Signal<> &Views::ViewAssets::importThumbnailsRequested()
 
 void Views::ViewAssets::btnCreateAssetClicked()
 {
-    createAssetRequested();
+    m_createAssetRequested();
 }
 
 void Views::ViewAssets::btnRemoveAssetsClicked()

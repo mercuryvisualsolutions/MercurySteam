@@ -566,6 +566,18 @@ namespace Ms
             addColumn(Ms::Widgets::MQueryTableViewColumn("Active", "Active", Wt::ItemIsSelectable | Wt::ItemIsUserCheckable, new Ms::Widgets::Delegates::MCheckBoxDelegate(editRank)));
         }
 
+        template<typename T>
+        Wt::Dbo::ptr<T> Ms::Widgets::MQueryTableViewWidget<T>::itemForModelIndex(const Wt::WModelIndex &index) const
+        {
+            return m_model->resultRow(index.row());
+        }
+
+        template<typename T>
+        Wt::Dbo::ptr<T> Ms::Widgets::MQueryTableViewWidget<T>::itemForProxyModelIndex(const Wt::WModelIndex &proxyIndex) const
+        {
+            return m_model->resultRow(m_proxyModel->mapToSource(proxyIndex).row());
+        }
+
         //Signals
         template<typename T>
         Wt::Signal<> &Ms::Widgets::MQueryTableViewWidget<T>::tableSelectionChanged()

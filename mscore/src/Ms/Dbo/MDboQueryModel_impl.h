@@ -42,7 +42,7 @@ namespace Ms
         }
 
         template<class Result>
-        Wt::Signal<Wt::WModelIndex, boost::any, int> &Ms::Dbo::MDboQueryModel<Result>::dataAboutToBeChanged()
+        Wt::Signal<const Wt::WModelIndex, const boost::any, int> &Ms::Dbo::MDboQueryModel<Result>::dataAboutToBeChanged()
         {
             return m_dataAboutToBeChanged;
         }

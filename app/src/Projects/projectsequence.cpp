@@ -133,6 +133,16 @@ void Projects::ProjectSequence::setFrameHeight(int frameHeight)
     m_frameHeight = frameHeight;
 }
 
+Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectShot> > Projects::ProjectSequence::shots() const
+{
+    return m_shots;
+}
+
+Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask> > Projects::ProjectSequence::tasks() const
+{
+    return m_tasks;
+}
+
 int Projects::ProjectSequence::progress() const
 {
     int dHours = doneHours();

@@ -29,7 +29,7 @@ namespace Ms
             void setUserName(const std::string &userName);
 
             //signals
-            Wt::Signal<Wt::WModelIndex, boost::any, int> &dataAboutToBeChanged();
+            Wt::Signal<const Wt::WModelIndex, const boost::any, int> &dataAboutToBeChanged();
 
             // WAbstractItemModel interface
             virtual boost::any data(const Wt::WModelIndex &index, int role) const;
@@ -40,7 +40,7 @@ namespace Ms
             //functions
 
             //signal
-            Wt::Signal<Wt::WModelIndex,boost::any,int> m_dataAboutToBeChanged;
+            Wt::Signal<const Wt::WModelIndex,const boost::any,int> m_dataAboutToBeChanged;
 
             //variables
             std::string m_userName;

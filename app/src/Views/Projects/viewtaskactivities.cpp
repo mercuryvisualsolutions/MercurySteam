@@ -170,12 +170,12 @@ Wt::Signal<std::vector<Wt::Dbo::ptr<Projects::ProjectTaskActivity>>> &Views::Vie
 
 void Views::ViewTaskActivity::btnCreateTaskActivityClicked()
 {
-    createTaskActivityRequested();
+    m_createTaskActivityRequested();
 }
 
 void Views::ViewTaskActivity::btnCreateTaskActivitiesForTemplateClicked()
 {
-    createTaskActivitiesForTemplateRequested();
+    m_createTaskActivitiesForTemplateRequested();
 }
 
 void Views::ViewTaskActivity::btnRemoveTaskActivitiesClicked()

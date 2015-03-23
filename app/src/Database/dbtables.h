@@ -94,7 +94,7 @@ namespace Database
     {
     public:
         Note();
-        Note(const std::string &content);
+        explicit Note(const std::string &content);
 
         //variables
 
@@ -338,7 +338,7 @@ namespace Database
     {
     public:
         Notification();
-        Notification(const std::string &message);
+        explicit Notification(const std::string &message);
 
         //variables
 
@@ -347,6 +347,9 @@ namespace Database
 
         std::string message() const;
         void setMessage(const std::string &message);
+        bool hasUser(Wt::Dbo::ptr<Users::User> user) const;
+        bool addUser(Wt::Dbo::ptr<Users::User> user);
+        bool removeUser(Wt::Dbo::ptr<Users::User> user);
 
         //DBO functions
         template<class Action>
@@ -378,7 +381,7 @@ namespace Users
 
     public:
         Privilege();
-        Privilege(const std::string &privilegeName);
+        explicit Privilege(const std::string &privilegeName);
 
         //variables
 
@@ -419,7 +422,7 @@ namespace Users
 
     public:
         UserTitle();
-        UserTitle(const std::string &titleName);
+        explicit UserTitle(const std::string &titleName);
 
         //variables
 
@@ -518,7 +521,7 @@ namespace Users
 
     public:
         User();
-        User(const std::string &name);
+        explicit User(const std::string &name);
         User(const std::string &name, const std::string &emailAddress);
 
         //functions
@@ -544,6 +547,9 @@ namespace Users
         bool hasTask(Wt::Dbo::ptr<Projects::ProjectTask> task) const;
         bool addTask(Wt::Dbo::ptr<Projects::ProjectTask> task);
         bool removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task);
+        bool hasNotification(Wt::Dbo::ptr<Database::Notification> notification) const;
+        bool addNotification(Wt::Dbo::ptr<Database::Notification> notification);
+        bool removeNotification(Wt::Dbo::ptr<Database::Notification> notification);
 
         int createRank() const;
         void setCreateRank(int rank);
@@ -689,7 +695,7 @@ namespace Projects
 
     public:
         ProjectTaskActivityType();
-        ProjectTaskActivityType(const std::string &type);
+        explicit ProjectTaskActivityType(const std::string &type);
 
         //variables
 
@@ -836,7 +842,7 @@ namespace Projects
 
     public:
         ProjectActivityTemplate();
-        ProjectActivityTemplate(const std::string &name);
+        explicit ProjectActivityTemplate(const std::string &name);
 
         //variables
 
@@ -929,7 +935,7 @@ namespace Projects
 
     public:
         ProjectTaskTemplate();
-        ProjectTaskTemplate(const std::string &name);
+        explicit ProjectTaskTemplate(const std::string &name);
 
         //variables
 
@@ -976,7 +982,7 @@ namespace Projects
 
     public:
         ProjectWorkStatusType();
-        ProjectWorkStatusType(const std::string &workStatusType);
+        explicit ProjectWorkStatusType(const std::string &workStatusType);
 
         //variables
 
@@ -1016,7 +1022,7 @@ namespace Projects
 
     public:
         ProjectAssetType();
-        ProjectAssetType(const std::string &type);
+        explicit ProjectAssetType(const std::string &type);
 
         //variables
         std::string type() const;
@@ -1056,7 +1062,7 @@ namespace Projects
 
     public:
         ProjectWorkStatus();
-        ProjectWorkStatus(const std::string &status);
+        explicit ProjectWorkStatus(const std::string &status);
 
         //variables
 
@@ -1112,7 +1118,7 @@ namespace Projects
 
     public:
         ProjectSequence();
-        ProjectSequence(const std::string &sequenceName);
+        explicit ProjectSequence(const std::string &sequenceName);
 
         //variables
 
@@ -1146,6 +1152,8 @@ namespace Projects
         void setFrameWidth(int frameWidth);
         int frameHeight() const;
         void setFrameHeight(int frameHeight);
+        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectShot>> shots() const;
+        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>> tasks() const;
 
         //operators
         bool operator ==(const ProjectSequence &other) const;
@@ -1268,7 +1276,7 @@ namespace Projects
 
     public:
         ProjectTaskType();
-        ProjectTaskType(const std::string &type);
+        explicit ProjectTaskType(const std::string &type);
 
         //variables
 
@@ -1308,7 +1316,7 @@ namespace Projects
 
     public:
         ProjectShot();
-        ProjectShot(const std::string &shotName);
+        explicit ProjectShot(const std::string &shotName);
 
         //variables
 
@@ -1342,6 +1350,7 @@ namespace Projects
         void setFrameWidth(int frameWidth);
         int frameHeight() const;
         void setFrameHeight(int frameHeight);
+        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>> tasks() const;
 
         //operators
         bool operator ==(const ProjectShot &other) const;
@@ -1387,7 +1396,7 @@ namespace Projects
 
     public:
         ProjectAsset();
-        ProjectAsset(const std::string &assetName);
+        explicit ProjectAsset(const std::string &assetName);
 
         //variables
 
@@ -1414,6 +1423,7 @@ namespace Projects
         bool removeTask(Wt::Dbo::ptr<Projects::ProjectTask> task);
         Wt::Dbo::ptr<Projects::ProjectAssetType> type() const;
         void setType(const Wt::Dbo::ptr<Projects::ProjectAssetType> type);
+        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>> tasks() const;
 
         //operators
         bool operator ==(const ProjectAsset &other) const;
@@ -1452,7 +1462,7 @@ namespace Projects
 
     public:
         Project();
-        Project(const std::string &projectName);
+        explicit Project(const std::string &projectName);
 
         //variables
 
@@ -1492,6 +1502,9 @@ namespace Projects
         void setFrameHeight(int frameHeight);
         Wt::Dbo::ptr<Users::User> manager() const;
         void setManager(const Wt::Dbo::ptr<Users::User> user);
+        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectSequence>> sequences() const;
+        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectAsset>> assets() const;
+        Wt::Dbo::collection<Wt::Dbo::ptr<Projects::ProjectTask>> tasks() const;
 
         //operators
         bool operator ==(const Project &other) const;

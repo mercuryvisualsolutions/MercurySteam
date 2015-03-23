@@ -110,6 +110,8 @@ namespace Ms
             std::string customFilterString() const;
             void setCustomFilterString(const std::string &customFilterString);
             void addBaseColumns(Wt::WFlags<Wt::ItemFlag> flags, int editRank) const;
+            Wt::Dbo::ptr<T> itemForModelIndex(const Wt::WModelIndex &index) const;
+            Wt::Dbo::ptr<T> itemForProxyModelIndex(const Wt::WModelIndex &proxyIndex) const;
 
             //signals
             Wt::Signal<> &tableSelectionChanged();

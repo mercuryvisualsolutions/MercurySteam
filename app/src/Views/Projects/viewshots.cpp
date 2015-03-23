@@ -211,7 +211,7 @@ Wt::Signal<> &Views::ViewShots::importThumbnailsRequested()
 
 void Views::ViewShots::btnCreateShotClicked()
 {
-    createShotRequested();
+    m_createShotRequested();
 }
 
 void Views::ViewShots::btnRemoveShotsClicked()
@@ -397,12 +397,65 @@ void Views::ViewShots::btnOpenFilesViewClicked()
     m_openfilesViewRequested(m_qtvShots->selectedItems());
 }
 
+void Views::ViewShots::shotDataAboutToBeChanged(const Wt::WModelIndex &index, const boost::any &value, int role)
+{
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+    //get shot
+    Wt::Dbo::ptr<Projects::ProjectShot> shotPtr = m_qtvShots->itemForModelIndex(index);
+
+    std::string headerName = Wt::asString(index.model()->headerData(index.column())).toUTF8();
+    std::string orgValue = Wt::asString(index.data(role)).toUTF8();
+    std::string newValue = Wt::asString(value).toUTF8();
+
+    std::string message = "Shot \"" + shotPtr->name() + "\" in sequence \""  + shotPtr->sequenceName() + "\" in project \"" +
+            shotPtr->projectName() + "\" \"" + headerName + "\" has changed from \"" + orgValue + "\" to \"" + newValue + "\"";
+
+    Database::Notification *notification = new Database::Notification(message);
+
+    try
+    {
+        Wt::Dbo::ptr<Database::Notification> notificationPtr = Session::SessionManager::instance().dboSession().createDbo<Database::Notification>(notification);
+
+        if(notificationPtr.get())
+        {
+            //notify all users of tasks in current shot of the change
+            for(auto iter = shotPtr->tasks().begin(); iter != shotPtr->tasks().end(); ++iter)
+            {
+                (*iter)->user().modify()->addNotification(notificationPtr);
+            }
+        }
+        else
+        {
+            delete notification;
+
+            m_logger->log("Error occured while trying to create new notification", Ms::Log::LogMessageType::Error);
+        }
+    }
+    catch(Wt::Dbo::Exception ex)
+    {
+        delete notification;
+
+        m_logger->log(ex.what(), Ms::Log::LogMessageType::Error);
+    }
+    catch(...)
+    {
+        delete notification;
+
+        m_logger->log("Error occured while trying to create new notification", Ms::Log::LogMessageType::Error);
+    }
+}
+
 void Views::ViewShots::createShotsTableView()
 {
     m_qtvShots = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectShot>(Session::SessionManager::instance().dboSession());
     m_qtvShots->setRowHeight(160);
     m_qtvShots->setDefaultFilterColumnIndex(1);
     m_qtvShots->setIgnoreNumFilterColumns(1);
+
+    Ms::Dbo::MDboQueryModel<Wt::Dbo::ptr<Projects::ProjectShot>> *model = const_cast<Ms::Dbo::MDboQueryModel<Wt::Dbo::ptr<Projects::ProjectShot>>*>(m_qtvShots->model());
+
+    model->dataAboutToBeChanged().connect(this, &Views::ViewShots::shotDataAboutToBeChanged);
 
     m_btnCreateShot = m_qtvShots->createToolButton("", "icons/Add.png", "Create A New Shot");
     m_btnCreateShot->clicked().connect(this, &Views::ViewShots::btnCreateShotClicked);

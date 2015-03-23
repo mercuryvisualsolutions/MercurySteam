@@ -36,7 +36,7 @@ Wt::Signal<std::vector<Wt::Dbo::ptr<Database::DboData>>> &Views::ViewDboData::re
 
 void Views::ViewDboData::btnCreateDataClicked()
 {
-    addDataRequested();
+    m_addDataRequested();
 }
 
 void Views::ViewDboData::btnRemoveDataClicked()

@@ -293,7 +293,7 @@ void Views::ViewTasks::btnCreateTaskClicked()
 
 void Views::ViewTasks::btnCreateTasksForTemplateClicked()
 {
-    createTasksForTemplateRequested();
+    m_createTasksForTemplateRequested();
 }
 
 void Views::ViewTasks::btnRemoveTasksClicked()
