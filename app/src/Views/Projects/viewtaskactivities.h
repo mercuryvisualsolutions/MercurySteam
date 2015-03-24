@@ -60,6 +60,8 @@ namespace Views
         void btnRemoveTaskActivitiesClicked();
         void btnEditTaskActivitiesClicked();
 
+        void taskActivityDataAboutToBeChanged(const Wt::WModelIndex &index, const boost::any &value, int role);
+
         //Functions
         void createTaskActivitysTableView();
         void prepareView();

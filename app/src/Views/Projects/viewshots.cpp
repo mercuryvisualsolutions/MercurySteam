@@ -399,14 +399,17 @@ void Views::ViewShots::btnOpenFilesViewClicked()
 
 void Views::ViewShots::shotDataAboutToBeChanged(const Wt::WModelIndex &index, const boost::any &value, int role)
 {
-    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
-
     //get shot
     Wt::Dbo::ptr<Projects::ProjectShot> shotPtr = m_qtvShots->itemForModelIndex(index);
 
     std::string headerName = Wt::asString(index.model()->headerData(index.column())).toUTF8();
     std::string orgValue = Wt::asString(index.data(role)).toUTF8();
     std::string newValue = Wt::asString(value).toUTF8();
+
+    if(orgValue == newValue)
+        return;
+
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
     std::string message = "Shot \"" + shotPtr->name() + "\" in sequence \""  + shotPtr->sequenceName() + "\" in project \"" +
             shotPtr->projectName() + "\" \"" + headerName + "\" has changed from \"" + orgValue + "\" to \"" + newValue + "\"";

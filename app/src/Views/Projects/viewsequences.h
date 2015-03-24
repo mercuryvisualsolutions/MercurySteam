@@ -67,6 +67,8 @@ namespace Views
         void btnImportThumbnailsClicked();
         void btnOpenFilesViewClicked();
 
+        void sequenceDataAboutToBeChanged(const Wt::WModelIndex &index, const boost::any &value, int role);
+
         //Functions
         void createSequencesTableView();
         void prepareView();

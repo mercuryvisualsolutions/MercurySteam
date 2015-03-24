@@ -68,6 +68,8 @@ namespace Views
         void btnEditTasksClicked();
         void btnOpenFilesViewClicked();
 
+        void taskDataAboutToBeChanged(const Wt::WModelIndex &index, const boost::any &value, int role);
+
         //Functions
         void createTasksTableView();
         void prepareView();

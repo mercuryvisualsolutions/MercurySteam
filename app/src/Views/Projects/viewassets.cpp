@@ -376,12 +376,68 @@ void Views::ViewAssets::btnOpenFilesViewClicked()
     m_openfilesViewRequested(m_qtvAssets->selectedItems());
 }
 
+void Views::ViewAssets::assetDataAboutToBeChanged(const Wt::WModelIndex &index, const boost::any &value, int role)
+{
+    //get shot
+    Wt::Dbo::ptr<Projects::ProjectAsset> assetPtr = m_qtvAssets->itemForModelIndex(index);
+
+    std::string headerName = Wt::asString(index.model()->headerData(index.column())).toUTF8();
+    std::string orgValue = Wt::asString(index.data(role)).toUTF8();
+    std::string newValue = Wt::asString(value).toUTF8();
+
+    if(orgValue == newValue)
+        return;
+
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+    std::string message = "Asset \""  + assetPtr->name() + "\" in project \"" +
+            assetPtr->projectName() + "\" \"" + headerName + "\" has changed from \"" + orgValue + "\" to \"" + newValue + "\"";
+
+    Database::Notification *notification = new Database::Notification(message);
+
+    try
+    {
+        Wt::Dbo::ptr<Database::Notification> notificationPtr = Session::SessionManager::instance().dboSession().createDbo<Database::Notification>(notification);
+
+        if(notificationPtr.get())
+        {
+            //notify all users of tasks in current asset of the change
+            for(auto iter = assetPtr->tasks().begin(); iter != assetPtr->tasks().end(); ++iter)
+            {
+                (*iter)->user().modify()->addNotification(notificationPtr);
+            }
+        }
+        else
+        {
+            delete notification;
+
+            m_logger->log("Error occured while trying to create new notification", Ms::Log::LogMessageType::Error);
+        }
+    }
+    catch(Wt::Dbo::Exception ex)
+    {
+        delete notification;
+
+        m_logger->log(ex.what(), Ms::Log::LogMessageType::Error);
+    }
+    catch(...)
+    {
+        delete notification;
+
+        m_logger->log("Error occured while trying to create new notification", Ms::Log::LogMessageType::Error);
+    }
+}
+
 void Views::ViewAssets::createAssetsTableView()
 {
     m_qtvAssets = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectAsset>(Session::SessionManager::instance().dboSession());
     m_qtvAssets->setRowHeight(160);
     m_qtvAssets->setDefaultFilterColumnIndex(1);
     m_qtvAssets->setIgnoreNumFilterColumns(1);
+
+    Ms::Dbo::MDboQueryModel<Wt::Dbo::ptr<Projects::ProjectAsset>> *model = const_cast<Ms::Dbo::MDboQueryModel<Wt::Dbo::ptr<Projects::ProjectAsset>>*>(m_qtvAssets->model());
+
+    model->dataAboutToBeChanged().connect(this, &Views::ViewAssets::assetDataAboutToBeChanged);
 
     m_btnCreateAsset = m_qtvAssets->createToolButton("", "icons/Add.png", "Create A New Asset");
     m_btnCreateAsset->clicked().connect(this, &Views::ViewAssets::btnCreateAssetClicked);

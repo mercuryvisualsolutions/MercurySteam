@@ -388,12 +388,68 @@ void Views::ViewSequences::btnOpenFilesViewClicked()
     m_openfilesViewRequested(m_qtvSequences->selectedItems());
 }
 
+void Views::ViewSequences::sequenceDataAboutToBeChanged(const Wt::WModelIndex &index, const boost::any &value, int role)
+{
+    //get sequence
+    Wt::Dbo::ptr<Projects::ProjectSequence> sequencePtr = m_qtvSequences->itemForModelIndex(index);
+
+    std::string headerName = Wt::asString(index.model()->headerData(index.column())).toUTF8();
+    std::string orgValue = Wt::asString(index.data(role)).toUTF8();
+    std::string newValue = Wt::asString(value).toUTF8();
+
+    if(orgValue == newValue)
+        return;
+
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+    std::string message = "Sequence \""  + sequencePtr->name() + "\" in project \"" +
+            sequencePtr->projectName() + "\" \"" + headerName + "\" has changed from \"" + orgValue + "\" to \"" + newValue + "\"";
+
+    Database::Notification *notification = new Database::Notification(message);
+
+    try
+    {
+        Wt::Dbo::ptr<Database::Notification> notificationPtr = Session::SessionManager::instance().dboSession().createDbo<Database::Notification>(notification);
+
+        if(notificationPtr.get())
+        {
+            //notify all users of tasks in current sequence of the change
+            for(auto iter = sequencePtr->tasks().begin(); iter != sequencePtr->tasks().end(); ++iter)
+            {
+                (*iter)->user().modify()->addNotification(notificationPtr);
+            }
+        }
+        else
+        {
+            delete notification;
+
+            m_logger->log("Error occured while trying to create new notification", Ms::Log::LogMessageType::Error);
+        }
+    }
+    catch(Wt::Dbo::Exception ex)
+    {
+        delete notification;
+
+        m_logger->log(ex.what(), Ms::Log::LogMessageType::Error);
+    }
+    catch(...)
+    {
+        delete notification;
+
+        m_logger->log("Error occured while trying to create new notification", Ms::Log::LogMessageType::Error);
+    }
+}
+
 void Views::ViewSequences::createSequencesTableView()
 {
     m_qtvSequences = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectSequence>(Session::SessionManager::instance().dboSession());
     m_qtvSequences->setRowHeight(160);
     m_qtvSequences->setDefaultFilterColumnIndex(1);
     m_qtvSequences->setIgnoreNumFilterColumns(1);
+
+    Ms::Dbo::MDboQueryModel<Wt::Dbo::ptr<Projects::ProjectSequence>> *model = const_cast<Ms::Dbo::MDboQueryModel<Wt::Dbo::ptr<Projects::ProjectSequence>>*>(m_qtvSequences->model());
+
+    model->dataAboutToBeChanged().connect(this, &Views::ViewSequences::sequenceDataAboutToBeChanged);
 
     m_btnCreateSequence = m_qtvSequences->createToolButton("", "icons/Add.png", "Create A New Sequence");
     m_btnCreateSequence->clicked().connect(this, &Views::ViewSequences::btnCreateSequenceClicked);

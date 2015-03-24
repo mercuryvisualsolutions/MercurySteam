@@ -225,9 +225,61 @@ void Views::ViewTaskActivity::btnEditTaskActivitiesClicked()
     dlg->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
+void Views::ViewTaskActivity::taskActivityDataAboutToBeChanged(const Wt::WModelIndex &index, const boost::any &value, int role)
+{
+    //get shot
+    Wt::Dbo::ptr<Projects::ProjectTaskActivity> taskActivityPtr = m_qtvTaskActivities->itemForModelIndex(index);
+
+    std::string headerName = Wt::asString(index.model()->headerData(index.column())).toUTF8();
+    std::string orgValue = Wt::asString(index.data(role)).toUTF8();
+    std::string newValue = Wt::asString(value).toUTF8();
+
+    if(orgValue == newValue)
+        return;
+
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+    std::string message = "Task activity \"" + std::to_string(taskActivityPtr.id()) + "\" \"" + headerName + "\" has changed from \"" + orgValue + "\" to \"" + newValue + "\"";
+
+    Database::Notification *notification = new Database::Notification(message);
+
+    try
+    {
+        Wt::Dbo::ptr<Database::Notification> notificationPtr = Session::SessionManager::instance().dboSession().createDbo<Database::Notification>(notification);
+
+        if(notificationPtr.get())
+        {
+            //notify the user of the parent task of current activity
+            taskActivityPtr->task()->user().modify()->addNotification(notificationPtr);
+        }
+        else
+        {
+            delete notification;
+
+            m_logger->log("Error occured while trying to create new notification", Ms::Log::LogMessageType::Error);
+        }
+    }
+    catch(Wt::Dbo::Exception ex)
+    {
+        delete notification;
+
+        m_logger->log(ex.what(), Ms::Log::LogMessageType::Error);
+    }
+    catch(...)
+    {
+        delete notification;
+
+        m_logger->log("Error occured while trying to create new notification", Ms::Log::LogMessageType::Error);
+    }
+}
+
 void Views::ViewTaskActivity::createTaskActivitysTableView()
 {
     m_qtvTaskActivities = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectTaskActivity>(Session::SessionManager::instance().dboSession());
+
+    Ms::Dbo::MDboQueryModel<Wt::Dbo::ptr<Projects::ProjectTaskActivity>> *model = const_cast<Ms::Dbo::MDboQueryModel<Wt::Dbo::ptr<Projects::ProjectTaskActivity>>*>(m_qtvTaskActivities->model());
+
+    model->dataAboutToBeChanged().connect(this, &Views::ViewTaskActivity::taskActivityDataAboutToBeChanged);
 
     m_btnCreateTaskActivity = m_qtvTaskActivities->createToolButton("", "icons/Add.png", "Create A New Activity");
     m_btnCreateTaskActivity->clicked().connect(this, &Views::ViewTaskActivity::btnCreateTaskActivityClicked);

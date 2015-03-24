@@ -66,6 +66,8 @@ namespace Views
         void btnImportThumbnailsClicked();
         void btnOpenFilesViewClicked();
 
+        void assetDataAboutToBeChanged(const Wt::WModelIndex &index, const boost::any &value, int role);
+
         //Functions
         void createAssetsTableView();
         void prepareView();

@@ -139,8 +139,6 @@ void Views::ViewMyDashboard::updateNotificationsView()
 
         m_qtvNotifications->addColumn(Ms::Widgets::MQueryTableViewColumn("Date_Created", "Date Created", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, false, true));
         m_qtvNotifications->addColumn(Ms::Widgets::MQueryTableViewColumn("Created_By", "Created By", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, false, true));
-        m_qtvNotifications->addColumn(Ms::Widgets::MQueryTableViewColumn("Last_Modified_Date", "Last Modified Date", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, false, true));
-        m_qtvNotifications->addColumn(Ms::Widgets::MQueryTableViewColumn("Last_Modified_By", "Last Modified By", Wt::ItemIsSelectable, new Ms::Widgets::Delegates::MItemDelegate, false, true));
 
         m_qtvNotifications->updateView();
     }

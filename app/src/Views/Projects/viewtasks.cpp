@@ -477,11 +477,101 @@ void Views::ViewTasks::btnOpenFilesViewClicked()
     dlgSelectDbo->animateShow(Wt::WAnimation(Wt::WAnimation::AnimationEffect::Pop, Wt::WAnimation::TimingFunction::EaseInOut));
 }
 
+void Views::ViewTasks::taskDataAboutToBeChanged(const Wt::WModelIndex &index, const boost::any &value, int role)
+{
+    //get task
+    Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = m_qtvTasks->itemForModelIndex(index);
+
+    std::string headerName = Wt::asString(index.model()->headerData(index.column())).toUTF8();
+    std::string orgValue = Wt::asString(index.data(role)).toUTF8();
+    std::string newValue = Wt::asString(value).toUTF8();
+
+    if(orgValue == newValue)
+        return;
+
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+    std::string message = "Task \"" + std::to_string(taskPtr.id()) + "\" \"" + headerName + "\" has changed from \"" + orgValue + "\" to \"" + newValue + "\"";
+
+    Database::Notification *notification = new Database::Notification(message);
+
+    try
+    {
+        Wt::Dbo::ptr<Database::Notification> notificationPtr = Session::SessionManager::instance().dboSession().createDbo<Database::Notification>(notification);
+
+        if(notificationPtr.get())
+        {
+            if(taskPtr->project())
+            {
+                const Wt::Dbo::ptr<Projects::Project> projectPtr = taskPtr->project();
+
+                //notify all users of tasks in parent project of the change
+                for(auto iter = projectPtr->tasks().begin(); iter != projectPtr->tasks().end(); ++iter)
+                {
+                    (*iter)->user().modify()->addNotification(notificationPtr);
+                }
+            }
+            else if(taskPtr->sequence())
+            {
+                const Wt::Dbo::ptr<Projects::ProjectSequence> sequencePtr = taskPtr->sequence();
+
+                //notify all users of tasks in parent sequence of the change
+                for(auto iter = sequencePtr->tasks().begin(); iter != sequencePtr->tasks().end(); ++iter)
+                {
+                    (*iter)->user().modify()->addNotification(notificationPtr);
+                }
+            }
+            else if(taskPtr->shot())
+            {
+                const Wt::Dbo::ptr<Projects::ProjectShot> shotPtr = taskPtr->shot();
+
+                //notify all users of tasks in parent shot of the change
+                for(auto iter = shotPtr->tasks().begin(); iter != shotPtr->tasks().end(); ++iter)
+                {
+                    (*iter)->user().modify()->addNotification(notificationPtr);
+                }
+            }
+            else if(taskPtr->asset())
+            {
+                const Wt::Dbo::ptr<Projects::ProjectAsset> assetPtr = taskPtr->asset();
+
+                //notify all users of tasks in parent asset of the change
+                for(auto iter = assetPtr->tasks().begin(); iter != assetPtr->tasks().end(); ++iter)
+                {
+                    (*iter)->user().modify()->addNotification(notificationPtr);
+                }
+            }
+        }
+        else
+        {
+            delete notification;
+
+            m_logger->log("Error occured while trying to create new notification", Ms::Log::LogMessageType::Error);
+        }
+    }
+    catch(Wt::Dbo::Exception ex)
+    {
+        delete notification;
+
+        m_logger->log(ex.what(), Ms::Log::LogMessageType::Error);
+    }
+    catch(...)
+    {
+        delete notification;
+
+        m_logger->log("Error occured while trying to create new notification", Ms::Log::LogMessageType::Error);
+    }
+}
+
 void Views::ViewTasks::createTasksTableView()
 {
     m_qtvTasks = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::ProjectTask>(Session::SessionManager::instance().dboSession());
     m_qtvTasks->setRowHeight(160);
     m_qtvTasks->setIgnoreNumFilterColumns(1);
+
+    Ms::Dbo::MDboQueryModel<Wt::Dbo::ptr<Projects::ProjectTask>> *model = const_cast<Ms::Dbo::MDboQueryModel<Wt::Dbo::ptr<Projects::ProjectTask>>*>(m_qtvTasks->model());
+
+    model->dataAboutToBeChanged().connect(this, &Views::ViewTasks::taskDataAboutToBeChanged);
 
     m_btnCreateTask = m_qtvTasks->createToolButton("", "icons/Add.png", "Create A New Task");
     m_btnCreateTask->clicked().connect(this, &Views::ViewTasks::btnCreateTaskClicked);

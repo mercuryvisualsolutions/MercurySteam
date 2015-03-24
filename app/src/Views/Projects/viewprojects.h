@@ -182,6 +182,8 @@ namespace Views
         void btnProjectsImportThumbnailsClicked();
         void projectImported(Wt::Dbo::ptr<Projects::Project> project);
 
+        void projectDataAboutToBeChanged(const Wt::WModelIndex &index, const boost::any &value, int role);
+
         //functions
         void createProjectsTableView();
 

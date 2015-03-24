@@ -726,6 +726,57 @@ void Views::ViewProjects::projectImported(Wt::Dbo::ptr<Projects::Project> projec
     Projects::ProjectsIO::createProjectDirectoryStructure(project->name());
 }
 
+void Views::ViewProjects::projectDataAboutToBeChanged(const Wt::WModelIndex &index, const boost::any &value, int role)
+{
+    //get project
+    Wt::Dbo::ptr<Projects::Project> prjPtr = m_qtvProjects->itemForModelIndex(index);
+
+    std::string headerName = Wt::asString(index.model()->headerData(index.column())).toUTF8();
+    std::string orgValue = Wt::asString(index.data(role)).toUTF8();
+    std::string newValue = Wt::asString(value).toUTF8();
+
+    if(orgValue == newValue)
+        return;
+
+    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+
+    std::string message = "Project \"" + prjPtr->name() + "\" \"" + headerName + "\" has changed from \"" + orgValue + "\" to \"" + newValue + "\"";
+
+    Database::Notification *notification = new Database::Notification(message);
+
+    try
+    {
+        Wt::Dbo::ptr<Database::Notification> notificationPtr = Session::SessionManager::instance().dboSession().createDbo<Database::Notification>(notification);
+
+        if(notificationPtr.get())
+        {
+            //notify all users of tasks in current project of the change
+            for(auto iter = prjPtr->tasks().begin(); iter != prjPtr->tasks().end(); ++iter)
+            {
+                (*iter)->user().modify()->addNotification(notificationPtr);
+            }
+        }
+        else
+        {
+            delete notification;
+
+            m_logger->log("Error occured while trying to create new notification", Ms::Log::LogMessageType::Error);
+        }
+    }
+    catch(Wt::Dbo::Exception ex)
+    {
+        delete notification;
+
+        m_logger->log(ex.what(), Ms::Log::LogMessageType::Error);
+    }
+    catch(...)
+    {
+        delete notification;
+
+        m_logger->log("Error occured while trying to create new notification", Ms::Log::LogMessageType::Error);
+    }
+}
+
 void Views::ViewProjects::createProjectsTableView()
 {
     m_qtvProjects = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::Project>(Session::SessionManager::instance().dboSession());
@@ -734,6 +785,10 @@ void Views::ViewProjects::createProjectsTableView()
     m_qtvProjects->setIgnoreNumFilterColumns(1);
     m_qtvProjects->tableSelectionChanged().connect(this, &Views::ViewProjects::updatePropertiesView);
     m_qtvProjects->itemImported().connect(this, &Views::ViewProjects::projectImported);
+
+    Ms::Dbo::MDboQueryModel<Wt::Dbo::ptr<Projects::Project>> *model = const_cast<Ms::Dbo::MDboQueryModel<Wt::Dbo::ptr<Projects::Project>>*>(m_qtvProjects->model());
+
+    model->dataAboutToBeChanged().connect(this, &Views::ViewProjects::projectDataAboutToBeChanged);
 
     m_btnCreateProject = m_qtvProjects->createToolButton("", "icons/Add.png", "Create A New Project");
     m_btnCreateProject->clicked().connect(this, &Views::ViewProjects::btnProjectsCreateClicked);
