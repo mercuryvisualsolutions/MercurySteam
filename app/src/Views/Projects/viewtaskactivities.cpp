@@ -202,16 +202,32 @@ void Views::ViewTaskActivity::btnEditTaskActivitiesClicked()
             for(auto activityPtr : m_qtvTaskActivities->selectedItems())
             {
                 if(dlg->editedType())
+                {
+                    sendTaskNotification(activityPtr, "Type", activityPtr->type()->type(), dlg->type()->type());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectTaskActivity>(activityPtr)->setType(dlg->type());
+                }
 
                 if(dlg->editedHours())
+                {
+                    sendTaskNotification(activityPtr, "Hours", Wt::asString(activityPtr->hours()).toUTF8(), Wt::asString(dlg->hours()).toUTF8());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectTaskActivity>(activityPtr)->setHours(dlg->hours());
+                }
 
                 if(dlg->editedStatus())
+                {
+                    sendTaskNotification(activityPtr, "Status", activityPtr->status()->status(), dlg->status()->status());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectTaskActivity>(activityPtr)->setStatus(dlg->status());
+                }
 
                 if(dlg->editedActive())
+                {
+                    sendTaskNotification(activityPtr, "Active", Wt::asString(activityPtr->active()).toUTF8(), Wt::asString(dlg->isActive()).toUTF8());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectTaskActivity>(activityPtr)->setActive(dlg->isActive());
+                }
             }
 
             transaction.commit();
@@ -292,6 +308,85 @@ void Views::ViewTaskActivity::createTaskActivitysTableView()
 
     m_btnEditTaskActivities = m_qtvTaskActivities->createToolButton("", "icons/Edit.png", "Edit Selected Assets");
     m_btnEditTaskActivities->clicked().connect(this, &Views::ViewTaskActivity::btnEditTaskActivitiesClicked);
+}
+
+void Views::ViewTaskActivity::sendTaskNotification(Wt::Dbo::ptr<Projects::ProjectTaskActivity> taskActivityPtr, const std::string &property, const std::string &orgValue, const std::string &newValue)
+{
+    if(orgValue == newValue)
+        return;
+
+    std::string message = "Task activity \"" + std::to_string(taskActivityPtr.id()) + "\" \"" + property + "\" has changed from \"" + orgValue + "\" to \"" + newValue + "\"";
+
+    Database::Notification *notification = new Database::Notification(message);
+
+    try
+    {
+        Wt::Dbo::ptr<Projects::ProjectTask> taskPtr = taskActivityPtr->task();
+
+        Wt::Dbo::ptr<Database::Notification> notificationPtr = Session::SessionManager::instance().dboSession().createDbo<Database::Notification>(notification);
+
+        if(notificationPtr.get())
+        {
+            if(taskPtr->project())
+            {
+                const Wt::Dbo::ptr<Projects::Project> projectPtr = taskPtr->project();
+
+                //notify all users of tasks in parent project of the change
+                for(auto iter = projectPtr->tasks().begin(); iter != projectPtr->tasks().end(); ++iter)
+                {
+                    (*iter)->user().modify()->addNotification(notificationPtr);
+                }
+            }
+            else if(taskPtr->sequence())
+            {
+                const Wt::Dbo::ptr<Projects::ProjectSequence> sequencePtr = taskPtr->sequence();
+
+                //notify all users of tasks in parent sequence of the change
+                for(auto iter = sequencePtr->tasks().begin(); iter != sequencePtr->tasks().end(); ++iter)
+                {
+                    (*iter)->user().modify()->addNotification(notificationPtr);
+                }
+            }
+            else if(taskPtr->shot())
+            {
+                const Wt::Dbo::ptr<Projects::ProjectShot> shotPtr = taskPtr->shot();
+
+                //notify all users of tasks in parent shot of the change
+                for(auto iter = shotPtr->tasks().begin(); iter != shotPtr->tasks().end(); ++iter)
+                {
+                    (*iter)->user().modify()->addNotification(notificationPtr);
+                }
+            }
+            else if(taskPtr->asset())
+            {
+                const Wt::Dbo::ptr<Projects::ProjectAsset> assetPtr = taskPtr->asset();
+
+                //notify all users of tasks in parent asset of the change
+                for(auto iter = assetPtr->tasks().begin(); iter != assetPtr->tasks().end(); ++iter)
+                {
+                    (*iter)->user().modify()->addNotification(notificationPtr);
+                }
+            }
+        }
+        else
+        {
+            delete notification;
+
+            m_logger->log("Error occured while trying to create new notification", Ms::Log::LogMessageType::Error);
+        }
+    }
+    catch(Wt::Dbo::Exception ex)
+    {
+        delete notification;
+
+        m_logger->log(ex.what(), Ms::Log::LogMessageType::Error);
+    }
+    catch(...)
+    {
+        delete notification;
+
+        m_logger->log("Error occured while trying to create new notification", Ms::Log::LogMessageType::Error);
+    }
 }
 
 void Views::ViewTaskActivity::prepareView()

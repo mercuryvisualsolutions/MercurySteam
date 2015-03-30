@@ -70,6 +70,8 @@ namespace Views
 
         //Functions
         void createAssetsTableView();
+        //requires active transaction
+        void sendTaskNotification(Wt::Dbo::ptr<Projects::ProjectAsset> assetPtr, const std::string &property, const std::string &orgValue, const std::string &newValue);
         void prepareView();
     };
 }

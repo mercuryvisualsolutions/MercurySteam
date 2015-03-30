@@ -229,25 +229,53 @@ void Views::ViewAssets::btnEditAssetsClicked()
             for(auto assetPtr : m_qtvAssets->selectedItems())
             {
                 if(dlg->editedStartDate())
+                {
+                    sendTaskNotification(assetPtr, "Start Date", Wt::asString(assetPtr->startDate()).toUTF8(), Wt::asString(dlg->startDate()).toUTF8());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectAsset>(assetPtr)->setStartDate(dlg->startDate());
+                }
 
                 if(dlg->editedEndDate())
+                {
+                    sendTaskNotification(assetPtr, "End Date", Wt::asString(assetPtr->startDate()).toUTF8(), Wt::asString(dlg->endDate()).toUTF8());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectAsset>(assetPtr)->setEndDate(dlg->endDate());
+                }
 
                 if(dlg->editedType())
+                {
+                    sendTaskNotification(assetPtr, "Type", assetPtr->type()->type(), dlg->assetType()->type());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectAsset>(assetPtr)->setType(dlg->assetType());
+                }
 
                 if(dlg->editedPriority())
+                {
+                    sendTaskNotification(assetPtr, "Priority", Wt::asString(assetPtr->priority()).toUTF8(), Wt::asString(dlg->priority()).toUTF8());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectAsset>(assetPtr)->setPriority(dlg->priority());
+                }
 
                 if(dlg->editedStatus())
+                {
+                    sendTaskNotification(assetPtr, "Status", assetPtr->status()->status(), dlg->status()->status());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectAsset>(assetPtr)->setStatus(dlg->status());
+                }
 
                 if(dlg->editedDescription())
+                {
+                    sendTaskNotification(assetPtr, "Description", assetPtr->description(), dlg->description());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectAsset>(assetPtr)->setDescription(dlg->description());
+                }
 
                 if(dlg->editedActive())
+                {
+                    sendTaskNotification(assetPtr, "Active", Wt::asString(assetPtr->active()).toUTF8(), Wt::asString(dlg->isActive()).toUTF8());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectAsset>(assetPtr)->setActive(dlg->isActive());
+                }
             }
 
             transaction.commit();
@@ -378,7 +406,7 @@ void Views::ViewAssets::btnOpenFilesViewClicked()
 
 void Views::ViewAssets::assetDataAboutToBeChanged(const Wt::WModelIndex &index, const boost::any &value, int role)
 {
-    //get shot
+    //get asset
     Wt::Dbo::ptr<Projects::ProjectAsset> assetPtr = m_qtvAssets->itemForModelIndex(index);
 
     std::string headerName = Wt::asString(index.model()->headerData(index.column())).toUTF8();
@@ -455,6 +483,49 @@ void Views::ViewAssets::createAssetsTableView()
 
     m_btnOpenFilesView = m_qtvAssets->createToolButton("", "icons/Files.png", "Files Manager");
     m_btnOpenFilesView->clicked().connect(this, &Views::ViewAssets::btnOpenFilesViewClicked);
+}
+
+void Views::ViewAssets::sendTaskNotification(Wt::Dbo::ptr<Projects::ProjectAsset> assetPtr, const std::string &property, const std::string &orgValue, const std::string &newValue)
+{
+    if(orgValue == newValue)
+        return;
+
+    std::string message = "Asset \""  + assetPtr->name() + "\" in project \"" +
+            assetPtr->projectName() + "\" \"" + property + "\" has changed from \"" + orgValue + "\" to \"" + newValue + "\"";
+
+    Database::Notification *notification = new Database::Notification(message);
+
+    try
+    {
+        Wt::Dbo::ptr<Database::Notification> notificationPtr = Session::SessionManager::instance().dboSession().createDbo<Database::Notification>(notification);
+
+        if(notificationPtr.get())
+        {
+            //notify all users of tasks in current asset of the change
+            for(auto iter = assetPtr->tasks().begin(); iter != assetPtr->tasks().end(); ++iter)
+            {
+                (*iter)->user().modify()->addNotification(notificationPtr);
+            }
+        }
+        else
+        {
+            delete notification;
+
+            m_logger->log("Error occured while trying to create new notification", Ms::Log::LogMessageType::Error);
+        }
+    }
+    catch(Wt::Dbo::Exception ex)
+    {
+        delete notification;
+
+        m_logger->log(ex.what(), Ms::Log::LogMessageType::Error);
+    }
+    catch(...)
+    {
+        delete notification;
+
+        m_logger->log("Error occured while trying to create new notification", Ms::Log::LogMessageType::Error);
+    }
 }
 
 void Views::ViewAssets::prepareView()

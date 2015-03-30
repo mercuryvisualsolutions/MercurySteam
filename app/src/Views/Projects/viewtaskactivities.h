@@ -64,6 +64,8 @@ namespace Views
 
         //Functions
         void createTaskActivitysTableView();
+        //requires active transaction
+        void sendTaskNotification(Wt::Dbo::ptr<Projects::ProjectTaskActivity> taskActivityPtr, const std::string &property, const std::string &orgValue, const std::string &newValue);
         void prepareView();
     };
 }

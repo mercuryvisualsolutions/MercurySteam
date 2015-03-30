@@ -10,6 +10,7 @@ namespace Ms
     {
         namespace Dbo
         {
+            //Requires an active transaction
             template<typename T>
             Wt::Dbo::ptr<T> Ms::Core::Dbo::MDboSession::createDbo(T *dbo)
             {
@@ -33,6 +34,7 @@ namespace Ms
                 return dboPtr;
             }
 
+            //Requires an active transaction
             template<typename T>
             T* Ms::Core::Dbo::MDboSession::modifyDbo(Wt::Dbo::ptr<T> dboPtr)
             {

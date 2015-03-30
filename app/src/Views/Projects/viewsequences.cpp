@@ -232,34 +232,74 @@ void Views::ViewSequences::btnEditSequencesClicked()
             for(auto seqPtr : m_qtvSequences->selectedItems())
             {
                 if(dlg->editedStartDate())
+                {
+                    sendTaskNotification(seqPtr, "Start Date", Wt::asString(seqPtr->startDate()).toUTF8(), Wt::asString(dlg->startDate()).toUTF8());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setStartDate(dlg->startDate());
+                }
 
                 if(dlg->editedEndDate())
+                {
+                    sendTaskNotification(seqPtr, "End Date", Wt::asString(seqPtr->endDate()).toUTF8(), Wt::asString(dlg->endDate()).toUTF8());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setEndDate(dlg->endDate());
+                }
 
                 if(dlg->editedDuration())
+                {
+                    sendTaskNotification(seqPtr, "Duration", Wt::asString(seqPtr->durationInFrames()).toUTF8(), Wt::asString(dlg->duration()).toUTF8());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setDurationInFrames(dlg->duration());
+                }
 
                 if(dlg->editedFps())
+                {
+                    sendTaskNotification(seqPtr, "FPS", Wt::asString(seqPtr->fps()).toUTF8(), Wt::asString(dlg->fps()).toUTF8());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setFps(dlg->fps());
+                }
 
                 if(dlg->editedFrameWidth())
+                {
+                    sendTaskNotification(seqPtr, "Frame Width", Wt::asString(seqPtr->frameWidth()).toUTF8(), Wt::asString(dlg->frameWidth()).toUTF8());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setFrameWidth(dlg->frameWidth());
+                }
 
                 if(dlg->editedFrameHeight())
+                {
+                    sendTaskNotification(seqPtr, "Frame Height", Wt::asString(seqPtr->frameHeight()).toUTF8(), Wt::asString(dlg->frameHeight()).toUTF8());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setFrameHeight(dlg->frameHeight());
+                }
 
                 if(dlg->editedPriority())
+                {
+                    sendTaskNotification(seqPtr, "Priority", Wt::asString(seqPtr->priority()).toUTF8(), Wt::asString(dlg->priority()).toUTF8());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setPriority(dlg->priority());
+                }
 
                 if(dlg->editedStatus())
+                {
+                    sendTaskNotification(seqPtr, "Status", seqPtr->status()->status(), dlg->status()->status());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setStatus(dlg->status());
+                }
 
                 if(dlg->editedDescription())
+                {
+                    sendTaskNotification(seqPtr, "Description", seqPtr->description(), dlg->description());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setDescription(dlg->description());
+                }
 
                 if(dlg->editedActive())
+                {
+                    sendTaskNotification(seqPtr, "Active", Wt::asString(seqPtr->active()).toUTF8(), Wt::asString(dlg->isActive()).toUTF8());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::ProjectSequence>(seqPtr)->setActive(dlg->isActive());
+                }
             }
 
             transaction.commit();
@@ -465,6 +505,49 @@ void Views::ViewSequences::createSequencesTableView()
 
     m_btnOpenFilesView = m_qtvSequences->createToolButton("", "icons/Files.png", "Files Manager");
     m_btnOpenFilesView->clicked().connect(this, &Views::ViewSequences::btnOpenFilesViewClicked);
+}
+
+void Views::ViewSequences::sendTaskNotification(Wt::Dbo::ptr<Projects::ProjectSequence> sequencePtr, const std::string &property, const std::string &orgValue, const std::string &newValue)
+{
+    if(orgValue == newValue)
+        return;
+
+    std::string message = "Sequence \""  + sequencePtr->name() + "\" in project \"" +
+            sequencePtr->projectName() + "\" \"" + property + "\" has changed from \"" + orgValue + "\" to \"" + newValue + "\"";
+
+    Database::Notification *notification = new Database::Notification(message);
+
+    try
+    {
+        Wt::Dbo::ptr<Database::Notification> notificationPtr = Session::SessionManager::instance().dboSession().createDbo<Database::Notification>(notification);
+
+        if(notificationPtr.get())
+        {
+            //notify all users of tasks in current sequence of the change
+            for(auto iter = sequencePtr->tasks().begin(); iter != sequencePtr->tasks().end(); ++iter)
+            {
+                (*iter)->user().modify()->addNotification(notificationPtr);
+            }
+        }
+        else
+        {
+            delete notification;
+
+            m_logger->log("Error occured while trying to create new notification", Ms::Log::LogMessageType::Error);
+        }
+    }
+    catch(Wt::Dbo::Exception ex)
+    {
+        delete notification;
+
+        m_logger->log(ex.what(), Ms::Log::LogMessageType::Error);
+    }
+    catch(...)
+    {
+        delete notification;
+
+        m_logger->log("Error occured while trying to create new notification", Ms::Log::LogMessageType::Error);
+    }
 }
 
 void Views::ViewSequences::prepareView()

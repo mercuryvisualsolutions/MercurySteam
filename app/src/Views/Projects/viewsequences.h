@@ -71,6 +71,8 @@ namespace Views
 
         //Functions
         void createSequencesTableView();
+        //requires active transaction
+        void sendTaskNotification(Wt::Dbo::ptr<Projects::ProjectSequence> sequencePtr, const std::string &property, const std::string &orgValue, const std::string &newValue);
         void prepareView();
     };
 }

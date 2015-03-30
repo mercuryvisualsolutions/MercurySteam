@@ -569,37 +569,80 @@ void Views::ViewProjects::btnProjectsEditClicked()
             for(auto prjPtr : m_qtvProjects->selectedItems())
             {
                 if(dlg->editedStartDate())
+                {
+                    sendTaskNotification(prjPtr, "Start Date", Wt::asString(prjPtr->startDate()).toUTF8(), Wt::asString(dlg->startDate()).toUTF8());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setStartDate(dlg->startDate());
+                }
 
                 if(dlg->editedEndDate())
+                {
+                    sendTaskNotification(prjPtr, "End Date", Wt::asString(prjPtr->endDate()).toUTF8(), Wt::asString(dlg->endDate()).toUTF8());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setEndDate(dlg->endDate());
+                }
 
                 if(dlg->editedDuration())
+                {
+                    sendTaskNotification(prjPtr, "Duration", Wt::asString(prjPtr->durationInFrames()).toUTF8(), Wt::asString(dlg->duration()).toUTF8());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setDurationInFrames(dlg->duration());
+                }
 
                 if(dlg->editedFps())
+                {
+                    sendTaskNotification(prjPtr, "FPS", Wt::asString(prjPtr->fps()).toUTF8(), Wt::asString(dlg->fps()).toUTF8());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setFps(dlg->fps());
+                }
 
                 if(dlg->editedFrameWidth())
+                {
+                    sendTaskNotification(prjPtr, "Frame Width", Wt::asString(prjPtr->frameWidth()).toUTF8(), Wt::asString(dlg->frameWidth()).toUTF8());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setFrameWidth(dlg->frameWidth());
+                }
 
                 if(dlg->editedFrameHeight())
+                {
+                    sendTaskNotification(prjPtr, "Frame Height", Wt::asString(prjPtr->frameHeight()).toUTF8(), Wt::asString(dlg->frameHeight()).toUTF8());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setFrameHeight(dlg->frameHeight());
+                }
 
                 if(dlg->editedPriority())
+                {
+                    sendTaskNotification(prjPtr, "Priority", Wt::asString(prjPtr->priority()).toUTF8(), Wt::asString(dlg->priority()).toUTF8());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setPriority(dlg->priority());
+                }
 
                 if(dlg->editedStatus())
-                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setStatus(dlg->status());
+                {
+                    sendTaskNotification(prjPtr, "Status", prjPtr->status()->status(), dlg->status()->status());
 
+                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setStatus(dlg->status());
+                }
                 if(dlg->editedManager())
+                {
+                    sendTaskNotification(prjPtr, "Manager", prjPtr->manager()->name(), dlg->manager()->name());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setManager(dlg->manager());
+                }
 
                 if(dlg->editedDescription())
+                {
+                    sendTaskNotification(prjPtr, "Description", prjPtr->description(), dlg->description());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setDescription(dlg->description());
+                }
 
                 if(dlg->editedActive())
+                {
+                    sendTaskNotification(prjPtr, "Active", Wt::asString(prjPtr->active()).toUTF8(), Wt::asString(dlg->isActive()).toUTF8());
+
                     Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(prjPtr)->setActive(dlg->isActive());
+                }
             }
 
             transaction.commit();
@@ -777,6 +820,39 @@ void Views::ViewProjects::projectDataAboutToBeChanged(const Wt::WModelIndex &ind
     }
 }
 
+void Views::ViewProjects::sendTaskNotification(Wt::Dbo::ptr<Projects::ProjectTask> taskPtr, const std::string &message)
+{
+    Database::Notification *notification = new Database::Notification(message);
+
+    try
+    {
+        Wt::Dbo::ptr<Database::Notification> notificationPtr = Session::SessionManager::instance().dboSession().createDbo<Database::Notification>(notification);
+
+        if(notificationPtr.get())
+        {
+            taskPtr->user().modify()->addNotification(notificationPtr);
+        }
+        else
+        {
+            delete notification;
+
+            m_logger->log("Error occured while trying to create new notification", Ms::Log::LogMessageType::Error);
+        }
+    }
+    catch(Wt::Dbo::Exception ex)
+    {
+        delete notification;
+
+        m_logger->log(ex.what(), Ms::Log::LogMessageType::Error);
+    }
+    catch(...)
+    {
+        delete notification;
+
+        m_logger->log("Error occured while trying to create new notification", Ms::Log::LogMessageType::Error);
+    }
+}
+
 void Views::ViewProjects::createProjectsTableView()
 {
     m_qtvProjects = Ms::Widgets::MWidgetFactory::createQueryTableViewWidget<Projects::Project>(Session::SessionManager::instance().dboSession());
@@ -806,6 +882,48 @@ void Views::ViewProjects::createProjectsTableView()
     m_btnProjectsFiles->clicked().connect(this, &Views::ViewProjects::btnProjectsFilesClicked);
 
     updateProjectsView();
+}
+
+void Views::ViewProjects::sendTaskNotification(Wt::Dbo::ptr<Projects::Project> prjPtr, const std::string &property, const std::string &orgValue, const std::string &newValue)
+{
+    if(orgValue == newValue)
+        return;
+
+    std::string message = "Project \"" + prjPtr->name() + "\" \"" + property + "\" has changed from \"" + orgValue + "\" to \"" + newValue + "\"";
+
+    Database::Notification *notification = new Database::Notification(message);
+
+    try
+    {
+        Wt::Dbo::ptr<Database::Notification> notificationPtr = Session::SessionManager::instance().dboSession().createDbo<Database::Notification>(notification);
+
+        if(notificationPtr.get())
+        {
+            //notify all users of tasks in current project of the change
+            for(auto iter = prjPtr->tasks().begin(); iter != prjPtr->tasks().end(); ++iter)
+            {
+                (*iter)->user().modify()->addNotification(notificationPtr);
+            }
+        }
+        else
+        {
+            delete notification;
+
+            m_logger->log("Error occured while trying to create new notification", Ms::Log::LogMessageType::Error);
+        }
+    }
+    catch(Wt::Dbo::Exception ex)
+    {
+        delete notification;
+
+        m_logger->log(ex.what(), Ms::Log::LogMessageType::Error);
+    }
+    catch(...)
+    {
+        delete notification;
+
+        m_logger->log("Error occured while trying to create new notification", Ms::Log::LogMessageType::Error);
+    }
 }
 
 //Sequences
@@ -863,7 +981,7 @@ void Views::ViewProjects::createSequenceRequested()
             }
             else
             {
-                m_logger->log(std::string("Object alredy exist"), Ms::Log::LogMessageType::Warning);
+                m_logger->log(std::string("Object already exist"), Ms::Log::LogMessageType::Warning);
             }
 
             transaction.commit();
@@ -1083,6 +1201,10 @@ void Views::ViewProjects::createTasksRequested()
                             updatePropertiesTasksView();
 
                             m_logger->log(std::string("Created task for project ") + prjPtr->name(), Ms::Log::LogMessageType::Info);
+
+                            // send notification to task user
+                            std::string message = "A new task with Id \"" + std::to_string(taskPtr.id()) + "\" has been assigned to you.";
+                            sendTaskNotification(taskPtr, message);
                         }
                         else
                         {
@@ -1119,6 +1241,10 @@ void Views::ViewProjects::createTasksRequested()
                             updatePropertiesTasksView();
 
                             m_logger->log(std::string("Created task for sequence ") + seqPtr->name(), Ms::Log::LogMessageType::Info);
+
+                            // send notification to task user
+                            std::string message = "A new task with Id \"" + std::to_string(taskPtr.id()) + "\" has been assigned to you.";
+                            sendTaskNotification(taskPtr, message);
                         }
                         else
                         {
@@ -1157,6 +1283,10 @@ void Views::ViewProjects::createTasksRequested()
                             updatePropertiesTasksView();
 
                             m_logger->log(std::string("Created task for shot ") + shotPtr->name(), Ms::Log::LogMessageType::Info);
+
+                            // send notification to task user
+                            std::string message = "A new task with Id \"" + std::to_string(taskPtr.id()) + "\" has been assigned to you.";
+                            sendTaskNotification(taskPtr, message);
                         }
                         else
                         {
@@ -1194,6 +1324,10 @@ void Views::ViewProjects::createTasksRequested()
                             updatePropertiesTasksView();
 
                             m_logger->log(std::string("Created task for asset ") + assetPtr->name(), Ms::Log::LogMessageType::Info, Log::LogMessageContext::ServerAndClient);
+
+                            // send notification to task user
+                            std::string message = "A new task with Id \"" + std::to_string(taskPtr.id()) + "\" has been assigned to you.";
+                            sendTaskNotification(taskPtr, message);
                         }
                         else
                         {

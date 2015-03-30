@@ -184,8 +184,13 @@ namespace Views
 
         void projectDataAboutToBeChanged(const Wt::WModelIndex &index, const boost::any &value, int role);
 
+        //requires active transaction
+        void sendTaskNotification(Wt::Dbo::ptr<Projects::ProjectTask> taskPtr, const std::string &message);
+
         //functions
         void createProjectsTableView();
+        //requires active transaction
+        void sendTaskNotification(Wt::Dbo::ptr<Projects::Project> prjPtr, const std::string &property, const std::string &orgValue, const std::string &newValue);
 
         /*******************--Sequences--********************/
         //slots
