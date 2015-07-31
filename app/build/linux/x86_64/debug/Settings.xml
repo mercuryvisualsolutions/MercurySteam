@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database><LoadInactiveData>false</LoadInactiveData><ShowExtraColumns>false</ShowExtraColumns><Connection><Backend>MySQL</Backend><Host>127.0.0.1</Host><Port>3306</Port><Schema>MercurySteam</Schema><Username>root</Username><Password/></Connection></Database><General><DataDir>data</DataDir></General>

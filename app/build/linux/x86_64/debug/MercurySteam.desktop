@@ -1,0 +1,19 @@
+[Desktop Entry]
+Comment[en_US]=Start MercurySteam asset management application
+Comment=Start MercurySteam asset management application
+Exec=/mnt/4/Projects/Programming/C++/Apps/MercurySteam/app/build/linux/x86_64/debug/MercurySteam.sh
+GenericName[en_US]=
+GenericName=
+Icon=/mnt/4/Projects/Programming/C++/Apps/MercurySteam/app/build/linux/x86_64/debug/favicon.png
+MimeType=
+Name[en_US]=MercurySteam
+Name=MercurySteam
+Path=
+StartupNotify=true
+Terminal=false
+TerminalOptions=
+Type=Application
+X-DBUS-ServiceName=
+X-DBUS-StartupType=
+X-KDE-SubstituteUID=false
+X-KDE-Username=
