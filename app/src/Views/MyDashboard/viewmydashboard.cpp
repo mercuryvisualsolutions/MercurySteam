@@ -117,15 +117,16 @@ void Views::ViewMyDashboard::updateNotificationsView()
         std::string queryStr = "SELECT n FROM notification n WHERE n.id IN (SELECT un.notification_id FROM rel_user_notifications un WHERE un.user_Name = '" + user->name() + "')";
         //std::string queryStr = "SELECT n FROM notification n";
 
+        if(!AppSettings::instance().isLoadInactiveData())
+            queryStr += " And Active = True";
+
         Wt::Dbo::Query<Wt::Dbo::ptr<Database::Notification>> query = Session::SessionManager::instance().dboSession().query<Wt::Dbo::ptr<Database::Notification>>(queryStr);
 
         //std::string notificationIdsSelect = "SELECT un.notification_id FROM rel_user_notifications un WHERE un.user_Name = '" + user->name() + "'";
 
         //only load active data if selected from settings
-        if(!AppSettings::instance().isLoadInactiveData())
-            query.where("Active = ?").bind(true);
 
-        query.orderBy("n.Date_Created DESC").limit(500);//order by newer notifications and set results limit to 500
+        query.orderBy("n.Date_Created DESC").limit(5000);//order by newer notifications and set results limit to 500
 
         m_qtvNotifications->setQuery(query);
 
@@ -332,11 +333,12 @@ void Views::ViewMyDashboard::updateNotificationsCount()
         std::string queryStr = "SELECT COUNT(n.id) FROM notification n WHERE n.id IN (SELECT un.notification_id FROM rel_user_notifications un WHERE un.user_Name = '" + user->name() +
                 "') AND n.Date_Created > ?";
 
-        Wt::Dbo::Query<int> notifCountQuery = Session::SessionManager::instance().dboSession().query<int>(queryStr).bind(user->lastSeenNotificationsDate());
-
         //only load active data if selected from settings
         if(!AppSettings::instance().isLoadInactiveData())
-            notifCountQuery.where("Active = ?").bind(true);
+            queryStr += " And Active = True";
+
+        Wt::Dbo::Query<int> notifCountQuery = Session::SessionManager::instance().dboSession().query<int>(queryStr).bind(user->lastSeenNotificationsDate());
+
 
         notifCountQuery.limit(500);
 

@@ -540,7 +540,10 @@ void Views::ViewTasks::taskDataAboutToBeChanged(const Wt::WModelIndex &index, co
                 //notify all users of tasks in parent project of the change
                 for(auto iter = projectPtr->tasks().begin(); iter != projectPtr->tasks().end(); ++iter)
                 {
-                    (*iter)->user().modify()->addNotification(notificationPtr);
+                    Wt::Dbo::ptr<Users::User> userPtr = (*iter)->user();
+
+                    if(userPtr)
+                        userPtr.modify()->addNotification(notificationPtr);
                 }
             }
             else if(taskPtr->sequence())
@@ -550,7 +553,10 @@ void Views::ViewTasks::taskDataAboutToBeChanged(const Wt::WModelIndex &index, co
                 //notify all users of tasks in parent sequence of the change
                 for(auto iter = sequencePtr->tasks().begin(); iter != sequencePtr->tasks().end(); ++iter)
                 {
-                    (*iter)->user().modify()->addNotification(notificationPtr);
+                    Wt::Dbo::ptr<Users::User> userPtr = (*iter)->user();
+
+                    if(userPtr)
+                        userPtr.modify()->addNotification(notificationPtr);
                 }
             }
             else if(taskPtr->shot())
@@ -560,7 +566,10 @@ void Views::ViewTasks::taskDataAboutToBeChanged(const Wt::WModelIndex &index, co
                 //notify all users of tasks in parent shot of the change
                 for(auto iter = shotPtr->tasks().begin(); iter != shotPtr->tasks().end(); ++iter)
                 {
-                    (*iter)->user().modify()->addNotification(notificationPtr);
+                    Wt::Dbo::ptr<Users::User> userPtr = (*iter)->user();
+
+                    if(userPtr)
+                        userPtr.modify()->addNotification(notificationPtr);
                 }
             }
             else if(taskPtr->asset())
@@ -570,7 +579,10 @@ void Views::ViewTasks::taskDataAboutToBeChanged(const Wt::WModelIndex &index, co
                 //notify all users of tasks in parent asset of the change
                 for(auto iter = assetPtr->tasks().begin(); iter != assetPtr->tasks().end(); ++iter)
                 {
-                    (*iter)->user().modify()->addNotification(notificationPtr);
+                    Wt::Dbo::ptr<Users::User> userPtr = (*iter)->user();
+
+                    if(userPtr)
+                        userPtr.modify()->addNotification(notificationPtr);
                 }
             }
         }

@@ -876,6 +876,10 @@ namespace Ms
                 {
                     if(columnExist(csvData[0][col]) && (!columnIsIgnored(csvData[0][col])))//only import columns that exist in table and not ignored
                     {
+                        //don't seg fault on rows with different length than header (yes the file is corrupted and we shouldn't read it, but anyways!)
+                        if(col > csvData[row].size() - 1)
+                            continue;
+
                         //generate columns and values sql
                         if(csvData[row][col] != "")//if the column has data
                         {

@@ -6,9 +6,9 @@ QT -= core gui
 
 QMAKE_CXXFLAGS += -std=c++11 -Wno-unused-parameter
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../mscore/build/linux/x86_64/debug/release/ -lmscore
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../mscore/build/linux/x86_64/debug/debug/ -lmscore
-else:unix: LIBS += -L$$PWD/../../mscore/build/linux/x86_64/debug/ -lmscore
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../build/Windows/Release/ -lmscore
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../build/Windows/Debug/ -lmscore
+else:unix: LIBS += -L$$PWD/../build/linux/x86_64/debug/ -lmscore
 
 INCLUDEPATH += $$PWD/../../mscore/src
 DEPENDPATH += $$PWD/../../mscore/src

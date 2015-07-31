@@ -555,6 +555,8 @@ namespace Users
         void setCreateRank(int rank);
         std::string idNumber() const;
         void setIdNumber(const std::string &idNumber);
+        bool isAvailable() const;
+        void setAvailable(bool available);
         std::string phoneNumber() const;
         void setPhoneNumber(const std::string &phoneNumber);
         std::string emailAddress() const;
@@ -588,6 +590,7 @@ namespace Users
             Wt::Dbo::field(a, m_lastLoginAttempt, "Last_Login_Attempt");
             Wt::Dbo::field(a, m_oAuthId, "OAuth_Id", 255);
             Wt::Dbo::field(a, m_oAuthProvider, "OAuth_Provider", 255);
+            Wt::Dbo::field(a, m_available, "Available");
             Wt::Dbo::field(a, m_idNumber, "Id_Number", 14);
             Wt::Dbo::field(a, m_phoneNumber, "Phone_Number", 255);
             Wt::Dbo::field(a, m_emailAddress, "Email_Address", 255);
@@ -619,6 +622,7 @@ namespace Users
         Wt::WDateTime m_lastLoginAttempt;
         std::string m_oAuthId;
         std::string m_oAuthProvider;
+        bool m_available;
         std::string m_idNumber;
         std::string m_phoneNumber;
         std::string m_emailAddress;

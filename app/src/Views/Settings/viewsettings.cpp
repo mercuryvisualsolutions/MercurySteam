@@ -908,17 +908,11 @@ void Views::ViewSettings::prepareView()
     m_grpGeneral->setTitle("General");
     m_laySettingsGeneral->addWidget(m_grpGeneral);
 
-    m_chkLoadInactiveData = new Wt::WCheckBox();
-    m_chkLoadInactiveData->setText("Load Inactive Data From Database");
-
-    m_grpGeneral->addWidget(m_chkLoadInactiveData);
+    m_chkLoadInactiveData = new Wt::WCheckBox("Load Inactive Data From Database", m_grpGeneral);
 
     new Wt::WBreak(m_grpGeneral);
 
-    m_chkShowExtraColumns = new Wt::WCheckBox();
-    m_chkShowExtraColumns->setText("Show Extra Columns In Data Views");
-
-    m_grpGeneral->addWidget(m_chkShowExtraColumns);
+    m_chkShowExtraColumns = new Wt::WCheckBox("Show Extra Columns In Data Views", m_grpGeneral);
 
     new Wt::WBreak(m_grpGeneral);
 

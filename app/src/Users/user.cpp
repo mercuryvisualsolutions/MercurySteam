@@ -220,6 +220,16 @@ void Users::User::setIdNumber(const std::string &idNumber)
     m_idNumber = idNumber;
 }
 
+bool Users::User::isAvailable() const
+{
+    return m_available;
+}
+
+void Users::User::setAvailable(bool available)
+{
+    m_available = available;
+}
+
 std::string Users::User::phoneNumber() const
 {
     return m_phoneNumber;

@@ -83,6 +83,7 @@ void Views::ViewUsers::updateUsersView()
     m_qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Email_Address", "Email", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
     m_qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Phone_Number", "Phone Number", flags, new Ms::Widgets::Delegates::MValidatorFieldDelegate("[0-9]{1,255}", true, editRank)));
     m_qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Id_Number", "Id Number", flags, new Ms::Widgets::Delegates::MValidatorFieldDelegate("[0-9]{1,255}", true, editRank)));
+    m_qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Available", "Available", flags, new Ms::Widgets::Delegates::MCheckBoxDelegate(editRank)));
     m_qtvUsers->addColumn(Ms::Widgets::MQueryTableViewColumn("Address", "Address", flags, new Ms::Widgets::Delegates::MItemDelegate(editRank)));
 
     if(AppSettings::instance().isShowExtraColumns())
