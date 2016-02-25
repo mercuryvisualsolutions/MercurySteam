@@ -25,11 +25,6 @@ namespace Ms
         }
 
         template <class Result>
-        Ms::Dbo::MDboQueryModel<Result>::~MDboQueryModel()
-        {
-        }
-
-        template <class Result>
         std::string Ms::Dbo::MDboQueryModel<Result>::userName()
         {
             return m_userName;

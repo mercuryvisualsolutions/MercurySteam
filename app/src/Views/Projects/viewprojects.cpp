@@ -1579,20 +1579,16 @@ void Views::ViewProjects::removeDataRequested(const std::vector<Wt::Dbo::ptr<Dat
 void Views::ViewProjects::createProjectTagRequested()
 {
     bool createTag = false;
-    bool customProjectTag = false;
 
     if(m_qtvProjects->table()->selectedIndexes().size() > 0)
     {
         if(m_qtvProjects->table()->selectedIndexes().size() != 1)
             m_logger->log("Please select only one project.", Ms::Log::LogMessageType::Warning);
         else
-        {
-            customProjectTag = true;
             createTag = true;
-        }
     }
     else
-        createTag = true;
+        m_logger->log("Please select a project.", Ms::Log::LogMessageType::Warning);
 
     if(!createTag)
         return;
@@ -1605,10 +1601,8 @@ void Views::ViewProjects::createProjectTagRequested()
             Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
             Database::Tag *tag = new Database::Tag(dlg->tagName(), dlg->tagContent());
-            if(customProjectTag)
-                tag->setType("Local");
-            else
-                tag->setType("Project");
+
+            tag->setType("Local");
 
             tag->setActive(dlg->isActive());
 
@@ -1616,14 +1610,11 @@ void Views::ViewProjects::createProjectTagRequested()
 
             if(tagPtr.get())
             {
-                if(customProjectTag)
-                {
-                    Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
+                Wt::Dbo::Transaction transaction(Session::SessionManager::instance().dboSession());
 
-                    Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(m_qtvProjects->selectedItems().at(0))->addTag(tagPtr);
+                Session::SessionManager::instance().dboSession().modifyDbo<Projects::Project>(m_qtvProjects->selectedItems().at(0))->addTag(tagPtr);
 
-                    transaction.commit();
-                }
+                transaction.commit();
 
                 updatePropertiesTagsView();
             }
