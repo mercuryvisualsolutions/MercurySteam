@@ -2,7 +2,7 @@
 
 C++/Wt VFX Management web application
 
-### Watch It:- 
+## Watch It:- 
 [![Watch the video](https://github.com/mercuryvisualsolutions/MercurySteam/blob/master/youtube-png.png)](https://www.youtube.com/watch?v=zhvyPsvHZVI)
 
 ## Contributing
