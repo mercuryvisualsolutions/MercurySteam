@@ -12,5 +12,3 @@ C++/Wt VFX Management web application
 
 
 [Mercury VFX](https://www.mercuryvfx.com/)
-
-[Mohamed Badawy](https://www.linkedin.com/in/mohamed-badawy-3723b725/)
