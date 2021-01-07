@@ -9,5 +9,6 @@ C++/Wt VFX Management web application
 
 ## Credits
 ![Mercury-Vfx-](https://s3-eu-west-1.amazonaws.com/wuzzuf/files/company_logo/Mercury-Vfx-Egypt-14101-1599563545.jpg)
-
 [Mercury VFX](https://www.mercuryvfx.com/)
+
+[Mohamed Badawy](https://www.linkedin.com/in/mohamed-badawy-3723b725/)
