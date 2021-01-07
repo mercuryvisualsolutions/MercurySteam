@@ -2,7 +2,7 @@
 
 C++/Wt VFX Management web application
 
-![Watch the video](https://www.youtube.com/watch?v=zhvyPsvHZVI)
+### [Watch the video](https://www.youtube.com/watch?v=zhvyPsvHZVI)
 
 ## Contributing
 > feel free to fork this repository and enhance whatever script you want, just show the world how you code, think and do magic with your keyboard.
